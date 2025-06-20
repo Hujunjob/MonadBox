@@ -59,6 +59,7 @@ export const useGameStore = create<GameStore>()(
       gameTime: 0,
 
       initializeGame: () => {
+        // 这个函数现在主要用于重置游戏
         set({
           player: createInitialPlayer(),
           forestLevels: generateForestLevels(),
@@ -76,7 +77,21 @@ export const useGameStore = create<GameStore>()(
       equipItem: (item, slot) => {
         set((state) => {
           const newEquipment = { ...state.player.equipment };
-          newEquipment[slot as keyof Equipment] = item;
+          
+          // 确保slot值正确映射
+          const slotKey = slot === 'helmet' ? 'helmet' :
+                         slot === 'armor' ? 'armor' :
+                         slot === 'shoes' ? 'shoes' :
+                         slot === 'weapon' ? 'weapon' :
+                         slot === 'accessory' ? 'accessory' : slot;
+          
+          newEquipment[slotKey as keyof Equipment] = {
+            id: item.id,
+            name: item.name,
+            type: item.equipmentType || item.type,
+            rarity: item.rarity,
+            stats: item.stats
+          };
           
           const newInventory = state.player.inventory.filter(invItem => invItem.id !== item.id);
           
@@ -135,12 +150,25 @@ export const useGameStore = create<GameStore>()(
             newInventory.splice(potionIndex, 1);
           }
           
-          return {
+          const updatedPlayer = {
+            ...state.player,
+            health: newHealth,
+            inventory: newInventory
+          };
+          
+          // 如果在战斗中，同时更新战斗状态
+          const updatedBattle = state.currentBattle ? {
+            ...state.currentBattle,
             player: {
-              ...state.player,
+              ...state.currentBattle.player,
               health: newHealth,
               inventory: newInventory
             }
+          } : state.currentBattle;
+          
+          return {
+            player: updatedPlayer,
+            currentBattle: updatedBattle
           };
         });
       },
@@ -194,7 +222,7 @@ export const useGameStore = create<GameStore>()(
       startBattle: (monster) => {
         set((state) => ({
           currentBattle: {
-            player: state.player,
+            player: { ...state.player },
             monster: { ...monster },
             turn: 'player',
             playerCooldown: 0,
@@ -281,13 +309,22 @@ export const useGameStore = create<GameStore>()(
 
       updateBattleCooldowns: () => {
         set((state) => {
-          if (!state.currentBattle) return state;
+          if (!state.currentBattle || !state.currentBattle.isActive) return state;
+          
+          const newPlayerCooldown = Math.max(0, state.currentBattle.playerCooldown - 100);
+          const newMonsterCooldown = Math.max(0, state.currentBattle.monsterCooldown - 100);
+          
+          // 避免不必要的更新
+          if (newPlayerCooldown === state.currentBattle.playerCooldown && 
+              newMonsterCooldown === state.currentBattle.monsterCooldown) {
+            return state;
+          }
           
           return {
             currentBattle: {
               ...state.currentBattle,
-              playerCooldown: Math.max(0, state.currentBattle.playerCooldown - 100),
-              monsterCooldown: Math.max(0, state.currentBattle.monsterCooldown - 100)
+              playerCooldown: newPlayerCooldown,
+              monsterCooldown: newMonsterCooldown
             }
           };
         });
@@ -393,11 +430,14 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'treasure-adventure-game',
+      version: 1,
       partialize: (state) => ({
         player: state.player,
         forestLevels: state.forestLevels,
         gameTime: state.gameTime
-      })
+      }),
+      // 确保在hydration完成后才开始使用
+      skipHydration: false,
     }
   )
 );

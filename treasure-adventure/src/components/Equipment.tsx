@@ -72,7 +72,7 @@ const Equipment: React.FC = () => {
                     {equipmentItem.stats?.health && <span>血量+{equipmentItem.stats.health}</span>}
                     {equipmentItem.stats?.agility && <span>敏捷+{equipmentItem.stats.agility}</span>}
                   </div>
-                  <button onClick={() => equipItem(equipmentItem, equipmentItem.type)}>
+                  <button onClick={() => equipItem(equipmentItem, equipmentItem.equipmentType)}>
                     装备
                   </button>
                 </div>

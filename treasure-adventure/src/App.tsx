@@ -10,11 +10,7 @@ import './App.css';
 
 function App() {
   const [activeTab, setActiveTab] = useState('stats');
-  const { currentBattle, initializeGame } = useGameStore();
-  
-  useEffect(() => {
-    initializeGame();
-  }, [initializeGame]);
+  const { currentBattle } = useGameStore();
   
   if (currentBattle) {
     return <Battle />;

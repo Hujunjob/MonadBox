@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats } from '../utils/gameUtils';
 
@@ -13,28 +13,31 @@ const Battle: React.FC = () => {
     player
   } = useGameStore();
   
-  const [battleTimer, setBattleTimer] = useState<number | null>(null);
-  
   useEffect(() => {
-    if (currentBattle?.isActive) {
-      const timer = setInterval(() => {
-        updateBattleCooldowns();
-        
-        // 自动怪物攻击
-        if (currentBattle.turn === 'monster' && currentBattle.monsterCooldown <= 0) {
-          monsterAttack();
-        }
-      }, 100);
-      
-      setBattleTimer(timer);
-      return () => clearInterval(timer);
-    } else {
-      if (battleTimer) {
-        clearInterval(battleTimer);
-        setBattleTimer(null);
-      }
+    if (!currentBattle?.isActive) return;
+    
+    const timer = setInterval(() => {
+      updateBattleCooldowns();
+    }, 100);
+    
+    return () => clearInterval(timer);
+  }, [currentBattle?.isActive]);
+  
+  // 怪物攻击逻辑 - 简化版本
+  useEffect(() => {
+    if (!currentBattle?.isActive || 
+        currentBattle.turn !== 'monster' || 
+        currentBattle.monsterCooldown > 0) {
+      return;
     }
-  }, [currentBattle, updateBattleCooldowns, monsterAttack, battleTimer]);
+    
+    // 延迟1秒后自动怪物攻击
+    const timeout = setTimeout(() => {
+      monsterAttack();
+    }, 1000);
+    
+    return () => clearTimeout(timeout);
+  }, [currentBattle?.isActive, currentBattle?.turn, currentBattle?.monsterCooldown]);
   
   useEffect(() => {
     if (currentBattle && !currentBattle.isActive) {
@@ -70,7 +73,7 @@ const Battle: React.FC = () => {
     }
   };
   
-  const hasHealthPotion = player.inventory.some(item => item.type === 'health_potion');
+  const hasHealthPotion = currentBattle?.player.inventory.some(item => item.type === 'health_potion') || false;
   
   return (
     <div className="battle-screen">

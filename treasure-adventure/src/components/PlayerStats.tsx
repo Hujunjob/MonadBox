@@ -3,7 +3,7 @@ import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats } from '../utils/gameUtils';
 
 const PlayerStats: React.FC = () => {
-  const { player } = useGameStore();
+  const { player, initializeGame } = useGameStore();
   const stats = calculatePlayerStats(player);
   
   const expNeeded = player.level * 100;
@@ -56,6 +56,22 @@ const PlayerStats: React.FC = () => {
           <span>宝箱数</span>
           <span>{player.treasureBoxes}</span>
         </div>
+      </div>
+      
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <button 
+          onClick={initializeGame}
+          style={{ 
+            padding: '10px 20px', 
+            backgroundColor: '#dc3545', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          重置游戏
+        </button>
       </div>
     </div>
   );

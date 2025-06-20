@@ -12,7 +12,7 @@ const TreasureBoxTimer: React.FC = () => {
       
       const now = Math.floor(Date.now() / 1000);
       const timeSinceLastBox = now - player.lastTreasureBoxTime;
-      const nextBoxTime = Math.max(0, 60 - timeSinceLastBox); // 改为60秒测试
+      const nextBoxTime = Math.max(0,20 - timeSinceLastBox); // 改为60秒测试
       setTimeUntilNext(nextBoxTime);
     }, 1000);
     
