@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
+import { calculatePlayerStats } from '../utils/gameUtils';
 
 const Inventory: React.FC = () => {
   const { player, useHealthPotion, equipItem } = useGameStore();
@@ -11,7 +12,16 @@ const Inventory: React.FC = () => {
     item.type !== 'health_potion' && item.type !== 'equipment'
   );
   
+  // 计算玩家实际属性（包括装备加成）
+  const stats = calculatePlayerStats(player);
+  const isHealthFull = player.health >= stats.maxHealth;
+  
   const handleUsePotion = () => {
+    if (isHealthFull) {
+      alert('血量已满，无需使用血瓶！');
+      return;
+    }
+    
     useHealthPotion();
   };
   
@@ -44,9 +54,9 @@ const Inventory: React.FC = () => {
               <button 
                 onClick={handleUsePotion}
                 className="use-item-btn"
-                disabled={item.quantity <= 0}
+                disabled={item.quantity <= 0 || isHealthFull}
               >
-                使用
+                {isHealthFull ? '血量已满' : '使用'}
               </button>
             </div>
           ))}

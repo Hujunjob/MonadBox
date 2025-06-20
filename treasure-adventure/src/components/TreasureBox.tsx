@@ -13,7 +13,11 @@ const TreasureBox: React.FC = () => {
   const handleOpenBox = () => {
     if (player.treasureBoxes <= 0 || openingBox) return;
     
+    // 重置所有状态
     setOpeningBox(true);
+    setShowSelection(false);
+    setSelectedReward(null);
+    setRewardOptions([]);
     
     setTimeout(() => {
       // 生成4个不同的奖励选项
@@ -109,11 +113,12 @@ const TreasureBox: React.FC = () => {
     
     setSelectedReward(reward);
     setShowSelection(false);
+    // 清除奖励选项，为下次开箱做准备
+    setRewardOptions([]);
     
     // 3秒后清除选择结果
     setTimeout(() => {
       setSelectedReward(null);
-      setRewardOptions([]);
     }, 3000);
   };
   

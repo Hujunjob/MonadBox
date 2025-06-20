@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Player, GameState, ForestLevel, Monster, BattleState, Equipment, InventoryItem } from '../types/game';
-import { generateForestLevels, generateMonster } from '../utils/gameUtils';
+import { generateForestLevels, generateMonster, calculatePlayerStats } from '../utils/gameUtils';
 
 interface GameStore extends GameState {
   initializeGame: () => void;
@@ -76,6 +76,9 @@ export const useGameStore = create<GameStore>()(
 
       equipItem: (item, slot) => {
         set((state) => {
+          // 计算装备前的最大血量
+          const oldStats = calculatePlayerStats(state.player);
+          
           const newEquipment = { ...state.player.equipment };
           
           // 确保slot值正确映射
@@ -93,13 +96,25 @@ export const useGameStore = create<GameStore>()(
             stats: item.stats
           };
           
+          // 计算装备后的最大血量
+          const tempPlayer = { ...state.player, equipment: newEquipment };
+          const newStats = calculatePlayerStats(tempPlayer);
+          
+          // 如果最大血量发生变化，按比例调整当前血量
+          let newHealth = state.player.health;
+          if (newStats.maxHealth !== oldStats.maxHealth) {
+            const healthRatio = state.player.health / oldStats.maxHealth;
+            newHealth = Math.floor(healthRatio * newStats.maxHealth);
+          }
+          
           const newInventory = state.player.inventory.filter(invItem => invItem.id !== item.id);
           
           return {
             player: {
               ...state.player,
               equipment: newEquipment,
-              inventory: newInventory
+              inventory: newInventory,
+              health: newHealth
             }
           };
         });
@@ -111,8 +126,22 @@ export const useGameStore = create<GameStore>()(
           const item = equipment[slot as keyof Equipment];
           
           if (item) {
+            // 计算卸装前的最大血量
+            const oldStats = calculatePlayerStats(state.player);
+            
             const newEquipment = { ...equipment };
             delete newEquipment[slot as keyof Equipment];
+            
+            // 计算卸装后的最大血量
+            const tempPlayer = { ...state.player, equipment: newEquipment };
+            const newStats = calculatePlayerStats(tempPlayer);
+            
+            // 如果最大血量发生变化，按比例调整当前血量
+            let newHealth = state.player.health;
+            if (newStats.maxHealth !== oldStats.maxHealth) {
+              const healthRatio = state.player.health / oldStats.maxHealth;
+              newHealth = Math.floor(healthRatio * newStats.maxHealth);
+            }
             
             const newInventory = [...state.player.inventory, {
               id: item.id,
@@ -125,7 +154,8 @@ export const useGameStore = create<GameStore>()(
               player: {
                 ...state.player,
                 equipment: newEquipment,
-                inventory: newInventory
+                inventory: newInventory,
+                health: newHealth
               }
             };
           }
@@ -136,12 +166,22 @@ export const useGameStore = create<GameStore>()(
 
       useHealthPotion: () => {
         set((state) => {
+          // 使用calculatePlayerStats计算实际最大血量（包括装备加成）
+          const stats = calculatePlayerStats(state.player);
+          
+          // 检查血量是否已满
+          if (state.player.health >= stats.maxHealth) {
+            return state;
+          }
+          
           const potionIndex = state.player.inventory.findIndex(item => item.type === 'health_potion');
-          if (potionIndex === -1) return state;
+          if (potionIndex === -1) {
+            return state;
+          }
           
           const potion = state.player.inventory[potionIndex];
           const healAmount = potion.effect?.value || 50;
-          const newHealth = Math.min(state.player.health + healAmount, state.player.maxHealth);
+          const newHealth = Math.min(state.player.health + healAmount, stats.maxHealth);
           
           const newInventory = [...state.player.inventory];
           if (potion.quantity > 1) {
