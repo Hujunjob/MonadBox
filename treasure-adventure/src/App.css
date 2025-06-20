@@ -277,6 +277,104 @@
   padding-left: 20px;
 }
 
+/* 奖励选择界面 */
+.reward-selection {
+  background: #e8f4fd;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  border: 2px solid #2196F3;
+}
+
+.reward-selection h3 {
+  color: #1976D2;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.reward-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.reward-option {
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.reward-option:hover {
+  border-color: #2196F3;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  transform: translateY(-2px);
+}
+
+.reward-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reward-description {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.equipment-stats {
+  font-size: 14px;
+}
+
+.equipment-stats .rarity {
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.equipment-stats .stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.equipment-stats .stats span {
+  color: #666;
+  font-size: 12px;
+}
+
+.selected-reward {
+  background: #d4edda;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 20px 0;
+  text-align: center;
+  border: 2px solid #28a745;
+}
+
+.selected-reward h3 {
+  color: #155724;
+  margin-bottom: 10px;
+}
+
+.reward-item.selected {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px;
+  background: white;
+  border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+  .reward-options {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 怪物森林 */
 .monster-forest {
   max-width: 1000px;
