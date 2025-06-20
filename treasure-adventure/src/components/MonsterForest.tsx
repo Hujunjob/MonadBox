@@ -12,6 +12,10 @@ const MonsterForest: React.FC = () => {
       alert('血量不足，无法战斗！请使用血瓶恢复。');
       return;
     }
+    if (player.stamina < 1) {
+      alert('体力不足，无法战斗！请等待体力恢复。');
+      return;
+    }
     startBattle(monster);
   };
   
@@ -63,70 +67,50 @@ const MonsterForest: React.FC = () => {
               const isDefeated = isCurrentLevel ? index < player.currentForestProgress : false;
               const isCurrent = isCurrentLevel ? index === player.currentForestProgress : false;
               const isLocked = isCurrentLevel ? index > player.currentForestProgress : false;
-              const canFight = isCurrentLevel ? (!isLocked && player.health > 0) : (player.health > 0);
+              const canFight = isCurrentLevel ? (!isLocked && player.health > 0 && player.stamina >= 1) : (player.health > 0 && player.stamina >= 1);
               
               return (
                 <div 
                   key={monster.id} 
-                  className={`monster-card ${
+                  className={`monster-card-compact ${
                     isDefeated ? 'defeated' : 
                     isCurrent ? 'current' : 
                     isLocked ? 'locked' : 'available'
                   }`}
                 >
-                  <h4>{monster.name}</h4>
-                  <div className="monster-stats">
-                    <div>等级: {monster.level}</div>
-                    <div>血量: {monster.health}</div>
-                    <div>攻击: {monster.attack}</div>
-                    <div>防御: {monster.defense}</div>
-                    <div>敏捷: {monster.agility}</div>
-                  </div>
-                  <div className="monster-rewards">
-                    <div>经验: +{monster.experience}</div>
-                    <div>金币: +{monster.goldDrop}</div>
+                  <div className="monster-header">
+                    <span className="monster-name">{monster.name}</span>
+                    <span className="monster-level">Lv.{monster.level}</span>
                   </div>
                   
-                  {isDefeated && !isCurrent && (
-                    <div className="defeated-status">
-                      <div className="defeated-label">已击败</div>
-                      <button 
-                        onClick={() => handleFightMonster(monster)}
-                        className="fight-btn retry"
-                        disabled={player.health <= 0}
-                      >
-                        重新挑战
-                      </button>
+                  <div className="monster-info-compact">
+                    <div className="stat-row">
+                      <span>❤️{monster.health}</span>
+                      <span>⚔️{monster.attack}</span>
                     </div>
-                  )}
+                    <div className="reward-row">
+                      <span>📖{monster.experience}</span>
+                      <span>💰{monster.goldDrop}</span>
+                    </div>
+                  </div>
                   
+                  {isDefeated && (
+                    <div className="status-label defeated">✓</div>
+                  )}
                   {isCurrent && (
-                    <button 
-                      onClick={() => handleFightMonster(monster)}
-                      className="fight-btn"
-                      disabled={player.health <= 0}
-                    >
-                      战斗
-                    </button>
+                    <div className="status-label current">●</div>
                   )}
-                  
                   {isLocked && (
-                    <div className="locked-label">未解锁</div>
+                    <div className="status-label locked">🔒</div>
                   )}
                   
-                  {!isCurrentLevel && canFight && (
-                    <button 
-                      onClick={() => handleFightMonster(monster)}
-                      className="fight-btn challenge"
-                      disabled={player.health <= 0}
-                    >
-                      挑战
-                    </button>
-                  )}
-                  
-                  {!isCurrentLevel && !canFight && (
-                    <div className="no-health-label">血量不足</div>
-                  )}
+                  <button 
+                    onClick={() => handleFightMonster(monster)}
+                    className={`fight-btn-compact ${!canFight ? 'disabled' : ''}`}
+                    disabled={!canFight}
+                  >
+                    {isDefeated ? '重战' : '挑战'}
+                  </button>
                 </div>
               );
             })}

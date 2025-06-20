@@ -11,6 +11,9 @@ export interface Player {
   criticalRate: number;
   criticalDamage: number;
   gold: number;
+  stamina: number;
+  maxStamina: number;
+  lastStaminaTime: number;
   equipment: Equipment;
   inventory: InventoryItem[];
   treasureBoxes: number;

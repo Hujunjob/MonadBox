@@ -23,6 +23,8 @@ interface GameStore extends GameState {
   unlockNextForestLevel: () => void;
   incrementGameTime: () => void;
   upgradeEquipment: (equipmentId: string, count: number) => void;
+  updateStamina: () => void;
+  consumeStamina: (amount: number) => boolean;
 }
 
 const createInitialPlayer = (): Player => ({
@@ -38,6 +40,9 @@ const createInitialPlayer = (): Player => ({
   criticalRate: 5,
   criticalDamage: 150,
   gold: 100,
+  stamina: 24,
+  maxStamina: 24,
+  lastStaminaTime: Math.floor(Date.now() / 1000),
   equipment: {} as Equipment,
   inventory: [
     {
@@ -281,6 +286,15 @@ export const useGameStore = create<GameStore>()(
       },
 
       startBattle: (monster) => {
+        const state = get();
+        // 检查体力是否足够
+        if (state.player.stamina < 1) {
+          return;
+        }
+        
+        // 消耗体力
+        get().consumeStamina(1);
+        
         set((state) => {
           // 计算玩家的实际属性（包含装备加成）
           const playerStats = calculatePlayerStats(state.player);
@@ -569,6 +583,9 @@ export const useGameStore = create<GameStore>()(
             get().updatePlayer({ lastTreasureBoxTime: now });
           }
           
+          // 更新体力
+          get().updateStamina();
+          
           return { gameTime: newTime };
         });
       },
@@ -665,11 +682,48 @@ export const useGameStore = create<GameStore>()(
             }
           };
         });
+      },
+
+      updateStamina: () => {
+        set((state) => {
+          const now = Math.floor(Date.now() / 1000);
+          const timeSinceLastUpdate = now - state.player.lastStaminaTime;
+          const hoursElapsed = Math.floor(timeSinceLastUpdate / 3600); // 3600秒 = 1小时
+          
+          if (hoursElapsed > 0) {
+            const staminaToRecover = Math.min(hoursElapsed, state.player.maxStamina - state.player.stamina);
+            const newStamina = Math.min(state.player.stamina + staminaToRecover, state.player.maxStamina);
+            
+            return {
+              player: {
+                ...state.player,
+                stamina: newStamina,
+                lastStaminaTime: now
+              }
+            };
+          }
+          
+          return state;
+        });
+      },
+
+      consumeStamina: (amount: number) => {
+        const state = get();
+        if (state.player.stamina >= amount) {
+          set((state) => ({
+            player: {
+              ...state.player,
+              stamina: state.player.stamina - amount
+            }
+          }));
+          return true;
+        }
+        return false;
       }
     }),
     {
       name: 'treasure-adventure-game',
-      version: 2,
+      version: 3,
       partialize: (state) => ({
         player: state.player,
         forestLevels: state.forestLevels,
@@ -681,6 +735,14 @@ export const useGameStore = create<GameStore>()(
           if (persistedState.player) {
             persistedState.player.criticalRate = persistedState.player.criticalRate || 5;
             persistedState.player.criticalDamage = persistedState.player.criticalDamage || 150;
+          }
+        }
+        if (version < 3) {
+          // 迁移到版本3：添加体力属性
+          if (persistedState.player) {
+            persistedState.player.stamina = persistedState.player.stamina || 24;
+            persistedState.player.maxStamina = persistedState.player.maxStamina || 24;
+            persistedState.player.lastStaminaTime = persistedState.player.lastStaminaTime || Math.floor(Date.now() / 1000);
           }
         }
         return persistedState;
