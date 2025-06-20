@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { calculatePlayerStats, getEquipmentImage, getRarityColor } from '../utils/gameUtils';
+import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus } from '../utils/gameUtils';
 import { EquipmentType } from '../types/game';
 import EquipmentModal from './EquipmentModal';
 
 const PlayerStats: React.FC = () => {
   const { player, initializeGame, updatePlayer } = useGameStore();
   const stats = calculatePlayerStats(player);
+  const baseStats = getBaseStats(player);
+  const equipmentBonus = calculateEquipmentBonus(player);
+  
   const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -90,23 +93,58 @@ const PlayerStats: React.FC = () => {
       <div className="stat-grid">
         <div className="stat-item">
           <span>攻击力</span>
-          <span>{stats.attack}</span>
+          <span>
+            {baseStats.attack}
+            {equipmentBonus.attack > 0 && (
+              <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+                +{equipmentBonus.attack}
+              </span>
+            )}
+          </span>
         </div>
         <div className="stat-item">
           <span>防御力</span>
-          <span>{stats.defense}</span>
+          <span>
+            {baseStats.defense}
+            {equipmentBonus.defense > 0 && (
+              <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+                +{equipmentBonus.defense}
+              </span>
+            )}
+          </span>
         </div>
         <div className="stat-item">
           <span>敏捷度</span>
-          <span>{stats.agility}</span>
+          <span>
+            {baseStats.agility}
+            {equipmentBonus.agility > 0 && (
+              <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+                +{equipmentBonus.agility}
+              </span>
+            )}
+          </span>
         </div>
         <div className="stat-item">
           <span>暴击率</span>
-          <span>{stats.criticalRate}%</span>
+          <span>
+            {baseStats.criticalRate}%
+            {equipmentBonus.criticalRate > 0 && (
+              <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+                +{equipmentBonus.criticalRate}%
+              </span>
+            )}
+          </span>
         </div>
         <div className="stat-item">
           <span>暴击伤害</span>
-          <span>{stats.criticalDamage}%</span>
+          <span>
+            {baseStats.criticalDamage}%
+            {equipmentBonus.criticalDamage > 0 && (
+              <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+                +{equipmentBonus.criticalDamage}%
+              </span>
+            )}
+          </span>
         </div>
         <div className="stat-item">
           <span>宝箱数</span>
@@ -120,6 +158,7 @@ const PlayerStats: React.FC = () => {
         <div className="equipment-slots">
           {equipmentSlots.map(slot => {
             const equippedItem = player.equipment[slot.key as keyof typeof player.equipment];
+            
             
             return (
               <div key={slot.key} className="equipment-slot">
@@ -154,7 +193,7 @@ const PlayerStats: React.FC = () => {
         </div>
       </div>
       
-      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+      <div style={{ marginTop: '20px', textAlign: 'center', display: 'flex', gap: '10px', justifyContent: 'center' }}>
         <button 
           onClick={initializeGame}
           style={{ 
@@ -167,6 +206,22 @@ const PlayerStats: React.FC = () => {
           }}
         >
           重置游戏
+        </button>
+        <button 
+          onClick={() => {
+            localStorage.removeItem('treasure-adventure-game');
+            window.location.reload();
+          }}
+          style={{ 
+            padding: '10px 20px', 
+            backgroundColor: '#ffc107', 
+            color: 'black', 
+            border: 'none', 
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          清理存储并重启
         </button>
       </div>
 

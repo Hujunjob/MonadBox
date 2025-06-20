@@ -25,7 +25,19 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
   const handleEquip = () => {
     if (!isEquipped) {
-      equipItem(equipment, equipment.type);
+      // 装备类型到槽位的映射
+      const typeToSlot = {
+        'helmet': 'helmet',
+        'armor': 'armor', 
+        'shoes': 'shoes',
+        'weapon': 'weapon',
+        'shield': 'shield',
+        'accessory': 'accessory'
+      };
+      
+      const actualEquipmentType = (equipment as any).equipmentType || equipment.type;
+      const targetSlot = typeToSlot[actualEquipmentType as keyof typeof typeToSlot] || actualEquipmentType;
+      equipItem(equipment, targetSlot);
     }
     onClose();
   };

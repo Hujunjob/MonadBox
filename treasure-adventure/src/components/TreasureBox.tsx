@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { generateRandomEquipment } from '../utils/gameUtils';
+import { generateRandomEquipment, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
 import TreasureBoxTimer from './TreasureBoxTimer';
 
@@ -87,7 +87,9 @@ const TreasureBox: React.FC = () => {
           quantity: 1,
           equipmentType: reward.item.type,
           stats: reward.item.stats,
-          rarity: reward.item.rarity
+          rarity: reward.item.rarity,
+          level: reward.item.level || 1,
+          baseStats: reward.item.baseStats || reward.item.stats
         }];
         updatePlayer({ inventory: newInventory });
         break;
@@ -118,17 +120,6 @@ const TreasureBox: React.FC = () => {
     setRewardOptions([]);
   };
   
-  
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case 'common': return '#808080';
-      case 'uncommon': return '#00ff00';
-      case 'rare': return '#0080ff';
-      case 'epic': return '#8000ff';
-      case 'legendary': return '#ff8000';
-      default: return '#000000';
-    }
-  };
   
   return (
     <div className="treasure-box-panel">
@@ -170,22 +161,55 @@ const TreasureBox: React.FC = () => {
                 onClick={() => handleSelectReward(reward)}
               >
                 <div className="reward-content">
-                  <span className="reward-description">{reward.description}</span>
-                  {reward.type === RewardType.EQUIPMENT && (
-                    <div className="equipment-stats">
-                      <div className="rarity" style={{ color: getRarityColor(reward.item.rarity) }}>
-                        {reward.item.rarity}
+                  <div className="reward-icon">
+                    {reward.type === RewardType.EQUIPMENT && (
+                      <div 
+                        className="reward-item-icon"
+                        style={{ backgroundColor: getRarityColor(reward.item.rarity) }}
+                      >
+                        <img 
+                          src={getEquipmentImage(reward.item.type)} 
+                          alt={reward.item.name}
+                          style={{ width: '48px', height: '48px' }}
+                        />
                       </div>
-                      <div className="stats">
-                        {reward.item.stats.attack && <span>攻击+{reward.item.stats.attack}</span>}
-                        {reward.item.stats.defense && <span>防御+{reward.item.stats.defense}</span>}
-                        {reward.item.stats.health && <span>血量+{reward.item.stats.health}</span>}
-                        {reward.item.stats.agility && <span>敏捷+{reward.item.stats.agility}</span>}
-                        {reward.item.stats.criticalRate && <span>暴击率+{reward.item.stats.criticalRate}%</span>}
-                        {reward.item.stats.criticalDamage && <span>暴击伤害+{reward.item.stats.criticalDamage}%</span>}
+                    )}
+                    {reward.type === RewardType.HEALTH_POTION && (
+                      <div className="reward-item-icon">
+                        <img 
+                          src={getItemImage('health_potion')} 
+                          alt="血瓶"
+                          style={{ width: '48px', height: '48px' }}
+                        />
+                        <span className="item-quantity">×{reward.amount}</span>
                       </div>
-                    </div>
-                  )}
+                    )}
+                    {reward.type === RewardType.GOLD && (
+                      <div className="reward-item-icon gold">
+                        <span style={{ fontSize: '32px' }}>💰</span>
+                        <span className="item-quantity">×{reward.amount}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="reward-details">
+                    <span className="reward-description">{reward.description}</span>
+                    {reward.type === RewardType.EQUIPMENT && (
+                      <div className="equipment-stats">
+                        <div className="rarity" style={{ color: getRarityColor(reward.item.rarity) }}>
+                          {reward.item.rarity}
+                        </div>
+                        <div className="stats">
+                          {reward.item.stats.attack && <span>攻击+{reward.item.stats.attack}</span>}
+                          {reward.item.stats.defense && <span>防御+{reward.item.stats.defense}</span>}
+                          {reward.item.stats.health && <span>血量+{reward.item.stats.health}</span>}
+                          {reward.item.stats.agility && <span>敏捷+{reward.item.stats.agility}</span>}
+                          {reward.item.stats.criticalRate && <span>暴击率+{reward.item.stats.criticalRate}%</span>}
+                          {reward.item.stats.criticalDamage && <span>暴击伤害+{reward.item.stats.criticalDamage}%</span>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

@@ -101,34 +101,61 @@ export const generateRandomEquipment = (level: number): EquipmentItem => {
   };
 };
 
-export const calculatePlayerStats = (player: any) => {
-  let totalAttack = player.attack || 0;
-  let totalDefense = player.defense || 0;
-  let totalHealth = player.maxHealth || 0;
-  let totalAgility = player.agility || 0;
-  let totalCriticalRate = player.criticalRate || 5;
-  let totalCriticalDamage = player.criticalDamage || 150;
+// 计算装备加成
+export const calculateEquipmentBonus = (player: any) => {
+  let attackBonus = 0;
+  let defenseBonus = 0;
+  let healthBonus = 0;
+  let agilityBonus = 0;
+  let criticalRateBonus = 0;
+  let criticalDamageBonus = 0;
   
-  const equipment = player.equipment;
+  const equipment = player.equipment || {};
   
   Object.values(equipment).forEach((item: any) => {
     if (item && item.stats) {
-      totalAttack += item.stats.attack || 0;
-      totalDefense += item.stats.defense || 0;
-      totalHealth += item.stats.health || 0;
-      totalAgility += item.stats.agility || 0;
-      totalCriticalRate += item.stats.criticalRate || 0;
-      totalCriticalDamage += item.stats.criticalDamage || 0;
+      attackBonus += item.stats.attack || 0;
+      defenseBonus += item.stats.defense || 0;
+      healthBonus += item.stats.health || 0;
+      agilityBonus += item.stats.agility || 0;
+      criticalRateBonus += item.stats.criticalRate || 0;
+      criticalDamageBonus += item.stats.criticalDamage || 0;
     }
   });
   
   return {
-    attack: totalAttack,
-    defense: totalDefense,
-    maxHealth: totalHealth,
-    agility: totalAgility,
-    criticalRate: totalCriticalRate,
-    criticalDamage: totalCriticalDamage
+    attack: attackBonus,
+    defense: defenseBonus,
+    health: healthBonus,
+    agility: agilityBonus,
+    criticalRate: criticalRateBonus,
+    criticalDamage: criticalDamageBonus
+  };
+};
+
+// 获取基础属性
+export const getBaseStats = (player: any) => {
+  return {
+    attack: player.attack || 0,
+    defense: player.defense || 0,
+    maxHealth: player.maxHealth || 0,
+    agility: player.agility || 0,
+    criticalRate: player.criticalRate || 5,
+    criticalDamage: player.criticalDamage || 150
+  };
+};
+
+export const calculatePlayerStats = (player: any) => {
+  const baseStats = getBaseStats(player);
+  const equipmentBonus = calculateEquipmentBonus(player);
+  
+  return {
+    attack: baseStats.attack + equipmentBonus.attack,
+    defense: baseStats.defense + equipmentBonus.defense,
+    maxHealth: baseStats.maxHealth + equipmentBonus.health,
+    agility: baseStats.agility + equipmentBonus.agility,
+    criticalRate: baseStats.criticalRate + equipmentBonus.criticalRate,
+    criticalDamage: baseStats.criticalDamage + equipmentBonus.criticalDamage
   };
 };
 

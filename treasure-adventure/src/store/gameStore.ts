@@ -43,7 +43,14 @@ const createInitialPlayer = (): Player => ({
   stamina: 24,
   maxStamina: 24,
   lastStaminaTime: Math.floor(Date.now() / 1000),
-  equipment: {} as Equipment,
+  equipment: {
+    helmet: undefined,
+    armor: undefined,
+    shoes: undefined,
+    weapon: undefined,
+    shield: undefined,
+    accessory: undefined
+  },
   inventory: [
     {
       id: 'health_potion_1',
@@ -98,7 +105,7 @@ export const useGameStore = create<GameStore>()(
                          slot === 'shield' ? 'shield' :
                          slot === 'accessory' ? 'accessory' : slot;
           
-          newEquipment[slotKey as keyof Equipment] = {
+          const equipmentItem = {
             id: item.id,
             name: item.name,
             type: item.equipmentType || item.type,
@@ -107,6 +114,8 @@ export const useGameStore = create<GameStore>()(
             level: item.level || 1,
             baseStats: item.baseStats || item.stats
           };
+          
+          newEquipment[slotKey as keyof Equipment] = equipmentItem;
           
           // 计算装备后的最大血量
           const tempPlayer = { ...state.player, equipment: newEquipment };
@@ -718,7 +727,7 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'treasure-adventure-game',
-      version: 3,
+      version: 4,
       partialize: (state) => ({
         player: state.player,
         forestLevels: state.forestLevels,
@@ -738,6 +747,43 @@ export const useGameStore = create<GameStore>()(
             persistedState.player.stamina = persistedState.player.stamina || 24;
             persistedState.player.maxStamina = persistedState.player.maxStamina || 24;
             persistedState.player.lastStaminaTime = persistedState.player.lastStaminaTime || Math.floor(Date.now() / 1000);
+            
+            // 确保equipment对象正确初始化
+            if (!persistedState.player.equipment || typeof persistedState.player.equipment !== 'object') {
+              persistedState.player.equipment = {
+                helmet: undefined,
+                armor: undefined,
+                shoes: undefined,
+                weapon: undefined,
+                shield: undefined,
+                accessory: undefined
+              };
+            } else {
+              // 确保所有槽位都存在
+              const equipment = persistedState.player.equipment;
+              equipment.helmet = equipment.helmet || undefined;
+              equipment.armor = equipment.armor || undefined;
+              equipment.shoes = equipment.shoes || undefined;
+              equipment.weapon = equipment.weapon || undefined;
+              equipment.shield = equipment.shield || undefined;
+              equipment.accessory = equipment.accessory || undefined;
+            }
+          }
+        }
+        if (version < 4) {
+          // 迁移到版本4：修复equipment初始化问题
+          if (persistedState.player) {
+            // 重新初始化equipment对象以确保正确结构
+            if (!persistedState.player.equipment || typeof persistedState.player.equipment !== 'object') {
+              persistedState.player.equipment = {
+                helmet: undefined,
+                armor: undefined,
+                shoes: undefined,
+                weapon: undefined,
+                shield: undefined,
+                accessory: undefined
+              };
+            }
           }
         }
         return persistedState;
