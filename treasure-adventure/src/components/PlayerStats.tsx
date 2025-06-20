@@ -73,6 +73,14 @@ const PlayerStats: React.FC = () => {
           <span>{stats.agility}</span>
         </div>
         <div className="stat-item">
+          <span>暴击率</span>
+          <span>{stats.criticalRate}%</span>
+        </div>
+        <div className="stat-item">
+          <span>暴击伤害</span>
+          <span>{stats.criticalDamage}%</span>
+        </div>
+        <div className="stat-item">
           <span>宝箱数</span>
           <span>{player.treasureBoxes}</span>
         </div>
@@ -99,6 +107,8 @@ const PlayerStats: React.FC = () => {
                         {equippedItem.stats.defense && <span>防御+{equippedItem.stats.defense}</span>}
                         {equippedItem.stats.health && <span>血量+{equippedItem.stats.health}</span>}
                         {equippedItem.stats.agility && <span>敏捷+{equippedItem.stats.agility}</span>}
+                        {equippedItem.stats.criticalRate && <span>暴击率+{equippedItem.stats.criticalRate}%</span>}
+                        {equippedItem.stats.criticalDamage && <span>暴击伤害+{equippedItem.stats.criticalDamage}%</span>}
                       </div>
                       <button onClick={() => unequipItem(slot.key)} className="unequip-btn">
                         卸下

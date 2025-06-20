@@ -88,6 +88,8 @@ const Inventory: React.FC = () => {
                     {equipmentItem.stats?.defense && <span>防御+{equipmentItem.stats.defense}</span>}
                     {equipmentItem.stats?.health && <span>血量+{equipmentItem.stats.health}</span>}
                     {equipmentItem.stats?.agility && <span>敏捷+{equipmentItem.stats.agility}</span>}
+                    {equipmentItem.stats?.criticalRate && <span>暴击率+{equipmentItem.stats.criticalRate}%</span>}
+                    {equipmentItem.stats?.criticalDamage && <span>暴击伤害+{equipmentItem.stats.criticalDamage}%</span>}
                   </div>
                   <span className="item-type">类型: {equipmentItem.equipmentType}</span>
                 </div>

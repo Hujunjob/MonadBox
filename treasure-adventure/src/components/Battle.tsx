@@ -7,6 +7,7 @@ interface DamageDisplay {
   damage: number;
   target: 'player' | 'monster';
   type: 'damage' | 'heal';
+  isCritical?: boolean;
   timestamp: number;
 }
 
@@ -15,7 +16,8 @@ const Battle: React.FC = () => {
     currentBattle, 
     playerAttack, 
     monsterAttack, 
-    updateBattleCooldowns, 
+    updateBattleCooldowns,
+    updateActionBars,
     endBattle,
     useHealthPotion,
     player
@@ -24,10 +26,16 @@ const Battle: React.FC = () => {
   const [damageDisplays, setDamageDisplays] = useState<DamageDisplay[]>([]);
   const [previousPlayerHealth, setPreviousPlayerHealth] = useState<number | null>(null);
   const [previousMonsterHealth, setPreviousMonsterHealth] = useState<number | null>(null);
+  const [previousBattleLogLength, setPreviousBattleLogLength] = useState(0);
   
   // 检测血量变化并创建显示
   useEffect(() => {
     if (!currentBattle) return;
+    
+    // 检测新的战斗日志来判断是否暴击
+    const newLogEntries = currentBattle.battleLog.slice(previousBattleLogLength);
+    const latestLog = newLogEntries[newLogEntries.length - 1];
+    const isCritical = latestLog && latestLog.includes('（暴击！）');
     
     // 检测玩家血量变化
     if (previousPlayerHealth !== null && currentBattle.player.health !== previousPlayerHealth) {
@@ -40,6 +48,7 @@ const Battle: React.FC = () => {
           damage: Math.abs(healthChange),
           target: 'player',
           type: 'damage',
+          isCritical: isCritical && latestLog.includes('攻击了你'),
           timestamp: Date.now()
         };
         setDamageDisplays(prev => [...prev, display]);
@@ -64,15 +73,17 @@ const Battle: React.FC = () => {
         damage,
         target: 'monster',
         type: 'damage',
+        isCritical: isCritical && latestLog.includes('你攻击了'),
         timestamp: Date.now()
       };
       setDamageDisplays(prev => [...prev, display]);
     }
     
-    // 更新之前的血量
+    // 更新之前的血量和日志长度
     setPreviousPlayerHealth(currentBattle.player.health);
     setPreviousMonsterHealth(currentBattle.monster.health);
-  }, [currentBattle?.player.health, currentBattle?.monster.health]);
+    setPreviousBattleLogLength(currentBattle.battleLog.length);
+  }, [currentBattle?.player.health, currentBattle?.monster.health, currentBattle?.battleLog.length]);
   
   // 清除过期的伤害显示
   useEffect(() => {
@@ -90,26 +101,43 @@ const Battle: React.FC = () => {
     
     const timer = setInterval(() => {
       updateBattleCooldowns();
+      updateActionBars();
     }, 100);
     
     return () => clearInterval(timer);
   }, [currentBattle?.isActive]);
   
-  // 怪物攻击逻辑 - 简化版本
+  // 怪物攻击逻辑 - 自动攻击
   useEffect(() => {
-    if (!currentBattle?.isActive || 
-        currentBattle.turn !== 'monster' || 
-        currentBattle.monsterCooldown > 0) {
+    if (!currentBattle?.isActive) {
       return;
     }
     
-    // 延迟1秒后自动怪物攻击
+    // 检查怪物是否可以攻击
+    const canMonsterAttack = currentBattle.monsterCooldown <= 0 &&
+                            currentBattle.monsterActionBar >= 100;
+    
+    // 调试信息
+    console.log('Monster attack check:', {
+      turn: currentBattle.turn,
+      cooldown: currentBattle.monsterCooldown,
+      actionBar: currentBattle.monsterActionBar,
+      canAttack: canMonsterAttack
+    });
+    
+    if (!canMonsterAttack) {
+      return;
+    }
+    
+    console.log('Monster attacking now!');
+    
+    // 延迟500ms后自动怪物攻击
     const timeout = setTimeout(() => {
       monsterAttack();
-    }, 1000);
+    }, 500);
     
     return () => clearTimeout(timeout);
-  }, [currentBattle?.isActive, currentBattle?.turn, currentBattle?.monsterCooldown]);
+  }, [currentBattle?.isActive, currentBattle?.turn, currentBattle?.monsterCooldown, currentBattle?.monsterActionBar]);
   
   
   if (!currentBattle) {
@@ -118,8 +146,8 @@ const Battle: React.FC = () => {
   
   // 使用原始玩家数据计算属性，确保与角色界面一致
   const playerStats = calculatePlayerStats(player);
-  const canAttack = currentBattle.turn === 'player' && 
-                   currentBattle.playerCooldown <= 0 && 
+  const canAttack = currentBattle.playerCooldown <= 0 && 
+                   currentBattle.playerActionBar >= 100 &&
                    currentBattle.isActive;
   
   const playerHealthPercent = (currentBattle.player.health / playerStats.maxHealth) * 100;
@@ -157,9 +185,13 @@ const Battle: React.FC = () => {
               .map(display => (
                 <div
                   key={display.id}
-                  className={`damage-display ${display.type === 'heal' ? 'player-heal' : 'player-damage'}`}
+                  className={`damage-display ${
+                    display.type === 'heal' ? 'player-heal' : 
+                    display.isCritical ? 'player-critical' : 'player-damage'
+                  }`}
                 >
-                  {display.type === 'heal' ? `+${display.damage}` : `-${display.damage}`}
+                  {display.type === 'heal' ? `+${display.damage}` : 
+                   display.isCritical ? `暴击-${display.damage}` : `-${display.damage}`}
                 </div>
               ))}
           </div>
@@ -180,6 +212,18 @@ const Battle: React.FC = () => {
             <span>攻击: {playerStats.attack}</span>
             <span>防御: {playerStats.defense}</span>
             <span>敏捷: {playerStats.agility}</span>
+            <span>暴击率: {playerStats.criticalRate}%</span>
+            <span>暴击伤害: {playerStats.criticalDamage}%</span>
+          </div>
+          
+          <div className="action-bar-section">
+            <div className="action-bar-label">行动条</div>
+            <div className="action-bar">
+              <div 
+                className="action-bar-fill player" 
+                style={{ width: `${currentBattle.playerActionBar}%` }}
+              />
+            </div>
           </div>
           
           <div className="battle-actions">
@@ -217,9 +261,9 @@ const Battle: React.FC = () => {
               .map(display => (
                 <div
                   key={display.id}
-                  className="damage-display monster-damage"
+                  className={`damage-display ${display.isCritical ? 'monster-critical' : 'monster-damage'}`}
                 >
-                  -{display.damage}
+                  {display.isCritical ? `暴击-${display.damage}` : `-${display.damage}`}
                 </div>
               ))}
           </div>
@@ -240,30 +284,52 @@ const Battle: React.FC = () => {
             <span>攻击: {currentBattle.monster.attack}</span>
             <span>防御: {currentBattle.monster.defense}</span>
             <span>敏捷: {currentBattle.monster.agility}</span>
+            <span>暴击率: {currentBattle.monster.criticalRate}%</span>
+            <span>暴击伤害: {currentBattle.monster.criticalDamage}%</span>
+          </div>
+          
+          <div className="action-bar-section">
+            <div className="action-bar-label">行动条</div>
+            <div className="action-bar">
+              <div 
+                className="action-bar-fill monster" 
+                style={{ width: `${currentBattle.monsterActionBar}%` }}
+              />
+            </div>
           </div>
           
           <div className="monster-actions">
-            {currentBattle.turn === 'monster' && currentBattle.isActive && (
+            {currentBattle.isActive && (
               <div className="monster-cooldown">
                 {currentBattle.monsterCooldown > 0 ? 
-                  `准备攻击... (${Math.ceil(currentBattle.monsterCooldown / 1000)}s)` : 
-                  '正在攻击...'
+                  `冷却中... (${Math.ceil(currentBattle.monsterCooldown / 1000)}s)` : 
+                  currentBattle.monsterActionBar >= 100 ? '准备攻击!' : `行动条: ${Math.floor(currentBattle.monsterActionBar)}%`
                 }
               </div>
+            )}
+            {/* 调试按钮 */}
+            {process.env.NODE_ENV === 'development' && (
+              <button onClick={monsterAttack} style={{fontSize: '10px', margin: '5px'}}>
+                调试:怪物攻击
+              </button>
             )}
           </div>
         </div>
       </div>
       
       
-      {/* 回合指示器 */}
-      <div className="turn-indicator">
-        <span className={currentBattle.turn === 'player' ? 'active' : ''}>
-          玩家回合
-        </span>
-        <span className={currentBattle.turn === 'monster' ? 'active' : ''}>
-          怪物回合
-        </span>
+      {/* 战斗状态指示器 */}
+      <div className="battle-status">
+        <div className="status-item">
+          <span className={canAttack ? 'ready' : 'waiting'}>
+            玩家: {canAttack ? '可以攻击!' : `行动条: ${Math.floor(currentBattle.playerActionBar)}%`}
+          </span>
+        </div>
+        <div className="status-item">
+          <span className={currentBattle.monsterActionBar >= 100 && currentBattle.monsterCooldown <= 0 ? 'ready' : 'waiting'}>
+            怪物: {currentBattle.monsterActionBar >= 100 && currentBattle.monsterCooldown <= 0 ? '可以攻击!' : `行动条: ${Math.floor(currentBattle.monsterActionBar)}%`}
+          </span>
+        </div>
       </div>
       
       {!currentBattle.isActive && (

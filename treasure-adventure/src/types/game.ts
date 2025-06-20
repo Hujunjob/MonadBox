@@ -8,6 +8,8 @@ export interface Player {
   agility: number;
   attack: number;
   defense: number;
+  criticalRate: number;
+  criticalDamage: number;
   gold: number;
   equipment: Equipment;
   inventory: InventoryItem[];
@@ -38,6 +40,8 @@ export interface ItemStats {
   defense?: number;
   health?: number;
   agility?: number;
+  criticalRate?: number;
+  criticalDamage?: number;
 }
 
 export const EquipmentType = {
@@ -99,6 +103,8 @@ export interface Monster {
   attack: number;
   defense: number;
   agility: number;
+  criticalRate: number;
+  criticalDamage: number;
   experience: number;
   goldDrop: number;
 }
@@ -137,6 +143,8 @@ export interface BattleState {
   player: Player;
   monster: Monster;
   turn: 'player' | 'monster';
+  playerActionBar: number;
+  monsterActionBar: number;
   playerCooldown: number;
   monsterCooldown: number;
   battleLog: string[];

@@ -192,6 +192,8 @@ const TreasureBox: React.FC = () => {
                         {reward.item.stats.defense && <span>防御+{reward.item.stats.defense}</span>}
                         {reward.item.stats.health && <span>血量+{reward.item.stats.health}</span>}
                         {reward.item.stats.agility && <span>敏捷+{reward.item.stats.agility}</span>}
+                        {reward.item.stats.criticalRate && <span>暴击率+{reward.item.stats.criticalRate}%</span>}
+                        {reward.item.stats.criticalDamage && <span>暴击伤害+{reward.item.stats.criticalDamage}%</span>}
                       </div>
                     </div>
                   )}

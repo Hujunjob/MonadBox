@@ -16,6 +16,7 @@ interface GameStore extends GameState {
   playerAttack: () => void;
   monsterAttack: () => void;
   updateBattleCooldowns: () => void;
+  updateActionBars: () => void;
   openTreasureBox: () => void;
   buyTreasureBox: () => void;
   addTreasureBox: () => void;
@@ -33,6 +34,8 @@ const createInitialPlayer = (): Player => ({
   agility: 10,
   attack: 15,
   defense: 5,
+  criticalRate: 5,
+  criticalDamage: 150,
   gold: 100,
   equipment: {} as Equipment,
   inventory: [
@@ -225,6 +228,8 @@ export const useGameStore = create<GameStore>()(
           let newAttack = state.player.attack;
           let newDefense = state.player.defense;
           let newAgility = state.player.agility;
+          let newCriticalRate = state.player.criticalRate;
+          let newCriticalDamage = state.player.criticalDamage;
           
           const expNeeded = newLevel * 100;
           
@@ -236,6 +241,8 @@ export const useGameStore = create<GameStore>()(
             newAttack += 3;
             newDefense += 2;
             newAgility += 1;
+            newCriticalRate += 1;
+            newCriticalDamage += 5;
           }
           
           return {
@@ -247,7 +254,9 @@ export const useGameStore = create<GameStore>()(
               health: newHealth,
               attack: newAttack,
               defense: newDefense,
-              agility: newAgility
+              agility: newAgility,
+              criticalRate: newCriticalRate,
+              criticalDamage: newCriticalDamage
             }
           };
         });
@@ -270,7 +279,9 @@ export const useGameStore = create<GameStore>()(
             ...state.player,
             attack: playerStats.attack,
             defense: playerStats.defense,
-            agility: playerStats.agility
+            agility: playerStats.agility,
+            criticalRate: playerStats.criticalRate || 5,
+            criticalDamage: playerStats.criticalDamage || 150
             // 注意：这里不修改maxHealth，因为当前血量已经是正确的
           };
           
@@ -279,6 +290,8 @@ export const useGameStore = create<GameStore>()(
               player: playerWithStats,
               monster: { ...monster },
               turn: 'player',
+              playerActionBar: 0,
+              monsterActionBar: 0,
               playerCooldown: 0,
               monsterCooldown: 0,
               battleLog: [],
@@ -294,15 +307,27 @@ export const useGameStore = create<GameStore>()(
 
       playerAttack: () => {
         set((state) => {
-          if (!state.currentBattle || state.currentBattle.turn !== 'player' || state.currentBattle.playerCooldown > 0) {
+          if (!state.currentBattle || 
+              state.currentBattle.playerCooldown > 0 || 
+              state.currentBattle.playerActionBar < 100 ||
+              !state.currentBattle.isActive) {
             return state;
           }
           
           const battle = state.currentBattle;
-          const damage = Math.max(1, battle.player.attack - battle.monster.defense);
+          let damage = Math.max(1, battle.player.attack - battle.monster.defense);
+          
+          // 暴击计算
+          const playerCritRate = battle.player.criticalRate || 5;
+          const playerCritDamage = battle.player.criticalDamage || 150;
+          const isCritical = Math.random() * 100 < playerCritRate;
+          if (isCritical) {
+            damage = Math.floor(damage * (playerCritDamage / 100));
+          }
+          
           const newMonsterHealth = Math.max(0, battle.monster.health - damage);
           
-          const newBattleLog = [...battle.battleLog, `你攻击了${battle.monster.name}，造成${damage}点伤害`];
+          const newBattleLog = [...battle.battleLog, `你攻击了${battle.monster.name}，造成${damage}点伤害${isCritical ? '（暴击！）' : ''}`];
           
           if (newMonsterHealth <= 0) {
             newBattleLog.push(`${battle.monster.name}被击败了！`);
@@ -322,7 +347,7 @@ export const useGameStore = create<GameStore>()(
             currentBattle: {
               ...battle,
               monster: { ...battle.monster, health: newMonsterHealth },
-              turn: 'monster',
+              playerActionBar: 0, // 重置玩家行动条
               playerCooldown: Math.max(1000, 2000 - battle.player.agility * 10),
               battleLog: newBattleLog,
               isActive: newMonsterHealth > 0
@@ -333,15 +358,27 @@ export const useGameStore = create<GameStore>()(
 
       monsterAttack: () => {
         set((state) => {
-          if (!state.currentBattle || state.currentBattle.turn !== 'monster' || state.currentBattle.monsterCooldown > 0) {
+          if (!state.currentBattle || 
+              state.currentBattle.monsterCooldown > 0 || 
+              state.currentBattle.monsterActionBar < 100 ||
+              !state.currentBattle.isActive) {
             return state;
           }
           
           const battle = state.currentBattle;
-          const damage = Math.max(1, battle.monster.attack - battle.player.defense);
+          let damage = Math.max(1, battle.monster.attack - battle.player.defense);
+          
+          // 暴击计算
+          const monsterCritRate = battle.monster.criticalRate || 3;
+          const monsterCritDamage = battle.monster.criticalDamage || 130;
+          const isCritical = Math.random() * 100 < monsterCritRate;
+          if (isCritical) {
+            damage = Math.floor(damage * (monsterCritDamage / 100));
+          }
+          
           const newPlayerHealth = Math.max(0, battle.player.health - damage);
           
-          const newBattleLog = [...battle.battleLog, `${battle.monster.name}攻击了你，造成${damage}点伤害`];
+          const newBattleLog = [...battle.battleLog, `${battle.monster.name}攻击了你，造成${damage}点伤害${isCritical ? '（暴击！）' : ''}`];
           
           if (newPlayerHealth <= 0) {
             newBattleLog.push('你被击败了！');
@@ -353,7 +390,7 @@ export const useGameStore = create<GameStore>()(
             currentBattle: {
               ...battle,
               player: { ...battle.player, health: newPlayerHealth },
-              turn: 'player',
+              monsterActionBar: 0, // 重置怪物行动条
               monsterCooldown: Math.max(1000, 2000 - battle.monster.agility * 10),
               battleLog: newBattleLog,
               isActive: newPlayerHealth > 0
@@ -380,6 +417,50 @@ export const useGameStore = create<GameStore>()(
               ...state.currentBattle,
               playerCooldown: newPlayerCooldown,
               monsterCooldown: newMonsterCooldown
+            }
+          };
+        });
+      },
+
+      updateActionBars: () => {
+        set((state) => {
+          if (!state.currentBattle || !state.currentBattle.isActive) return state;
+          
+          const battle = state.currentBattle;
+          
+          // 根据敏捷度计算行动条增长速度
+          const playerSpeed = battle.player.agility || 10;
+          const monsterSpeed = battle.monster.agility || 10;
+          
+          // 基础增长值，敏捷度越高增长越快
+          const playerGrowth = playerSpeed * 0.8;
+          const monsterGrowth = monsterSpeed * 0.8;
+          
+          let newPlayerActionBar = battle.playerActionBar + playerGrowth;
+          let newMonsterActionBar = battle.monsterActionBar + monsterGrowth;
+          
+          // 行动条满了（100）就可以行动
+          const maxActionBar = 100;
+          let newTurn = battle.turn;
+          
+          // 行动条系统不需要严格的回合制，移除回合切换逻辑
+          // newTurn 保持当前值即可
+          
+          // 确保行动条不超过最大值
+          newPlayerActionBar = Math.min(newPlayerActionBar, maxActionBar);
+          newMonsterActionBar = Math.min(newMonsterActionBar, maxActionBar);
+          
+          // 添加调试信息
+          if (newMonsterActionBar >= maxActionBar && battle.monsterActionBar < maxActionBar) {
+            console.log('Monster action bar full! Setting turn to monster');
+          }
+          
+          return {
+            currentBattle: {
+              ...battle,
+              playerActionBar: newPlayerActionBar,
+              monsterActionBar: newMonsterActionBar,
+              turn: newTurn
             }
           };
         });
@@ -485,12 +566,22 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'treasure-adventure-game',
-      version: 1,
+      version: 2,
       partialize: (state) => ({
         player: state.player,
         forestLevels: state.forestLevels,
         gameTime: state.gameTime
       }),
+      migrate: (persistedState: any, version: number) => {
+        if (version < 2) {
+          // 迁移到版本2：添加暴击属性
+          if (persistedState.player) {
+            persistedState.player.criticalRate = persistedState.player.criticalRate || 5;
+            persistedState.player.criticalDamage = persistedState.player.criticalDamage || 150;
+          }
+        }
+        return persistedState;
+      },
       // 确保在hydration完成后才开始使用
       skipHydration: false,
     }

@@ -29,7 +29,9 @@ export const generateMonster = (forestLevel: number, monsterIndex: number): Mons
     health: 50 + forestLevel * 20 + monsterIndex * 5,
     attack: 10 + forestLevel * 3 + monsterIndex * 2,
     defense: 5 + forestLevel * 2 + monsterIndex * 1,
-    agility: 8 + forestLevel * 1 + Math.floor(monsterIndex / 2)
+    agility: 8 + forestLevel * 1 + Math.floor(monsterIndex / 2),
+    criticalRate: Math.max(1, 3 + forestLevel * 1),
+    criticalDamage: Math.max(120, 130 + forestLevel * 5)
   };
   
   const monsterNames = [
@@ -46,6 +48,8 @@ export const generateMonster = (forestLevel: number, monsterIndex: number): Mons
     attack: baseStats.attack,
     defense: baseStats.defense,
     agility: baseStats.agility,
+    criticalRate: baseStats.criticalRate,
+    criticalDamage: baseStats.criticalDamage,
     experience: 20 + forestLevel * 10 + monsterIndex * 5,
     goldDrop: 10 + forestLevel * 5 + monsterIndex * 3
   };
@@ -70,7 +74,9 @@ export const generateRandomEquipment = (level: number): EquipmentItem => {
     attack: type === EquipmentType.WEAPON ? 5 + level * 2 : 0,
     defense: type === EquipmentType.ARMOR || type === EquipmentType.HELMET ? 3 + level : 0,
     health: type === EquipmentType.ARMOR ? 10 + level * 3 : 0,
-    agility: type === EquipmentType.SHOES ? 2 + level : 0
+    agility: type === EquipmentType.SHOES ? 2 + level : 0,
+    criticalRate: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 1 + Math.floor(level / 2) : 0,
+    criticalDamage: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 5 + level * 2 : 0
   };
   
   const multiplier = rarityMultiplier[rarity];
@@ -84,25 +90,31 @@ export const generateRandomEquipment = (level: number): EquipmentItem => {
       attack: Math.floor(baseStats.attack * multiplier),
       defense: Math.floor(baseStats.defense * multiplier),
       health: Math.floor(baseStats.health * multiplier),
-      agility: Math.floor(baseStats.agility * multiplier)
+      agility: Math.floor(baseStats.agility * multiplier),
+      criticalRate: Math.floor(baseStats.criticalRate * multiplier),
+      criticalDamage: Math.floor(baseStats.criticalDamage * multiplier)
     }
   };
 };
 
 export const calculatePlayerStats = (player: any) => {
-  let totalAttack = player.attack;
-  let totalDefense = player.defense;
-  let totalHealth = player.maxHealth;
-  let totalAgility = player.agility;
+  let totalAttack = player.attack || 0;
+  let totalDefense = player.defense || 0;
+  let totalHealth = player.maxHealth || 0;
+  let totalAgility = player.agility || 0;
+  let totalCriticalRate = player.criticalRate || 5;
+  let totalCriticalDamage = player.criticalDamage || 150;
   
   const equipment = player.equipment;
   
   Object.values(equipment).forEach((item: any) => {
-    if (item) {
+    if (item && item.stats) {
       totalAttack += item.stats.attack || 0;
       totalDefense += item.stats.defense || 0;
       totalHealth += item.stats.health || 0;
       totalAgility += item.stats.agility || 0;
+      totalCriticalRate += item.stats.criticalRate || 0;
+      totalCriticalDamage += item.stats.criticalDamage || 0;
     }
   });
   
@@ -110,7 +122,9 @@ export const calculatePlayerStats = (player: any) => {
     attack: totalAttack,
     defense: totalDefense,
     maxHealth: totalHealth,
-    agility: totalAgility
+    agility: totalAgility,
+    criticalRate: totalCriticalRate,
+    criticalDamage: totalCriticalDamage
   };
 };
 
