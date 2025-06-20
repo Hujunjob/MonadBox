@@ -84,7 +84,7 @@ const MonsterForest: React.FC = () => {
                   </div>
                   
                   <div className="monster-info-compact">
-                    <div className="stat-row">
+                    <div className="monster-stat-row">
                       <span>❤️{monster.health}</span>
                       <span>⚔️{monster.attack}</span>
                     </div>

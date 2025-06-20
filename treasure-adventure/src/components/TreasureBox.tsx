@@ -5,9 +5,8 @@ import { RewardType } from '../types/game';
 import TreasureBoxTimer from './TreasureBoxTimer';
 
 const TreasureBox: React.FC = () => {
-  const { player, buyTreasureBox, gainExperience, gainGold, updatePlayer } = useGameStore();
+  const { player, buyTreasureBox, gainGold, updatePlayer } = useGameStore();
   const [openingBox, setOpeningBox] = useState(false);
-  const [rewardOptions, setRewardOptions] = useState<any[]>([]);
   const [showSelection, setShowSelection] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   
@@ -18,23 +17,14 @@ const TreasureBox: React.FC = () => {
     setOpeningBox(true);
     setShowSelection(false);
     setSelectedReward(null);
-    setRewardOptions([]);
     
     setTimeout(() => {
-      // 生成4个不同的奖励选项
-      const rewards: any[] = [];
-      
-      // 经验奖励
-      const expAmount = 30 + Math.floor(Math.random() * 70);
-      rewards.push({ 
-        type: RewardType.EXPERIENCE, 
-        amount: expAmount,
-        description: `经验 +${expAmount}`
-      });
+      // 生成可能的奖励选项
+      const possibleRewards: any[] = [];
       
       // 金币奖励
       const goldAmount = 50 + Math.floor(Math.random() * 150);
-      rewards.push({ 
+      possibleRewards.push({ 
         type: RewardType.GOLD, 
         amount: goldAmount,
         description: `金币 +${goldAmount}`
@@ -42,7 +32,7 @@ const TreasureBox: React.FC = () => {
       
       // 装备奖励
       const equipment = generateRandomEquipment(player.level);
-      rewards.push({ 
+      possibleRewards.push({ 
         type: RewardType.EQUIPMENT, 
         item: equipment,
         description: `装备: ${equipment.name}`
@@ -50,13 +40,57 @@ const TreasureBox: React.FC = () => {
       
       // 血瓶奖励
       const potionAmount = Math.floor(Math.random() * 3) + 1;
-      rewards.push({ 
+      possibleRewards.push({ 
         type: RewardType.HEALTH_POTION, 
         amount: potionAmount,
         description: `血瓶 +${potionAmount}`
       });
       
-      setRewardOptions(rewards);
+      // 随机选择一个奖励
+      const selectedReward = possibleRewards[Math.floor(Math.random() * possibleRewards.length)];
+      
+      // 给予选中的奖励
+      switch (selectedReward.type) {
+        case RewardType.GOLD:
+          gainGold(selectedReward.amount);
+          break;
+          
+        case RewardType.EQUIPMENT:
+          const newInventory = [...player.inventory, {
+            id: selectedReward.item.id,
+            name: selectedReward.item.name,
+            type: 'equipment' as any,
+            quantity: 1,
+            equipmentType: selectedReward.item.type,
+            stats: selectedReward.item.stats,
+            rarity: selectedReward.item.rarity,
+            level: selectedReward.item.level || 1,
+            baseStats: selectedReward.item.baseStats || selectedReward.item.stats
+          }];
+          updatePlayer({ inventory: newInventory });
+          break;
+          
+        case RewardType.HEALTH_POTION:
+          const existingPotionIndex = player.inventory.findIndex(item => item.type === 'health_potion');
+          if (existingPotionIndex >= 0) {
+            const updatedInventory = [...player.inventory];
+            updatedInventory[existingPotionIndex].quantity += selectedReward.amount;
+            updatePlayer({ inventory: updatedInventory });
+          } else {
+            const newPotionItem = {
+              id: `health_potion_${Date.now()}`,
+              name: '血瓶',
+              type: 'health_potion' as any,
+              quantity: selectedReward.amount,
+              effect: { type: 'heal' as any, value: 50 }
+            };
+            const newInventoryWithPotion = [...player.inventory, newPotionItem];
+            updatePlayer({ inventory: newInventoryWithPotion });
+          }
+          break;
+      }
+      
+      setSelectedReward(selectedReward);
       setShowSelection(true);
       updatePlayer({ treasureBoxes: player.treasureBoxes - 1 });
       setOpeningBox(false);
@@ -69,55 +103,9 @@ const TreasureBox: React.FC = () => {
     }
   };
   
-  const handleSelectReward = (reward: any) => {
-    switch (reward.type) {
-      case RewardType.EXPERIENCE:
-        gainExperience(reward.amount);
-        break;
-        
-      case RewardType.GOLD:
-        gainGold(reward.amount);
-        break;
-        
-      case RewardType.EQUIPMENT:
-        const newInventory = [...player.inventory, {
-          id: reward.item.id,
-          name: reward.item.name,
-          type: 'equipment' as any,
-          quantity: 1,
-          equipmentType: reward.item.type,
-          stats: reward.item.stats,
-          rarity: reward.item.rarity,
-          level: reward.item.level || 1,
-          baseStats: reward.item.baseStats || reward.item.stats
-        }];
-        updatePlayer({ inventory: newInventory });
-        break;
-        
-      case RewardType.HEALTH_POTION:
-        const existingPotionIndex = player.inventory.findIndex(item => item.type === 'health_potion');
-        if (existingPotionIndex >= 0) {
-          const updatedInventory = [...player.inventory];
-          updatedInventory[existingPotionIndex].quantity += reward.amount;
-          updatePlayer({ inventory: updatedInventory });
-        } else {
-          const newPotionItem = {
-            id: `health_potion_${Date.now()}`,
-            name: '血瓶',
-            type: 'health_potion' as any,
-            quantity: reward.amount,
-            effect: { type: 'heal' as any, value: 50 }
-          };
-          const newInventoryWithPotion = [...player.inventory, newPotionItem];
-          updatePlayer({ inventory: newInventoryWithPotion });
-        }
-        break;
-    }
-    
-    setSelectedReward(reward);
+  const handleCloseRewards = () => {
     setShowSelection(false);
-    // 清除奖励选项，为下次开箱做准备
-    setRewardOptions([]);
+    setSelectedReward(null);
   };
   
   
@@ -150,85 +138,76 @@ const TreasureBox: React.FC = () => {
         </button>
       </div>
       
-      {showSelection && (
-        <div className="reward-selection">
-          <h3>选择你的奖励 (只能选择1个):</h3>
-          <div className="reward-options">
-            {rewardOptions.map((reward, index) => (
-              <div 
-                key={index} 
-                className="reward-option"
-                onClick={() => handleSelectReward(reward)}
-              >
-                <div className="reward-content">
-                  <div className="reward-icon">
-                    {reward.type === RewardType.EQUIPMENT && (
-                      <div 
-                        className="reward-item-icon"
-                        style={{ backgroundColor: getRarityColor(reward.item.rarity) }}
-                      >
-                        <img 
-                          src={getEquipmentImage(reward.item.type)} 
-                          alt={reward.item.name}
-                          style={{ width: '48px', height: '48px' }}
-                        />
+      {showSelection && selectedReward && (
+        <div className="modal-overlay" onClick={handleCloseRewards}>
+          <div className="reward-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>🎉 获得奖励</h3>
+              <button className="close-btn" onClick={handleCloseRewards}>×</button>
+            </div>
+            
+            <div className="modal-content">
+              <div className="reward-content">
+                <div className="reward-icon">
+                  {selectedReward.type === RewardType.EQUIPMENT && (
+                    <div 
+                      className="reward-item-icon"
+                      style={{ backgroundColor: getRarityColor(selectedReward.item.rarity) }}
+                    >
+                      <img 
+                        src={getEquipmentImage(selectedReward.item.type)} 
+                        alt={selectedReward.item.name}
+                        style={{ width: '48px', height: '48px' }}
+                      />
+                    </div>
+                  )}
+                  {selectedReward.type === RewardType.HEALTH_POTION && (
+                    <div className="reward-item-icon">
+                      <img 
+                        src={getItemImage('health_potion')} 
+                        alt="血瓶"
+                        style={{ width: '48px', height: '48px' }}
+                      />
+                      <span className="item-quantity">×{selectedReward.amount}</span>
+                    </div>
+                  )}
+                  {selectedReward.type === RewardType.GOLD && (
+                    <div className="reward-item-icon gold">
+                      <span style={{ fontSize: '32px' }}>💰</span>
+                      <span className="item-quantity">×{selectedReward.amount}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="reward-details">
+                  <span className="reward-description">{selectedReward.description}</span>
+                  {selectedReward.type === RewardType.EQUIPMENT && (
+                    <div className="equipment-stats">
+                      <div className="rarity" style={{ color: getRarityColor(selectedReward.item.rarity) }}>
+                        {selectedReward.item.rarity}
                       </div>
-                    )}
-                    {reward.type === RewardType.HEALTH_POTION && (
-                      <div className="reward-item-icon">
-                        <img 
-                          src={getItemImage('health_potion')} 
-                          alt="血瓶"
-                          style={{ width: '48px', height: '48px' }}
-                        />
-                        <span className="item-quantity">×{reward.amount}</span>
+                      <div className="stats">
+                        {selectedReward.item.stats.attack > 0 && <span>攻击+{selectedReward.item.stats.attack}</span>}
+                        {selectedReward.item.stats.defense > 0 && <span>防御+{selectedReward.item.stats.defense}</span>}
+                        {selectedReward.item.stats.health > 0 && <span>血量+{selectedReward.item.stats.health}</span>}
+                        {selectedReward.item.stats.agility > 0 && <span>敏捷+{selectedReward.item.stats.agility}</span>}
+                        {selectedReward.item.stats.criticalRate > 0 && <span>暴击率+{selectedReward.item.stats.criticalRate}%</span>}
+                        {selectedReward.item.stats.criticalDamage > 0 && <span>暴击伤害+{selectedReward.item.stats.criticalDamage}%</span>}
                       </div>
-                    )}
-                    {reward.type === RewardType.GOLD && (
-                      <div className="reward-item-icon gold">
-                        <span style={{ fontSize: '32px' }}>💰</span>
-                        <span className="item-quantity">×{reward.amount}</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="reward-details">
-                    <span className="reward-description">{reward.description}</span>
-                    {reward.type === RewardType.EQUIPMENT && (
-                      <div className="equipment-stats">
-                        <div className="rarity" style={{ color: getRarityColor(reward.item.rarity) }}>
-                          {reward.item.rarity}
-                        </div>
-                        <div className="stats">
-                          {reward.item.stats.attack > 0 && <span>攻击+{reward.item.stats.attack}</span>}
-                          {reward.item.stats.defense > 0 && <span>防御+{reward.item.stats.defense}</span>}
-                          {reward.item.stats.health > 0 && <span>血量+{reward.item.stats.health}</span>}
-                          {reward.item.stats.agility > 0 && <span>敏捷+{reward.item.stats.agility}</span>}
-                          {reward.item.stats.criticalRate > 0 && <span>暴击率+{reward.item.stats.criticalRate}%</span>}
-                          {reward.item.stats.criticalDamage > 0 && <span>暴击伤害+{reward.item.stats.criticalDamage}%</span>}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {selectedReward && (
-        <div className="selected-reward">
-          <h3>你选择了:</h3>
-          <div 
-            className="reward-item selected"
-            style={{ 
-              color: selectedReward.type === RewardType.EQUIPMENT ? 
-                getRarityColor(selectedReward.item?.rarity) : 
-                '#333' 
-            }}
-          >
-            {selectedReward.description}
+            </div>
+            
+            <div className="modal-actions">
+              <button 
+                className="confirm-btn"
+                onClick={handleCloseRewards}
+              >
+                确定
+              </button>
+            </div>
           </div>
         </div>
       )}
