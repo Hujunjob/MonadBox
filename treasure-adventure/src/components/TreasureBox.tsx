@@ -200,12 +200,12 @@ const TreasureBox: React.FC = () => {
                           {reward.item.rarity}
                         </div>
                         <div className="stats">
-                          {reward.item.stats.attack && <span>攻击+{reward.item.stats.attack}</span>}
-                          {reward.item.stats.defense && <span>防御+{reward.item.stats.defense}</span>}
-                          {reward.item.stats.health && <span>血量+{reward.item.stats.health}</span>}
-                          {reward.item.stats.agility && <span>敏捷+{reward.item.stats.agility}</span>}
-                          {reward.item.stats.criticalRate && <span>暴击率+{reward.item.stats.criticalRate}%</span>}
-                          {reward.item.stats.criticalDamage && <span>暴击伤害+{reward.item.stats.criticalDamage}%</span>}
+                          {reward.item.stats.attack > 0 && <span>攻击+{reward.item.stats.attack}</span>}
+                          {reward.item.stats.defense > 0 && <span>防御+{reward.item.stats.defense}</span>}
+                          {reward.item.stats.health > 0 && <span>血量+{reward.item.stats.health}</span>}
+                          {reward.item.stats.agility > 0 && <span>敏捷+{reward.item.stats.agility}</span>}
+                          {reward.item.stats.criticalRate > 0 && <span>暴击率+{reward.item.stats.criticalRate}%</span>}
+                          {reward.item.stats.criticalDamage > 0 && <span>暴击伤害+{reward.item.stats.criticalDamage}%</span>}
                         </div>
                       </div>
                     )}

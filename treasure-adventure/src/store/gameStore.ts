@@ -22,6 +22,7 @@ interface GameStore extends GameState {
   addTreasureBox: () => void;
   unlockNextForestLevel: () => void;
   incrementGameTime: () => void;
+  calculateOfflineRewards: () => void;
   upgradeEquipment: (equipmentId: string, count: number) => void;
   updateStamina: () => void;
   consumeStamina: (amount: number) => boolean;
@@ -591,6 +592,36 @@ export const useGameStore = create<GameStore>()(
           get().updateStamina();
           
           return { gameTime: newTime };
+        });
+      },
+
+      // 计算离线宝箱奖励
+      calculateOfflineRewards: () => {
+        set((state) => {
+          const now = Math.floor(Date.now() / 1000);
+          const timeSinceLastBox = now - state.player.lastTreasureBoxTime;
+          
+          // 每3600秒(1小时)获得1个宝箱
+          const offlineBoxes = Math.floor(timeSinceLastBox / 3600);
+          
+          if (offlineBoxes > 0) {
+            // 最多积累24个宝箱(24小时)
+            const actualBoxes = Math.min(offlineBoxes, 24);
+            const newTreasureBoxes = state.player.treasureBoxes + actualBoxes;
+            
+            // 更新最后宝箱时间为当前时间减去余数时间
+            const newLastBoxTime = now - (timeSinceLastBox % 3600);
+            
+            return {
+              player: {
+                ...state.player,
+                treasureBoxes: newTreasureBoxes,
+                lastTreasureBoxTime: newLastBoxTime
+              }
+            };
+          }
+          
+          return state;
         });
       },
 

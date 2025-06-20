@@ -6,6 +6,7 @@ import MonsterForest from './components/MonsterForest';
 import Battle from './components/Battle';
 import Inventory from './components/Inventory';
 import { ToastProvider } from './components/ToastManager';
+import OfflineRewardsModal from './components/OfflineRewardsModal';
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
     return (
       <ToastProvider>
         <Battle />
+        <OfflineRewardsModal />
       </ToastProvider>
     );
   }
@@ -60,6 +62,7 @@ function App() {
           {activeTab === 'treasure' && <TreasureBox />}
           {activeTab === 'forest' && <MonsterForest />}
         </main>
+        <OfflineRewardsModal />
       </div>
     </ToastProvider>
   );

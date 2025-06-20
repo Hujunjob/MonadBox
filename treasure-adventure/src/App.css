@@ -1366,23 +1366,21 @@
 
 /* Toast 通知样式 */
 .toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
+  position: relative;
   padding: 12px 20px;
   border-radius: 8px;
   color: white;
   font-weight: bold;
-  z-index: 2000;
-  transform: translateX(100%);
+  transform: translateY(100%);
   opacity: 0;
   transition: all 0.3s ease;
   max-width: 300px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin: 0 auto;
 }
 
 .toast-show {
-  transform: translateX(0);
+  transform: translateY(0);
   opacity: 1;
 }
 
@@ -1829,4 +1827,85 @@
   border-color: #007bff;
   transform: scale(1.02);
   box-shadow: 0 4px 12px rgba(0,123,255,0.2);
+}
+
+/* Offline Rewards Modal Styles */
+.offline-rewards-modal {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.offline-info {
+  margin-bottom: 25px;
+}
+
+.offline-info p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.offline-time {
+  font-size: 24px;
+  font-weight: bold;
+  color: #007bff;
+  margin: 15px 0;
+}
+
+.offline-rewards {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.offline-rewards .reward-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.offline-rewards .reward-icon {
+  font-size: 24px;
+}
+
+.max-rewards-note {
+  margin-top: 15px;
+  padding: 10px;
+  background: #e7f3ff;
+  border-radius: 5px;
+  border-left: 4px solid #007bff;
+}
+
+.max-rewards-note small {
+  color: #0066cc;
+  font-size: 12px;
+}
+
+.claim-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 120px;
+}
+
+.claim-btn:hover {
+  background: #218838;
+  transform: translateY(-1px);
 }

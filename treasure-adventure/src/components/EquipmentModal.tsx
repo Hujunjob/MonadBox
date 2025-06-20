@@ -102,12 +102,12 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
           <div className="equipment-stats">
             <h4>属性</h4>
             <div className="stats-grid">
-              {equipment.stats?.attack && <div>攻击: {equipment.stats.attack}</div>}
-              {equipment.stats?.defense && <div>防御: {equipment.stats.defense}</div>}
-              {equipment.stats?.health && <div>血量: {equipment.stats.health}</div>}
-              {equipment.stats?.agility && <div>敏捷: {equipment.stats.agility}</div>}
-              {equipment.stats?.criticalRate && <div>暴击率: {equipment.stats.criticalRate}%</div>}
-              {equipment.stats?.criticalDamage && <div>暴击伤害: {equipment.stats.criticalDamage}%</div>}
+              {(equipment.stats?.attack || 0) > 0 && <div>攻击: {equipment.stats.attack}</div>}
+              {(equipment.stats?.defense || 0) > 0 && <div>防御: {equipment.stats.defense}</div>}
+              {(equipment.stats?.health || 0) > 0 && <div>血量: {equipment.stats.health}</div>}
+              {(equipment.stats?.agility || 0) > 0 && <div>敏捷: {equipment.stats.agility}</div>}
+              {(equipment.stats?.criticalRate || 0) > 0 && <div>暴击率: {equipment.stats.criticalRate}%</div>}
+              {(equipment.stats?.criticalDamage || 0) > 0 && <div>暴击伤害: {equipment.stats.criticalDamage}%</div>}
             </div>
           </div>
           
