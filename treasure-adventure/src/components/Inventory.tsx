@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { calculatePlayerStats } from '../utils/gameUtils';
+import { calculatePlayerStats, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
+import EquipmentModal from './EquipmentModal';
 
 const Inventory: React.FC = () => {
-  const { player, useHealthPotion, equipItem } = useGameStore();
+  const { player, useHealthPotion } = useGameStore();
+  const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // 按类型分组物品
   const healthPotions = player.inventory.filter(item => item.type === 'health_potion');
@@ -25,15 +28,14 @@ const Inventory: React.FC = () => {
     useHealthPotion();
   };
   
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case 'common': return '#808080';
-      case 'uncommon': return '#00ff00';
-      case 'rare': return '#0080ff';
-      case 'epic': return '#8000ff';
-      case 'legendary': return '#ff8000';
-      default: return '#000000';
-    }
+  const handleEquipmentClick = (equipment: any) => {
+    setSelectedEquipment(equipment);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEquipment(null);
   };
   
   return (
@@ -46,10 +48,13 @@ const Inventory: React.FC = () => {
         <div className="items-grid">
           {healthPotions.map(item => (
             <div key={item.id} className="inventory-item consumable">
-              <div className="item-info">
-                <span className="item-name">{item.name}</span>
+              <div className="item-display">
+                <img 
+                  src={getItemImage('health_potion')} 
+                  alt={item.name}
+                  style={{ width: '32px', height: '32px' }}
+                />
                 <span className="item-quantity">×{item.quantity}</span>
-                <span className="item-effect">恢复 {item.effect?.value || 50} 血量</span>
               </div>
               <button 
                 onClick={handleUsePotion}
@@ -75,30 +80,22 @@ const Inventory: React.FC = () => {
           {equipment.map(item => {
             const equipmentItem = item as any;
             return (
-              <div key={item.id} className="inventory-item equipment">
-                <div className="item-info">
-                  <span 
-                    className="item-name"
-                    style={{ color: getRarityColor(equipmentItem.rarity) }}
-                  >
-                    {item.name}
-                  </span>
-                  <div className="item-stats">
-                    {equipmentItem.stats?.attack && <span>攻击+{equipmentItem.stats.attack}</span>}
-                    {equipmentItem.stats?.defense && <span>防御+{equipmentItem.stats.defense}</span>}
-                    {equipmentItem.stats?.health && <span>血量+{equipmentItem.stats.health}</span>}
-                    {equipmentItem.stats?.agility && <span>敏捷+{equipmentItem.stats.agility}</span>}
-                    {equipmentItem.stats?.criticalRate && <span>暴击率+{equipmentItem.stats.criticalRate}%</span>}
-                    {equipmentItem.stats?.criticalDamage && <span>暴击伤害+{equipmentItem.stats.criticalDamage}%</span>}
-                  </div>
-                  <span className="item-type">类型: {equipmentItem.equipmentType}</span>
+              <div 
+                key={item.id} 
+                className="inventory-item equipment clickable"
+                style={{ backgroundColor: getRarityColor(equipmentItem.rarity) }}
+                onClick={() => handleEquipmentClick(equipmentItem)}
+              >
+                <div className="item-display">
+                  <img 
+                    src={getEquipmentImage(equipmentItem.equipmentType || equipmentItem.type)} 
+                    alt={item.name}
+                    style={{ width: '32px', height: '32px' }}
+                  />
+                  {equipmentItem.level > 1 && (
+                    <span className="item-level">+{equipmentItem.level - 1}</span>
+                  )}
                 </div>
-                <button 
-                  onClick={() => equipItem(equipmentItem, equipmentItem.equipmentType)}
-                  className="use-item-btn"
-                >
-                  装备
-                </button>
               </div>
             );
           })}
@@ -130,6 +127,13 @@ const Inventory: React.FC = () => {
       <div className="inventory-summary">
         <p>背包空间: {player.inventory.length}/50</p>
       </div>
+
+      <EquipmentModal
+        equipment={selectedEquipment}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        isEquipped={false}
+      />
     </div>
   );
 };

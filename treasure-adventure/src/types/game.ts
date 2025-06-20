@@ -24,6 +24,7 @@ export interface Equipment {
   armor?: EquipmentItem;
   shoes?: EquipmentItem;
   weapon?: EquipmentItem;
+  shield?: EquipmentItem;
   accessory?: EquipmentItem;
 }
 
@@ -33,6 +34,8 @@ export interface EquipmentItem {
   type: EquipmentType;
   rarity: ItemRarity;
   stats: ItemStats;
+  level: number;
+  baseStats: ItemStats;
 }
 
 export interface ItemStats {
@@ -49,6 +52,7 @@ export const EquipmentType = {
   ARMOR: 'armor',
   SHOES: 'shoes',
   WEAPON: 'weapon',
+  SHIELD: 'shield',
   ACCESSORY: 'accessory'
 } as const;
 

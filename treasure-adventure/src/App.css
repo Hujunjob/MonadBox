@@ -1,6 +1,8 @@
 /* 游戏容器 */
 .game-container {
+  width: 1200px;
   max-width: 1200px;
+  min-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
@@ -56,6 +58,8 @@
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   min-height: 600px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 玩家状态 */
@@ -1038,6 +1042,15 @@
 }
 
 /* 响应式设计 */
+@media (max-width: 1240px) {
+  .game-container {
+    width: 100%;
+    min-width: auto;
+    max-width: 100%;
+    padding: 10px;
+  }
+}
+
 @media (max-width: 768px) {
   .game-container {
     padding: 10px;
@@ -1213,4 +1226,285 @@
   .items-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Equipment Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.equipment-modal {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+.modal-content {
+  margin-bottom: 20px;
+}
+
+.equipment-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.equipment-icon.large {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ddd;
+}
+
+.equipment-info {
+  flex: 1;
+}
+
+.equipment-level {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.equipment-rarity {
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.equipment-stats h4 {
+  margin: 15px 0 10px 0;
+  color: #333;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.equipment-upgrade {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+}
+
+.equipment-upgrade h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.upgrade-info {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.upgrade-info div {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.upgrade-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.upgrade-controls label {
+  font-weight: bold;
+}
+
+.upgrade-controls input {
+  width: 60px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.equip-btn {
+  background: #28a745;
+  color: white;
+}
+
+.equip-btn:hover {
+  background: #218838;
+}
+
+.unequip-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.unequip-btn:hover {
+  background: #c82333;
+}
+
+.upgrade-btn {
+  background: #007bff;
+  color: white;
+}
+
+.upgrade-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.upgrade-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Image-based Equipment Display */
+.equipped-item.clickable {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 8px;
+  border: 2px solid #ddd;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+}
+
+.equipped-item.clickable:hover {
+  border-color: #007bff;
+  transform: scale(1.05);
+}
+
+.inventory-item.clickable {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 8px;
+  border: 2px solid #ddd;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  position: relative;
+}
+
+.inventory-item.clickable:hover {
+  border-color: #007bff;
+  transform: scale(1.05);
+}
+
+.item-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+
+.item-level {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Updated items grid for smaller icons */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.inventory-item.equipment {
+  border-left: none;
+  padding: 10px;
+  min-height: 80px;
+}
+
+.inventory-item.consumable {
+  border-left: none;
+  padding: 10px;
+  min-height: 80px;
 }

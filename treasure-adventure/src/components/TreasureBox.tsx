@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { generateRandomEquipment } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
+import TreasureBoxTimer from './TreasureBoxTimer';
 
 const TreasureBox: React.FC = () => {
   const { player, buyTreasureBox, gainExperience, gainGold, updatePlayer } = useGameStore();
@@ -117,20 +118,6 @@ const TreasureBox: React.FC = () => {
     setRewardOptions([]);
   };
   
-  const formatReward = (reward: any) => {
-    switch (reward.type) {
-      case RewardType.EXPERIENCE:
-        return `经验 +${reward.amount}`;
-      case RewardType.GOLD:
-        return `金币 +${reward.amount}`;
-      case RewardType.EQUIPMENT:
-        return `装备: ${reward.item.name}`;
-      case RewardType.HEALTH_POTION:
-        return `血瓶 +${reward.amount}`;
-      default:
-        return '未知奖励';
-    }
-  };
   
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -146,6 +133,8 @@ const TreasureBox: React.FC = () => {
   return (
     <div className="treasure-box-panel">
       <h2>宝箱系统</h2>
+      
+      <TreasureBoxTimer />
       
       <div className="treasure-box-info">
         <p>拥有宝箱: {player.treasureBoxes}个</p>

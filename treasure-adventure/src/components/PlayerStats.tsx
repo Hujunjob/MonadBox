@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { calculatePlayerStats } from '../utils/gameUtils';
+import { calculatePlayerStats, getEquipmentImage, getRarityColor } from '../utils/gameUtils';
 import { EquipmentType } from '../types/game';
+import EquipmentModal from './EquipmentModal';
 
 const PlayerStats: React.FC = () => {
-  const { player, initializeGame, unequipItem } = useGameStore();
+  const { player, initializeGame } = useGameStore();
   const stats = calculatePlayerStats(player);
+  const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
+  const [selectedSlot, setSelectedSlot] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const expNeeded = player.level * 100;
   const expPercent = (player.experience / expNeeded) * 100;
@@ -16,18 +20,20 @@ const PlayerStats: React.FC = () => {
     { key: 'armor', name: '衣服', type: EquipmentType.ARMOR },
     { key: 'shoes', name: '鞋子', type: EquipmentType.SHOES },
     { key: 'weapon', name: '武器', type: EquipmentType.WEAPON },
+    { key: 'shield', name: '盾牌', type: EquipmentType.SHIELD },
     { key: 'accessory', name: '配饰', type: EquipmentType.ACCESSORY }
   ];
   
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case 'common': return '#808080';
-      case 'uncommon': return '#00ff00';
-      case 'rare': return '#0080ff';
-      case 'epic': return '#8000ff';
-      case 'legendary': return '#ff8000';
-      default: return '#000000';
-    }
+  const handleEquipmentClick = (equipment: any, slot: string) => {
+    setSelectedEquipment(equipment);
+    setSelectedSlot(slot);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEquipment(null);
+    setSelectedSlot('');
   };
   
   return (
@@ -98,21 +104,16 @@ const PlayerStats: React.FC = () => {
                 <label>{slot.name}</label>
                 <div className="slot-content">
                   {equippedItem ? (
-                    <div className="equipped-item">
-                      <span style={{ color: getRarityColor(equippedItem.rarity) }}>
-                        {equippedItem.name}
-                      </span>
-                      <div className="item-stats">
-                        {equippedItem.stats.attack && <span>攻击+{equippedItem.stats.attack}</span>}
-                        {equippedItem.stats.defense && <span>防御+{equippedItem.stats.defense}</span>}
-                        {equippedItem.stats.health && <span>血量+{equippedItem.stats.health}</span>}
-                        {equippedItem.stats.agility && <span>敏捷+{equippedItem.stats.agility}</span>}
-                        {equippedItem.stats.criticalRate && <span>暴击率+{equippedItem.stats.criticalRate}%</span>}
-                        {equippedItem.stats.criticalDamage && <span>暴击伤害+{equippedItem.stats.criticalDamage}%</span>}
-                      </div>
-                      <button onClick={() => unequipItem(slot.key)} className="unequip-btn">
-                        卸下
-                      </button>
+                    <div 
+                      className="equipped-item clickable"
+                      style={{ backgroundColor: getRarityColor(equippedItem.rarity) }}
+                      onClick={() => handleEquipmentClick(equippedItem, slot.key)}
+                    >
+                      <img 
+                        src={getEquipmentImage(equippedItem.type)} 
+                        alt={equippedItem.name}
+                        style={{ width: '32px', height: '32px' }}
+                      />
                     </div>
                   ) : (
                     <div className="empty-slot">
@@ -127,7 +128,7 @@ const PlayerStats: React.FC = () => {
         
         
         <div className="equipment-note">
-          <p>💡 要装备新物品，请到"背包"栏选择装备</p>
+          <p>💡 点击装备查看详情和进行操作</p>
         </div>
       </div>
       
@@ -146,6 +147,14 @@ const PlayerStats: React.FC = () => {
           重置游戏
         </button>
       </div>
+
+      <EquipmentModal
+        equipment={selectedEquipment}
+        slot={selectedSlot}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        isEquipped={true}
+      />
     </div>
   );
 };

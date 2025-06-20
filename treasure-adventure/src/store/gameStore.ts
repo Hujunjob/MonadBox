@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Player, GameState, ForestLevel, Monster, BattleState, Equipment, InventoryItem } from '../types/game';
-import { generateForestLevels, generateMonster, calculatePlayerStats } from '../utils/gameUtils';
+import type { Player, GameState, Monster, Equipment } from '../types/game';
+import { generateForestLevels, calculatePlayerStats } from '../utils/gameUtils';
 
 interface GameStore extends GameState {
   initializeGame: () => void;
@@ -22,6 +22,7 @@ interface GameStore extends GameState {
   addTreasureBox: () => void;
   unlockNextForestLevel: () => void;
   incrementGameTime: () => void;
+  upgradeEquipment: (equipmentId: string, count: number) => void;
 }
 
 const createInitialPlayer = (): Player => ({
@@ -89,6 +90,7 @@ export const useGameStore = create<GameStore>()(
                          slot === 'armor' ? 'armor' :
                          slot === 'shoes' ? 'shoes' :
                          slot === 'weapon' ? 'weapon' :
+                         slot === 'shield' ? 'shield' :
                          slot === 'accessory' ? 'accessory' : slot;
           
           newEquipment[slotKey as keyof Equipment] = {
@@ -96,7 +98,9 @@ export const useGameStore = create<GameStore>()(
             name: item.name,
             type: item.equipmentType || item.type,
             rarity: item.rarity,
-            stats: item.stats
+            stats: item.stats,
+            level: item.level || 1,
+            baseStats: item.baseStats || item.stats
           };
           
           // 计算装备后的最大血量
@@ -150,7 +154,12 @@ export const useGameStore = create<GameStore>()(
               id: item.id,
               name: item.name,
               type: 'equipment' as any,
-              quantity: 1
+              quantity: 1,
+              equipmentType: item.type,
+              rarity: item.rarity,
+              stats: item.stats,
+              level: item.level || 1,
+              baseStats: item.baseStats || item.stats
             }];
             
             return {
@@ -561,6 +570,100 @@ export const useGameStore = create<GameStore>()(
           }
           
           return { gameTime: newTime };
+        });
+      },
+
+      upgradeEquipment: (equipmentId: string, count: number) => {
+        set((state) => {
+          // 查找要升级的装备
+          let targetEquipment: any = null;
+          let equipmentLocation: 'inventory' | 'equipped' = 'inventory';
+          let equipmentSlot: string | null = null;
+
+          // 在背包中查找
+          const inventoryIndex = state.player.inventory.findIndex(item => item.id === equipmentId);
+          if (inventoryIndex >= 0) {
+            targetEquipment = state.player.inventory[inventoryIndex];
+          } else {
+            // 在装备中查找
+            for (const [slot, equipment] of Object.entries(state.player.equipment)) {
+              if (equipment && equipment.id === equipmentId) {
+                targetEquipment = equipment;
+                equipmentLocation = 'equipped';
+                equipmentSlot = slot;
+                break;
+              }
+            }
+          }
+
+          if (!targetEquipment) return state;
+
+          // 计算升级成本
+          const upgradeCost = targetEquipment.level * 100 * count;
+          if (state.player.gold < upgradeCost) return state;
+
+          // 查找材料装备
+          const materialItems = state.player.inventory.filter(item => 
+            item.type === 'equipment' && 
+            item.id !== equipmentId &&
+            (item as any).equipmentType === targetEquipment.type &&
+            (item as any).rarity === targetEquipment.rarity
+          );
+
+          if (materialItems.length < count) return state;
+
+          // 升级装备
+          const upgradedEquipment = {
+            ...targetEquipment,
+            level: targetEquipment.level + count,
+            stats: {
+              attack: Math.floor((targetEquipment.baseStats.attack || 0) * (1 + count * 0.1)),
+              defense: Math.floor((targetEquipment.baseStats.defense || 0) * (1 + count * 0.1)),
+              health: Math.floor((targetEquipment.baseStats.health || 0) * (1 + count * 0.1)),
+              agility: Math.floor((targetEquipment.baseStats.agility || 0) * (1 + count * 0.1)),
+              criticalRate: Math.floor((targetEquipment.baseStats.criticalRate || 0) * (1 + count * 0.1)),
+              criticalDamage: Math.floor((targetEquipment.baseStats.criticalDamage || 0) * (1 + count * 0.1))
+            }
+          };
+
+          // 移除消耗的材料
+          let newInventory = [...state.player.inventory];
+          let removedCount = 0;
+          newInventory = newInventory.filter(item => {
+            if (removedCount < count &&
+                item.type === 'equipment' && 
+                item.id !== equipmentId &&
+                (item as any).equipmentType === targetEquipment.type &&
+                (item as any).rarity === targetEquipment.rarity) {
+              removedCount++;
+              return false;
+            }
+            return true;
+          });
+
+          // 更新装备
+          let newEquipment = { ...state.player.equipment };
+          if (equipmentLocation === 'equipped' && equipmentSlot) {
+            newEquipment[equipmentSlot as keyof typeof newEquipment] = upgradedEquipment;
+          } else {
+            // 更新背包中的装备
+            const updatedInventoryIndex = newInventory.findIndex(item => item.id === equipmentId);
+            if (updatedInventoryIndex >= 0) {
+              newInventory[updatedInventoryIndex] = {
+                ...newInventory[updatedInventoryIndex],
+                ...upgradedEquipment
+              };
+            }
+          }
+
+          return {
+            player: {
+              ...state.player,
+              gold: state.player.gold - upgradeCost,
+              inventory: newInventory,
+              equipment: newEquipment
+            }
+          };
         });
       }
     }),

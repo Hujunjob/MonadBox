@@ -21,24 +21,9 @@ const TreasureBoxTimer: React.FC = () => {
   
   return (
     <div className="treasure-box-timer">
-      <h3>下一个免费宝箱</h3>
-      {timeUntilNext > 0 ? (
-        <div className="timer-display">
-          <span className="time">{formatTime(timeUntilNext)}</span>
-          <div className="timer-bar">
-            <div 
-              className="timer-progress" 
-              style={{ 
-                width: `${((20 - timeUntilNext) / 20) * 100}%` 
-              }}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="timer-ready">
-          <span>宝箱已准备好！</span>
-        </div>
-      )}
+      <span style={{ color: 'black', fontSize: '18px', fontWeight: 'bold' }}>
+        {timeUntilNext > 0 ? `${formatTime(timeUntilNext)}/00:00:20` : '00:00:00/00:00:20'}
+      </span>
     </div>
   );
 };

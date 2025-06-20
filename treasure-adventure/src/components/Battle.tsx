@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats } from '../utils/gameUtils';
 
@@ -48,7 +48,7 @@ const Battle: React.FC = () => {
           damage: Math.abs(healthChange),
           target: 'player',
           type: 'damage',
-          isCritical: isCritical && latestLog.includes('攻击了你'),
+          isCritical: Boolean(isCritical && latestLog.includes('攻击了你')),
           timestamp: Date.now()
         };
         setDamageDisplays(prev => [...prev, display]);
@@ -73,7 +73,7 @@ const Battle: React.FC = () => {
         damage,
         target: 'monster',
         type: 'damage',
-        isCritical: isCritical && latestLog.includes('你攻击了'),
+        isCritical: Boolean(isCritical && latestLog.includes('你攻击了')),
         timestamp: Date.now()
       };
       setDamageDisplays(prev => [...prev, display]);
@@ -308,7 +308,7 @@ const Battle: React.FC = () => {
               </div>
             )}
             {/* 调试按钮 */}
-            {process.env.NODE_ENV === 'development' && (
+            {import.meta.env.DEV && (
               <button onClick={monsterAttack} style={{fontSize: '10px', margin: '5px'}}>
                 调试:怪物攻击
               </button>

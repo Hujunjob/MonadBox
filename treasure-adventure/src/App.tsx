@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useGameStore } from './store/gameStore';
 import PlayerStats from './components/PlayerStats';
 import TreasureBox from './components/TreasureBox';
 import MonsterForest from './components/MonsterForest';
 import Battle from './components/Battle';
-import TreasureBoxTimer from './components/TreasureBoxTimer';
 import Inventory from './components/Inventory';
 import './App.css';
 
@@ -20,7 +19,6 @@ function App() {
     <div className="game-container">
       <header className="game-header">
         <h1>宝物冒险</h1>
-        <TreasureBoxTimer />
       </header>
       
       <nav className="game-nav">

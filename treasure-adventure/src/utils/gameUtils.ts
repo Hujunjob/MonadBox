@@ -72,8 +72,8 @@ export const generateRandomEquipment = (level: number): EquipmentItem => {
   
   const baseStats = {
     attack: type === EquipmentType.WEAPON ? 5 + level * 2 : 0,
-    defense: type === EquipmentType.ARMOR || type === EquipmentType.HELMET ? 3 + level : 0,
-    health: type === EquipmentType.ARMOR ? 10 + level * 3 : 0,
+    defense: type === EquipmentType.ARMOR || type === EquipmentType.HELMET || type === EquipmentType.SHIELD ? 3 + level : 0,
+    health: type === EquipmentType.ARMOR || type === EquipmentType.SHIELD ? 10 + level * 3 : 0,
     agility: type === EquipmentType.SHOES ? 2 + level : 0,
     criticalRate: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 1 + Math.floor(level / 2) : 0,
     criticalDamage: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 5 + level * 2 : 0
@@ -81,19 +81,23 @@ export const generateRandomEquipment = (level: number): EquipmentItem => {
   
   const multiplier = rarityMultiplier[rarity];
   
+  const finalStats = {
+    attack: Math.floor(baseStats.attack * multiplier),
+    defense: Math.floor(baseStats.defense * multiplier),
+    health: Math.floor(baseStats.health * multiplier),
+    agility: Math.floor(baseStats.agility * multiplier),
+    criticalRate: Math.floor(baseStats.criticalRate * multiplier),
+    criticalDamage: Math.floor(baseStats.criticalDamage * multiplier)
+  };
+  
   return {
     id: `equipment_${Date.now()}_${Math.random()}`,
     name: `${rarity} ${type}`,
     type,
     rarity,
-    stats: {
-      attack: Math.floor(baseStats.attack * multiplier),
-      defense: Math.floor(baseStats.defense * multiplier),
-      health: Math.floor(baseStats.health * multiplier),
-      agility: Math.floor(baseStats.agility * multiplier),
-      criticalRate: Math.floor(baseStats.criticalRate * multiplier),
-      criticalDamage: Math.floor(baseStats.criticalDamage * multiplier)
-    }
+    level: 1,
+    baseStats: { ...finalStats },
+    stats: { ...finalStats }
   };
 };
 
@@ -136,10 +140,44 @@ export const formatTime = (seconds: number): string => {
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-export const getNextTreasureBoxTime = (lastBoxTime: number, currentTime: number): number => {
+export const getNextTreasureBoxTime = (lastBoxTime: number): number => {
   const now = Math.floor(Date.now() / 1000); // 转换为秒
   const lastTime = Math.floor(lastBoxTime / 1000); // 转换为秒
   const timePassed = now - lastTime;
   const timeUntilNext = 3600 - timePassed; // 1小时 = 3600秒
   return Math.max(0, timeUntilNext);
+};
+
+export const getEquipmentImage = (type: string): string => {
+  // 映射装备类型到对应的图片文件名
+  const imageMap: { [key: string]: string } = {
+    'helmet': '/assets/helmet.png',
+    'armor': '/assets/armor.png',
+    'shoes': '/assets/shoe.png',
+    'weapon': '/assets/weapon.png',
+    'shield': '/assets/shield.png',
+    'accessory': '/assets/accessory.png'
+  };
+  
+  return imageMap[type] || '/assets/weapon.png';
+};
+
+export const getItemImage = (type: string): string => {
+  // 映射物品类型到对应的图片文件名
+  const imageMap: { [key: string]: string } = {
+    'health_potion': '/assets/blood.png'
+  };
+  
+  return imageMap[type] || '/assets/blood.png';
+};
+
+export const getRarityColor = (rarity: string): string => {
+  switch (rarity) {
+    case 'common': return '#9ca3af';
+    case 'uncommon': return '#10b981';
+    case 'rare': return '#3b82f6';
+    case 'epic': return '#8b5cf6';
+    case 'legendary': return '#f59e0b';
+    default: return '#6b7280';
+  }
 };
