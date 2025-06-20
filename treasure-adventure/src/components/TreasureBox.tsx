@@ -115,11 +115,6 @@ const TreasureBox: React.FC = () => {
     setShowSelection(false);
     // 清除奖励选项，为下次开箱做准备
     setRewardOptions([]);
-    
-    // 3秒后清除选择结果
-    setTimeout(() => {
-      setSelectedReward(null);
-    }, 3000);
   };
   
   const formatReward = (reward: any) => {

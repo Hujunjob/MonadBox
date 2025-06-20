@@ -541,6 +541,36 @@
   border: 2px solid #0066cc;
 }
 
+.forest-level.selected {
+  background: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffc107;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.monster-card.available {
+  background: #e8f5e8;
+  border-color: #28a745;
+}
+
+.fight-btn.challenge {
+  background: #17a2b8;
+  color: white;
+}
+
+.fight-btn.challenge:hover:not(:disabled) {
+  background: #138496;
+}
+
+.no-health-label {
+  background: #f8d7da;
+  color: #721c24;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
 .current-forest {
   margin-bottom: 30px;
 }
@@ -658,6 +688,64 @@
   padding: 20px;
 }
 
+/* 伤害数值显示 */
+.damage-display-container {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 100;
+}
+
+.damage-display {
+  position: absolute;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+  animation: damageFloat 2s ease-out forwards;
+  transform: translate(-50%, -50%);
+}
+
+.damage-display.player-damage {
+  color: #fff;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  border-color: #aa0000;
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.6);
+}
+
+.damage-display.monster-damage {
+  color: #fff;
+  background: linear-gradient(135deg, #ff8800, #cc5500);
+  border-color: #aa4400;
+  box-shadow: 0 0 15px rgba(255, 136, 0, 0.6);
+}
+
+.damage-display.player-heal {
+  color: #fff;
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+  border-color: #155724;
+  box-shadow: 0 0 15px rgba(40, 167, 69, 0.6);
+}
+
+@keyframes damageFloat {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -80%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -120%) scale(0.8);
+  }
+}
+
 .battle-header {
   display: flex;
   justify-content: space-between;
@@ -687,6 +775,12 @@
   padding: 20px;
   border-radius: 10px;
   text-align: center;
+  position: relative;
+  width: 300px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .battle-participant.monster {
@@ -733,6 +827,11 @@
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s;
+  width: 120px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .attack-btn {
@@ -759,10 +858,11 @@
 }
 
 .monster-actions {
-  height: 50px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 60px;
 }
 
 .monster-cooldown {
@@ -823,6 +923,24 @@
 .defeat {
   background: #f8d7da;
   color: #721c24;
+}
+
+.confirm-btn {
+  margin-top: 15px;
+  padding: 10px 30px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.confirm-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
 }
 
 /* 宝箱计时器 */

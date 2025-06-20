@@ -2,6 +2,14 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats } from '../utils/gameUtils';
 
+interface DamageDisplay {
+  id: string;
+  damage: number;
+  target: 'player' | 'monster';
+  type: 'damage' | 'heal';
+  timestamp: number;
+}
+
 const Battle: React.FC = () => {
   const { 
     currentBattle, 
@@ -12,6 +20,70 @@ const Battle: React.FC = () => {
     useHealthPotion,
     player
   } = useGameStore();
+  
+  const [damageDisplays, setDamageDisplays] = useState<DamageDisplay[]>([]);
+  const [previousPlayerHealth, setPreviousPlayerHealth] = useState<number | null>(null);
+  const [previousMonsterHealth, setPreviousMonsterHealth] = useState<number | null>(null);
+  
+  // 检测血量变化并创建显示
+  useEffect(() => {
+    if (!currentBattle) return;
+    
+    // 检测玩家血量变化
+    if (previousPlayerHealth !== null && currentBattle.player.health !== previousPlayerHealth) {
+      const healthChange = currentBattle.player.health - previousPlayerHealth;
+      
+      if (healthChange < 0) {
+        // 受到伤害
+        const display: DamageDisplay = {
+          id: `player-damage-${Date.now()}`,
+          damage: Math.abs(healthChange),
+          target: 'player',
+          type: 'damage',
+          timestamp: Date.now()
+        };
+        setDamageDisplays(prev => [...prev, display]);
+      } else if (healthChange > 0) {
+        // 恢复血量
+        const display: DamageDisplay = {
+          id: `player-heal-${Date.now()}`,
+          damage: healthChange,
+          target: 'player',
+          type: 'heal',
+          timestamp: Date.now()
+        };
+        setDamageDisplays(prev => [...prev, display]);
+      }
+    }
+    
+    // 检测怪物受到伤害
+    if (previousMonsterHealth !== null && currentBattle.monster.health < previousMonsterHealth) {
+      const damage = previousMonsterHealth - currentBattle.monster.health;
+      const display: DamageDisplay = {
+        id: `monster-damage-${Date.now()}`,
+        damage,
+        target: 'monster',
+        type: 'damage',
+        timestamp: Date.now()
+      };
+      setDamageDisplays(prev => [...prev, display]);
+    }
+    
+    // 更新之前的血量
+    setPreviousPlayerHealth(currentBattle.player.health);
+    setPreviousMonsterHealth(currentBattle.monster.health);
+  }, [currentBattle?.player.health, currentBattle?.monster.health]);
+  
+  // 清除过期的伤害显示
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDamageDisplays(prev => 
+        prev.filter(display => Date.now() - display.timestamp < 1500)
+      );
+    }, 100);
+    
+    return () => clearInterval(timer);
+  }, []);
   
   useEffect(() => {
     if (!currentBattle?.isActive) return;
@@ -39,15 +111,6 @@ const Battle: React.FC = () => {
     return () => clearTimeout(timeout);
   }, [currentBattle?.isActive, currentBattle?.turn, currentBattle?.monsterCooldown]);
   
-  useEffect(() => {
-    if (currentBattle && !currentBattle.isActive) {
-      const timer = setTimeout(() => {
-        endBattle();
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [currentBattle, endBattle]);
   
   if (!currentBattle) {
     return null;
@@ -87,6 +150,18 @@ const Battle: React.FC = () => {
       <div className="battle-area">
         {/* 玩家状态 */}
         <div className="battle-participant player">
+          <div className="damage-display-container">
+            {damageDisplays
+              .filter(display => display.target === 'player')
+              .map(display => (
+                <div
+                  key={display.id}
+                  className={`damage-display ${display.type === 'heal' ? 'player-heal' : 'player-damage'}`}
+                >
+                  {display.type === 'heal' ? `+${display.damage}` : `-${display.damage}`}
+                </div>
+              ))}
+          </div>
           <h3>{currentBattle.player.name} (等级 {currentBattle.player.level})</h3>
           <div className="health-bar">
             <div className="health-label">
@@ -135,6 +210,18 @@ const Battle: React.FC = () => {
         
         {/* 怪物状态 */}
         <div className="battle-participant monster">
+          <div className="damage-display-container">
+            {damageDisplays
+              .filter(display => display.target === 'monster')
+              .map(display => (
+                <div
+                  key={display.id}
+                  className="damage-display monster-damage"
+                >
+                  -{display.damage}
+                </div>
+              ))}
+          </div>
           <h3>{currentBattle.monster.name} (等级 {currentBattle.monster.level})</h3>
           <div className="health-bar">
             <div className="health-label">
@@ -167,17 +254,6 @@ const Battle: React.FC = () => {
         </div>
       </div>
       
-      {/* 战斗日志 */}
-      <div className="battle-log">
-        <h3>战斗日志</h3>
-        <div className="log-content">
-          {currentBattle.battleLog.map((log, index) => (
-            <div key={index} className="log-entry">
-              {log}
-            </div>
-          ))}
-        </div>
-      </div>
       
       {/* 回合指示器 */}
       <div className="turn-indicator">
@@ -195,6 +271,9 @@ const Battle: React.FC = () => {
             <div className="defeat">
               <h3>战斗失败！</h3>
               <p>你被击败了，请恢复血量后再次挑战。</p>
+              <button onClick={endBattle} className="confirm-btn">
+                确定
+              </button>
             </div>
           ) : (
             <div className="victory">
@@ -202,9 +281,11 @@ const Battle: React.FC = () => {
               <p>获得经验: +{currentBattle.monster.experience}</p>
               <p>获得金币: +{currentBattle.monster.goldDrop}</p>
               <p>获得宝箱: +1</p>
+              <button onClick={endBattle} className="confirm-btn">
+                确定
+              </button>
             </div>
           )}
-          <p>3秒后自动返回...</p>
         </div>
       )}
     </div>

@@ -3,8 +3,9 @@ import { useGameStore } from '../store/gameStore';
 
 const MonsterForest: React.FC = () => {
   const { player, forestLevels, startBattle } = useGameStore();
+  const [selectedForestLevel, setSelectedForestLevel] = React.useState(player.currentForestLevel);
   
-  const currentForest = forestLevels.find(forest => forest.level === player.currentForestLevel);
+  const currentForest = forestLevels.find(forest => forest.level === selectedForestLevel);
   
   const handleFightMonster = (monster: any) => {
     if (player.health <= 0) {
@@ -25,8 +26,10 @@ const MonsterForest: React.FC = () => {
             <div 
               key={forest.level} 
               className={`forest-level ${forest.isUnlocked ? 'unlocked' : 'locked'} ${
-                forest.level === player.currentForestLevel ? 'current' : ''
-              }`}
+                forest.level === selectedForestLevel ? 'selected' : ''
+              } ${forest.level === player.currentForestLevel ? 'current' : ''}`}
+              onClick={() => forest.isUnlocked && setSelectedForestLevel(forest.level)}
+              style={{ cursor: forest.isUnlocked ? 'pointer' : 'default' }}
             >
               <span>{forest.name}</span>
               <span>
@@ -45,15 +48,22 @@ const MonsterForest: React.FC = () => {
       
       {currentForest && (
         <div className="current-forest">
-          <h3>{currentForest.name} - 第{player.currentForestLevel}层</h3>
-          <p>进度: {player.currentForestProgress}/10 只怪物</p>
+          <h3>{currentForest.name} - 第{selectedForestLevel}层</h3>
+          {selectedForestLevel === player.currentForestLevel ? (
+            <p>当前进度: {player.currentForestProgress}/10 只怪物</p>
+          ) : (
+            <p>重新挑战已完成的森林层级</p>
+          )}
           
           <div className="monsters-grid">
             {currentForest.monsters.map((monster, index) => {
-              const isDefeated = index < player.currentForestProgress;
-              const isCurrent = index === player.currentForestProgress;
-              const isLocked = index > player.currentForestProgress;
-              const canFight = !isLocked && player.health > 0;
+              // 如果是当前层级，使用正常的进度逻辑
+              // 如果是已完成的层级，所有怪物都可以挑战
+              const isCurrentLevel = selectedForestLevel === player.currentForestLevel;
+              const isDefeated = isCurrentLevel ? index < player.currentForestProgress : false;
+              const isCurrent = isCurrentLevel ? index === player.currentForestProgress : false;
+              const isLocked = isCurrentLevel ? index > player.currentForestProgress : false;
+              const canFight = isCurrentLevel ? (!isLocked && player.health > 0) : (player.health > 0);
               
               return (
                 <div 
@@ -61,7 +71,7 @@ const MonsterForest: React.FC = () => {
                   className={`monster-card ${
                     isDefeated ? 'defeated' : 
                     isCurrent ? 'current' : 
-                    'locked'
+                    isLocked ? 'locked' : 'available'
                   }`}
                 >
                   <h4>{monster.name}</h4>
@@ -102,6 +112,20 @@ const MonsterForest: React.FC = () => {
                   
                   {isLocked && (
                     <div className="locked-label">未解锁</div>
+                  )}
+                  
+                  {!isCurrentLevel && canFight && (
+                    <button 
+                      onClick={() => handleFightMonster(monster)}
+                      className="fight-btn challenge"
+                      disabled={player.health <= 0}
+                    >
+                      挑战
+                    </button>
+                  )}
+                  
+                  {!isCurrentLevel && !canFight && (
+                    <div className="no-health-label">血量不足</div>
                   )}
                 </div>
               );
