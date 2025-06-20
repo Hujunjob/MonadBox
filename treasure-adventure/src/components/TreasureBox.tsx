@@ -9,6 +9,7 @@ const TreasureBox: React.FC = () => {
   const [openingBox, setOpeningBox] = useState(false);
   const [showSelection, setShowSelection] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
+  const [isClosing, setIsClosing] = useState(false);
   
   const handleOpenBox = () => {
     if (player.treasureBoxes <= 0 || openingBox) return;
@@ -17,6 +18,7 @@ const TreasureBox: React.FC = () => {
     setOpeningBox(true);
     setShowSelection(false);
     setSelectedReward(null);
+    setIsClosing(false);
     
     setTimeout(() => {
       // 生成可能的奖励选项
@@ -104,8 +106,12 @@ const TreasureBox: React.FC = () => {
   };
   
   const handleCloseRewards = () => {
-    setShowSelection(false);
-    setSelectedReward(null);
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowSelection(false);
+      setSelectedReward(null);
+      setIsClosing(false);
+    }, 300); // 动画持续时间
   };
   
   
@@ -139,8 +145,8 @@ const TreasureBox: React.FC = () => {
       </div>
       
       {showSelection && selectedReward && (
-        <div className="modal-overlay" onClick={handleCloseRewards}>
-          <div className="reward-modal" onClick={(e) => e.stopPropagation()}>
+        <div className={`modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleCloseRewards}>
+          <div className={`reward-modal ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>🎉 获得奖励</h3>
               <button className="close-btn" onClick={handleCloseRewards}>×</button>

@@ -1408,6 +1408,29 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+.modal-overlay.closing {
+  animation: overlayFadeOut 0.3s ease-in forwards;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlayFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 .equipment-modal {
@@ -1920,6 +1943,34 @@
   max-height: 80vh;
   overflow-y: auto;
   position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+  transform-origin: center;
+}
+
+.reward-modal.closing {
+  animation: modalSlideOut 0.3s ease-in forwards;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.7) translateY(-20px);
+  }
 }
 
 .reward-modal .modal-header {
