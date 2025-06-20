@@ -53,6 +53,7 @@ const MonsterForest: React.FC = () => {
               const isDefeated = index < player.currentForestProgress;
               const isCurrent = index === player.currentForestProgress;
               const isLocked = index > player.currentForestProgress;
+              const canFight = !isLocked && player.health > 0;
               
               return (
                 <div 
@@ -76,8 +77,17 @@ const MonsterForest: React.FC = () => {
                     <div>金币: +{monster.goldDrop}</div>
                   </div>
                   
-                  {isDefeated && (
-                    <div className="defeated-label">已击败</div>
+                  {isDefeated && !isCurrent && (
+                    <div className="defeated-status">
+                      <div className="defeated-label">已击败</div>
+                      <button 
+                        onClick={() => handleFightMonster(monster)}
+                        className="fight-btn retry"
+                        disabled={player.health <= 0}
+                      >
+                        重新挑战
+                      </button>
+                    </div>
                   )}
                   
                   {isCurrent && (

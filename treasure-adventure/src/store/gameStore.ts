@@ -156,14 +156,17 @@ export const useGameStore = create<GameStore>()(
             inventory: newInventory
           };
           
-          // 如果在战斗中，同时更新战斗状态
+          // 如果在战斗中，同时更新战斗状态并切换回合
           const updatedBattle = state.currentBattle ? {
             ...state.currentBattle,
             player: {
               ...state.currentBattle.player,
               health: newHealth,
               inventory: newInventory
-            }
+            },
+            turn: 'monster' as const,
+            playerCooldown: Math.max(1000, 2000 - state.currentBattle.player.agility * 10),
+            battleLog: [...state.currentBattle.battleLog, `你使用了血瓶，恢复了${healAmount}点血量`]
           } : state.currentBattle;
           
           return {
@@ -419,7 +422,7 @@ export const useGameStore = create<GameStore>()(
           const now = Math.floor(Date.now() / 1000);
           const timeSinceLastBox = now - state.player.lastTreasureBoxTime;
           
-          if (timeSinceLastBox >= 60) { // 改为60秒测试
+          if (timeSinceLastBox >= 20) { // 改为20秒测试
             get().addTreasureBox();
             get().updatePlayer({ lastTreasureBoxTime: now });
           }

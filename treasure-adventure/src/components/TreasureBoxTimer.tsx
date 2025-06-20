@@ -29,7 +29,7 @@ const TreasureBoxTimer: React.FC = () => {
             <div 
               className="timer-progress" 
               style={{ 
-                width: `${((60 - timeUntilNext) / 60) * 100}%` 
+                width: `${((20 - timeUntilNext) / 20) * 100}%` 
               }}
             />
           </div>

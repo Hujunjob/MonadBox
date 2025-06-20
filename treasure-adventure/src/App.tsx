@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useGameStore } from './store/gameStore';
 import PlayerStats from './components/PlayerStats';
-import Equipment from './components/Equipment';
 import TreasureBox from './components/TreasureBox';
 import MonsterForest from './components/MonsterForest';
 import Battle from './components/Battle';
 import TreasureBoxTimer from './components/TreasureBoxTimer';
+import Inventory from './components/Inventory';
 import './App.css';
 
 function App() {
@@ -31,10 +31,10 @@ function App() {
           角色
         </button>
         <button 
-          className={activeTab === 'equipment' ? 'active' : ''}
-          onClick={() => setActiveTab('equipment')}
+          className={activeTab === 'inventory' ? 'active' : ''}
+          onClick={() => setActiveTab('inventory')}
         >
-          装备
+          背包
         </button>
         <button 
           className={activeTab === 'treasure' ? 'active' : ''}
@@ -52,7 +52,7 @@ function App() {
       
       <main className="game-content">
         {activeTab === 'stats' && <PlayerStats />}
-        {activeTab === 'equipment' && <Equipment />}
+        {activeTab === 'inventory' && <Inventory />}
         {activeTab === 'treasure' && <TreasureBox />}
         {activeTab === 'forest' && <MonsterForest />}
       </main>

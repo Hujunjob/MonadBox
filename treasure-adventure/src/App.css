@@ -60,7 +60,7 @@
 
 /* 玩家状态 */
 .player-stats {
-  max-width: 600px;
+  max-width: 800px;
 }
 
 .player-stats h2 {
@@ -121,6 +121,133 @@
   background: #f8f9fa;
   border-radius: 5px;
   border-left: 4px solid #4CAF50;
+}
+
+/* 角色装备区域 */
+.equipment-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+}
+
+.equipment-section h3 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.equipment-section h4 {
+  color: #666;
+  margin: 20px 0 15px 0;
+  font-size: 16px;
+}
+
+.equipment-section .equipment-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.equipment-section .equipment-slot {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  background: #f9f9f9;
+}
+
+.equipment-section .equipment-slot label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 14px;
+}
+
+.equipment-section .equipped-item {
+  background: #f0f8ff;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.equipment-section .equipped-item span {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.equipment-section .empty-slot {
+  padding: 15px;
+  color: #999;
+  border: 2px dashed #ddd;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.equipment-section .equipment-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.equipment-section .inventory-equipment-item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  border-left: 4px solid #007bff;
+}
+
+.equipment-section .equipment-name {
+  font-weight: bold;
+  font-size: 16px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.equip-btn, .unequip-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 8px;
+  transition: all 0.3s;
+}
+
+.equip-btn {
+  background: #28a745;
+  color: white;
+}
+
+.equip-btn:hover {
+  background: #218838;
+}
+
+.unequip-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.unequip-btn:hover {
+  background: #c82333;
+}
+
+.equipment-note {
+  background: #e7f3ff;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 15px;
+  border: 1px solid #b3d9ff;
+}
+
+.equipment-note p {
+  margin: 0;
+  color: #0066cc;
+  font-size: 14px;
 }
 
 /* 装备系统 */
@@ -773,6 +900,147 @@
   }
   
   .monsters-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 背包系统 */
+.inventory-panel {
+  max-width: 800px;
+}
+
+.inventory-section {
+  margin-bottom: 30px;
+}
+
+.inventory-section h3 {
+  color: #333;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.inventory-item {
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  background: #f9f9f9;
+  transition: all 0.3s;
+}
+
+.inventory-item:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.inventory-item.consumable {
+  border-left: 4px solid #28a745;
+}
+
+.inventory-item.equipment {
+  border-left: 4px solid #007bff;
+}
+
+.inventory-item.other {
+  border-left: 4px solid #6c757d;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-name {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.item-quantity {
+  font-size: 14px;
+  color: #666;
+  font-weight: bold;
+}
+
+.item-effect {
+  font-size: 12px;
+  color: #28a745;
+  font-style: italic;
+}
+
+.item-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: #666;
+}
+
+.item-type {
+  font-size: 11px;
+  color: #999;
+  text-transform: capitalize;
+}
+
+.use-item-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.use-item-btn:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.use-item-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.inventory-summary {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.defeated-status {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.fight-btn.retry {
+  background: #ffc107;
+  color: #000;
+  font-size: 14px;
+  padding: 8px 16px;
+}
+
+.fight-btn.retry:hover:not(:disabled) {
+  background: #e0a800;
+}
+
+@media (max-width: 768px) {
+  .items-grid {
     grid-template-columns: 1fr;
   }
 }
