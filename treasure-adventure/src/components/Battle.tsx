@@ -116,7 +116,8 @@ const Battle: React.FC = () => {
     return null;
   }
   
-  const playerStats = calculatePlayerStats(currentBattle.player);
+  // 使用原始玩家数据计算属性，确保与角色界面一致
+  const playerStats = calculatePlayerStats(player);
   const canAttack = currentBattle.turn === 'player' && 
                    currentBattle.playerCooldown <= 0 && 
                    currentBattle.isActive;

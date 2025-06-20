@@ -263,17 +263,29 @@ export const useGameStore = create<GameStore>()(
       },
 
       startBattle: (monster) => {
-        set((state) => ({
-          currentBattle: {
-            player: { ...state.player },
-            monster: { ...monster },
-            turn: 'player',
-            playerCooldown: 0,
-            monsterCooldown: 0,
-            battleLog: [],
-            isActive: true
-          }
-        }));
+        set((state) => {
+          // 计算玩家的实际属性（包含装备加成）
+          const playerStats = calculatePlayerStats(state.player);
+          const playerWithStats = {
+            ...state.player,
+            attack: playerStats.attack,
+            defense: playerStats.defense,
+            agility: playerStats.agility
+            // 注意：这里不修改maxHealth，因为当前血量已经是正确的
+          };
+          
+          return {
+            currentBattle: {
+              player: playerWithStats,
+              monster: { ...monster },
+              turn: 'player',
+              playerCooldown: 0,
+              monsterCooldown: 0,
+              battleLog: [],
+              isActive: true
+            }
+          };
+        });
       },
 
       endBattle: () => {
