@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { calculatePlayerStats, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
+import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import EquipmentModal from './EquipmentModal';
+import ItemModal from './ItemModal';
 
 const Inventory: React.FC = () => {
-  const { player, useHealthPotion } = useGameStore();
+  const { player } = useGameStore();
   const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   
   // 按类型分组物品
   const healthPotions = player.inventory.filter(item => item.type === 'health_potion');
@@ -15,27 +18,24 @@ const Inventory: React.FC = () => {
     item.type !== 'health_potion' && item.type !== 'equipment'
   );
   
-  // 计算玩家实际属性（包括装备加成）
-  const stats = calculatePlayerStats(player);
-  const isHealthFull = player.health >= stats.maxHealth;
-  
-  const handleUsePotion = () => {
-    if (isHealthFull) {
-      alert('血量已满，无需使用血瓶！');
-      return;
-    }
-    
-    useHealthPotion();
-  };
-  
   const handleEquipmentClick = (equipment: any) => {
     setSelectedEquipment(equipment);
-    setIsModalOpen(true);
+    setIsEquipmentModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleItemClick = (item: any) => {
+    setSelectedItem(item);
+    setIsItemModalOpen(true);
+  };
+
+  const handleCloseEquipmentModal = () => {
+    setIsEquipmentModalOpen(false);
     setSelectedEquipment(null);
+  };
+
+  const handleCloseItemModal = () => {
+    setIsItemModalOpen(false);
+    setSelectedItem(null);
   };
   
   return (
@@ -47,7 +47,11 @@ const Inventory: React.FC = () => {
         <h3>消耗品</h3>
         <div className="items-grid">
           {healthPotions.map(item => (
-            <div key={item.id} className="inventory-item consumable">
+            <div 
+              key={item.id} 
+              className="inventory-item consumable clickable"
+              onClick={() => handleItemClick(item)}
+            >
               <div className="item-display">
                 <img 
                   src={getItemImage('health_potion')} 
@@ -56,13 +60,6 @@ const Inventory: React.FC = () => {
                 />
                 <span className="item-quantity">×{item.quantity}</span>
               </div>
-              <button 
-                onClick={handleUsePotion}
-                className="use-item-btn"
-                disabled={item.quantity <= 0 || isHealthFull}
-              >
-                {isHealthFull ? '血量已满' : '使用'}
-              </button>
             </div>
           ))}
           {healthPotions.length === 0 && (
@@ -130,9 +127,15 @@ const Inventory: React.FC = () => {
 
       <EquipmentModal
         equipment={selectedEquipment}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isEquipmentModalOpen}
+        onClose={handleCloseEquipmentModal}
         isEquipped={false}
+      />
+
+      <ItemModal
+        item={selectedItem}
+        isOpen={isItemModalOpen}
+        onClose={handleCloseItemModal}
       />
     </div>
   );

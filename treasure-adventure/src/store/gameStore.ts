@@ -473,11 +473,6 @@ export const useGameStore = create<GameStore>()(
           newPlayerActionBar = Math.min(newPlayerActionBar, maxActionBar);
           newMonsterActionBar = Math.min(newMonsterActionBar, maxActionBar);
           
-          // 添加调试信息
-          if (newMonsterActionBar >= maxActionBar && battle.monsterActionBar < maxActionBar) {
-            console.log('Monster action bar full! Setting turn to monster');
-          }
-          
           return {
             currentBattle: {
               ...battle,

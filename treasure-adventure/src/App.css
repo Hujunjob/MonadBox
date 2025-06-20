@@ -1364,6 +1364,40 @@
   }
 }
 
+/* Toast 通知样式 */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  z-index: 2000;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast-show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #dc3545, #e74c3c);
+}
+
+.toast-info {
+  background: linear-gradient(135deg, #17a2b8, #3498db);
+}
+
 /* Equipment Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -1643,4 +1677,83 @@
   border-left: none;
   padding: 10px;
   min-height: 80px;
+}
+
+/* Battle Result Modal Styles */
+.battle-result-modal {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.battle-result-header {
+  margin-bottom: 20px;
+}
+
+.battle-result-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.battle-result-content {
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.battle-result-content p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.battle-result-content strong {
+  color: #333;
+}
+
+.rewards {
+  margin: 20px 0;
+}
+
+.reward-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.reward-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.battle-result-actions {
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.confirm-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.confirm-btn:hover {
+  background: #218838;
+  transform: translateY(-1px);
 }

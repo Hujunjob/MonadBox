@@ -45,16 +45,16 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   };
 
   // 计算升级成本
-  const upgradeCost = equipment.level * 100 * upgradeCount;
+  const upgradeCost = (equipment?.level || 1) * 100 * upgradeCount;
   const requiredMaterials = upgradeCount;
   const canAffordUpgrade = player.gold >= upgradeCost;
   
   // 查找背包中同类型同稀有度的装备作为材料
-  const availableMaterials = player.inventory.filter(item => 
+  const availableMaterials = equipment ? player.inventory.filter(item => 
     item.type === 'equipment' && 
     (item as any).equipmentType === equipment.type &&
     (item as any).rarity === equipment.rarity
-  ).length;
+  ).length : 0;
   
   const canUpgrade = canAffordUpgrade && availableMaterials >= requiredMaterials;
 
@@ -70,19 +70,19 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
           <div className="equipment-display">
             <div 
               className="equipment-icon large"
-              style={{ backgroundColor: getRarityColor(equipment.rarity) }}
+              style={{ backgroundColor: getRarityColor(equipment?.rarity || 'common') }}
             >
               <img 
-                src={getEquipmentImage(equipment.type)} 
-                alt={equipment.name}
+                src={getEquipmentImage(equipment?.type || 'weapon')} 
+                alt={equipment?.name || 'Equipment'}
                 style={{ width: '64px', height: '64px' }}
               />
             </div>
             
             <div className="equipment-info">
-              <div className="equipment-level">等级 {equipment.level}</div>
-              <div className="equipment-rarity" style={{ color: getRarityColor(equipment.rarity) }}>
-                {equipment.rarity}
+              <div className="equipment-level">等级 {equipment?.level || 1}</div>
+              <div className="equipment-rarity" style={{ color: getRarityColor(equipment?.rarity || 'common') }}>
+                {equipment?.rarity || 'common'}
               </div>
             </div>
           </div>
@@ -90,12 +90,12 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
           <div className="equipment-stats">
             <h4>属性</h4>
             <div className="stats-grid">
-              {equipment.stats.attack && <div>攻击: {equipment.stats.attack}</div>}
-              {equipment.stats.defense && <div>防御: {equipment.stats.defense}</div>}
-              {equipment.stats.health && <div>血量: {equipment.stats.health}</div>}
-              {equipment.stats.agility && <div>敏捷: {equipment.stats.agility}</div>}
-              {equipment.stats.criticalRate && <div>暴击率: {equipment.stats.criticalRate}%</div>}
-              {equipment.stats.criticalDamage && <div>暴击伤害: {equipment.stats.criticalDamage}%</div>}
+              {equipment.stats?.attack && <div>攻击: {equipment.stats.attack}</div>}
+              {equipment.stats?.defense && <div>防御: {equipment.stats.defense}</div>}
+              {equipment.stats?.health && <div>血量: {equipment.stats.health}</div>}
+              {equipment.stats?.agility && <div>敏捷: {equipment.stats.agility}</div>}
+              {equipment.stats?.criticalRate && <div>暴击率: {equipment.stats.criticalRate}%</div>}
+              {equipment.stats?.criticalDamage && <div>暴击伤害: {equipment.stats.criticalDamage}%</div>}
             </div>
           </div>
           

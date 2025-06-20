@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats } from '../utils/gameUtils';
+import BattleResultModal from './BattleResultModal';
 
 interface DamageDisplay {
   id: string;
@@ -27,6 +28,16 @@ const Battle: React.FC = () => {
   const [previousPlayerHealth, setPreviousPlayerHealth] = useState<number | null>(null);
   const [previousMonsterHealth, setPreviousMonsterHealth] = useState<number | null>(null);
   const [previousBattleLogLength, setPreviousBattleLogLength] = useState(0);
+  const [showResultModal, setShowResultModal] = useState(false);
+  
+  // 检测战斗结束并显示结算模态框
+  useEffect(() => {
+    if (!currentBattle) return;
+    
+    if (!currentBattle.isActive && !showResultModal) {
+      setShowResultModal(true);
+    }
+  }, [currentBattle?.isActive, showResultModal]);
   
   // 检测血量变化并创建显示
   useEffect(() => {
@@ -117,19 +128,9 @@ const Battle: React.FC = () => {
     const canMonsterAttack = currentBattle.monsterCooldown <= 0 &&
                             currentBattle.monsterActionBar >= 100;
     
-    // 调试信息
-    console.log('Monster attack check:', {
-      turn: currentBattle.turn,
-      cooldown: currentBattle.monsterCooldown,
-      actionBar: currentBattle.monsterActionBar,
-      canAttack: canMonsterAttack
-    });
-    
     if (!canMonsterAttack) {
       return;
     }
-    
-    console.log('Monster attacking now!');
     
     // 延迟500ms后自动怪物攻击
     const timeout = setTimeout(() => {
@@ -146,9 +147,6 @@ const Battle: React.FC = () => {
   
   // 使用原始玩家数据计算属性，确保与角色界面一致
   const playerStats = calculatePlayerStats(player);
-  const canAttack = currentBattle.playerCooldown <= 0 && 
-                   currentBattle.playerActionBar >= 100 &&
-                   currentBattle.isActive;
   
   const playerHealthPercent = (currentBattle.player.health / playerStats.maxHealth) * 100;
   const monsterHealthPercent = (currentBattle.monster.health / currentBattle.monster.maxHealth) * 100;
@@ -166,6 +164,14 @@ const Battle: React.FC = () => {
   };
   
   const hasHealthPotion = currentBattle?.player.inventory.some(item => item.type === 'health_potion') || false;
+  const canAttack = currentBattle.playerCooldown <= 0 && 
+                   currentBattle.playerActionBar >= 100 &&
+                   currentBattle.isActive;
+  
+  const handleCloseResultModal = () => {
+    setShowResultModal(false);
+    endBattle();
+  };
   
   return (
     <div className="battle-screen">
@@ -332,29 +338,14 @@ const Battle: React.FC = () => {
         </div>
       </div>
       
-      {!currentBattle.isActive && (
-        <div className="battle-result">
-          {currentBattle.player.health <= 0 ? (
-            <div className="defeat">
-              <h3>战斗失败！</h3>
-              <p>你被击败了，请恢复血量后再次挑战。</p>
-              <button onClick={endBattle} className="confirm-btn">
-                确定
-              </button>
-            </div>
-          ) : (
-            <div className="victory">
-              <h3>战斗胜利！</h3>
-              <p>获得经验: +{currentBattle.monster.experience}</p>
-              <p>获得金币: +{currentBattle.monster.goldDrop}</p>
-              <p>获得宝箱: +1</p>
-              <button onClick={endBattle} className="confirm-btn">
-                确定
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      <BattleResultModal
+        isOpen={showResultModal}
+        isVictory={currentBattle.player.health > 0}
+        monsterName={currentBattle.monster.name}
+        expGained={currentBattle.monster.experience}
+        goldGained={currentBattle.monster.goldDrop}
+        onClose={handleCloseResultModal}
+      />
     </div>
   );
 };

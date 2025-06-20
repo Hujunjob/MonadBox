@@ -6,14 +6,22 @@ const TreasureBoxTimer: React.FC = () => {
   const { player, incrementGameTime } = useGameStore();
   const [timeUntilNext, setTimeUntilNext] = useState(0);
   
+  // 计算倒计时的函数
+  const calculateTimeUntilNext = () => {
+    const now = Math.floor(Date.now() / 1000);
+    const timeSinceLastBox = now - player.lastTreasureBoxTime;
+    return Math.max(0, 20 - timeSinceLastBox);
+  };
+  
+  // 组件初始化时立即计算一次倒计时
+  useEffect(() => {
+    setTimeUntilNext(calculateTimeUntilNext());
+  }, [player.lastTreasureBoxTime]);
+  
   useEffect(() => {
     const timer = setInterval(() => {
       incrementGameTime();
-      
-      const now = Math.floor(Date.now() / 1000);
-      const timeSinceLastBox = now - player.lastTreasureBoxTime;
-      const nextBoxTime = Math.max(0,20 - timeSinceLastBox); // 改为60秒测试
-      setTimeUntilNext(nextBoxTime);
+      setTimeUntilNext(calculateTimeUntilNext());
     }, 1000);
     
     return () => clearInterval(timer);
