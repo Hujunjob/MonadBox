@@ -131,8 +131,7 @@ const TreasureBox: React.FC = () => {
             name: selectedReward.item.name,
             type: 'pet_egg' as any,
             quantity: selectedReward.amount,
-            level: selectedReward.item.level,
-            rarity: selectedReward.item.rarity
+            level: selectedReward.item.level
           }];
           updatePlayer({ inventory: newInventoryWithEgg });
           break;
@@ -270,7 +269,7 @@ const TreasureBox: React.FC = () => {
                     </div>
                   )}
                   {selectedReward.type === RewardType.PET_EGG && (
-                    <div className="reward-item-icon" style={{ backgroundColor: getRarityColor(selectedReward.item.rarity) }}>
+                    <div className="reward-item-icon">
                       <img 
                         src={getItemImage('pet_egg')} 
                         alt="宠物蛋"

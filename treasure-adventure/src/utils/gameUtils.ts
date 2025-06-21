@@ -150,15 +150,12 @@ export const generateRewardLevel = (boxLevel: number): number => {
 
 // 生成宠物蛋
 export const generatePetEgg = (level: number) => {
-  const rarity = generateRarityByProbability();
-  
   return {
     id: `pet_egg_${Date.now()}_${Math.random()}`,
-    name: `${level}级${rarity}宠物蛋`,
+    name: `${level}级宠物蛋`,
     type: 'pet_egg' as any,
     quantity: 1,
-    level: level,
-    rarity: rarity
+    level: level
   };
 };
 

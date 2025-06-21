@@ -80,7 +80,6 @@ const MonsterForest: React.FC = () => {
                 >
                   <div className="monster-header">
                     <span className="monster-name">{monster.name}</span>
-                    <span className="monster-level">Lv.{monster.level}</span>
                   </div>
                   
                   <div className="monster-info-compact">

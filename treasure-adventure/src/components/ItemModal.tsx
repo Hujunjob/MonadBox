@@ -63,7 +63,7 @@ const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
               <div className="equipment-quantity">数量: {item.quantity}</div>
               <div className="equipment-rarity">
                 {item.type === 'health_potion' && item.effect ? `恢复 ${item.effect.value} 血量` : ''}
-                {item.type === 'pet_egg' && item.rarity ? `稀有度: ${item.rarity}` : ''}
+                {item.type === 'pet_egg' ? '宠物蛋' : ''}
               </div>
             </div>
           </div>

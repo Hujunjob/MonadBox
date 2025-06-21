@@ -69,7 +69,6 @@ const Inventory: React.FC = () => {
               key={item.id} 
               className="inventory-item consumable clickable"
               onClick={() => handleItemClick(item)}
-              style={{ backgroundColor: getRarityColor(item.rarity || 'common') }}
             >
               <div className="item-display">
                 <img 
