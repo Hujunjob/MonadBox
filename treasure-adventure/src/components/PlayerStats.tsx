@@ -13,6 +13,7 @@ const PlayerStats: React.FC = () => {
   const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   
   // 确保体力属性存在
   React.useEffect(() => {
@@ -24,6 +25,21 @@ const PlayerStats: React.FC = () => {
       });
     }
   }, [player.stamina, player.maxStamina, player.lastStaminaTime, updatePlayer]);
+
+  // 点击外部隐藏tooltip
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.stat-icon')) {
+        setActiveTooltip(null);
+      }
+    };
+
+    if (activeTooltip) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [activeTooltip]);
   
   const expNeeded = player.level * 100;
   const healthPercent = (player.health / stats.maxHealth) * 100;
@@ -48,6 +64,11 @@ const PlayerStats: React.FC = () => {
     setIsModalOpen(false);
     setSelectedEquipment(null);
     setSelectedSlot('');
+  };
+
+  const handleTooltipClick = (tooltipId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setActiveTooltip(activeTooltip === tooltipId ? null : tooltipId);
   };
   
   return (
@@ -80,7 +101,13 @@ const PlayerStats: React.FC = () => {
       
       <div className="stat-grid-3col">
         <div className="stat-item">
-          <span>⚔️ 攻击力</span>
+          <span 
+            className="stat-icon" 
+            onClick={(e) => handleTooltipClick('attack', e)}
+          >
+            ⚔️
+            {activeTooltip === 'attack' && <span className="tooltip">攻击力</span>}
+          </span>
           <span>
             {baseStats.attack}
             {equipmentBonus.attack > 0 && (
@@ -91,7 +118,13 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>🛡️ 防御力</span>
+          <span 
+            className="stat-icon" 
+            onClick={(e) => handleTooltipClick('defense', e)}
+          >
+            🛡️
+            {activeTooltip === 'defense' && <span className="tooltip">防御力</span>}
+          </span>
           <span>
             {baseStats.defense}
             {equipmentBonus.defense > 0 && (
@@ -102,7 +135,13 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>💨 敏捷度</span>
+          <span 
+            className="stat-icon" 
+            onClick={(e) => handleTooltipClick('agility', e)}
+          >
+            💨
+            {activeTooltip === 'agility' && <span className="tooltip">敏捷度</span>}
+          </span>
           <span>
             {baseStats.agility}
             {equipmentBonus.agility > 0 && (
@@ -113,7 +152,13 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>💥 暴击率</span>
+          <span 
+            className="stat-icon" 
+            onClick={(e) => handleTooltipClick('criticalRate', e)}
+          >
+            💥
+            {activeTooltip === 'criticalRate' && <span className="tooltip">暴击率</span>}
+          </span>
           <span>
             {baseStats.criticalRate}%
             {equipmentBonus.criticalRate > 0 && (
@@ -124,7 +169,13 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>🔥 暴击伤害</span>
+          <span 
+            className="stat-icon" 
+            onClick={(e) => handleTooltipClick('criticalDamage', e)}
+          >
+            🔥
+            {activeTooltip === 'criticalDamage' && <span className="tooltip">暴击伤害</span>}
+          </span>
           <span>
             {baseStats.criticalDamage}%
             {equipmentBonus.criticalDamage > 0 && (
@@ -135,7 +186,13 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>📦 宝箱数</span>
+          <span 
+            className="stat-icon" 
+            onClick={(e) => handleTooltipClick('treasureBox', e)}
+          >
+            📦
+            {activeTooltip === 'treasureBox' && <span className="tooltip">宝箱数</span>}
+          </span>
           <span>{Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0}</span>
         </div>
       </div>
