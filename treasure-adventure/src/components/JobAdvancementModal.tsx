@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { getJobAdvancementSuccessRate, getNextJob, canAdvanceJob, getJobLevelDisplay, getJobAdvancementBookImage } from '../utils/gameUtils';
+import { getNextJob, canAdvanceJob, getJobLevelDisplay, getJobAdvancementBookImage } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { JobType } from '../types/game';
 
@@ -20,10 +20,29 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
   }
 
   const targetJob = item.targetJob as JobType;
-  const successRate = getJobAdvancementSuccessRate(player.level);
+  const bookSuccessRate = GAME_CONFIG.JOB_ADVANCEMENT.SUCCESS_RATES[targetJob] || 20;
   const canUse = canAdvanceJob(player.level);
   const nextJob = getNextJob(player.level);
   const isCorrectBook = nextJob === targetJob;
+  
+  // 获取源职业和目标职业名称
+  const getSourceJobForTarget = (target: JobType): JobType => {
+    const jobOrder = [
+      JobType.SWORDSMAN,
+      JobType.GREAT_SWORDSMAN,
+      JobType.TEMPLE_KNIGHT,
+      JobType.DRAGON_KNIGHT,
+      JobType.SWORD_MASTER,
+      JobType.SWORD_GOD,
+      JobType.PLANE_LORD
+    ];
+    const targetIndex = jobOrder.indexOf(target);
+    return targetIndex > 0 ? jobOrder[targetIndex - 1] : JobType.SWORDSMAN;
+  };
+  
+  const sourceJob = getSourceJobForTarget(targetJob);
+  const sourceJobName = GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[sourceJob] || '剑士';
+  const targetJobName = GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob] || '未知职业';
 
   const handleAdvancement = async () => {
     if (!canUse || !isCorrectBook || isAdvancing) return;
@@ -59,7 +78,6 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
     onClose();
   };
 
-  const jobName = GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob] || '未知职业';
   const currentJobLevelDisplay = getJobLevelDisplay(player.level, player.experience);
 
   return (
@@ -99,9 +117,9 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
                 />
               </div>
               <div className="item-description">
-                <p><strong>转职书:</strong> {jobName}</p>
+                <p><strong>转职书:</strong> {sourceJobName}转职为{targetJobName}</p>
                 <p><strong>当前级别:</strong> {currentJobLevelDisplay}</p>
-                <p><strong>成功率:</strong> <span style={{ color: '#007bff', fontWeight: 'bold' }}>{successRate}%</span></p>
+                <p><strong>成功率:</strong> <span style={{ color: '#007bff', fontWeight: 'bold' }}>{bookSuccessRate}%</span></p>
               </div>
 
 
