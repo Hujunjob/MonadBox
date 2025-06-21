@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore';
 import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import EquipmentModal from './EquipmentModal';
 import ItemModal from './ItemModal';
+import JobAdvancementModal from './JobAdvancementModal';
 
 const Inventory: React.FC = () => {
   const { player } = useGameStore();
@@ -10,13 +11,15 @@ const Inventory: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   
   // 按类型分组物品
   const healthPotions = player.inventory.filter(item => item.type === 'health_potion');
   const equipment = player.inventory.filter(item => item.type === 'equipment');
   const petEggs = player.inventory.filter(item => item.type === 'pet_egg');
+  const jobBooks = player.inventory.filter(item => item.type === 'job_advancement_book');
   const otherItems = player.inventory.filter(item => 
-    item.type !== 'health_potion' && item.type !== 'equipment' && item.type !== 'pet_egg'
+    item.type !== 'health_potion' && item.type !== 'equipment' && item.type !== 'pet_egg' && item.type !== 'job_advancement_book'
   );
   
   const handleEquipmentClick = (equipment: any) => {
@@ -26,7 +29,11 @@ const Inventory: React.FC = () => {
 
   const handleItemClick = (item: any) => {
     setSelectedItem(item);
-    setIsItemModalOpen(true);
+    if (item.type === 'job_advancement_book') {
+      setIsJobModalOpen(true);
+    } else {
+      setIsItemModalOpen(true);
+    }
   };
 
   const handleCloseEquipmentModal = () => {
@@ -36,6 +43,11 @@ const Inventory: React.FC = () => {
 
   const handleCloseItemModal = () => {
     setIsItemModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const handleCloseJobModal = () => {
+    setIsJobModalOpen(false);
     setSelectedItem(null);
   };
   
@@ -89,7 +101,28 @@ const Inventory: React.FC = () => {
               </div>
             </div>
           ))}
-          {healthPotions.length === 0 && petEggs.length === 0 && (
+          {jobBooks.map(item => (
+            <div 
+              key={item.id} 
+              className="inventory-item consumable clickable"
+              onClick={() => handleItemClick(item)}
+            >
+              <div className="item-header">
+                <span style={{ fontSize: '8px', color: '#666' }}>转职书</span>
+              </div>
+              <div className="item-display">
+                <img 
+                  src={getItemImage('job_advancement_book')} 
+                  alt={item.name}
+                  style={{ width: '32px', height: '32px' }}
+                />
+              </div>
+              <div className="item-info">
+                <span className="item-quantity-text">×{item.quantity}</span>
+              </div>
+            </div>
+          ))}
+          {healthPotions.length === 0 && petEggs.length === 0 && jobBooks.length === 0 && (
             <div className="empty-slot">
               <span>没有消耗品</span>
             </div>
@@ -172,6 +205,12 @@ const Inventory: React.FC = () => {
         item={selectedItem}
         isOpen={isItemModalOpen}
         onClose={handleCloseItemModal}
+      />
+
+      <JobAdvancementModal
+        item={selectedItem}
+        isOpen={isJobModalOpen}
+        onClose={handleCloseJobModal}
       />
     </div>
   );

@@ -93,9 +93,10 @@ export const GAME_CONFIG = {
 
   // 宝箱奖励概率配置
   TREASURE_BOX_PROBABILITIES: {
-    GOLD: 17,     // 金币 20%
-    BLOOD_POTION: 10,  // 血瓶 7%
+    GOLD: 1,     // 金币 17%
+    BLOOD_POTION: 9,  // 血瓶 9%（原来10%减少为9%）
     PET_EGG: 3,   // 宠物蛋 3%
+    JOB_ADVANCEMENT_BOOK: 17, // 转职书 1%
     // 装备 70% (7种装备类型，每种10%)
     // 剩余概率自动分配给装备
   },
@@ -107,6 +108,71 @@ export const GAME_CONFIG = {
     RARE: 10,       // 稀有 10%
     EPIC: 5,        // 史诗 5%
     LEGENDARY: 2    // 传说 2%
+  },
+
+  // 职业转职系统配置
+  JOB_ADVANCEMENT: {
+    // 转职成功率配置（百分比）
+    SUCCESS_RATES: {
+      'swordsman': 100,         // 默认职业：100%（不需要转职书）
+      'great_swordsman': 80,    // 转职大剑士：80%
+      'temple_knight': 60,      // 转职圣殿骑士：60%
+      'dragon_knight': 40,      // 转职龙骑士：40%
+      'sword_master': 20,       // 转职剑圣：20%
+      'sword_god': 20,          // 转职剑神：20%（最低20%）
+      'plane_lord': 20          // 转职位面领主：20%（最低20%）
+    },
+    
+    // 每个等级段对应的职业
+    LEVEL_TO_JOB: {
+      1: 'swordsman',
+      5: 'great_swordsman',
+      9: 'temple_knight',
+      13: 'dragon_knight',
+      17: 'sword_master',
+      21: 'sword_god',
+      25: 'plane_lord'
+    },
+    
+    // 职业对应的转职书等级范围
+    JOB_BOOK_LEVELS: {
+      'great_swordsman': [1, 2],      // 1-2级宝箱获得大剑士转职书
+      'temple_knight': [3, 4],        // 3-4级宝箱获得圣殿骑士转职书
+      'dragon_knight': [5, 6],        // 5-6级宝箱获得龙骑士转职书
+      'sword_master': [7, 8],         // 7-8级宝箱获得剑圣转职书
+      'sword_god': [9, 10],           // 9-10级宝箱获得剑神转职书
+      'plane_lord': [11, 12]          // 11-12级宝箱获得位面领主转职书（如果有的话）
+    },
+    
+    // 转职书名称
+    BOOK_NAMES: {
+      'swordsman': '剑士转职书',
+      'great_swordsman': '大剑士转职书',
+      'temple_knight': '圣殿骑士转职书',
+      'dragon_knight': '龙骑士转职书',
+      'sword_master': '剑圣转职书',
+      'sword_god': '剑神转职书',
+      'plane_lord': '位面领主转职书'
+    },
+    
+    // 职业中文名称
+    JOB_NAMES: {
+      'swordsman': '剑士',
+      'great_swordsman': '大剑士',
+      'temple_knight': '圣殿骑士',
+      'dragon_knight': '龙骑士',
+      'sword_master': '剑圣',
+      'sword_god': '剑神',
+      'plane_lord': '位面领主'
+    },
+    
+    // 等级前缀
+    LEVEL_PREFIXES: {
+      1: '初级',
+      2: '中级',
+      3: '高级',
+      4: '顶级'
+    }
   }
 } as const;
 

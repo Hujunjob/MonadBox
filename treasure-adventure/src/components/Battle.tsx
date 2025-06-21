@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { calculatePlayerStats } from '../utils/gameUtils';
+import { calculatePlayerStats, getJobLevelDisplay } from '../utils/gameUtils';
 import BattleResultModal from './BattleResultModal';
 
 interface DamageDisplay {
@@ -242,7 +242,7 @@ const Battle: React.FC = () => {
                 </div>
               ))}
           </div>
-          <h3>{currentBattle.player.name} (等级 {currentBattle.player.level})</h3>
+          <h3>{currentBattle.player.name} ({getJobLevelDisplay(currentBattle.player.level, currentBattle.player.job || 'swordsman')})</h3>
           <div className="health-bar">
             <div className="health-label">
               血量: {currentBattle.player.health}/{playerStats.maxHealth}

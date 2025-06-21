@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { generateRandomEquipment, generateHealthPotion, generatePetEgg, generateRewardLevel, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
+import { generateRandomEquipment, generateHealthPotion, generatePetEgg, generateJobAdvancementBook, generateRewardLevel, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
 import TreasureBoxTimer from './TreasureBoxTimer';
 import { GAME_CONFIG } from '../config/gameConfig';
@@ -63,8 +63,17 @@ const TreasureBox: React.FC = () => {
           amount: 1,
           description: `宠物蛋: ${petEgg.name}`
         };
+      } else if (random < probabilities.GOLD + probabilities.BLOOD_POTION + probabilities.PET_EGG + probabilities.JOB_ADVANCEMENT_BOOK) {
+        // 转职书
+        const jobBook = generateJobAdvancementBook(boxLevel);
+        selectedReward = { 
+          type: RewardType.JOB_ADVANCEMENT_BOOK, 
+          item: jobBook,
+          amount: 1,
+          description: `转职书: ${jobBook.name}`
+        };
       } else {
-        // 剩余概率为装备 (70%)
+        // 剩余概率为装备 (69%)
         const equipment = generateRandomEquipment(player.level, rewardLevel);
         selectedReward = { 
           type: RewardType.EQUIPMENT, 
@@ -134,6 +143,17 @@ const TreasureBox: React.FC = () => {
             level: selectedReward.item.level
           }];
           updatePlayer({ inventory: newInventoryWithEgg });
+          break;
+          
+        case RewardType.JOB_ADVANCEMENT_BOOK:
+          const newInventoryWithBook = [...player.inventory, {
+            id: selectedReward.item.id,
+            name: selectedReward.item.name,
+            type: 'job_advancement_book' as any,
+            quantity: selectedReward.amount,
+            targetJob: selectedReward.item.targetJob
+          }];
+          updatePlayer({ inventory: newInventoryWithBook });
           break;
       }
       

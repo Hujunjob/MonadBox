@@ -3,6 +3,7 @@ import type { EquipmentItem } from '../types/game';
 import { useGameStore } from '../store/gameStore';
 import { getEquipmentImage, getRarityColor } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
+import { useToast } from './ToastManager';
 
 interface EquipmentModalProps {
   equipment: EquipmentItem | null;
@@ -20,6 +21,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   isEquipped = false 
 }) => {
   const { equipItem, unequipItem, upgradeEquipmentStars, player } = useGameStore();
+  const { showToast } = useToast();
   const [upgradeResult, setUpgradeResult] = React.useState<{success: boolean; newStars: number; message: string} | null>(null);
   const [isUpgrading, setIsUpgrading] = React.useState(false);
 
@@ -62,6 +64,9 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
       const actualEquipmentType = (currentEquipment as any).equipmentType || currentEquipment.type;
       const targetSlot = typeToSlot[actualEquipmentType as keyof typeof typeToSlot] || actualEquipmentType;
       equipItem(currentEquipment, targetSlot);
+      
+      // 显示装备成功提示
+      showToast(`装备成功：${currentEquipment?.name}`, 'success');
     }
     onClose();
   };

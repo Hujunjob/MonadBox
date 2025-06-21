@@ -20,6 +20,8 @@ export interface Player {
   currentForestLevel: number;
   currentForestProgress: number;
   lastTreasureBoxTime: number;
+  job: JobType;
+  canGainExperience: boolean; // 是否可以获得经验（转职后才能继续升级）
 }
 
 export interface Equipment {
@@ -87,6 +89,8 @@ export interface InventoryItem {
   stats?: ItemStats;
   stars?: number;
   baseStats?: ItemStats;
+  // 转职书相关属性
+  targetJob?: JobType;
 }
 
 export const ItemType = {
@@ -94,7 +98,8 @@ export const ItemType = {
   EQUIPMENT: 'equipment',
   GOLD: 'gold',
   EXPERIENCE: 'experience',
-  PET_EGG: 'pet_egg'
+  PET_EGG: 'pet_egg',
+  JOB_ADVANCEMENT_BOOK: 'job_advancement_book'
 } as const;
 
 export type ItemType = typeof ItemType[keyof typeof ItemType];
@@ -158,10 +163,24 @@ export const RewardType = {
   GOLD: 'gold',
   EQUIPMENT: 'equipment',
   HEALTH_POTION: 'health_potion',
-  PET_EGG: 'pet_egg'
+  PET_EGG: 'pet_egg',
+  JOB_ADVANCEMENT_BOOK: 'job_advancement_book'
 } as const;
 
 export type RewardType = typeof RewardType[keyof typeof RewardType];
+
+// 职业系统
+export const JobType = {
+  SWORDSMAN: 'swordsman',
+  GREAT_SWORDSMAN: 'great_swordsman',
+  TEMPLE_KNIGHT: 'temple_knight',
+  DRAGON_KNIGHT: 'dragon_knight',
+  SWORD_MASTER: 'sword_master',
+  SWORD_GOD: 'sword_god',
+  PLANE_LORD: 'plane_lord'
+} as const;
+
+export type JobType = typeof JobType[keyof typeof JobType];
 
 export interface BattleState {
   player: Player;

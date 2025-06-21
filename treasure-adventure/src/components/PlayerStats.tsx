@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus } from '../utils/gameUtils';
+import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay } from '../utils/gameUtils';
 import { EquipmentType } from '../types/game';
 import EquipmentModal from './EquipmentModal';
 
@@ -55,7 +55,7 @@ const PlayerStats: React.FC = () => {
       <h2>玩家信息</h2>
       <div className="stat-row">
         <span>姓名: {player.name}</span>
-        <span>等级: {player.level}</span>
+        <span>{getJobLevelDisplay(player.level, player.job || 'swordsman')}</span>
         <span>金币: {player.gold}</span>
       </div>
       
@@ -73,6 +73,20 @@ const PlayerStats: React.FC = () => {
         <span>经验: {player.experience}/{expNeeded}</span>
         <span>体力: {player.stamina || 0}/{player.maxStamina || 24}</span>
       </div>
+      
+      {!player.canGainExperience && (
+        <div style={{ 
+          backgroundColor: '#fff3cd', 
+          border: '1px solid #ffeaa7', 
+          borderRadius: '5px', 
+          padding: '10px', 
+          margin: '10px 0',
+          color: '#856404',
+          textAlign: 'center'
+        }}>
+          <strong>⚠️ 需要转职才能继续获得经验！</strong>
+        </div>
+      )}
       
       <div className="stat-grid">
         <div className="stat-item">

@@ -1,5 +1,5 @@
-import {EquipmentType, ItemRarity } from '../types/game';
-import type { ForestLevel, Monster, EquipmentItem} from '../types/game';
+import {EquipmentType, ItemRarity, JobType, ItemType } from '../types/game';
+import type { ForestLevel, Monster, EquipmentItem, InventoryItem} from '../types/game';
 import { GAME_CONFIG } from '../config/gameConfig';
 
 export const generateForestLevels = (): ForestLevel[] => {
@@ -159,6 +159,37 @@ export const generatePetEgg = (level: number) => {
   };
 };
 
+// 生成转职书
+export const generateJobAdvancementBook = (boxLevel: number): InventoryItem => {
+  // 根据宝箱等级确定转职书类型
+  const { JOB_BOOK_LEVELS, BOOK_NAMES } = GAME_CONFIG.JOB_ADVANCEMENT;
+  
+  let targetJob: JobType | null = null;
+  
+  // 寻找匹配的转职书
+  for (const [job, levelRange] of Object.entries(JOB_BOOK_LEVELS)) {
+    if (boxLevel >= levelRange[0] && boxLevel <= levelRange[1]) {
+      targetJob = job as JobType;
+      break;
+    }
+  }
+  
+  // 如果没有找到匹配的，默认给大剑士转职书
+  if (!targetJob) {
+    targetJob = JobType.GREAT_SWORDSMAN;
+  }
+  
+  const bookName = BOOK_NAMES[targetJob] || '大剑士转职书';
+  
+  return {
+    id: `job_book_${targetJob}_${Date.now()}_${Math.random()}`,
+    name: bookName,
+    type: ItemType.JOB_ADVANCEMENT_BOOK,
+    quantity: 1,
+    targetJob: targetJob
+  };
+};
+
 // 计算装备加成
 export const calculateEquipmentBonus = (player: any) => {
   let attackBonus = 0;
@@ -252,7 +283,8 @@ export const getItemImage = (type: string): string => {
   // 映射物品类型到对应的图片文件名
   const imageMap: { [key: string]: string } = {
     'health_potion': '/assets/blood.png',
-    'pet_egg': '/assets/egg.png'
+    'pet_egg': '/assets/egg.png',
+    'job_advancement_book': '/assets/scroll.png'
   };
   
   return imageMap[type] || '/assets/blood.png';
@@ -267,4 +299,48 @@ export const getRarityColor = (rarity: string): string => {
     case 'legendary': return '#f59e0b';
     default: return '#6b7280';
   }
+};
+
+// 获取职业等级显示格式
+export const getJobLevelDisplay = (level: number, job: JobType): string => {
+  const { JOB_NAMES, LEVEL_PREFIXES } = GAME_CONFIG.JOB_ADVANCEMENT;
+  
+  // 计算当前职业内的等级（1-4）
+  const jobInternalLevel = ((level - 1) % 4) + 1;
+  const levelPrefix = LEVEL_PREFIXES[jobInternalLevel as keyof typeof LEVEL_PREFIXES] || '初级';
+  const jobName = JOB_NAMES[job] || '剑士';
+  
+  return `${levelPrefix}${jobName}`;
+};
+
+// 检查是否可以转职
+export const canAdvanceJob = (level: number): boolean => {
+  // 每4级需要转职，且等级是4的倍数时可以转职
+  return level % 4 === 0 && level > 0;
+};
+
+// 获取下一个职业
+export const getNextJob = (currentJob: JobType): JobType | null => {
+  const jobOrder = [
+    JobType.SWORDSMAN,
+    JobType.GREAT_SWORDSMAN,
+    JobType.TEMPLE_KNIGHT,
+    JobType.DRAGON_KNIGHT,
+    JobType.SWORD_MASTER,
+    JobType.SWORD_GOD,
+    JobType.PLANE_LORD
+  ];
+  
+  const currentIndex = jobOrder.indexOf(currentJob);
+  if (currentIndex >= 0 && currentIndex < jobOrder.length - 1) {
+    return jobOrder[currentIndex + 1];
+  }
+  
+  return null;
+};
+
+// 获取转职成功率
+export const getJobAdvancementSuccessRate = (targetJob: JobType): number => {
+  const { SUCCESS_RATES } = GAME_CONFIG.JOB_ADVANCEMENT;
+  return SUCCESS_RATES[targetJob as keyof typeof SUCCESS_RATES] || 20;
 };

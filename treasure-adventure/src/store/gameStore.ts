@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Player, GameState, Monster, Equipment } from '../types/game';
+import type { Player, GameState, Monster, Equipment, JobType } from '../types/game';
 import { generateForestLevels, calculatePlayerStats } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
 
@@ -28,6 +28,7 @@ interface GameStore extends GameState {
   upgradeEquipmentStars: (equipmentId: string) => Promise<{ success: boolean; newStars: number; message: string }>;
   updateStamina: () => void;
   consumeStamina: (amount: number) => boolean;
+  advanceJob: (targetJob: JobType) => Promise<{ success: boolean; message: string }>;
 }
 
 const createInitialPlayer = (): Player => ({
@@ -52,7 +53,8 @@ const createInitialPlayer = (): Player => ({
     shoes: undefined,
     weapon: undefined,
     shield: undefined,
-    accessory: undefined
+    accessory: undefined,
+    ring: undefined
   },
   inventory: [
     {
@@ -67,7 +69,9 @@ const createInitialPlayer = (): Player => ({
   treasureBoxes: [{ id: 'box_1', level: 1 }],
   currentForestLevel: 1,
   currentForestProgress: 0,
-  lastTreasureBoxTime: Math.floor(Date.now() / 1000)
+  lastTreasureBoxTime: Math.floor(Date.now() / 1000),
+  job: 'swordsman' as JobType,
+  canGainExperience: true
 });
 
 export const useGameStore = create<GameStore>()(
@@ -249,6 +253,11 @@ export const useGameStore = create<GameStore>()(
 
       gainExperience: (amount) => {
         set((state) => {
+          // 如果不能获得经验，直接返回
+          if (!state.player.canGainExperience) {
+            return state;
+          }
+          
           let newExp = state.player.experience + amount;
           let newLevel = state.player.level;
           let newMaxHealth = state.player.maxHealth;
@@ -258,6 +267,7 @@ export const useGameStore = create<GameStore>()(
           let newAgility = state.player.agility;
           let newCriticalRate = state.player.criticalRate;
           let newCriticalDamage = state.player.criticalDamage;
+          let canGainExperience: boolean = state.player.canGainExperience;
           
           const expNeeded = newLevel * 100;
           
@@ -271,6 +281,11 @@ export const useGameStore = create<GameStore>()(
             newAgility += 1;
             newCriticalRate += 1;
             newCriticalDamage += 5;
+            
+            // 检查是否需要转职（每4级）
+            if (newLevel % 4 === 0) {
+              canGainExperience = false; // 需要转职才能继续获得经验
+            }
           }
           
           return {
@@ -284,7 +299,8 @@ export const useGameStore = create<GameStore>()(
               defense: newDefense,
               agility: newAgility,
               criticalRate: newCriticalRate,
-              criticalDamage: newCriticalDamage
+              criticalDamage: newCriticalDamage,
+              canGainExperience: canGainExperience
             }
           };
         });
@@ -951,11 +967,55 @@ export const useGameStore = create<GameStore>()(
           return true;
         }
         return false;
+      },
+
+      advanceJob: async (targetJob: JobType) => {
+        return new Promise((resolve) => {
+          const state = get();
+          const { SUCCESS_RATES } = GAME_CONFIG.JOB_ADVANCEMENT;
+          const successRate = SUCCESS_RATES[targetJob as keyof typeof SUCCESS_RATES] || 20;
+          
+          // 随机判断成功率
+          const random = Math.random() * 100;
+          const success = random < successRate;
+          
+          if (success) {
+            // 转职成功
+            set((state) => ({
+              player: {
+                ...state.player,
+                job: targetJob,
+                canGainExperience: true // 转职成功后可以继续获得经验
+              }
+            }));
+            
+            resolve({
+              success: true,
+              message: `转职成功！您现在是${GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob]}！`
+            });
+          } else {
+            // 转职失败，等级掉1级
+            const newLevel = Math.max(1, state.player.level - 1);
+            
+            set((state) => ({
+              player: {
+                ...state.player,
+                level: newLevel,
+                canGainExperience: newLevel % 4 !== 0 // 如果掉级后不是4的倍数，可以继续获得经验
+              }
+            }));
+            
+            resolve({
+              success: false,
+              message: `转职失败！等级下降到${newLevel}级。`
+            });
+          }
+        });
       }
     }),
     {
       name: 'treasure-adventure-game',
-      version: 5,
+      version: 6,
       partialize: (state) => ({
         player: state.player,
         forestLevels: state.forestLevels,
@@ -1063,6 +1123,32 @@ export const useGameStore = create<GameStore>()(
                 }
                 return item;
               });
+            }
+          }
+        }
+        if (version < 6) {
+          // 迁移到版本6：添加职业系统
+          if (persistedState.player) {
+            // 根据当前等级确定职业
+            const level = persistedState.player.level || 1;
+            let job: JobType = 'swordsman';
+            
+            if (level >= 21) job = 'sword_god';
+            else if (level >= 17) job = 'sword_master'; 
+            else if (level >= 13) job = 'dragon_knight';
+            else if (level >= 9) job = 'temple_knight';
+            else if (level >= 5) job = 'great_swordsman';
+            
+            persistedState.player.job = job;
+            
+            // 检查是否需要转职
+            persistedState.player.canGainExperience = level % 4 !== 0;
+            
+            // 添加戒指装备槽
+            if (persistedState.player.equipment) {
+              if (!persistedState.player.equipment.ring) {
+                persistedState.player.equipment.ring = undefined;
+              }
             }
           }
         }
