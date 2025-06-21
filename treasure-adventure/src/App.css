@@ -1036,7 +1036,7 @@ body {
 }
 
 .progress-bar-small {
-  flex: 1;
+  width: 100px;
   height: 8px;
   background: #e0e0e0;
   border-radius: 4px;
@@ -1059,7 +1059,7 @@ body {
 }
 
 .action-bar-small {
-  flex: 1;
+  width: 100px;
   height: 6px;
   background: #e0e0e0;
   border-radius: 3px;

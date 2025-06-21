@@ -297,9 +297,6 @@ const TreasureBox: React.FC = () => {
                   <span className="reward-description">{selectedReward.description}</span>
                   {selectedReward.type === RewardType.EQUIPMENT && (
                     <div className="equipment-stats">
-                      <div className="rarity" style={{ color: getRarityColor(selectedReward.item.rarity) }}>
-                        {selectedReward.item.rarity}
-                      </div>
                       <div className="stats">
                         {selectedReward.item.stats.attack > 0 && <span>攻击+{selectedReward.item.stats.attack}</span>}
                         {selectedReward.item.stats.defense > 0 && <span>防御+{selectedReward.item.stats.defense}</span>}

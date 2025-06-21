@@ -143,9 +143,6 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
                   </span>
                 ))}
               </div>
-              <div className="equipment-rarity" style={{ color: getRarityColor(currentEquipment?.rarity || 'common') }}>
-                {currentEquipment?.rarity || 'common'}
-              </div>
             </div>
           </div>
           

@@ -113,7 +113,7 @@ export const generateRandomEquipment = (level: number, targetLevel?: number): Eq
   
   return {
     id: `equipment_${Date.now()}_${Math.random()}`,
-    name: `${rarity} ${type}`,
+    name: `${type}`,
     type,
     rarity,
     level: equipmentLevel,
