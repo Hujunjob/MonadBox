@@ -58,6 +58,7 @@ const Inventory: React.FC = () => {
                   alt={item.name}
                   style={{ width: '32px', height: '32px' }}
                 />
+                <span className="item-level">lv{item.level || 1}</span>
                 <span className="item-quantity">×{item.quantity}</span>
               </div>
             </div>
@@ -89,9 +90,7 @@ const Inventory: React.FC = () => {
                     alt={item.name}
                     style={{ width: '32px', height: '32px' }}
                   />
-                  {equipmentItem.level > 1 && (
-                    <span className="item-level">+{equipmentItem.level - 1}</span>
-                  )}
+                  <span className="equipment-level">lv{equipmentItem.level || 1}</span>
                 </div>
               </div>
             );

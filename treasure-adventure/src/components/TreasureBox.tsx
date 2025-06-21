@@ -150,6 +150,46 @@ const TreasureBox: React.FC = () => {
         <p>每个宝箱提供随机奖励，等级越高奖励越好！</p>
       </div>
       
+      {/* 宝箱列表 */}
+      {Array.isArray(player.treasureBoxes) && player.treasureBoxes.length > 0 && (
+        <div className="treasure-box-list">
+          <h3>宝箱列表</h3>
+          <div className="boxes-grid">
+            {(() => {
+              // 按等级分组并统计数量
+              const groupedBoxes = player.treasureBoxes.reduce((acc, box) => {
+                const level = box.level;
+                if (!acc[level]) {
+                  acc[level] = 0;
+                }
+                acc[level]++;
+                return acc;
+              }, {} as Record<number, number>);
+              
+              // 将分组结果转换为数组并排序
+              const sortedGroups = Object.entries(groupedBoxes)
+                .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                .map(([level, count], index) => ({
+                  level: parseInt(level),
+                  count,
+                  isNext: index === 0
+                }));
+              
+              return sortedGroups.map(({ level, count, isNext }) => (
+                <div key={level} className="treasure-box-item">
+                  <div className="box-icon">
+                    📦
+                  </div>
+                  <span className="box-level">Lv.{level}</span>
+                  <span className="box-count">×{count}</span>
+                  {isNext && <span className="next-label">下一个</span>}
+                </div>
+              ));
+            })()}
+          </div>
+        </div>
+      )}
+      
       <div className="treasure-box-actions">
         <button 
           onClick={handleOpenBox}

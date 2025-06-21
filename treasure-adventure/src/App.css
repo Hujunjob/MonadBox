@@ -2144,3 +2144,127 @@
 .equipment-icon {
   position: relative;
 }
+
+.item-display {
+  position: relative;
+}
+
+/* 宝箱列表样式 */
+.treasure-box-list {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.treasure-box-list h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.boxes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.treasure-box-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #ddd;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.treasure-box-item:first-child {
+  border-color: #28a745;
+  background: #f8fff8;
+}
+
+.treasure-box-item .box-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.treasure-box-item .box-level {
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+}
+
+.treasure-box-item .box-count {
+  font-size: 10px;
+  font-weight: bold;
+  color: #999;
+  margin-top: 2px;
+}
+
+.treasure-box-item .next-label {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #28a745;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.more-boxes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-style: italic;
+  grid-column: span 2;
+}
+
+/* 血瓶等级标签位置调整 */
+.item-display .item-level {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 1px 3px;
+  border-radius: 0 3px 0 0;
+  line-height: 1;
+}
+
+/* 确保数量标签不与等级标签重叠 */
+.item-display .item-quantity {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff6b6b;
+  color: white;
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* 星级显示样式 */
+.equipment-stars .star {
+  font-size: 16px;
+  margin: 0 1px;
+}
+
+.equipment-stars .star.filled {
+  color: #ffc107;
+}
+
+.equipment-stars .star.empty {
+  color: #e9ecef;
+}

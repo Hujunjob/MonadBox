@@ -55,10 +55,12 @@ const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
                 alt={item.name}
                 style={{ width: '64px', height: '64px' }}
               />
+              <span className="equipment-level">lv{item.level || 1}</span>
             </div>
             
             <div className="equipment-info">
-              <div className="equipment-level">数量: {item.quantity}</div>
+              <div className="equipment-level">等级: {item.level || 1}</div>
+              <div className="equipment-quantity">数量: {item.quantity}</div>
               <div className="equipment-rarity">
                 {item.effect ? `恢复 ${item.effect.value} 血量` : ''}
               </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { EquipmentItem } from '../types/game';
 import { useGameStore } from '../store/gameStore';
 import { getEquipmentImage, getRarityColor } from '../utils/gameUtils';
@@ -19,7 +19,6 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   isEquipped = false 
 }) => {
   const { equipItem, unequipItem, upgradeEquipment, player } = useGameStore();
-  const [upgradeCount, setUpgradeCount] = useState(1);
 
   if (!isOpen || !equipment) return null;
 
@@ -51,24 +50,27 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
   const handleUpgrade = () => {
     if (upgradeEquipment) {
-      upgradeEquipment(equipment.id, upgradeCount);
+      upgradeEquipment(equipment.id, 1); // 固定升1星
     }
     onClose();
   };
 
-  // 计算升级成本
-  const upgradeCost = (equipment?.level || 1) * 100 * upgradeCount;
-  const requiredMaterials = upgradeCount;
+  // 计算升星成本（固定升1星）
+  const currentStars = equipment?.stars || 1;
+  const upgradeCost = (equipment?.level || 1) * 100; // 固定1星的费用
+  const requiredMaterials = 1; // 固定需要1个材料
   const canAffordUpgrade = player.gold >= upgradeCost;
+  const canUpgradeStars = currentStars < 5; // 最多5星
   
   // 查找背包中同类型同稀有度的装备作为材料
   const availableMaterials = equipment ? player.inventory.filter(item => 
     item.type === 'equipment' && 
     (item as any).equipmentType === equipment.type &&
-    (item as any).rarity === equipment.rarity
+    (item as any).rarity === equipment.rarity &&
+    item.id !== equipment.id // 排除当前装备本身
   ).length : 0;
   
-  const canUpgrade = canAffordUpgrade && availableMaterials >= requiredMaterials;
+  const canUpgrade = canAffordUpgrade && availableMaterials >= requiredMaterials && canUpgradeStars;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -94,6 +96,13 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
             
             <div className="equipment-info">
               <div className="equipment-level">等级 {equipment?.level || 1}</div>
+              <div className="equipment-stars">
+                星级 {Array.from({length: 5}, (_, i) => (
+                  <span key={i} className={`star ${i < (equipment?.stars || 1) ? 'filled' : 'empty'}`}>
+                    ★
+                  </span>
+                ))}
+              </div>
               <div className="equipment-rarity" style={{ color: getRarityColor(equipment?.rarity || 'common') }}>
                 {equipment?.rarity || 'common'}
               </div>
@@ -113,22 +122,12 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
           </div>
           
           <div className="equipment-upgrade">
-            <h4>升级</h4>
+            <h4>升星</h4>
             <div className="upgrade-info">
-              <div>升级费用: {upgradeCost} 金币</div>
+              <div>升星费用: {upgradeCost} 金币</div>
               <div>需要材料: {requiredMaterials} 个同类装备</div>
               <div>可用材料: {availableMaterials} 个</div>
-            </div>
-            
-            <div className="upgrade-controls">
-              <label>升级次数:</label>
-              <input 
-                type="number" 
-                min="1" 
-                max="10" 
-                value={upgradeCount}
-                onChange={(e) => setUpgradeCount(Math.max(1, parseInt(e.target.value) || 1))}
-              />
+              {!canUpgradeStars && <div style={{ color: '#dc3545' }}>已达到最大星级</div>}
             </div>
           </div>
         </div>
@@ -157,7 +156,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
             onClick={handleUpgrade}
             disabled={!canUpgrade}
           >
-            升级
+            升星
           </button>
         </div>
       </div>

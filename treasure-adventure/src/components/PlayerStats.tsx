@@ -26,9 +26,7 @@ const PlayerStats: React.FC = () => {
   }, [player.stamina, player.maxStamina, player.lastStaminaTime, updatePlayer]);
   
   const expNeeded = player.level * 100;
-  const expPercent = (player.experience / expNeeded) * 100;
   const healthPercent = (player.health / stats.maxHealth) * 100;
-  const staminaPercent = ((player.stamina || 0) / (player.maxStamina || 24)) * 100;
   
   const equipmentSlots = [
     { key: 'helmet', name: '头盔', type: EquipmentType.HELMET },
@@ -70,24 +68,9 @@ const PlayerStats: React.FC = () => {
         </div>
       </div>
       
-      <div className="stat-bar">
-        <label>经验: {player.experience}/{expNeeded}</label>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill experience" 
-            style={{ width: `${expPercent}%` }}
-          />
-        </div>
-      </div>
-      
-      <div className="stat-bar">
-        <label>体力: {player.stamina || 0}/{player.maxStamina || 24}</label>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill stamina" 
-            style={{ width: `${staminaPercent}%` }}
-          />
-        </div>
+      <div className="stat-row">
+        <span>经验: {player.experience}/{expNeeded}</span>
+        <span>体力: {player.stamina || 0}/{player.maxStamina || 24}</span>
       </div>
       
       <div className="stat-grid">
