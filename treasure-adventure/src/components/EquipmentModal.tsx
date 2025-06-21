@@ -2,6 +2,7 @@ import React from 'react';
 import type { EquipmentItem } from '../types/game';
 import { useGameStore } from '../store/gameStore';
 import { getEquipmentImage, getRarityColor } from '../utils/gameUtils';
+import { GAME_CONFIG } from '../config/gameConfig';
 
 interface EquipmentModalProps {
   equipment: EquipmentItem | null;
@@ -100,9 +101,8 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
     item.id !== currentEquipment.id
   ).length : 0;
   
-  // 计算成功率
-  const successRates = [90, 80, 70, 60, 50]; // 0星=90%, 1星=80%, 2星=70%, 3星=60%, 4星=50%
-  const successRate = successRates[currentStars] || 50;
+  // 从配置文件获取成功率
+  const successRate = GAME_CONFIG.EQUIPMENT.UPGRADE_SUCCESS_RATES[currentStars as keyof typeof GAME_CONFIG.EQUIPMENT.UPGRADE_SUCCESS_RATES] || 50;
   
   const canUpgrade = canAffordUpgrade && availableMaterials >= requiredMaterials && canUpgradeStars;
 

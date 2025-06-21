@@ -51,7 +51,7 @@ const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
           <div className="equipment-display">
             <div className="equipment-icon large">
               <img 
-                src={getItemImage('health_potion')} 
+                src={getItemImage(item.type)} 
                 alt={item.name}
                 style={{ width: '64px', height: '64px' }}
               />
@@ -62,20 +62,31 @@ const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
               <div className="equipment-level">等级: {item.level || 1}</div>
               <div className="equipment-quantity">数量: {item.quantity}</div>
               <div className="equipment-rarity">
-                {item.effect ? `恢复 ${item.effect.value} 血量` : ''}
+                {item.type === 'health_potion' && item.effect ? `恢复 ${item.effect.value} 血量` : ''}
+                {item.type === 'pet_egg' && item.rarity ? `稀有度: ${item.rarity}` : ''}
               </div>
             </div>
           </div>
         </div>
         
         <div className="modal-actions">
-          <button 
-            className="equip-btn" 
-            onClick={handleUseItem}
-            disabled={item.quantity <= 0 || isHealthFull}
-          >
-            {isHealthFull ? '血量已满' : '使用'}
-          </button>
+          {item.type === 'health_potion' && (
+            <button 
+              className="equip-btn" 
+              onClick={handleUseItem}
+              disabled={item.quantity <= 0 || isHealthFull}
+            >
+              {isHealthFull ? '血量已满' : '使用'}
+            </button>
+          )}
+          {item.type === 'pet_egg' && (
+            <button 
+              className="equip-btn" 
+              disabled={true}
+            >
+              暂不可使用
+            </button>
+          )}
         </div>
       </div>
     </div>

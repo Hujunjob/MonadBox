@@ -33,7 +33,16 @@ export const GAME_CONFIG = {
     MAX_LEVEL: 10,
     
     // 升星费用基数
-    UPGRADE_BASE_COST: 100
+    UPGRADE_BASE_COST: 100,
+    
+    // 升星成功率配置（百分比）
+    UPGRADE_SUCCESS_RATES: {
+      0: 100, // 0星升1星：90%成功率
+      1: 80, // 1星升2星：80%成功率
+      2: 60, // 2星升3星：70%成功率
+      3: 40, // 3星升4星：60%成功率
+      4: 20  // 4星升5星：50%成功率
+    }
   },
 
   // 血瓶系统配置
@@ -80,6 +89,24 @@ export const GAME_CONFIG = {
     
     // 随机金币范围
     RANDOM_RANGE: 50
+  },
+
+  // 宝箱奖励概率配置
+  TREASURE_BOX_PROBABILITIES: {
+    GOLD: 3,     // 金币 20%
+    BLOOD_POTION: 7,  // 血瓶 7%
+    PET_EGG: 20,   // 宠物蛋 3%
+    // 装备 70% (7种装备类型，每种10%)
+    // 剩余概率自动分配给装备
+  },
+
+  // 稀有度概率配置
+  RARITY_PROBABILITIES: {
+    COMMON: 60,     // 普通 60%
+    UNCOMMON: 23,   // 非凡 23%
+    RARE: 10,       // 稀有 10%
+    EPIC: 5,        // 史诗 5%
+    LEGENDARY: 2    // 传说 2%
   }
 } as const;
 

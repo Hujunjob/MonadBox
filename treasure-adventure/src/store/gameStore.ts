@@ -815,9 +815,9 @@ export const useGameStore = create<GameStore>()(
               return state;
             }
 
-            // 计算升星成功率：0星=90%, 1星=80%, 2星=70%, 3星=60%, 4星=50%
-            const successRates = [0.9, 0.8, 0.7, 0.6, 0.5];
-            const successRate = successRates[currentStars] || 0.5;
+            // 从配置文件获取升星成功率
+            const successRatePercent = GAME_CONFIG.EQUIPMENT.UPGRADE_SUCCESS_RATES[currentStars as keyof typeof GAME_CONFIG.EQUIPMENT.UPGRADE_SUCCESS_RATES] || 50;
+            const successRate = successRatePercent / 100;
             const isSuccess = Math.random() < successRate;
 
             // 扣除金币和材料

@@ -2080,18 +2080,23 @@
 }
 
 .reward-modal .equipment-stats .stats {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-  justify-content: center;
+  justify-items: center;
+  max-width: 300px;
+  margin: 0 auto;
 }
 
 .reward-modal .equipment-stats .stats span {
   background: #e9ecef;
-  padding: 4px 8px;
+  padding: 6px 10px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
   color: #495057;
+  text-align: center;
+  white-space: nowrap;
+  min-width: 80px;
 }
 
 .reward-modal .modal-actions {

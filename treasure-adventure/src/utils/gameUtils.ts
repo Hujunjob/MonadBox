@@ -56,12 +56,29 @@ export const generateMonster = (forestLevel: number, monsterIndex: number): Mons
   };
 };
 
+// 根据配置的概率生成稀有度
+const generateRarityByProbability = (): ItemRarity => {
+  const random = Math.random() * 100;
+  const probabilities = GAME_CONFIG.RARITY_PROBABILITIES;
+  
+  if (random < probabilities.COMMON) {
+    return ItemRarity.COMMON;
+  } else if (random < probabilities.COMMON + probabilities.UNCOMMON) {
+    return ItemRarity.UNCOMMON;
+  } else if (random < probabilities.COMMON + probabilities.UNCOMMON + probabilities.RARE) {
+    return ItemRarity.RARE;
+  } else if (random < probabilities.COMMON + probabilities.UNCOMMON + probabilities.RARE + probabilities.EPIC) {
+    return ItemRarity.EPIC;
+  } else {
+    return ItemRarity.LEGENDARY;
+  }
+};
+
 export const generateRandomEquipment = (level: number, targetLevel?: number): EquipmentItem => {
   const types = Object.values(EquipmentType);
-  const rarities = Object.values(ItemRarity);
   
   const type = types[Math.floor(Math.random() * types.length)];
-  const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+  const rarity = generateRarityByProbability();
   
   // 确定装备等级，如果指定了目标等级则使用，否则使用传入的level
   const equipmentLevel = targetLevel || level;
@@ -133,8 +150,7 @@ export const generateRewardLevel = (boxLevel: number): number => {
 
 // 生成宠物蛋
 export const generatePetEgg = (level: number) => {
-  const rarities = Object.values(ItemRarity);
-  const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+  const rarity = generateRarityByProbability();
   
   return {
     id: `pet_egg_${Date.now()}_${Math.random()}`,

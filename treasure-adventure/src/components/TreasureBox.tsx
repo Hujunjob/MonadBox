@@ -30,12 +30,13 @@ const TreasureBox: React.FC = () => {
       // 根据宝箱等级确定奖励等级
       const rewardLevel = generateRewardLevel(boxLevel);
       
-      // 生成奖励概率系统
+      // 从配置文件获取概率设置
+      const probabilities = GAME_CONFIG.TREASURE_BOX_PROBABILITIES;
       const random = Math.random() * 100;
       let selectedReward: any;
       
-      if (random < 20) {
-        // 20% 金币
+      if (random < probabilities.GOLD) {
+        // 金币
         const goldAmount = GAME_CONFIG.GOLD_REWARDS.TREASURE_BOX_BASE + 
                           rewardLevel * GAME_CONFIG.GOLD_REWARDS.PER_LEVEL_BONUS + 
                           Math.floor(Math.random() * GAME_CONFIG.GOLD_REWARDS.RANDOM_RANGE);
@@ -44,8 +45,8 @@ const TreasureBox: React.FC = () => {
           amount: goldAmount,
           description: `金币 +${goldAmount}`
         };
-      } else if (random < 27) {
-        // 7% 血瓶
+      } else if (random < probabilities.GOLD + probabilities.BLOOD_POTION) {
+        // 血瓶
         const healthPotion = generateHealthPotion(rewardLevel);
         selectedReward = { 
           type: RewardType.HEALTH_POTION, 
@@ -53,8 +54,8 @@ const TreasureBox: React.FC = () => {
           amount: 1,
           description: `${healthPotion.name} +1`
         };
-      } else if (random < 30) {
-        // 3% 宠物蛋
+      } else if (random < probabilities.GOLD + probabilities.BLOOD_POTION + probabilities.PET_EGG) {
+        // 宠物蛋
         const petEgg = generatePetEgg(rewardLevel);
         selectedReward = { 
           type: RewardType.PET_EGG, 
@@ -63,7 +64,7 @@ const TreasureBox: React.FC = () => {
           description: `宠物蛋: ${petEgg.name}`
         };
       } else {
-        // 70% 装备 (7种装备类型，每种10%)
+        // 剩余概率为装备 (70%)
         const equipment = generateRandomEquipment(player.level, rewardLevel);
         selectedReward = { 
           type: RewardType.EQUIPMENT, 
