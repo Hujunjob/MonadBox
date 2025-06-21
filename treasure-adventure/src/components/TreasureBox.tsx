@@ -178,9 +178,7 @@ const TreasureBox: React.FC = () => {
   
   
   return (
-    <div className="treasure-box-panel">
-      <h2>宝箱系统</h2>
-      
+    <div className="treasure-box-panel">      
       <TreasureBoxTimer />
       
       {/* <div className="treasure-box-info">

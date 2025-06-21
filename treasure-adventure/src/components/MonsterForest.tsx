@@ -22,15 +22,13 @@ const MonsterForest: React.FC = () => {
   
   return (
     <div className="monster-forest">
-      <h2>怪物森林</h2>
-      
       <div className="forest-levels">
         <div 
           className="forest-levels-header"
           onClick={() => setIsForestLevelExpanded(!isForestLevelExpanded)}
           style={{ cursor: 'pointer' }}
         >
-          <h3>森林等级</h3>
+          <h3>冒险等级</h3>
           <span className="expand-icon">{isForestLevelExpanded ? '▼' : '▶'}</span>
         </div>
         
@@ -62,20 +60,13 @@ const MonsterForest: React.FC = () => {
         
         {!isForestLevelExpanded && (
           <div className="current-forest-summary">
-            <span>当前选择: {currentForest?.name || `第${selectedForestLevel}层森林`}</span>
+            <span> {currentForest?.name || `第${selectedForestLevel}层森林`}</span>
           </div>
         )}
       </div>
       
       {currentForest && (
         <div className="current-forest">
-          <h3>{currentForest.name} - 第{selectedForestLevel}层</h3>
-          {selectedForestLevel === player.currentForestLevel ? (
-            <p>当前进度: {player.currentForestProgress}/10 只怪物</p>
-          ) : (
-            <p>重新挑战已完成的森林层级</p>
-          )}
-          
           <div className="monsters-grid">
             {currentForest.monsters.map((monster, index) => {
               // 如果是当前层级，使用正常的进度逻辑
@@ -134,14 +125,14 @@ const MonsterForest: React.FC = () => {
           
           {player.currentForestProgress >= 10 && player.currentForestLevel < 10 && (
             <div className="level-complete">
-              <p>恭喜！你已经完成了这一层森林！</p>
-              <p>下一层森林已解锁！</p>
+              <p>恭喜！你已经完成了这一层冒险！</p>
+              <p>下一冒险已解锁！</p>
             </div>
           )}
           
           {player.currentForestLevel >= 10 && player.currentForestProgress >= 10 && (
             <div className="game-complete">
-              <p>🎉 恭喜！你已经征服了整个怪物森林！🎉</p>
+              <p>🎉 恭喜！你已经征服了整个冒险区域！🎉</p>
             </div>
           )}
         </div>

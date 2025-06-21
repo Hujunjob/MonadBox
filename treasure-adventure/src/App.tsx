@@ -57,7 +57,7 @@ function App() {
               className={activeTab === 'forest' ? 'active' : ''}
               onClick={() => setActiveTab('forest')}
             >
-              森林
+              冒险
             </button>
           </nav>
           

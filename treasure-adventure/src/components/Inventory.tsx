@@ -64,9 +64,7 @@ const Inventory: React.FC = () => {
   };
   
   return (
-    <div className="inventory-panel">
-      <h2>背包</h2>
-      
+    <div className="inventory-panel">      
       {/* 血瓶区域 */}
       <div className="inventory-section">
         <h3>消耗品</h3>

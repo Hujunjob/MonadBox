@@ -31,6 +31,7 @@ const TreasureBoxTimer: React.FC = () => {
   return (
     <div className="treasure-box-timer">
       <span style={{ color: 'black', fontSize: '18px', fontWeight: 'bold' }}>
+        下一个 ：
         {timeUntilNext > 0 ? `${formatTime(timeUntilNext)}/${formatTime(GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL)}` : `00:00:00/${formatTime(GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL)}`}
       </span>
     </div>
