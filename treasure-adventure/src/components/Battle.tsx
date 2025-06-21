@@ -246,8 +246,57 @@ const Battle: React.FC = () => {
         </button>
       </div>
       
-      <div className="battle-area">
-        {/* 玩家状态 */}
+      <div className="battle-area-vertical">
+        {/* 怪物状态 - 上方 */}
+        <div className="battle-participant monster">
+          <div className="damage-display-container">
+            {damageDisplays
+              .filter(display => display.target === 'monster')
+              .map(display => (
+                <div
+                  key={display.id}
+                  className={`damage-display ${display.isCritical ? 'monster-critical' : 'monster-damage'}`}
+                >
+                  {display.isCritical ? `暴击-${display.damage}` : `-${display.damage}`}
+                </div>
+              ))}
+          </div>
+          <h3>{currentBattle.monster.name} (Lv.{currentBattle.monster.level})</h3>
+          
+          <div className="health-row">
+            <span className="health-text">血量: {currentBattle.monster.health}/{currentBattle.monster.maxHealth}</span>
+            <div className="progress-bar-small">
+              <div 
+                className="progress-fill health monster" 
+                style={{ width: `${monsterHealthPercent}%` }}
+              />
+            </div>
+          </div>
+          
+          <div className="stats-compact">
+            <span>⚔️{currentBattle.monster.attack}</span>
+            <span>🛡️{currentBattle.monster.defense}</span>
+            <span>💨{currentBattle.monster.agility}</span>
+            <span>💥{currentBattle.monster.criticalRate}%</span>
+          </div>
+          
+          <div className="action-bar-compact">
+            <span>行动条:</span>
+            <div className="action-bar-small">
+              <div 
+                className="action-bar-fill monster" 
+                style={{ width: `${currentBattle.monsterActionBar}%` }}
+              />
+            </div>
+          </div>
+        </div>
+        
+        {/* VS 分隔符 */}
+        <div className="vs-divider-horizontal">
+          <span>VS</span>
+        </div>
+        
+        {/* 玩家状态 - 下方 */}
         <div className="battle-participant player">
           <div className="damage-display-container">
             {damageDisplays
@@ -266,11 +315,10 @@ const Battle: React.FC = () => {
               ))}
           </div>
           <h3>{currentBattle.player.name} ({getJobLevelDisplay(currentBattle.player.level, currentBattle.player.job || 'swordsman', currentBattle.player.canGainExperience)})</h3>
-          <div className="health-bar">
-            <div className="health-label">
-              血量: {currentBattle.player.health}/{playerStats.maxHealth}
-            </div>
-            <div className="progress-bar">
+          
+          <div className="health-row">
+            <span className="health-text">血量: {currentBattle.player.health}/{playerStats.maxHealth}</span>
+            <div className="progress-bar-small">
               <div 
                 className="progress-fill health" 
                 style={{ width: `${playerHealthPercent}%` }}
@@ -278,17 +326,16 @@ const Battle: React.FC = () => {
             </div>
           </div>
           
-          <div className="stats">
-            <span>攻击: {playerStats.attack}</span>
-            <span>防御: {playerStats.defense}</span>
-            <span>敏捷: {playerStats.agility}</span>
-            <span>暴击率: {playerStats.criticalRate}%</span>
-            <span>暴击伤害: {playerStats.criticalDamage}%</span>
+          <div className="stats-compact">
+            <span>⚔️{playerStats.attack}</span>
+            <span>🛡️{playerStats.defense}</span>
+            <span>💨{playerStats.agility}</span>
+            <span>💥{playerStats.criticalRate}%</span>
           </div>
           
-          <div className="action-bar-section">
-            <div className="action-bar-label">行动条</div>
-            <div className="action-bar">
+          <div className="action-bar-compact">
+            <span>行动条:</span>
+            <div className="action-bar-small">
               <div 
                 className="action-bar-fill player" 
                 style={{ width: `${currentBattle.playerActionBar}%` }}
@@ -296,11 +343,11 @@ const Battle: React.FC = () => {
             </div>
           </div>
           
-          <div className="battle-actions">
+          <div className="battle-actions-compact">
             <button 
               onClick={handleAttack}
               disabled={!canAttack || isAutoBattle}
-              className="attack-btn"
+              className="battle-btn attack-btn"
             >
               {currentBattle.playerCooldown > 0 ? 
                 `攻击 (${Math.ceil(currentBattle.playerCooldown / 1000)}s)` : 
@@ -311,79 +358,17 @@ const Battle: React.FC = () => {
             <button 
               onClick={handleUsePotion}
               disabled={!hasHealthPotion || !currentBattle.isActive || isAutoBattle}
-              className="potion-btn"
+              className="battle-btn potion-btn"
             >
-              使用血瓶
+              血瓶
             </button>
             
             <button 
               onClick={() => setIsAutoBattle(!isAutoBattle)}
-              className={`auto-battle-btn ${isAutoBattle ? 'active' : ''}`}
+              className={`battle-btn auto-battle-btn ${isAutoBattle ? 'active' : ''}`}
             >
-              {isAutoBattle ? '🔄 自动中' : '⚡ 自动战斗'}
+              {isAutoBattle ? '🔄 自动' : '⚡ 自动'}
             </button>
-          </div>
-        </div>
-        
-        {/* VS 分隔符 */}
-        <div className="vs-divider">
-          <span>VS</span>
-        </div>
-        
-        {/* 怪物状态 */}
-        <div className="battle-participant monster">
-          <div className="damage-display-container">
-            {damageDisplays
-              .filter(display => display.target === 'monster')
-              .map(display => (
-                <div
-                  key={display.id}
-                  className={`damage-display ${display.isCritical ? 'monster-critical' : 'monster-damage'}`}
-                >
-                  {display.isCritical ? `暴击-${display.damage}` : `-${display.damage}`}
-                </div>
-              ))}
-          </div>
-          <h3>{currentBattle.monster.name} (等级 {currentBattle.monster.level})</h3>
-          <div className="health-bar">
-            <div className="health-label">
-              血量: {currentBattle.monster.health}/{currentBattle.monster.maxHealth}
-            </div>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill health monster" 
-                style={{ width: `${monsterHealthPercent}%` }}
-              />
-            </div>
-          </div>
-          
-          <div className="stats">
-            <span>攻击: {currentBattle.monster.attack}</span>
-            <span>防御: {currentBattle.monster.defense}</span>
-            <span>敏捷: {currentBattle.monster.agility}</span>
-            <span>暴击率: {currentBattle.monster.criticalRate}%</span>
-            <span>暴击伤害: {currentBattle.monster.criticalDamage}%</span>
-          </div>
-          
-          <div className="action-bar-section">
-            <div className="action-bar-label">行动条</div>
-            <div className="action-bar">
-              <div 
-                className="action-bar-fill monster" 
-                style={{ width: `${currentBattle.monsterActionBar}%` }}
-              />
-            </div>
-          </div>
-          
-          <div className="monster-actions">
-            {currentBattle.isActive && (
-              <div className="monster-cooldown">
-                {currentBattle.monsterCooldown > 0 ? 
-                  `冷却中... (${Math.ceil(currentBattle.monsterCooldown / 1000)}s)` : 
-                  currentBattle.monsterActionBar >= 100 ? '准备攻击!' : `行动条: ${Math.floor(currentBattle.monsterActionBar)}%`
-                }
-              </div>
-            )}
           </div>
         </div>
       </div>
