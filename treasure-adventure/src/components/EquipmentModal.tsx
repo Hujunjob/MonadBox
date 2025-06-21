@@ -129,13 +129,12 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
               <img 
                 src={getEquipmentImage((currentEquipment as any)?.equipmentType || currentEquipment?.type || 'weapon')} 
                 alt={currentEquipment?.name || 'Equipment'}
-                style={{ width: '64px', height: '64px' }}
+                style={{ width: '32px', height: '32px' }}
               />
               <span className="equipment-level">lv{currentEquipment?.level || 1}</span>
             </div>
             
             <div className="equipment-info">
-              {/* <div className="equipment-level">等级 {currentEquipment?.level || 1}</div> */}
               <div className="equipment-stars">
                 {Array.from({length: 5}, (_, i) => (
                   <span key={i} className={`star ${i < (currentEquipment?.stars || 0) ? 'filled' : 'empty'}`}>
@@ -143,18 +142,15 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
                   </span>
                 ))}
               </div>
-            </div>
-          </div>
-          
-          <div className="equipment-stats">
-            <h4>属性</h4>
-            <div className="stats-grid">
-              {(currentEquipment.stats?.attack || 0) > 0 && <div>攻击: {currentEquipment.stats.attack}</div>}
-              {(currentEquipment.stats?.defense || 0) > 0 && <div>防御: {currentEquipment.stats.defense}</div>}
-              {(currentEquipment.stats?.health || 0) > 0 && <div>血量: {currentEquipment.stats.health}</div>}
-              {(currentEquipment.stats?.agility || 0) > 0 && <div>敏捷: {currentEquipment.stats.agility}</div>}
-              {(currentEquipment.stats?.criticalRate || 0) > 0 && <div>暴击率: {currentEquipment.stats.criticalRate}%</div>}
-              {(currentEquipment.stats?.criticalDamage || 0) > 0 && <div>暴击伤害: {currentEquipment.stats.criticalDamage}%</div>}
+              
+              <div className="equipment-stats-inline">
+                {(currentEquipment.stats?.attack || 0) > 0 && <div>攻击: {currentEquipment.stats.attack}</div>}
+                {(currentEquipment.stats?.defense || 0) > 0 && <div>防御: {currentEquipment.stats.defense}</div>}
+                {(currentEquipment.stats?.health || 0) > 0 && <div>血量: {currentEquipment.stats.health}</div>}
+                {(currentEquipment.stats?.agility || 0) > 0 && <div>敏捷: {currentEquipment.stats.agility}</div>}
+                {(currentEquipment.stats?.criticalRate || 0) > 0 && <div>暴击率: {currentEquipment.stats.criticalRate}%</div>}
+                {(currentEquipment.stats?.criticalDamage || 0) > 0 && <div>暴击伤害: {currentEquipment.stats.criticalDamage}%</div>}
+              </div>
             </div>
           </div>
           
