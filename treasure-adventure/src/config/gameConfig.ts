@@ -4,7 +4,7 @@ export const GAME_CONFIG = {
   // 宝箱系统配置
   TREASURE_BOX: {
     // 自动获取宝箱的时间间隔（秒）
-    AUTO_GAIN_INTERVAL: 20, // 20秒获得1个宝箱（调试用）
+    AUTO_GAIN_INTERVAL: 60, // 20秒获得1个宝箱（调试用）
     // AUTO_GAIN_INTERVAL: 3600, // 1小时获得1个宝箱（正式版）
     
     // 最大离线宝箱积累数量
@@ -25,7 +25,7 @@ export const GAME_CONFIG = {
   // 装备系统配置
   EQUIPMENT: {
     // 装备星级范围
-    MIN_STARS: 1,
+    MIN_STARS: 0,
     MAX_STARS: 5,
     
     // 装备等级范围

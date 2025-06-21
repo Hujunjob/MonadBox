@@ -34,7 +34,8 @@ const PlayerStats: React.FC = () => {
     { key: 'shoes', name: '鞋子', type: EquipmentType.SHOES },
     { key: 'weapon', name: '武器', type: EquipmentType.WEAPON },
     { key: 'shield', name: '盾牌', type: EquipmentType.SHIELD },
-    { key: 'accessory', name: '配饰', type: EquipmentType.ACCESSORY }
+    { key: 'accessory', name: '配饰', type: EquipmentType.ACCESSORY },
+    { key: 'ring', name: '戒指', type: EquipmentType.RING }
   ];
   
   const handleEquipmentClick = (equipment: any, slot: string) => {
@@ -159,6 +160,13 @@ const PlayerStats: React.FC = () => {
                         style={{ width: '32px', height: '32px' }}
                       />
                       <span className="equipment-level">lv{equippedItem.level}</span>
+                      <div className="equipment-stars-mini">
+                        {Array.from({length: 5}, (_, i) => (
+                          <span key={i} className={`star-mini ${i < (equippedItem.stars || 0) ? 'filled' : 'empty'}`}>
+                            ★
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <div className="empty-slot">

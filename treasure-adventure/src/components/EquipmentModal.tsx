@@ -56,7 +56,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   };
 
   // 计算升星成本（固定升1星）
-  const currentStars = equipment?.stars || 1;
+  const currentStars = equipment?.stars || 0;
   const upgradeCost = (equipment?.level || 1) * 100; // 固定1星的费用
   const requiredMaterials = 1; // 固定需要1个材料
   const canAffordUpgrade = player.gold >= upgradeCost;
@@ -87,7 +87,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
               style={{ backgroundColor: getRarityColor(equipment?.rarity || 'common') }}
             >
               <img 
-                src={getEquipmentImage(equipment?.type || 'weapon')} 
+                src={getEquipmentImage((equipment as any)?.equipmentType || equipment?.type || 'weapon')} 
                 alt={equipment?.name || 'Equipment'}
                 style={{ width: '64px', height: '64px' }}
               />
@@ -97,8 +97,8 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
             <div className="equipment-info">
               <div className="equipment-level">等级 {equipment?.level || 1}</div>
               <div className="equipment-stars">
-                星级 {Array.from({length: 5}, (_, i) => (
-                  <span key={i} className={`star ${i < (equipment?.stars || 1) ? 'filled' : 'empty'}`}>
+                {Array.from({length: 5}, (_, i) => (
+                  <span key={i} className={`star ${i < (equipment?.stars || 0) ? 'filled' : 'empty'}`}>
                     ★
                   </span>
                 ))}

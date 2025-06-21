@@ -14,8 +14,9 @@ const Inventory: React.FC = () => {
   // 按类型分组物品
   const healthPotions = player.inventory.filter(item => item.type === 'health_potion');
   const equipment = player.inventory.filter(item => item.type === 'equipment');
+  const petEggs = player.inventory.filter(item => item.type === 'pet_egg');
   const otherItems = player.inventory.filter(item => 
-    item.type !== 'health_potion' && item.type !== 'equipment'
+    item.type !== 'health_potion' && item.type !== 'equipment' && item.type !== 'pet_egg'
   );
   
   const handleEquipmentClick = (equipment: any) => {
@@ -63,7 +64,25 @@ const Inventory: React.FC = () => {
               </div>
             </div>
           ))}
-          {healthPotions.length === 0 && (
+          {petEggs.map(item => (
+            <div 
+              key={item.id} 
+              className="inventory-item consumable clickable"
+              onClick={() => handleItemClick(item)}
+              style={{ backgroundColor: getRarityColor(item.rarity || 'common') }}
+            >
+              <div className="item-display">
+                <img 
+                  src={getItemImage('pet_egg')} 
+                  alt={item.name}
+                  style={{ width: '32px', height: '32px' }}
+                />
+                <span className="item-level">lv{item.level || 1}</span>
+                <span className="item-quantity">×{item.quantity}</span>
+              </div>
+            </div>
+          ))}
+          {healthPotions.length === 0 && petEggs.length === 0 && (
             <div className="empty-slot">
               <span>没有消耗品</span>
             </div>
@@ -91,6 +110,13 @@ const Inventory: React.FC = () => {
                     style={{ width: '32px', height: '32px' }}
                   />
                   <span className="equipment-level">lv{equipmentItem.level || 1}</span>
+                  <div className="equipment-stars-mini">
+                    {Array.from({length: 5}, (_, i) => (
+                      <span key={i} className={`star-mini ${i < (equipmentItem.stars || 0) ? 'filled' : 'empty'}`}>
+                        ★
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             );

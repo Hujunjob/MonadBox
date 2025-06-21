@@ -29,6 +29,7 @@ export interface Equipment {
   weapon?: EquipmentItem;
   shield?: EquipmentItem;
   accessory?: EquipmentItem;
+  ring?: EquipmentItem;
 }
 
 export interface EquipmentItem {
@@ -57,7 +58,8 @@ export const EquipmentType = {
   SHOES: 'shoes',
   WEAPON: 'weapon',
   SHIELD: 'shield',
-  ACCESSORY: 'accessory'
+  ACCESSORY: 'accessory',
+  RING: 'ring'
 } as const;
 
 export type EquipmentType = typeof EquipmentType[keyof typeof EquipmentType];
@@ -91,7 +93,8 @@ export const ItemType = {
   HEALTH_POTION: 'health_potion',
   EQUIPMENT: 'equipment',
   GOLD: 'gold',
-  EXPERIENCE: 'experience'
+  EXPERIENCE: 'experience',
+  PET_EGG: 'pet_egg'
 } as const;
 
 export type ItemType = typeof ItemType[keyof typeof ItemType];
@@ -154,7 +157,8 @@ export const RewardType = {
   EXPERIENCE: 'experience',
   GOLD: 'gold',
   EQUIPMENT: 'equipment',
-  HEALTH_POTION: 'health_potion'
+  HEALTH_POTION: 'health_potion',
+  PET_EGG: 'pet_egg'
 } as const;
 
 export type RewardType = typeof RewardType[keyof typeof RewardType];

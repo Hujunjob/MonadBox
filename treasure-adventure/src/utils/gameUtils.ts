@@ -79,8 +79,8 @@ export const generateRandomEquipment = (level: number, targetLevel?: number): Eq
     defense: type === EquipmentType.ARMOR || type === EquipmentType.HELMET || type === EquipmentType.SHIELD ? 3 + equipmentLevel : 0,
     health: type === EquipmentType.ARMOR || type === EquipmentType.SHIELD ? 10 + equipmentLevel * 3 : 0,
     agility: type === EquipmentType.SHOES ? 2 + equipmentLevel : 0,
-    criticalRate: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 1 + Math.floor(equipmentLevel / 2) : 0,
-    criticalDamage: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 5 + equipmentLevel * 2 : 0
+    criticalRate: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY || type === EquipmentType.RING ? 1 + Math.floor(equipmentLevel / 2) : 0,
+    criticalDamage: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY || type === EquipmentType.RING ? 5 + equipmentLevel * 2 : 0
   };
   
   const multiplier = rarityMultiplier[rarity];
@@ -100,7 +100,7 @@ export const generateRandomEquipment = (level: number, targetLevel?: number): Eq
     type,
     rarity,
     level: equipmentLevel,
-    stars: 1, // 初始为1星
+    stars: 0, // 初始为0星
     baseStats: { ...finalStats },
     stats: { ...finalStats }
   };
@@ -129,6 +129,21 @@ export const generateRewardLevel = (boxLevel: number): number => {
   } else {
     return Math.min(boxLevel + 1, GAME_CONFIG.TREASURE_BOX.MAX_LEVEL); // 下一级，但不超过最大等级
   }
+};
+
+// 生成宠物蛋
+export const generatePetEgg = (level: number) => {
+  const rarities = Object.values(ItemRarity);
+  const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+  
+  return {
+    id: `pet_egg_${Date.now()}_${Math.random()}`,
+    name: `${level}级${rarity}宠物蛋`,
+    type: 'pet_egg' as any,
+    quantity: 1,
+    level: level,
+    rarity: rarity
+  };
 };
 
 // 计算装备加成
@@ -213,7 +228,8 @@ export const getEquipmentImage = (type: string): string => {
     'shoes': '/assets/shoe.png',
     'weapon': '/assets/weapon.png',
     'shield': '/assets/shield.png',
-    'accessory': '/assets/accessory.png'
+    'accessory': '/assets/accessory.png',
+    'ring': '/assets/ring.png'
   };
   
   return imageMap[type] || '/assets/weapon.png';
@@ -222,7 +238,8 @@ export const getEquipmentImage = (type: string): string => {
 export const getItemImage = (type: string): string => {
   // 映射物品类型到对应的图片文件名
   const imageMap: { [key: string]: string } = {
-    'health_potion': '/assets/blood.png'
+    'health_potion': '/assets/blood.png',
+    'pet_egg': '/assets/egg.png'
   };
   
   return imageMap[type] || '/assets/blood.png';

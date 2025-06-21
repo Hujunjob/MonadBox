@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { generateRandomEquipment, generateHealthPotion, generateRewardLevel, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
+import { generateRandomEquipment, generateHealthPotion, generatePetEgg, generateRewardLevel, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
 import TreasureBoxTimer from './TreasureBoxTimer';
 import { GAME_CONFIG } from '../config/gameConfig';
@@ -30,39 +30,47 @@ const TreasureBox: React.FC = () => {
       // 根据宝箱等级确定奖励等级
       const rewardLevel = generateRewardLevel(boxLevel);
       
-      // 生成可能的奖励选项
-      const possibleRewards: any[] = [];
+      // 生成奖励概率系统
+      const random = Math.random() * 100;
+      let selectedReward: any;
       
-      // 金币奖励
-      const goldAmount = GAME_CONFIG.GOLD_REWARDS.TREASURE_BOX_BASE + 
-                        rewardLevel * GAME_CONFIG.GOLD_REWARDS.PER_LEVEL_BONUS + 
-                        Math.floor(Math.random() * GAME_CONFIG.GOLD_REWARDS.RANDOM_RANGE);
-      possibleRewards.push({ 
-        type: RewardType.GOLD, 
-        amount: goldAmount,
-        description: `金币 +${goldAmount}`
-      });
-      
-      // 装备奖励
-      const equipment = generateRandomEquipment(player.level, rewardLevel);
-      possibleRewards.push({ 
-        type: RewardType.EQUIPMENT, 
-        item: equipment,
-        description: `装备: ${equipment.name}`
-      });
-      
-      // 血瓶奖励
-      const healthPotion = generateHealthPotion(rewardLevel);
-      const potionAmount = Math.floor(Math.random() * 2) + 1;
-      possibleRewards.push({ 
-        type: RewardType.HEALTH_POTION, 
-        item: healthPotion,
-        amount: potionAmount,
-        description: `${healthPotion.name} +${potionAmount}`
-      });
-      
-      // 随机选择一个奖励
-      const selectedReward = possibleRewards[Math.floor(Math.random() * possibleRewards.length)];
+      if (random < 20) {
+        // 20% 金币
+        const goldAmount = GAME_CONFIG.GOLD_REWARDS.TREASURE_BOX_BASE + 
+                          rewardLevel * GAME_CONFIG.GOLD_REWARDS.PER_LEVEL_BONUS + 
+                          Math.floor(Math.random() * GAME_CONFIG.GOLD_REWARDS.RANDOM_RANGE);
+        selectedReward = { 
+          type: RewardType.GOLD, 
+          amount: goldAmount,
+          description: `金币 +${goldAmount}`
+        };
+      } else if (random < 27) {
+        // 7% 血瓶
+        const healthPotion = generateHealthPotion(rewardLevel);
+        selectedReward = { 
+          type: RewardType.HEALTH_POTION, 
+          item: healthPotion,
+          amount: 1,
+          description: `${healthPotion.name} +1`
+        };
+      } else if (random < 30) {
+        // 3% 宠物蛋
+        const petEgg = generatePetEgg(rewardLevel);
+        selectedReward = { 
+          type: RewardType.PET_EGG, 
+          item: petEgg,
+          amount: 1,
+          description: `宠物蛋: ${petEgg.name}`
+        };
+      } else {
+        // 70% 装备 (7种装备类型，每种10%)
+        const equipment = generateRandomEquipment(player.level, rewardLevel);
+        selectedReward = { 
+          type: RewardType.EQUIPMENT, 
+          item: equipment,
+          description: `装备: ${equipment.name}`
+        };
+      }
       
       // 给予选中的奖励
       switch (selectedReward.type) {
@@ -80,7 +88,7 @@ const TreasureBox: React.FC = () => {
             stats: selectedReward.item.stats,
             rarity: selectedReward.item.rarity,
             level: selectedReward.item.level || 1,
-            stars: selectedReward.item.stars || 1,
+            stars: selectedReward.item.stars || 0,
             baseStats: selectedReward.item.baseStats || selectedReward.item.stats
           }];
           updatePlayer({ inventory: newInventory });
@@ -94,7 +102,13 @@ const TreasureBox: React.FC = () => {
           
           if (existingPotionIndex >= 0) {
             const updatedInventory = [...player.inventory];
-            updatedInventory[existingPotionIndex].quantity += selectedReward.amount;
+            const existingPotion = updatedInventory[existingPotionIndex];
+            updatedInventory[existingPotionIndex] = {
+              ...existingPotion,
+              quantity: existingPotion.quantity + selectedReward.amount,
+              name: selectedReward.item.name, // 更新名称为统一格式
+              effect: selectedReward.item.effect // 确保效果值正确
+            };
             updatePlayer({ inventory: updatedInventory });
           } else {
             const newPotionItem = {
@@ -108,6 +122,18 @@ const TreasureBox: React.FC = () => {
             const newInventoryWithPotion = [...player.inventory, newPotionItem];
             updatePlayer({ inventory: newInventoryWithPotion });
           }
+          break;
+          
+        case RewardType.PET_EGG:
+          const newInventoryWithEgg = [...player.inventory, {
+            id: selectedReward.item.id,
+            name: selectedReward.item.name,
+            type: 'pet_egg' as any,
+            quantity: selectedReward.amount,
+            level: selectedReward.item.level,
+            rarity: selectedReward.item.rarity
+          }];
+          updatePlayer({ inventory: newInventoryWithEgg });
           break;
       }
       
@@ -240,6 +266,16 @@ const TreasureBox: React.FC = () => {
                         style={{ width: '48px', height: '48px' }}
                       />
                       <span className="item-quantity">×{selectedReward.amount}</span>
+                    </div>
+                  )}
+                  {selectedReward.type === RewardType.PET_EGG && (
+                    <div className="reward-item-icon" style={{ backgroundColor: getRarityColor(selectedReward.item.rarity) }}>
+                      <img 
+                        src={getItemImage('pet_egg')} 
+                        alt="宠物蛋"
+                        style={{ width: '48px', height: '48px' }}
+                      />
+                      <span className="item-level">lv{selectedReward.item.level}</span>
                     </div>
                   )}
                   {selectedReward.type === RewardType.GOLD && (

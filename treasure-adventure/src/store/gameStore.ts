@@ -25,6 +25,7 @@ interface GameStore extends GameState {
   incrementGameTime: () => void;
   calculateOfflineRewards: () => void;
   upgradeEquipment: (equipmentId: string, count: number) => void;
+  upgradeEquipmentStars: (equipmentId: string) => Promise<{ success: boolean; newStars: number; message: string }>;
   updateStamina: () => void;
   consumeStamina: (amount: number) => boolean;
 }
@@ -115,7 +116,7 @@ export const useGameStore = create<GameStore>()(
             rarity: item.rarity,
             stats: item.stats,
             level: item.level || 1,
-            stars: item.stars || 1,
+            stars: item.stars || 0,
             baseStats: item.baseStats || item.stats
           };
           
@@ -871,7 +872,7 @@ export const useGameStore = create<GameStore>()(
             if (persistedState.player.inventory) {
               persistedState.player.inventory = persistedState.player.inventory.map((item: any) => {
                 if (item.type === 'equipment' && item.stars === undefined) {
-                  return { ...item, stars: 1 };
+                  return { ...item, stars: 0 };
                 }
                 return item;
               });
@@ -882,16 +883,22 @@ export const useGameStore = create<GameStore>()(
               Object.keys(persistedState.player.equipment).forEach(slot => {
                 const item = persistedState.player.equipment[slot];
                 if (item && item.stars === undefined) {
-                  persistedState.player.equipment[slot] = { ...item, stars: 1 };
+                  persistedState.player.equipment[slot] = { ...item, stars: 0 };
                 }
               });
             }
             
-            // 为血瓶添加level属性
+            // 为血瓶添加level属性并更新名称
             if (persistedState.player.inventory) {
               persistedState.player.inventory = persistedState.player.inventory.map((item: any) => {
-                if (item.type === 'health_potion' && item.level === undefined) {
-                  return { ...item, level: 1 };
+                if (item.type === 'health_potion') {
+                  const level = item.level || 1;
+                  return { 
+                    ...item, 
+                    level: level,
+                    name: `${level}级血瓶`, // 统一名称格式
+                    effect: item.effect || { type: 'heal', value: 50 + (level - 1) * 25 } // 确保效果值正确
+                  };
                 }
                 return item;
               });
