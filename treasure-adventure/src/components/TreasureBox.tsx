@@ -188,13 +188,13 @@ const TreasureBox: React.FC = () => {
       
       <TreasureBoxTimer />
       
-      <div className="treasure-box-info">
+      {/* <div className="treasure-box-info">
         <p>拥有宝箱: {Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0}个</p>
         {Array.isArray(player.treasureBoxes) && player.treasureBoxes.length > 0 && (
           <p>下一个宝箱等级: {player.treasureBoxes[0].level}级</p>
         )}
         <p>每个宝箱提供随机奖励，等级越高奖励越好！</p>
-      </div>
+      </div> */}
       
       {/* 宝箱列表 */}
       {Array.isArray(player.treasureBoxes) && player.treasureBoxes.length > 0 && (
