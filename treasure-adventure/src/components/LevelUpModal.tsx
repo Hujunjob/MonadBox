@@ -22,7 +22,7 @@ const LevelUpModal: React.FC<LevelUpModalProps> = ({
   isOpen,
   oldLevel,
   newLevel,
-  job,
+  job: _job,
   statsGained,
   onClose
 }) => {
@@ -38,9 +38,9 @@ const LevelUpModal: React.FC<LevelUpModalProps> = ({
         <div className="level-up-content">
           <div className="level-display">
             <div className="level-change">
-              <span className="old-level">{getJobLevelDisplay(oldLevel, job, true)}</span>
+              <span className="old-level">{getJobLevelDisplay(oldLevel, 0)}</span>
               <span className="arrow">→</span>
-              <span className="new-level">{getJobLevelDisplay(newLevel, job, newLevel % 4 === 0 ? false : true)}</span>
+              <span className="new-level">{getJobLevelDisplay(newLevel, 0)}</span>
             </div>
           </div>
 

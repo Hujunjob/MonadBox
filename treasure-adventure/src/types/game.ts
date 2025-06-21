@@ -20,8 +20,6 @@ export interface Player {
   currentForestLevel: number;
   currentForestProgress: number;
   lastTreasureBoxTime: number;
-  job: JobType;
-  canGainExperience: boolean; // 是否可以获得经验（转职后才能继续升级）
 }
 
 export interface Equipment {

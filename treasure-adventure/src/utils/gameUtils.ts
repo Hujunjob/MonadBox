@@ -2,6 +2,29 @@ import {EquipmentType, ItemRarity, JobType, ItemType } from '../types/game';
 import type { ForestLevel, Monster, EquipmentItem, InventoryItem} from '../types/game';
 import { GAME_CONFIG } from '../config/gameConfig';
 
+// 根据等级计算职业
+export const getJobFromLevel = (level: number): JobType => {
+  if (level >= 25) return JobType.PLANE_LORD;
+  if (level >= 21) return JobType.SWORD_GOD;
+  if (level >= 17) return JobType.SWORD_MASTER;
+  if (level >= 13) return JobType.DRAGON_KNIGHT;
+  if (level >= 9) return JobType.TEMPLE_KNIGHT;
+  if (level >= 5) return JobType.GREAT_SWORDSMAN;
+  return JobType.SWORDSMAN;
+};
+
+// 根据等级和经验计算是否可以获得经验
+export const getCanGainExperience = (level: number, experience: number): boolean => {
+  // 非转职等级，可以获得经验
+  if (level % 4 !== 0) {
+    return true;
+  }
+  
+  // 转职等级，检查经验是否达到上限
+  const maxExpForJobLevel = level * 100;
+  return experience < maxExpForJobLevel;
+};
+
 export const generateForestLevels = (): ForestLevel[] => {
   const levels: ForestLevel[] = [];
   
@@ -317,8 +340,10 @@ export const getRarityColor = (rarity: string): string => {
 };
 
 // 获取职业等级显示格式
-export const getJobLevelDisplay = (level: number, job: JobType, canGainExperience?: boolean): string => {
+export const getJobLevelDisplay = (level: number, experience: number): string => {
   const { JOB_NAMES, LEVEL_PREFIXES } = GAME_CONFIG.JOB_ADVANCEMENT;
+  const job = getJobFromLevel(level);
+  const canGainExperience = getCanGainExperience(level, experience);
   
   // 检查是否为转职等级且不能继续获得经验（满级状态）
   if (level % 4 === 0 && canGainExperience === false) {
@@ -341,7 +366,8 @@ export const canAdvanceJob = (level: number): boolean => {
 };
 
 // 获取下一个职业
-export const getNextJob = (currentJob: JobType): JobType | null => {
+export const getNextJob = (level: number): JobType | null => {
+  const currentJob = getJobFromLevel(level);
   const jobOrder = [
     JobType.SWORDSMAN,
     JobType.GREAT_SWORDSMAN,
@@ -361,7 +387,9 @@ export const getNextJob = (currentJob: JobType): JobType | null => {
 };
 
 // 获取转职成功率
-export const getJobAdvancementSuccessRate = (targetJob: JobType): number => {
+export const getJobAdvancementSuccessRate = (level: number): number => {
+  const targetJob = getNextJob(level);
+  if (!targetJob) return 0;
   const { SUCCESS_RATES } = GAME_CONFIG.JOB_ADVANCEMENT;
   return SUCCESS_RATES[targetJob as keyof typeof SUCCESS_RATES] || 20;
 };

@@ -20,9 +20,9 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
   }
 
   const targetJob = item.targetJob as JobType;
-  const successRate = getJobAdvancementSuccessRate(targetJob);
+  const successRate = getJobAdvancementSuccessRate(player.level);
   const canUse = canAdvanceJob(player.level);
-  const nextJob = getNextJob(player.job);
+  const nextJob = getNextJob(player.level);
   const isCorrectBook = nextJob === targetJob;
 
   const handleAdvancement = async () => {
@@ -60,7 +60,7 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
   };
 
   const jobName = GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob] || '未知职业';
-  const currentJobLevelDisplay = getJobLevelDisplay(player.level, player.job, player.canGainExperience);
+  const currentJobLevelDisplay = getJobLevelDisplay(player.level, player.experience);
 
   return (
     <div className="modal-overlay" onClick={handleClose}>

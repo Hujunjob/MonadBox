@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay } from '../utils/gameUtils';
+import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay, getCanGainExperience } from '../utils/gameUtils';
 import { EquipmentType, JobType, ItemType } from '../types/game';
 import EquipmentModal from './EquipmentModal';
 
@@ -42,7 +42,6 @@ const PlayerStats: React.FC = () => {
   }, [activeTooltip]);
   
   const expNeeded = player.level * 100;
-  const healthPercent = (player.health / stats.maxHealth) * 100;
   
   const equipmentSlots = [
     { key: 'helmet', name: '头盔', type: EquipmentType.HELMET },
@@ -75,7 +74,7 @@ const PlayerStats: React.FC = () => {
     <div className="player-stats">
       <div className="stat-row">
         <span>姓名: {player.name}</span>
-        <span>{getJobLevelDisplay(player.level, player.job || 'swordsman', player.canGainExperience)}</span>
+        <span>{getJobLevelDisplay(player.level, player.experience)}</span>
         <span>金币: {player.gold}</span>
       </div>
       
@@ -85,7 +84,7 @@ const PlayerStats: React.FC = () => {
         <span>体力: {player.stamina || 0}/{player.maxStamina || 24}</span>
       </div>
       
-      {!player.canGainExperience && (
+      {!getCanGainExperience(player.level, player.experience) && (
         <div style={{ 
           backgroundColor: '#fff3cd', 
           border: '1px solid #ffeaa7', 

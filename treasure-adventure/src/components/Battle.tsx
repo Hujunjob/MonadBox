@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { calculatePlayerStats, getJobLevelDisplay } from '../utils/gameUtils';
+import { calculatePlayerStats, getJobLevelDisplay, getJobFromLevel } from '../utils/gameUtils';
 import BattleResultModal from './BattleResultModal';
 import LevelUpModal from './LevelUpModal';
 
@@ -314,7 +314,7 @@ const Battle: React.FC = () => {
                 </div>
               ))}
           </div>
-          <h3>{currentBattle.player.name} ({getJobLevelDisplay(currentBattle.player.level, currentBattle.player.job || 'swordsman', currentBattle.player.canGainExperience)})</h3>
+          <h3>{currentBattle.player.name} ({getJobLevelDisplay(currentBattle.player.level, currentBattle.player.experience)})</h3>
           
           <div className="health-row">
             <span className="health-text">血量: {currentBattle.player.health}/{playerStats.maxHealth}</span>
@@ -399,7 +399,7 @@ const Battle: React.FC = () => {
           isOpen={showLevelUpModal}
           oldLevel={lastLevelUp.oldLevel}
           newLevel={lastLevelUp.newLevel}
-          job={player.job || 'swordsman'}
+          job={getJobFromLevel(player.level)}
           statsGained={lastLevelUp.statsGained}
           onClose={handleCloseLevelUpModal}
         />

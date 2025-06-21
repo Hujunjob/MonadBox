@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Player, GameState, Monster, Equipment, JobType } from '../types/game';
-import { generateForestLevels, calculatePlayerStats } from '../utils/gameUtils';
+import { generateForestLevels, calculatePlayerStats, getJobFromLevel, getCanGainExperience } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
 
 interface GameStore extends GameState {
@@ -89,9 +89,7 @@ const createInitialPlayer = (): Player => ({
   ],
   currentForestLevel: 1,
   currentForestProgress: 0,
-  lastTreasureBoxTime: Math.floor(Date.now() / 1000),
-  job: 'swordsman' as JobType,
-  canGainExperience: true
+  lastTreasureBoxTime: Math.floor(Date.now() / 1000)
 });
 
 export const useGameStore = create<GameStore>()(
@@ -275,7 +273,7 @@ export const useGameStore = create<GameStore>()(
       gainExperience: (amount) => {
         set((state) => {
           // 如果不能获得经验，直接返回
-          if (!state.player.canGainExperience) {
+          if (!getCanGainExperience(state.player.level, state.player.experience)) {
             return state;
           }
           
@@ -288,7 +286,6 @@ export const useGameStore = create<GameStore>()(
           let newAgility = state.player.agility;
           let newCriticalRate = state.player.criticalRate;
           let newCriticalDamage = state.player.criticalDamage;
-          let canGainExperience: boolean = state.player.canGainExperience;
           
           let levelUpData = null;
           
@@ -298,7 +295,6 @@ export const useGameStore = create<GameStore>()(
             if (newExp >= maxExpForJobLevel) {
               // 经验达到上限，停止增长
               newExp = maxExpForJobLevel;
-              canGainExperience = false;
             }
           } else {
             // 非转职等级，正常处理升级
@@ -357,8 +353,7 @@ export const useGameStore = create<GameStore>()(
               defense: newDefense,
               agility: newAgility,
               criticalRate: newCriticalRate,
-              criticalDamage: newCriticalDamage,
-              canGainExperience: canGainExperience
+              criticalDamage: newCriticalDamage
             },
             lastLevelUp: levelUpData
           };
@@ -1040,9 +1035,7 @@ export const useGameStore = create<GameStore>()(
                 agility: newAgility,
                 criticalRate: newCriticalRate,
                 criticalDamage: newCriticalDamage,
-                experience: 0, // 转职后经验清零
-                job: targetJob,
-                canGainExperience: true // 转职成功后可以继续获得经验
+                experience: 0 // 转职后经验清零
               }
             }));
             
@@ -1055,14 +1048,13 @@ export const useGameStore = create<GameStore>()(
             set((state) => ({
               player: {
                 ...state.player,
-                experience: 0, // 只清零经验，等级保持不变
-                canGainExperience: true // 重新允许获得经验
+                experience: 0 // 只清零经验，等级保持不变
               }
             }));
             
             resolve({
               success: false,
-              message: `转职失败！降级为顶级${GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[state.player.job]}。`
+              message: `转职失败！降级为顶级${GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[getJobFromLevel(state.player.level) as keyof typeof GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES]}。`
             });
           }
         });
@@ -1190,20 +1182,9 @@ export const useGameStore = create<GameStore>()(
         if (version < 6) {
           // 迁移到版本6：添加职业系统
           if (persistedState.player) {
-            // 根据当前等级确定职业
-            const level = persistedState.player.level || 1;
-            let job: JobType = 'swordsman';
-            
-            if (level >= 21) job = 'sword_god';
-            else if (level >= 17) job = 'sword_master'; 
-            else if (level >= 13) job = 'dragon_knight';
-            else if (level >= 9) job = 'temple_knight';
-            else if (level >= 5) job = 'great_swordsman';
-            
-            persistedState.player.job = job;
-            
-            // 检查是否需要转职
-            persistedState.player.canGainExperience = level % 4 !== 0;
+            // 删除job和canGainExperience字段，它们现在通过计算得到
+            delete persistedState.player.job;
+            delete persistedState.player.canGainExperience;
             
             // 添加戒指装备槽
             if (persistedState.player.equipment) {
