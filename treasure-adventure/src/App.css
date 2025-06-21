@@ -1,10 +1,31 @@
+/* 页面背景 */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #2d2d2d;
+  font-family: Arial, sans-serif;
+}
+
+/* 游戏容器包装器 */
+.app-wrapper {
+  min-height: 100vh;
+  background-color: #2d2d2d;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+}
+
 /* 游戏容器 */
 .game-container {
-  width: 1200px;
-  max-width: 1200px;
-  min-width: 1200px;
-  margin: 0 auto;
+  width: 600px;
+  min-width: 600px;
+  max-width: 600px;
+  margin: 0;
   padding: 20px;
+  background-color: white;
+  min-height: 100vh;
+  box-sizing: border-box;
   font-family: Arial, sans-serif;
 }
 
@@ -530,9 +551,6 @@
 
 @media (max-width: 768px) {
   .reward-options {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* 怪物森林 */
 .monster-forest {
@@ -1201,51 +1219,8 @@
   font-weight: bold;
 }
 
-/* 响应式设计 */
-@media (max-width: 1240px) {
-  .game-container {
-    width: 100%;
-    min-width: auto;
-    max-width: 100%;
-    padding: 10px;
-  }
-}
+/* 响应式设计已删除 - 固定布局 */
 
-@media (max-width: 768px) {
-  .game-container {
-    padding: 10px;
-  }
-  
-  .game-header {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .game-nav {
-    flex-wrap: wrap;
-  }
-  
-  .battle-area {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  
-  .vs-divider {
-    order: -1;
-  }
-  
-  .stat-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .equipment-slots {
-    grid-template-columns: 1fr;
-  }
-  
-  .monsters-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* 背包系统 */
 .inventory-panel {
@@ -1382,11 +1357,6 @@
   background: #e0a800;
 }
 
-@media (max-width: 768px) {
-  .items-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* Toast 通知样式 */
 .toast {
