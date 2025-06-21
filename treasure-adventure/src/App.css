@@ -2300,3 +2300,122 @@
 .equipment-stars-mini .star-mini.empty {
   color: #666;
 }
+
+/* 升星结果弹出框样式 */
+.upgrade-result-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+  position: relative;
+}
+
+.upgrade-result-modal.closing {
+  animation: modalSlideOut 0.3s ease-in forwards;
+}
+
+.upgrade-result-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 15px;
+}
+
+.upgrade-result-modal .modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.upgrade-result-modal .close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.upgrade-result-modal .close-btn:hover {
+  background: #f5f5f5;
+  color: #000;
+}
+
+.upgrade-result-modal .modal-content {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.upgrade-result-modal .result-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.upgrade-result-modal .result-message p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.upgrade-result-modal .star-display {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.upgrade-result-modal .star-display .star {
+  font-size: 24px;
+  transition: all 0.2s;
+}
+
+.upgrade-result-modal .star-display .star.filled {
+  color: #ffc107;
+  text-shadow: 0 0 3px rgba(255, 193, 7, 0.5);
+}
+
+.upgrade-result-modal .star-display .star.empty {
+  color: #dee2e6;
+}
+
+.upgrade-result-modal .modal-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.upgrade-result-modal .confirm-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 120px;
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.upgrade-result-modal .confirm-btn:hover {
+  background: linear-gradient(135deg, #218838, #1e7e34);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+}

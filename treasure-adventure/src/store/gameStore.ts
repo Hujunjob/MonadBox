@@ -755,6 +755,149 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
+      upgradeEquipmentStars: async (equipmentId: string) => {
+        return new Promise((resolve) => {
+          set((state) => {
+            // 查找要升星的装备
+            let targetEquipment: any = null;
+            let equipmentLocation: 'inventory' | 'equipped' = 'inventory';
+            let equipmentSlot: string | null = null;
+
+            // 在背包中查找
+            const inventoryIndex = state.player.inventory.findIndex(item => item.id === equipmentId);
+            if (inventoryIndex >= 0) {
+              targetEquipment = state.player.inventory[inventoryIndex];
+            } else {
+              // 在装备中查找
+              for (const [slot, equipment] of Object.entries(state.player.equipment)) {
+                if (equipment && equipment.id === equipmentId) {
+                  targetEquipment = equipment;
+                  equipmentLocation = 'equipped';
+                  equipmentSlot = slot;
+                  break;
+                }
+              }
+            }
+
+            if (!targetEquipment) {
+              resolve({ success: false, newStars: 0, message: '装备未找到' });
+              return state;
+            }
+
+            const currentStars = targetEquipment.stars || 0;
+            
+            // 检查是否已达到最大星级
+            if (currentStars >= 5) {
+              resolve({ success: false, newStars: currentStars, message: '已达到最大星级' });
+              return state;
+            }
+
+            // 计算升星成本
+            const upgradeCost = targetEquipment.level * 100;
+            if (state.player.gold < upgradeCost) {
+              resolve({ success: false, newStars: currentStars, message: '金币不足' });
+              return state;
+            }
+
+            // 计算所需材料数量：升到下一星级需要的材料数 = 当前星级 + 1
+            const requiredMaterials = currentStars + 1;
+            
+            // 查找材料装备
+            const materialItems = state.player.inventory.filter(item => 
+              item.type === 'equipment' && 
+              item.id !== equipmentId &&
+              (item as any).equipmentType === targetEquipment.type &&
+              (item as any).rarity === targetEquipment.rarity
+            );
+
+            if (materialItems.length < requiredMaterials) {
+              resolve({ success: false, newStars: currentStars, message: `材料不足，需要${requiredMaterials}个` });
+              return state;
+            }
+
+            // 计算升星成功率：0星=90%, 1星=80%, 2星=70%, 3星=60%, 4星=50%
+            const successRates = [0.9, 0.8, 0.7, 0.6, 0.5];
+            const successRate = successRates[currentStars] || 0.5;
+            const isSuccess = Math.random() < successRate;
+
+            // 扣除金币和材料
+            let newInventory = [...state.player.inventory];
+            let materialsRemoved = 0;
+            newInventory = newInventory.filter(item => {
+              if (materialsRemoved < requiredMaterials &&
+                  item.type === 'equipment' && 
+                  item.id !== equipmentId &&
+                  (item as any).equipmentType === targetEquipment.type &&
+                  (item as any).rarity === targetEquipment.rarity) {
+                materialsRemoved++;
+                return false;
+              }
+              return true;
+            });
+
+            let newStars = currentStars;
+            let message = '';
+            
+            if (isSuccess) {
+              newStars = currentStars + 1;
+              message = `升星成功！装备星级提升至${newStars}星`;
+              
+              // 计算新属性：每星增加20%基础属性
+              const starMultiplier = 1 + newStars * 0.2;
+              const upgradedEquipment = {
+                ...targetEquipment,
+                stars: newStars,
+                stats: {
+                  attack: Math.floor((targetEquipment.baseStats?.attack || 0) * starMultiplier),
+                  defense: Math.floor((targetEquipment.baseStats?.defense || 0) * starMultiplier),
+                  health: Math.floor((targetEquipment.baseStats?.health || 0) * starMultiplier),
+                  agility: Math.floor((targetEquipment.baseStats?.agility || 0) * starMultiplier),
+                  criticalRate: Math.floor((targetEquipment.baseStats?.criticalRate || 0) * starMultiplier),
+                  criticalDamage: Math.floor((targetEquipment.baseStats?.criticalDamage || 0) * starMultiplier)
+                }
+              };
+
+              // 更新装备
+              let newEquipment = { ...state.player.equipment };
+              if (equipmentLocation === 'equipped' && equipmentSlot) {
+                newEquipment[equipmentSlot as keyof typeof newEquipment] = upgradedEquipment;
+              } else {
+                // 更新背包中的装备
+                const updatedInventoryIndex = newInventory.findIndex(item => item.id === equipmentId);
+                if (updatedInventoryIndex >= 0) {
+                  newInventory[updatedInventoryIndex] = {
+                    ...newInventory[updatedInventoryIndex],
+                    ...upgradedEquipment
+                  };
+                }
+              }
+
+              resolve({ success: true, newStars, message });
+              
+              return {
+                player: {
+                  ...state.player,
+                  gold: state.player.gold - upgradeCost,
+                  inventory: newInventory,
+                  equipment: newEquipment
+                }
+              };
+            } else {
+              message = `升星失败！装备保持${currentStars}星`;
+              resolve({ success: false, newStars: currentStars, message });
+              
+              return {
+                player: {
+                  ...state.player,
+                  gold: state.player.gold - upgradeCost,
+                  inventory: newInventory
+                }
+              };
+            }
+          });
+        });
+      },
+
       updateStamina: () => {
         set((state) => {
           const now = Math.floor(Date.now() / 1000);
