@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay } from '../utils/gameUtils';
-import { EquipmentType } from '../types/game';
+import { EquipmentType, JobType, ItemType } from '../types/game';
 import EquipmentModal from './EquipmentModal';
 
 const PlayerStats: React.FC = () => {
-  const { player, initializeGame, updatePlayer } = useGameStore();
+  const { player, initializeGame, updatePlayer, gainExperience } = useGameStore();
   const stats = calculatePlayerStats(player);
   const baseStats = getBaseStats(player);
   const equipmentBonus = calculateEquipmentBonus(player);
@@ -200,9 +200,6 @@ const PlayerStats: React.FC = () => {
         </div>
         
         
-        <div className="equipment-note">
-          <p>💡 点击装备查看详情和进行操作</p>
-        </div>
       </div>
       
       <div style={{ marginTop: '20px', textAlign: 'center', display: 'flex', gap: '10px', justifyContent: 'center' }}>
@@ -251,6 +248,61 @@ const PlayerStats: React.FC = () => {
               }}
             >
               调试:给10个宝箱
+            </button>
+            <button 
+              onClick={() => {
+                gainExperience(100);
+              }}
+              style={{ 
+                padding: '10px 20px', 
+                backgroundColor: '#6f42c1', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              调试:增加100经验
+            </button>
+            <button 
+              onClick={() => {
+                const jobBooks = [
+                  JobType.GREAT_SWORDSMAN,
+                  JobType.TEMPLE_KNIGHT,
+                  JobType.DRAGON_KNIGHT,
+                  JobType.SWORD_MASTER,
+                  JobType.SWORD_GOD,
+                  JobType.PLANE_LORD
+                ];
+                
+                const newBooks = jobBooks.map(job => ({
+                  id: `debug_job_book_${job}_${Date.now()}`,
+                  name: `${job === JobType.GREAT_SWORDSMAN ? '大剑士' : 
+                          job === JobType.TEMPLE_KNIGHT ? '圣殿骑士' :
+                          job === JobType.DRAGON_KNIGHT ? '龙骑士' :
+                          job === JobType.SWORD_MASTER ? '剑圣' :
+                          job === JobType.SWORD_GOD ? '剑神' : '位面领主'}转职书`,
+                  type: ItemType.JOB_ADVANCEMENT_BOOK,
+                  quantity: 2,
+                  targetJob: job
+                }));
+                
+                updatePlayer({
+                  inventory: [...player.inventory, ...newBooks]
+                });
+              }}
+              style={{ 
+                padding: '10px 20px', 
+                backgroundColor: '#fd7e14', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              调试:给转职书
             </button>
           </>
         )}

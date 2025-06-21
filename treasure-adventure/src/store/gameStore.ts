@@ -291,74 +291,60 @@ export const useGameStore = create<GameStore>()(
           let newCriticalDamage = state.player.criticalDamage;
           let canGainExperience: boolean = state.player.canGainExperience;
           
-          const expNeeded = newLevel * 100;
-          
           let levelUpData = null;
           
-          // 检查如果升级后会到达需要转职的等级（4的倍数），则限制经验获得
-          if (newExp >= expNeeded && (newLevel + 1) % 4 === 0) {
-            // 如果升级后会达到转职等级，先正常升级，然后停止经验获得
-            const oldLevel = newLevel;
-            newLevel++;
-            newExp = 0; // 转职等级经验清零，避免累积
+          // 检查是否为转职等级，如果是，需要特殊处理经验上限
+          if (newLevel % 4 === 0) {
+            const maxExpForJobLevel = newLevel * 100;
+            if (newExp >= maxExpForJobLevel) {
+              // 经验达到上限，停止增长
+              newExp = maxExpForJobLevel;
+              canGainExperience = false;
+            }
+          } else {
+            // 非转职等级，正常处理升级
+            const expNeeded = newLevel * 100;
             
-            // 记录属性提升
-            const statsGained = {
-              maxHealth: 20,
-              attack: 3,
-              defense: 2,
-              agility: 1,
-              criticalRate: 1,
-              criticalDamage: 5
-            };
-            
-            newMaxHealth += statsGained.maxHealth;
-            newHealth = newMaxHealth;
-            newAttack += statsGained.attack;
-            newDefense += statsGained.defense;
-            newAgility += statsGained.agility;
-            newCriticalRate += statsGained.criticalRate;
-            newCriticalDamage += statsGained.criticalDamage;
-            
-            // 需要转职才能继续获得经验
-            canGainExperience = false;
-            
-            // 保存升级数据
-            levelUpData = {
-              oldLevel,
-              newLevel,
-              statsGained
-            };
-          } else if (newExp >= expNeeded) {
-            // 正常升级流程（非转职等级）
-            const oldLevel = newLevel;
-            newLevel++;
-            newExp -= expNeeded;
-            
-            // 记录属性提升
-            const statsGained = {
-              maxHealth: 20,
-              attack: 3,
-              defense: 2,
-              agility: 1,
-              criticalRate: 1,
-              criticalDamage: 5
-            };
-            
-            newMaxHealth += statsGained.maxHealth;
-            newHealth = newMaxHealth;
-            newAttack += statsGained.attack;
-            newDefense += statsGained.defense;
-            newAgility += statsGained.agility;
-            newCriticalRate += statsGained.criticalRate;
-            newCriticalDamage += statsGained.criticalDamage;
-            
-            // 保存升级数据
-            levelUpData = {
-              oldLevel,
-              newLevel,
-              statsGained
-            };
+            if (newExp >= expNeeded) {
+              const oldLevel = newLevel;
+              newLevel++;
+              
+              // 检查升级后是否为转职等级
+              const willBeJobAdvancementLevel = newLevel % 4 === 0;
+              
+              if (willBeJobAdvancementLevel) {
+                // 升级到转职等级，经验重置为0
+                newExp = 0;
+              } else {
+                // 正常升级，经验溢出
+                newExp -= expNeeded;
+              }
+              
+              // 记录属性提升
+              const statsGained = {
+                maxHealth: 20,
+                attack: 3,
+                defense: 2,
+                agility: 1,
+                criticalRate: 1,
+                criticalDamage: 5
+              };
+              
+              newMaxHealth += statsGained.maxHealth;
+              newHealth = newMaxHealth;
+              newAttack += statsGained.attack;
+              newDefense += statsGained.defense;
+              newAgility += statsGained.agility;
+              newCriticalRate += statsGained.criticalRate;
+              newCriticalDamage += statsGained.criticalDamage;
+              
+              // 保存升级数据
+              levelUpData = {
+                oldLevel,
+                newLevel,
+                statsGained
+              };
+            }
           }
           
           return {
@@ -1085,23 +1071,21 @@ export const useGameStore = create<GameStore>()(
             
             resolve({
               success: true,
-              message: `转职成功！您现在是${GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob]}！等级提升至${newLevel}级！`
+              message: `转职成功！您现在是${GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob]}！`
             });
           } else {
-            // 转职失败，等级掉1级
-            const newLevel = Math.max(1, state.player.level - 1);
-            
+            // 转职失败，经验清零但等级不变
             set((state) => ({
               player: {
                 ...state.player,
-                level: newLevel,
-                canGainExperience: newLevel % 4 !== 0 // 如果掉级后不是4的倍数，可以继续获得经验
+                experience: 0, // 只清零经验，等级保持不变
+                canGainExperience: true // 重新允许获得经验
               }
             }));
             
             resolve({
               success: false,
-              message: `转职失败！等级下降到${newLevel}级。`
+              message: `转职失败！降级为顶级${GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[state.player.job]}。`
             });
           }
         });
