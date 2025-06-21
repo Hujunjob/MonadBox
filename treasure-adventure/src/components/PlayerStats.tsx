@@ -198,7 +198,6 @@ const PlayerStats: React.FC = () => {
       
       {/* 装备区域 */}
       <div className="equipment-section">
-        <h3>装备</h3>
         <div className="equipment-slots">
           {equipmentSlots.map(slot => {
             const equippedItem = player.equipment[slot.key as keyof typeof player.equipment];
