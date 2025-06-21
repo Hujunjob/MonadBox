@@ -4,6 +4,7 @@ import { useGameStore } from '../store/gameStore';
 const MonsterForest: React.FC = () => {
   const { player, forestLevels, startBattle } = useGameStore();
   const [selectedForestLevel, setSelectedForestLevel] = React.useState(player.currentForestLevel);
+  const [isForestLevelExpanded, setIsForestLevelExpanded] = React.useState(false);
   
   const currentForest = forestLevels.find(forest => forest.level === selectedForestLevel);
   
@@ -24,30 +25,46 @@ const MonsterForest: React.FC = () => {
       <h2>怪物森林</h2>
       
       <div className="forest-levels">
-        <h3>森林等级</h3>
-        <div className="level-list">
-          {forestLevels.map(forest => (
-            <div 
-              key={forest.level} 
-              className={`forest-level ${forest.isUnlocked ? 'unlocked' : 'locked'} ${
-                forest.level === selectedForestLevel ? 'selected' : ''
-              } ${forest.level === player.currentForestLevel ? 'current' : ''}`}
-              onClick={() => forest.isUnlocked && setSelectedForestLevel(forest.level)}
-              style={{ cursor: forest.isUnlocked ? 'pointer' : 'default' }}
-            >
-              <span>{forest.name}</span>
-              <span>
-                {forest.isUnlocked ? 
-                  (forest.level === player.currentForestLevel ? 
-                    `进度: ${player.currentForestProgress}/10` : 
-                    '已完成'
-                  ) : 
-                  '未解锁'
-                }
-              </span>
-            </div>
-          ))}
+        <div 
+          className="forest-levels-header"
+          onClick={() => setIsForestLevelExpanded(!isForestLevelExpanded)}
+          style={{ cursor: 'pointer' }}
+        >
+          <h3>森林等级</h3>
+          <span className="expand-icon">{isForestLevelExpanded ? '▼' : '▶'}</span>
         </div>
+        
+        {isForestLevelExpanded && (
+          <div className="level-list">
+            {forestLevels.map(forest => (
+              <div 
+                key={forest.level} 
+                className={`forest-level ${forest.isUnlocked ? 'unlocked' : 'locked'} ${
+                  forest.level === selectedForestLevel ? 'selected' : ''
+                } ${forest.level === player.currentForestLevel ? 'current' : ''}`}
+                onClick={() => forest.isUnlocked && setSelectedForestLevel(forest.level)}
+                style={{ cursor: forest.isUnlocked ? 'pointer' : 'default' }}
+              >
+                <span>{forest.name}</span>
+                <span>
+                  {forest.isUnlocked ? 
+                    (forest.level === player.currentForestLevel ? 
+                      `进度: ${player.currentForestProgress}/10` : 
+                      '已完成'
+                    ) : 
+                    '未解锁'
+                  }
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {!isForestLevelExpanded && (
+          <div className="current-forest-summary">
+            <span>当前选择: {currentForest?.name || `第${selectedForestLevel}层森林`}</span>
+          </div>
+        )}
       </div>
       
       {currentForest && (
