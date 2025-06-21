@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { getJobAdvancementSuccessRate, getNextJob, canAdvanceJob } from '../utils/gameUtils';
+import { getJobAdvancementSuccessRate, getNextJob, canAdvanceJob, getJobLevelDisplay, getJobAdvancementBookImage } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { JobType } from '../types/game';
 
@@ -60,11 +60,11 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
   };
 
   const jobName = GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob] || '未知职业';
-  const currentJobName = GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[player.job] || '剑士';
+  const currentJobLevelDisplay = getJobLevelDisplay(player.level, player.job);
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
+      <div className="equipment-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h3>{item.name}</h3>
           <button onClick={handleClose} className="close-btn">×</button>
@@ -91,50 +91,19 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
             </div>
           ) : (
             <div className="advancement-info">
+              <div className="item-icon-display" style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <img 
+                  src={getJobAdvancementBookImage(targetJob)} 
+                  alt={item.name}
+                  style={{ width: '64px', height: '64px', marginBottom: '10px' }}
+                />
+              </div>
               <div className="item-description">
                 <p><strong>转职书:</strong> {jobName}</p>
-                <p><strong>当前职业:</strong> {currentJobName}</p>
-                <p><strong>当前等级:</strong> {player.level}</p>
+                <p><strong>当前级别:</strong> {currentJobLevelDisplay}</p>
                 <p><strong>成功率:</strong> <span style={{ color: '#007bff', fontWeight: 'bold' }}>{successRate}%</span></p>
               </div>
 
-              {!canUse && (
-                <div style={{ 
-                  backgroundColor: '#f8d7da', 
-                  border: '1px solid #f5c6cb', 
-                  borderRadius: '5px', 
-                  padding: '10px', 
-                  margin: '15px 0',
-                  color: '#721c24'
-                }}>
-                  <strong>⚠️ 只有在4级倍数等级时才能使用转职书！</strong>
-                </div>
-              )}
-
-              {canUse && !isCorrectBook && (
-                <div style={{ 
-                  backgroundColor: '#f8d7da', 
-                  border: '1px solid #f5c6cb', 
-                  borderRadius: '5px', 
-                  padding: '10px', 
-                  margin: '15px 0',
-                  color: '#721c24'
-                }}>
-                  <strong>⚠️ 这不是您下一个职业的转职书！</strong><br/>
-                  您需要的是: {GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[nextJob || 'swordsman']}转职书
-                </div>
-              )}
-
-              <div style={{ 
-                backgroundColor: '#fff3cd', 
-                border: '1px solid #ffeaa7', 
-                borderRadius: '5px', 
-                padding: '10px', 
-                margin: '15px 0',
-                color: '#856404'
-              }}>
-                <strong>⚠️ 转职失败将会导致等级下降1级！</strong>
-              </div>
 
               <div className="modal-buttons">
                 <button 
@@ -151,7 +120,7 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
                     opacity: isAdvancing ? 0.7 : 1
                   }}
                 >
-                  {isAdvancing ? '转职中...' : `使用转职书 (${successRate}%)`}
+                  {isAdvancing ? '转职中...' : '转职'}
                 </button>
                 <button 
                   onClick={handleClose}

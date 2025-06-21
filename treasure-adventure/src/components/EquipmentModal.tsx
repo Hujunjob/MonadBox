@@ -98,11 +98,12 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   const canAffordUpgrade = player.gold >= upgradeCost;
   const canUpgradeStars = currentStars < 5;
   
-  // 查找背包中同类型同稀有度的装备作为材料
+  // 查找背包中同类型同稀有度同等级的装备作为材料
   const availableMaterials = currentEquipment ? player.inventory.filter(item => 
     item.type === 'equipment' && 
     (item as any).equipmentType === currentEquipment.type &&
     (item as any).rarity === currentEquipment.rarity &&
+    (item as any).level === currentEquipment.level &&
     item.id !== currentEquipment.id
   ).length : 0;
   

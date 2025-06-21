@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
+import { getEquipmentImage, getItemImage, getRarityColor, getJobAdvancementBookImage } from '../utils/gameUtils';
 import EquipmentModal from './EquipmentModal';
 import ItemModal from './ItemModal';
 import JobAdvancementModal from './JobAdvancementModal';
@@ -17,7 +17,19 @@ const Inventory: React.FC = () => {
   const healthPotions = player.inventory.filter(item => item.type === 'health_potion');
   const equipment = player.inventory.filter(item => item.type === 'equipment');
   const petEggs = player.inventory.filter(item => item.type === 'pet_egg');
-  const jobBooks = player.inventory.filter(item => item.type === 'job_advancement_book');
+  
+  // 转职书按目标职业分组合并
+  const jobBooksRaw = player.inventory.filter(item => item.type === 'job_advancement_book');
+  const jobBooksGrouped = jobBooksRaw.reduce((acc: any[], item) => {
+    const existingBook = acc.find(book => book.targetJob === (item as any).targetJob);
+    if (existingBook) {
+      existingBook.quantity += item.quantity;
+    } else {
+      acc.push({ ...item });
+    }
+    return acc;
+  }, []);
+  
   const otherItems = player.inventory.filter(item => 
     item.type !== 'health_potion' && item.type !== 'equipment' && item.type !== 'pet_egg' && item.type !== 'job_advancement_book'
   );
@@ -101,18 +113,18 @@ const Inventory: React.FC = () => {
               </div>
             </div>
           ))}
-          {jobBooks.map(item => (
+          {jobBooksGrouped.map(item => (
             <div 
-              key={item.id} 
-              className="inventory-item consumable clickable"
+              key={`${item.targetJob}_${item.id}`} 
+              className="inventory-item job-book clickable"
               onClick={() => handleItemClick(item)}
             >
               <div className="item-header">
-                <span style={{ fontSize: '8px', color: '#666' }}>转职书</span>
+                <span className="job-book-label">转职书</span>
               </div>
               <div className="item-display">
                 <img 
-                  src={getItemImage('job_advancement_book')} 
+                  src={getJobAdvancementBookImage(item.targetJob)} 
                   alt={item.name}
                   style={{ width: '32px', height: '32px' }}
                 />
@@ -122,7 +134,7 @@ const Inventory: React.FC = () => {
               </div>
             </div>
           ))}
-          {healthPotions.length === 0 && petEggs.length === 0 && jobBooks.length === 0 && (
+          {healthPotions.length === 0 && petEggs.length === 0 && jobBooksGrouped.length === 0 && (
             <div className="empty-slot">
               <span>没有消耗品</span>
             </div>

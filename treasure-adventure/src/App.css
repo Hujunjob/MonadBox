@@ -2500,6 +2500,26 @@
   min-height: 80px;
 }
 
+/* 转职书布局优化 */
+.inventory-item.job-book {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px;
+  min-height: 80px;
+  background: linear-gradient(135deg, #fff9c4, #f7f09c);
+  border: 2px solid #f1c40f;
+}
+
+.job-book-label {
+  font-size: 8px;
+  color: #856404;
+  font-weight: bold;
+  background: rgba(241, 196, 15, 0.2);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
 .item-header {
   width: 100%;
   display: flex;
@@ -2638,4 +2658,173 @@
 @keyframes autoIndicatorPulse {
   0%, 100% { opacity: 0.8; }
   50% { opacity: 1; }
+}
+
+/* 升级提示框样式 */
+.level-up-modal {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 450px;
+  width: 90%;
+  position: relative;
+  animation: levelUpModalAppear 0.5s ease-out;
+  overflow: hidden;
+}
+
+.level-up-header {
+  background: linear-gradient(135deg, #ffd700, #ffed4a);
+  color: #333;
+  padding: 20px;
+  text-align: center;
+  border-radius: 15px 15px 0 0;
+}
+
+.level-up-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.level-up-content {
+  padding: 25px;
+  text-align: center;
+}
+
+.level-display {
+  margin-bottom: 25px;
+}
+
+.level-change {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.old-level {
+  color: #666;
+  padding: 8px 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  border: 2px solid #ddd;
+}
+
+.arrow {
+  color: #28a745;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.new-level {
+  color: #28a745;
+  padding: 8px 15px;
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  border-radius: 8px;
+  border: 2px solid #28a745;
+  animation: levelGlow 1s ease-in-out infinite alternate;
+}
+
+.stats-gained {
+  margin-bottom: 20px;
+}
+
+.stats-gained h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 350px;
+  margin: 0 auto;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+}
+
+.stat-name {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.stat-value {
+  font-weight: bold;
+  color: #28a745;
+  font-size: 0.95rem;
+}
+
+.advancement-warning {
+  margin: 20px 0;
+}
+
+.warning-box {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 2px solid #ffc107;
+  border-radius: 10px;
+  padding: 15px;
+  color: #856404;
+}
+
+.warning-box h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+
+.warning-box p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.level-up-close-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
+  min-width: 120px;
+}
+
+.level-up-close-btn:hover {
+  background: linear-gradient(135deg, #218838, #1e7e34);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(40, 167, 69, 0.4);
+}
+
+@keyframes levelUpModalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes levelGlow {
+  from {
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.8);
+  }
 }

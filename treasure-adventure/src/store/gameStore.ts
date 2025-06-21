@@ -29,6 +29,20 @@ interface GameStore extends GameState {
   updateStamina: () => void;
   consumeStamina: (amount: number) => boolean;
   advanceJob: (targetJob: JobType) => Promise<{ success: boolean; message: string }>;
+  // Level up tracking
+  lastLevelUp: {
+    oldLevel: number;
+    newLevel: number;
+    statsGained: {
+      maxHealth: number;
+      attack: number;
+      defense: number;
+      agility: number;
+      criticalRate: number;
+      criticalDamage: number;
+    };
+  } | null;
+  clearLevelUp: () => void;
 }
 
 const createInitialPlayer = (): Player => ({
@@ -81,6 +95,7 @@ export const useGameStore = create<GameStore>()(
       forestLevels: generateForestLevels(),
       currentBattle: undefined,
       gameTime: 0,
+      lastLevelUp: null,
 
       initializeGame: () => {
         // 这个函数现在主要用于重置游戏
@@ -271,21 +286,42 @@ export const useGameStore = create<GameStore>()(
           
           const expNeeded = newLevel * 100;
           
+          let levelUpData = null;
+          
           if (newExp >= expNeeded) {
+            const oldLevel = newLevel;
             newLevel++;
             newExp -= expNeeded;
-            newMaxHealth += 20;
+            
+            // 记录属性提升
+            const statsGained = {
+              maxHealth: 20,
+              attack: 3,
+              defense: 2,
+              agility: 1,
+              criticalRate: 1,
+              criticalDamage: 5
+            };
+            
+            newMaxHealth += statsGained.maxHealth;
             newHealth = newMaxHealth;
-            newAttack += 3;
-            newDefense += 2;
-            newAgility += 1;
-            newCriticalRate += 1;
-            newCriticalDamage += 5;
+            newAttack += statsGained.attack;
+            newDefense += statsGained.defense;
+            newAgility += statsGained.agility;
+            newCriticalRate += statsGained.criticalRate;
+            newCriticalDamage += statsGained.criticalDamage;
             
             // 检查是否需要转职（每4级）
             if (newLevel % 4 === 0) {
               canGainExperience = false; // 需要转职才能继续获得经验
             }
+            
+            // 保存升级数据
+            levelUpData = {
+              oldLevel,
+              newLevel,
+              statsGained
+            };
           }
           
           return {
@@ -301,7 +337,8 @@ export const useGameStore = create<GameStore>()(
               criticalRate: newCriticalRate,
               criticalDamage: newCriticalDamage,
               canGainExperience: canGainExperience
-            }
+            },
+            lastLevelUp: levelUpData
           };
         });
       },
@@ -836,16 +873,17 @@ export const useGameStore = create<GameStore>()(
             // 计算所需材料数量：升到下一星级需要的材料数 = 当前星级 + 1
             const requiredMaterials = currentStars + 1;
             
-            // 查找材料装备
+            // 查找材料装备（必须是相同等级、类型和稀有度）
             const materialItems = state.player.inventory.filter(item => 
               item.type === 'equipment' && 
               item.id !== equipmentId &&
               (item as any).equipmentType === targetEquipment.type &&
-              (item as any).rarity === targetEquipment.rarity
+              (item as any).rarity === targetEquipment.rarity &&
+              (item as any).level === targetEquipment.level
             );
 
             if (materialItems.length < requiredMaterials) {
-              resolve({ success: false, newStars: currentStars, message: `材料不足，需要${requiredMaterials}个` });
+              resolve({ success: false, newStars: currentStars, message: `材料不足，需要${requiredMaterials}个相同等级的${targetEquipment.name}` });
               return state;
             }
 
@@ -862,7 +900,8 @@ export const useGameStore = create<GameStore>()(
                   item.type === 'equipment' && 
                   item.id !== equipmentId &&
                   (item as any).equipmentType === targetEquipment.type &&
-                  (item as any).rarity === targetEquipment.rarity) {
+                  (item as any).rarity === targetEquipment.rarity &&
+                  (item as any).level === targetEquipment.level) {
                 materialsRemoved++;
                 return false;
               }
@@ -980,10 +1019,28 @@ export const useGameStore = create<GameStore>()(
           const success = random < successRate;
           
           if (success) {
-            // 转职成功
+            // 转职成功，等级提升1级
+            const newLevel = state.player.level + 1;
+            const newMaxHealth = state.player.maxHealth + 20;
+            const newHealth = newMaxHealth; // 转职后满血
+            const newAttack = state.player.attack + 3;
+            const newDefense = state.player.defense + 2;
+            const newAgility = state.player.agility + 1;
+            const newCriticalRate = state.player.criticalRate + 1;
+            const newCriticalDamage = state.player.criticalDamage + 5;
+            
             set((state) => ({
               player: {
                 ...state.player,
+                level: newLevel,
+                maxHealth: newMaxHealth,
+                health: newHealth,
+                attack: newAttack,
+                defense: newDefense,
+                agility: newAgility,
+                criticalRate: newCriticalRate,
+                criticalDamage: newCriticalDamage,
+                experience: 0, // 转职后经验清零
                 job: targetJob,
                 canGainExperience: true // 转职成功后可以继续获得经验
               }
@@ -991,7 +1048,7 @@ export const useGameStore = create<GameStore>()(
             
             resolve({
               success: true,
-              message: `转职成功！您现在是${GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob]}！`
+              message: `转职成功！您现在是${GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob]}！等级提升至${newLevel}级！`
             });
           } else {
             // 转职失败，等级掉1级
@@ -1010,6 +1067,12 @@ export const useGameStore = create<GameStore>()(
               message: `转职失败！等级下降到${newLevel}级。`
             });
           }
+        });
+      },
+
+      clearLevelUp: () => {
+        set({
+          lastLevelUp: null
         });
       }
     }),

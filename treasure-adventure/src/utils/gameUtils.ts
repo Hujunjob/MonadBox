@@ -284,10 +284,25 @@ export const getItemImage = (type: string): string => {
   const imageMap: { [key: string]: string } = {
     'health_potion': '/assets/blood.png',
     'pet_egg': '/assets/egg.png',
-    'job_advancement_book': '/assets/scroll.png'
+    'job_advancement_book': '/assets/scroll1.png' // 默认转职书图片
   };
   
   return imageMap[type] || '/assets/blood.png';
+};
+
+// 根据转职书目标职业获取对应图片
+export const getJobAdvancementBookImage = (targetJob: JobType): string => {
+  const jobImageMap: { [key: string]: string } = {
+    'swordsman': '/assets/scroll1.png',
+    'great_swordsman': '/assets/scroll2.png',
+    'temple_knight': '/assets/scroll3.png',
+    'dragon_knight': '/assets/scroll4.png',
+    'sword_master': '/assets/scroll5.png',
+    'sword_god': '/assets/scroll6.png',
+    'plane_lord': '/assets/scroll7.png'
+  };
+  
+  return jobImageMap[targetJob] || '/assets/scroll1.png';
 };
 
 export const getRarityColor = (rarity: string): string => {

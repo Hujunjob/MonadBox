@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats, getJobLevelDisplay } from '../utils/gameUtils';
 import BattleResultModal from './BattleResultModal';
+import LevelUpModal from './LevelUpModal';
 
 interface DamageDisplay {
   id: string;
@@ -21,7 +22,9 @@ const Battle: React.FC = () => {
     updateActionBars,
     endBattle,
     useHealthPotion,
-    player
+    player,
+    lastLevelUp,
+    clearLevelUp
   } = useGameStore();
   
   const [damageDisplays, setDamageDisplays] = useState<DamageDisplay[]>([]);
@@ -30,6 +33,7 @@ const Battle: React.FC = () => {
   const [previousBattleLogLength, setPreviousBattleLogLength] = useState(0);
   const [showResultModal, setShowResultModal] = useState(false);
   const [isAutoBattle, setIsAutoBattle] = useState(false);
+  const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   
   // 检测战斗结束并显示结算模态框
   useEffect(() => {
@@ -39,6 +43,13 @@ const Battle: React.FC = () => {
       setShowResultModal(true);
     }
   }, [currentBattle?.isActive, showResultModal]);
+
+  // 检测升级并显示升级模态框（在战斗结果模态框关闭后）
+  useEffect(() => {
+    if (lastLevelUp && !currentBattle?.isActive && !showResultModal && !showLevelUpModal) {
+      setShowLevelUpModal(true);
+    }
+  }, [lastLevelUp, currentBattle?.isActive, showResultModal, showLevelUpModal]);
   
   // 检测血量变化并创建显示
   useEffect(() => {
@@ -213,6 +224,11 @@ const Battle: React.FC = () => {
     setShowResultModal(false);
     endBattle();
   };
+
+  const handleCloseLevelUpModal = () => {
+    setShowLevelUpModal(false);
+    clearLevelUp();
+  };
   
   return (
     <div className="battle-screen">
@@ -385,6 +401,17 @@ const Battle: React.FC = () => {
         goldGained={currentBattle.monster.goldDrop}
         onClose={handleCloseResultModal}
       />
+      
+      {lastLevelUp && (
+        <LevelUpModal
+          isOpen={showLevelUpModal}
+          oldLevel={lastLevelUp.oldLevel}
+          newLevel={lastLevelUp.newLevel}
+          job={player.job || 'swordsman'}
+          statsGained={lastLevelUp.statsGained}
+          onClose={handleCloseLevelUpModal}
+        />
+      )}
     </div>
   );
 };
