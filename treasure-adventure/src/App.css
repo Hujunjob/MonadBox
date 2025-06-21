@@ -1597,9 +1597,9 @@ body {
   background: white;
   border-radius: 8px;
   padding: 15px;
-  max-width: 350px;
+  max-width: 280px;
   width: 90%;
-  max-height: 80vh;
+  max-height: 70vh;
   overflow-y: auto;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
@@ -1644,7 +1644,7 @@ body {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 15px;
   background: #f8f9fa;
   border-radius: 8px;
@@ -1691,13 +1691,13 @@ body {
 }
 
 .equipment-upgrade {
-  margin-top: 20px;
-  padding-top: 20px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 2px solid #eee;
 }
 
 .equipment-upgrade h4 {
-  margin: 0 0 15px 0;
+  margin: 0 0 10px 0;
   color: #333;
 }
 

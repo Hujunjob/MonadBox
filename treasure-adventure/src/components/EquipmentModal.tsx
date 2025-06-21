@@ -135,7 +135,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
             </div>
             
             <div className="equipment-info">
-              <div className="equipment-level">等级 {currentEquipment?.level || 1}</div>
+              {/* <div className="equipment-level">等级 {currentEquipment?.level || 1}</div> */}
               <div className="equipment-stars">
                 {Array.from({length: 5}, (_, i) => (
                   <span key={i} className={`star ${i < (currentEquipment?.stars || 0) ? 'filled' : 'empty'}`}>

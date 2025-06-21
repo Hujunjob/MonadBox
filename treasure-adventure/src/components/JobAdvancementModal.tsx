@@ -75,7 +75,7 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
             <div className="advancement-result">
               <div style={{ 
                 textAlign: 'center', 
-                padding: '20px',
+                padding: '15px',
                 color: result.success ? '#28a745' : '#dc3545'
               }}>
                 <h4>{result.success ? '🎉 转职成功！' : '😞 转职失败！'}</h4>
@@ -84,18 +84,18 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
               <button 
                 onClick={handleClose}
                 className="confirm-btn"
-                style={{ width: '100%', padding: '12px', marginTop: '20px' }}
+                style={{ width: '100%', padding: '10px', marginTop: '15px' }}
               >
                 确定
               </button>
             </div>
           ) : (
             <div className="advancement-info">
-              <div className="item-icon-display" style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div className="item-icon-display" style={{ textAlign: 'center', marginBottom: '15px' }}>
                 <img 
                   src={getJobAdvancementBookImage(targetJob)} 
                   alt={item.name}
-                  style={{ width: '64px', height: '64px', marginBottom: '10px' }}
+                  style={{ width: '48px', height: '48px', marginBottom: '8px' }}
                 />
               </div>
               <div className="item-description">
@@ -113,7 +113,7 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
                   style={{ 
                     backgroundColor: canUse && isCorrectBook ? '#28a745' : '#6c757d',
                     color: 'white',
-                    padding: '12px 24px',
+                    padding: '8px 16px',
                     border: 'none',
                     borderRadius: '5px',
                     cursor: canUse && isCorrectBook ? 'pointer' : 'not-allowed',
@@ -128,7 +128,7 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
                   style={{ 
                     backgroundColor: '#6c757d',
                     color: 'white',
-                    padding: '12px 24px',
+                    padding: '8px 16px',
                     border: 'none',
                     borderRadius: '5px',
                     cursor: 'pointer',
