@@ -41,6 +41,47 @@ body {
   .game-header{
     margin-left: calc((100vw - 500px) / 2);
   }
+  
+  /* 电脑端装备框样式 */
+  .equipment-section .equipment-slots {
+    max-width: 930px;
+    gap: 30px;
+  }
+  
+  .equipment-section .equipment-slot {
+    border: 5px solid #ddd;
+    border-radius: 17px;
+    padding: 16px;
+  }
+  
+  .equipment-slot .empty-slot {
+    min-height: 127px;
+    border: 5px dashed #ccc;
+    border-radius: 13px;
+    font-size: 23px;
+  }
+  
+  .equipment-section .equipment-slot label {
+    margin-bottom: 17px;
+    font-size: 23px;
+  }
+  
+  .equipment-section .equipped-item {
+    padding: 17px;
+    border-radius: 13px;
+  }
+  
+  .equipment-section .equipped-item span {
+    margin-bottom: 10px;
+    font-size: 23px;
+  }
+  
+  .equipped-item.clickable {
+    border-radius: 13px;
+    padding: 17px;
+    border: 5px solid #ddd;
+    min-height: 110px;
+  }
 }
 
 /* 移动端适配 */
@@ -304,16 +345,16 @@ body {
 
 .equipment-section .equipment-slots {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
   margin-bottom: 20px;
-  max-width: 600px;
+  max-width: 660px;
 }
 
 .equipment-section .equipment-slot {
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
   text-align: center;
   background: #f9f9f9;
   display: flex;
@@ -332,34 +373,34 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
+  min-height: 40px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
   background: #f5f5f5;
   color: #999;
-  font-size: 12px;
+  font-size: 20px;
   width: 100%;
 }
 
 .equipment-section .equipment-slot label {
   display: block;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 3px;
   color: #333;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .equipment-section .equipped-item {
   background: #f0f8ff;
-  padding: 8px;
-  border-radius: 5px;
+  padding: 2px;
+  border-radius: 3px;
 }
 
 .equipment-section .equipped-item span {
   display: block;
   font-weight: bold;
-  margin-bottom: 5px;
-  font-size: 14px;
+  margin-bottom: 2px;
+  font-size: 9px;
 }
 
 .equipment-section .empty-slot {
@@ -463,25 +504,26 @@ body {
 
 .equipped-item {
   background: #f0f8ff;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 6px;
+  border-radius: 4px;
 }
 
 .equipped-item span {
   display: block;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
+  font-size: 13px;
 }
 
 .item-stats {
-  font-size: 12px;
+  font-size: 10px;
   color: #666;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .item-stats span {
   display: block;
-  margin: 2px 0;
+  margin: 1px 0;
 }
 
 .empty-slot {
@@ -814,9 +856,10 @@ body {
 /* 更新怪物网格为更紧凑的布局 */
 .monsters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-top: 15px;
+  max-width: 360px;
 }
 
 .forest-levels {
@@ -890,15 +933,16 @@ body {
 
 .monsters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
   margin-top: 20px;
+  max-width: 450px;
 }
 
 .monster-card {
   border: 2px solid #ddd;
-  border-radius: 10px;
-  padding: 15px;
+  border-radius: 8px;
+  padding: 10px;
   text-align: center;
   transition: all 0.3s;
 }
@@ -1853,14 +1897,14 @@ body {
 /* Image-based Equipment Display */
 .equipped-item.clickable {
   cursor: pointer;
-  border-radius: 8px;
-  padding: 8px;
-  border: 2px solid #ddd;
+  border-radius: 4px;
+  padding: 2px;
+  border: 1px solid #ddd;
   transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
+  min-height: 32px;
 }
 
 .equipped-item.clickable:hover {
