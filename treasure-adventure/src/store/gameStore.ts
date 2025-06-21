@@ -19,7 +19,6 @@ interface GameStore extends GameState {
   updateBattleCooldowns: () => void;
   updateActionBars: () => void;
   openTreasureBox: () => void;
-  buyTreasureBox: () => void;
   addTreasureBox: (boxLevel?: number) => void;
   unlockNextForestLevel: () => void;
   incrementGameTime: () => void;
@@ -615,28 +614,6 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
-      buyTreasureBox: () => {
-        set((state) => {
-          if (state.player.gold < GAME_CONFIG.TREASURE_BOX.PURCHASE_COST) return state;
-          
-          // 购买的宝箱等级为1级
-          const newTreasureBox = {
-            id: `box_${Date.now()}`,
-            level: 1
-          };
-          
-          // 确保treasureBoxes是数组
-          const currentBoxes = Array.isArray(state.player.treasureBoxes) ? state.player.treasureBoxes : [];
-          
-          return {
-            player: {
-              ...state.player,
-              gold: state.player.gold - GAME_CONFIG.TREASURE_BOX.PURCHASE_COST,
-              treasureBoxes: [...currentBoxes, newTreasureBox]
-            }
-          };
-        });
-      },
 
       addTreasureBox: (boxLevel?: number) => {
         set((state) => {

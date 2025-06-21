@@ -151,6 +151,13 @@ body {
   margin-top: 20px;
 }
 
+.stat-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
 .stat-item {
   display: flex;
   justify-content: space-between;

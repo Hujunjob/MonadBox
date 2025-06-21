@@ -6,7 +6,7 @@ import TreasureBoxTimer from './TreasureBoxTimer';
 import { GAME_CONFIG } from '../config/gameConfig';
 
 const TreasureBox: React.FC = () => {
-  const { player, buyTreasureBox, gainGold, updatePlayer } = useGameStore();
+  const { player, gainGold, updatePlayer } = useGameStore();
   const [openingBox, setOpeningBox] = useState(false);
   const [showSelection, setShowSelection] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
@@ -166,11 +166,6 @@ const TreasureBox: React.FC = () => {
     }, 1000);
   };
   
-  const handleBuyBox = () => {
-    if (player.gold >= GAME_CONFIG.TREASURE_BOX.PURCHASE_COST) {
-      buyTreasureBox();
-    }
-  };
   
   const handleCloseRewards = () => {
     setIsClosing(true);
@@ -243,14 +238,6 @@ const TreasureBox: React.FC = () => {
           className="open-box-btn"
         >
           {openingBox ? '开启中...' : '开启宝箱'}
-        </button>
-        
-        <button 
-          onClick={handleBuyBox}
-          disabled={player.gold < GAME_CONFIG.TREASURE_BOX.PURCHASE_COST}
-          className="buy-box-btn"
-        >
-          购买宝箱 ({GAME_CONFIG.TREASURE_BOX.PURCHASE_COST}金币)
         </button>
       </div>
       
@@ -344,7 +331,6 @@ const TreasureBox: React.FC = () => {
         <ul>
           <li>每{GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL}秒自动获得 1 个</li>
           <li>击杀怪物获得 1 个 (等级与森林层级对应)</li>
-          <li>用金币购买 ({GAME_CONFIG.TREASURE_BOX.PURCHASE_COST}金币/个)</li>
         </ul>
       </div>
     </div>

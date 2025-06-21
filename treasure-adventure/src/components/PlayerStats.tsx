@@ -78,9 +78,9 @@ const PlayerStats: React.FC = () => {
         </div>
       )}
       
-      <div className="stat-grid">
+      <div className="stat-grid-3col">
         <div className="stat-item">
-          <span>攻击力</span>
+          <span>⚔️ 攻击力</span>
           <span>
             {baseStats.attack}
             {equipmentBonus.attack > 0 && (
@@ -91,7 +91,7 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>防御力</span>
+          <span>🛡️ 防御力</span>
           <span>
             {baseStats.defense}
             {equipmentBonus.defense > 0 && (
@@ -102,7 +102,7 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>敏捷度</span>
+          <span>💨 敏捷度</span>
           <span>
             {baseStats.agility}
             {equipmentBonus.agility > 0 && (
@@ -113,7 +113,7 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>暴击率</span>
+          <span>💥 暴击率</span>
           <span>
             {baseStats.criticalRate}%
             {equipmentBonus.criticalRate > 0 && (
@@ -124,7 +124,7 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>暴击伤害</span>
+          <span>🔥 暴击伤害</span>
           <span>
             {baseStats.criticalDamage}%
             {equipmentBonus.criticalDamage > 0 && (
@@ -135,7 +135,7 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span>宝箱数</span>
+          <span>📦 宝箱数</span>
           <span>{Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0}</span>
         </div>
       </div>
