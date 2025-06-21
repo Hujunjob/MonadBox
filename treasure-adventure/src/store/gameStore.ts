@@ -293,8 +293,27 @@ export const useGameStore = create<GameStore>()(
           if (newLevel % 4 === 0) {
             const maxExpForJobLevel = newLevel * 100;
             if (newExp >= maxExpForJobLevel) {
+              // 检查是否是首次达到经验上限（从未满到满级的转换）
+              const wasNotMaxExp = state.player.experience < maxExpForJobLevel;
+              
               // 经验达到上限，停止增长
               newExp = maxExpForJobLevel;
+              
+              // 如果是首次达到满经验，创建满级提示
+              if (wasNotMaxExp) {
+                levelUpData = {
+                  oldLevel: newLevel,
+                  newLevel: newLevel,
+                  statsGained: {
+                    maxHealth: 0,
+                    attack: 0,
+                    defense: 0,
+                    agility: 0,
+                    criticalRate: 0,
+                    criticalDamage: 0
+                  }
+                };
+              }
             }
           } else {
             // 非转职等级，正常处理升级
