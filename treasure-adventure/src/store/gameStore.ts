@@ -609,15 +609,33 @@ export const useGameStore = create<GameStore>()(
           const now = Math.floor(Date.now() / 1000);
           const timeSinceLastBox = now - state.player.lastTreasureBoxTime;
           
+          let updatedPlayer = state.player;
+          
           if (timeSinceLastBox >= GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL) {
-            get().addTreasureBox();
-            get().updatePlayer({ lastTreasureBoxTime: now });
+            // 添加宝箱
+            const level = state.player.currentForestLevel;
+            const newTreasureBox = {
+              id: `box_${Date.now()}`,
+              level: Math.min(level, GAME_CONFIG.TREASURE_BOX.MAX_LEVEL)
+            };
+            
+            // 确保treasureBoxes是数组
+            const currentBoxes = Array.isArray(state.player.treasureBoxes) ? state.player.treasureBoxes : [];
+            
+            updatedPlayer = {
+              ...state.player,
+              treasureBoxes: [...currentBoxes, newTreasureBox],
+              lastTreasureBoxTime: now
+            };
           }
           
           // 更新体力
           get().updateStamina();
           
-          return { gameTime: newTime };
+          return { 
+            gameTime: newTime,
+            player: updatedPlayer
+          };
         });
       },
 
