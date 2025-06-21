@@ -52,25 +52,15 @@ const PlayerStats: React.FC = () => {
   
   return (
     <div className="player-stats">
-      <h2>玩家信息</h2>
       <div className="stat-row">
         <span>姓名: {player.name}</span>
         <span>{getJobLevelDisplay(player.level, player.job || 'swordsman', player.canGainExperience)}</span>
         <span>金币: {player.gold}</span>
       </div>
       
-      <div className="stat-bar">
-        <label>血量: {player.health}/{stats.maxHealth}</label>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill health" 
-            style={{ width: `${healthPercent}%` }}
-          />
-        </div>
-      </div>
-      
       <div className="stat-row">
         <span>经验: {player.experience}/{expNeeded}</span>
+        <span>血量: {player.health}/{stats.maxHealth}</span>
         <span>体力: {player.stamina || 0}/{player.maxStamina || 24}</span>
       </div>
       
