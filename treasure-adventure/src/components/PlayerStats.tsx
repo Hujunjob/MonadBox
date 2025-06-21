@@ -192,6 +192,27 @@ const PlayerStats: React.FC = () => {
       </div>
       
       <div style={{ marginTop: '20px', textAlign: 'center', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        {import.meta.env.DEV && (
+          <button 
+            onClick={() => {
+              updatePlayer({
+                stamina: player.maxStamina || 24,
+                lastStaminaTime: Math.floor(Date.now() / 1000)
+              });
+            }}
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#28a745', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '5px',
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+          >
+            调试:恢复体力
+          </button>
+        )}
         <button 
           onClick={initializeGame}
           style={{ 

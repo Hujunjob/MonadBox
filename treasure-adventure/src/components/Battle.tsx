@@ -29,6 +29,7 @@ const Battle: React.FC = () => {
   const [previousMonsterHealth, setPreviousMonsterHealth] = useState<number | null>(null);
   const [previousBattleLogLength, setPreviousBattleLogLength] = useState(0);
   const [showResultModal, setShowResultModal] = useState(false);
+  const [isAutoBattle, setIsAutoBattle] = useState(false);
   
   // 检测战斗结束并显示结算模态框
   useEffect(() => {
@@ -139,6 +140,46 @@ const Battle: React.FC = () => {
     
     return () => clearTimeout(timeout);
   }, [currentBattle?.isActive, currentBattle?.turn, currentBattle?.monsterCooldown, currentBattle?.monsterActionBar]);
+
+  // 自动战斗逻辑
+  useEffect(() => {
+    if (!isAutoBattle || !currentBattle?.isActive) {
+      return;
+    }
+
+    // 计算玩家属性
+    const playerStats = calculatePlayerStats(player);
+    
+    // 检查是否需要自动使用血瓶
+    const playerHealthPercent = (currentBattle.player.health / playerStats.maxHealth) * 100;
+    const hasHealthPotion = currentBattle.player.inventory.some(item => item.type === 'health_potion');
+    
+    if (playerHealthPercent < 30 && hasHealthPotion) {
+      const timeout = setTimeout(() => {
+        useHealthPotion();
+      }, 300);
+      return () => clearTimeout(timeout);
+    }
+
+    // 检查是否可以自动攻击
+    const canAutoAttack = currentBattle.playerCooldown <= 0 && 
+                         currentBattle.playerActionBar >= 100;
+    
+    if (canAutoAttack) {
+      const timeout = setTimeout(() => {
+        playerAttack();
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [
+    isAutoBattle, 
+    currentBattle?.isActive, 
+    currentBattle?.playerCooldown, 
+    currentBattle?.playerActionBar,
+    currentBattle?.player.health,
+    currentBattle?.player.inventory,
+    player
+  ]);
   
   
   if (!currentBattle) {
@@ -235,7 +276,7 @@ const Battle: React.FC = () => {
           <div className="battle-actions">
             <button 
               onClick={handleAttack}
-              disabled={!canAttack}
+              disabled={!canAttack || isAutoBattle}
               className="attack-btn"
             >
               {currentBattle.playerCooldown > 0 ? 
@@ -246,10 +287,17 @@ const Battle: React.FC = () => {
             
             <button 
               onClick={handleUsePotion}
-              disabled={!hasHealthPotion || !currentBattle.isActive}
+              disabled={!hasHealthPotion || !currentBattle.isActive || isAutoBattle}
               className="potion-btn"
             >
               使用血瓶
+            </button>
+            
+            <button 
+              onClick={() => setIsAutoBattle(!isAutoBattle)}
+              className={`auto-battle-btn ${isAutoBattle ? 'active' : ''}`}
+            >
+              {isAutoBattle ? '🔄 自动中' : '⚡ 自动战斗'}
             </button>
           </div>
         </div>
@@ -313,30 +361,21 @@ const Battle: React.FC = () => {
                 }
               </div>
             )}
-            {/* 调试按钮 */}
-            {import.meta.env.DEV && (
-              <button onClick={monsterAttack} style={{fontSize: '10px', margin: '5px'}}>
-                调试:怪物攻击
-              </button>
-            )}
           </div>
         </div>
       </div>
       
       
-      {/* 战斗状态指示器 */}
-      <div className="battle-status">
-        <div className="status-item">
-          <span className={canAttack ? 'ready' : 'waiting'}>
-            玩家: {canAttack ? '可以攻击!' : `行动条: ${Math.floor(currentBattle.playerActionBar)}%`}
-          </span>
+      {/* 自动战斗状态指示器 */}
+      {isAutoBattle && (
+        <div className="battle-status">
+          <div className="status-item auto-status">
+            <span className="auto-indicator">
+              🤖 自动战斗中 - 血量低于30%自动使用血瓶
+            </span>
+          </div>
         </div>
-        <div className="status-item">
-          <span className={currentBattle.monsterActionBar >= 100 && currentBattle.monsterCooldown <= 0 ? 'ready' : 'waiting'}>
-            怪物: {currentBattle.monsterActionBar >= 100 && currentBattle.monsterCooldown <= 0 ? '可以攻击!' : `行动条: ${Math.floor(currentBattle.monsterActionBar)}%`}
-          </span>
-        </div>
-      </div>
+      )}
       
       <BattleResultModal
         isOpen={showResultModal}

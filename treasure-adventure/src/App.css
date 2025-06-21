@@ -2576,3 +2576,66 @@
 .equipment-stars-clean .star-clean.empty {
   color: rgba(255, 255, 255, 0.5);
 }
+
+/* 自动战斗按钮样式 */
+.auto-battle-btn {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
+  min-width: 100px;
+}
+
+.auto-battle-btn:hover {
+  background: linear-gradient(135deg, #138496, #117a8b);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(23, 162, 184, 0.4);
+}
+
+.auto-battle-btn.active {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  animation: autoBattlePulse 2s ease-in-out infinite;
+}
+
+.auto-battle-btn.active:hover {
+  background: linear-gradient(135deg, #20c997, #1e7e34);
+}
+
+@keyframes autoBattlePulse {
+  0%, 100% { box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3); }
+  50% { box-shadow: 0 4px 12px rgba(40, 167, 69, 0.6); }
+}
+
+/* 战斗按钮禁用状态 */
+.battle-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* 自动战斗状态指示器 */
+.auto-status {
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 5px;
+}
+
+.auto-indicator {
+  color: #28a745;
+  font-size: 12px;
+  font-weight: bold;
+  animation: autoIndicatorPulse 2s ease-in-out infinite;
+}
+
+@keyframes autoIndicatorPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
