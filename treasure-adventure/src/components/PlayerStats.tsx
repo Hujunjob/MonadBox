@@ -150,22 +150,28 @@ const PlayerStats: React.FC = () => {
                 <div className="slot-content">
                   {equippedItem ? (
                     <div 
-                      className="equipped-item clickable"
+                      className="equipped-item clickable inventory-item equipment"
                       style={{ backgroundColor: getRarityColor(equippedItem.rarity) }}
                       onClick={() => handleEquipmentClick(equippedItem, slot.key)}
                     >
-                      <img 
-                        src={getEquipmentImage(equippedItem.type)} 
-                        alt={equippedItem.name}
-                        style={{ width: '32px', height: '32px' }}
-                      />
-                      <span className="equipment-level">lv{equippedItem.level}</span>
-                      <div className="equipment-stars-mini">
-                        {Array.from({length: 5}, (_, i) => (
-                          <span key={i} className={`star-mini ${i < (equippedItem.stars || 0) ? 'filled' : 'empty'}`}>
-                            ★
-                          </span>
-                        ))}
+                      <div className="item-header">
+                        <span className="equipment-level-badge">Lv.{equippedItem.level}</span>
+                      </div>
+                      <div className="item-display">
+                        <img 
+                          src={getEquipmentImage(equippedItem.type)} 
+                          alt={equippedItem.name}
+                          style={{ width: '32px', height: '32px' }}
+                        />
+                      </div>
+                      <div className="item-info">
+                        <div className="equipment-stars-clean">
+                          {Array.from({length: 5}, (_, i) => (
+                            <span key={i} className={`star-clean ${i < (equippedItem.stars || 0) ? 'filled' : 'empty'}`}>
+                              ★
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ) : (

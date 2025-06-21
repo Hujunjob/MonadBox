@@ -53,14 +53,18 @@ const Inventory: React.FC = () => {
               className="inventory-item consumable clickable"
               onClick={() => handleItemClick(item)}
             >
+              <div className="item-header">
+                <span className="item-level-badge">Lv.{item.level || 1}</span>
+              </div>
               <div className="item-display">
                 <img 
                   src={getItemImage('health_potion')} 
                   alt={item.name}
                   style={{ width: '32px', height: '32px' }}
                 />
-                <span className="item-level">lv{item.level || 1}</span>
-                <span className="item-quantity">×{item.quantity}</span>
+              </div>
+              <div className="item-info">
+                <span className="item-quantity-text">×{item.quantity}</span>
               </div>
             </div>
           ))}
@@ -70,14 +74,18 @@ const Inventory: React.FC = () => {
               className="inventory-item consumable clickable"
               onClick={() => handleItemClick(item)}
             >
+              <div className="item-header">
+                <span className="item-level-badge">Lv.{item.level || 1}</span>
+              </div>
               <div className="item-display">
                 <img 
                   src={getItemImage('pet_egg')} 
                   alt={item.name}
                   style={{ width: '32px', height: '32px' }}
                 />
-                <span className="item-level">lv{item.level || 1}</span>
-                <span className="item-quantity">×{item.quantity}</span>
+              </div>
+              <div className="item-info">
+                <span className="item-quantity-text">×{item.quantity}</span>
               </div>
             </div>
           ))}
@@ -102,16 +110,20 @@ const Inventory: React.FC = () => {
                 style={{ backgroundColor: getRarityColor(equipmentItem.rarity) }}
                 onClick={() => handleEquipmentClick(equipmentItem)}
               >
+                <div className="item-header">
+                  <span className="equipment-level-badge">Lv.{equipmentItem.level || 1}</span>
+                </div>
                 <div className="item-display">
                   <img 
                     src={getEquipmentImage(equipmentItem.equipmentType || equipmentItem.type)} 
                     alt={item.name}
                     style={{ width: '32px', height: '32px' }}
                   />
-                  <span className="equipment-level">lv{equipmentItem.level || 1}</span>
-                  <div className="equipment-stars-mini">
+                </div>
+                <div className="item-info">
+                  <div className="equipment-stars-clean">
                     {Array.from({length: 5}, (_, i) => (
-                      <span key={i} className={`star-mini ${i < (equipmentItem.stars || 0) ? 'filled' : 'empty'}`}>
+                      <span key={i} className={`star-clean ${i < (equipmentItem.stars || 0) ? 'filled' : 'empty'}`}>
                         ★
                       </span>
                     ))}
