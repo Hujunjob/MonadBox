@@ -16,7 +16,7 @@ export interface Player {
   lastStaminaTime: number;
   equipment: Equipment;
   inventory: InventoryItem[];
-  treasureBoxes: number;
+  treasureBoxes: TreasureBoxItem[];
   currentForestLevel: number;
   currentForestProgress: number;
   lastTreasureBoxTime: number;
@@ -38,6 +38,7 @@ export interface EquipmentItem {
   rarity: ItemRarity;
   stats: ItemStats;
   level: number;
+  stars: number; // 升星系统 1-5星
   baseStats: ItemStats;
 }
 
@@ -76,7 +77,14 @@ export interface InventoryItem {
   name: string;
   type: ItemType;
   quantity: number;
+  level?: number; // 血瓶等级 1-10
   effect?: ItemEffect;
+  // 装备相关属性
+  equipmentType?: EquipmentType;
+  rarity?: ItemRarity;
+  stats?: ItemStats;
+  stars?: number;
+  baseStats?: ItemStats;
 }
 
 export const ItemType = {
@@ -129,6 +137,11 @@ export interface TreasureBox {
   id: string;
   rarity: ItemRarity;
   contents: TreasureBoxContent[];
+}
+
+export interface TreasureBoxItem {
+  id: string;
+  level: number; // 宝箱等级 1-10
 }
 
 export interface TreasureBoxContent {

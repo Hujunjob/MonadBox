@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Player, GameState, Monster, Equipment } from '../types/game';
 import { generateForestLevels, calculatePlayerStats } from '../utils/gameUtils';
+import { GAME_CONFIG } from '../config/gameConfig';
 
 interface GameStore extends GameState {
   initializeGame: () => void;
@@ -19,7 +20,7 @@ interface GameStore extends GameState {
   updateActionBars: () => void;
   openTreasureBox: () => void;
   buyTreasureBox: () => void;
-  addTreasureBox: () => void;
+  addTreasureBox: (boxLevel?: number) => void;
   unlockNextForestLevel: () => void;
   incrementGameTime: () => void;
   calculateOfflineRewards: () => void;
@@ -58,10 +59,11 @@ const createInitialPlayer = (): Player => ({
       name: '血瓶',
       type: 'health_potion' as any,
       quantity: 3,
+      level: 1,
       effect: { type: 'heal' as any, value: 50 }
     }
   ],
-  treasureBoxes: 1,
+  treasureBoxes: [{ id: 'box_1', level: 1 }],
   currentForestLevel: 1,
   currentForestProgress: 0,
   lastTreasureBoxTime: Math.floor(Date.now() / 1000)
@@ -113,6 +115,7 @@ export const useGameStore = create<GameStore>()(
             rarity: item.rarity,
             stats: item.stats,
             level: item.level || 1,
+            stars: item.stars || 1,
             baseStats: item.baseStats || item.stats
           };
           
@@ -496,7 +499,8 @@ export const useGameStore = create<GameStore>()(
 
       openTreasureBox: () => {
         set((state) => {
-          if (state.player.treasureBoxes <= 0) return state;
+          const currentBoxes = Array.isArray(state.player.treasureBoxes) ? state.player.treasureBoxes : [];
+          if (currentBoxes.length <= 0) return state;
           
           const rewards = Math.floor(Math.random() * 4) + 1;
           let newInventory = [...state.player.inventory];
@@ -527,7 +531,7 @@ export const useGameStore = create<GameStore>()(
           return {
             player: {
               ...state.player,
-              treasureBoxes: state.player.treasureBoxes - 1,
+              treasureBoxes: currentBoxes.slice(1),
               inventory: newInventory
             }
           };
@@ -536,25 +540,46 @@ export const useGameStore = create<GameStore>()(
 
       buyTreasureBox: () => {
         set((state) => {
-          if (state.player.gold < 200) return state;
+          if (state.player.gold < GAME_CONFIG.TREASURE_BOX.PURCHASE_COST) return state;
+          
+          // 购买的宝箱等级为1级
+          const newTreasureBox = {
+            id: `box_${Date.now()}`,
+            level: 1
+          };
+          
+          // 确保treasureBoxes是数组
+          const currentBoxes = Array.isArray(state.player.treasureBoxes) ? state.player.treasureBoxes : [];
           
           return {
             player: {
               ...state.player,
-              gold: state.player.gold - 200,
-              treasureBoxes: state.player.treasureBoxes + 1
+              gold: state.player.gold - GAME_CONFIG.TREASURE_BOX.PURCHASE_COST,
+              treasureBoxes: [...currentBoxes, newTreasureBox]
             }
           };
         });
       },
 
-      addTreasureBox: () => {
-        set((state) => ({
-          player: {
-            ...state.player,
-            treasureBoxes: state.player.treasureBoxes + 1
-          }
-        }));
+      addTreasureBox: (boxLevel?: number) => {
+        set((state) => {
+          // 如果没有指定等级，根据当前森林等级确定宝箱等级
+          const level = boxLevel || state.player.currentForestLevel;
+          const newTreasureBox = {
+            id: `box_${Date.now()}`,
+            level: Math.min(level, GAME_CONFIG.TREASURE_BOX.MAX_LEVEL)
+          };
+          
+          // 确保treasureBoxes是数组
+          const currentBoxes = Array.isArray(state.player.treasureBoxes) ? state.player.treasureBoxes : [];
+          
+          return {
+            player: {
+              ...state.player,
+              treasureBoxes: [...currentBoxes, newTreasureBox]
+            }
+          };
+        });
       },
 
       unlockNextForestLevel: () => {
@@ -583,7 +608,7 @@ export const useGameStore = create<GameStore>()(
           const now = Math.floor(Date.now() / 1000);
           const timeSinceLastBox = now - state.player.lastTreasureBoxTime;
           
-          if (timeSinceLastBox >= 20) { // 改为20秒测试
+          if (timeSinceLastBox >= GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL) {
             get().addTreasureBox();
             get().updatePlayer({ lastTreasureBoxTime: now });
           }
@@ -601,16 +626,26 @@ export const useGameStore = create<GameStore>()(
           const now = Math.floor(Date.now() / 1000);
           const timeSinceLastBox = now - state.player.lastTreasureBoxTime;
           
-          // 每3600秒(1小时)获得1个宝箱
-          const offlineBoxes = Math.floor(timeSinceLastBox / 3600);
+          // 根据配置的时间间隔获得宝箱
+          const offlineBoxes = Math.floor(timeSinceLastBox / GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL);
           
           if (offlineBoxes > 0) {
             // 最多积累24个宝箱(24小时)
-            const actualBoxes = Math.min(offlineBoxes, 24);
-            const newTreasureBoxes = state.player.treasureBoxes + actualBoxes;
+            const actualBoxes = Math.min(offlineBoxes, GAME_CONFIG.TREASURE_BOX.MAX_OFFLINE_BOXES);
+            // 确保treasureBoxes是数组
+            const currentBoxes = Array.isArray(state.player.treasureBoxes) ? state.player.treasureBoxes : [];
+            const newTreasureBoxes = [...currentBoxes];
+            
+            // 添加离线获得的宝箱
+            for (let i = 0; i < actualBoxes; i++) {
+              newTreasureBoxes.push({
+                id: `offline_box_${now}_${i}`,
+                level: 1 // 离线获得的宝箱为1级
+              });
+            }
             
             // 更新最后宝箱时间为当前时间减去余数时间
-            const newLastBoxTime = now - (timeSinceLastBox % 3600);
+            const newLastBoxTime = now - (timeSinceLastBox % GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL);
             
             return {
               player: {
@@ -758,7 +793,7 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'treasure-adventure-game',
-      version: 4,
+      version: 5,
       partialize: (state) => ({
         player: state.player,
         forestLevels: state.forestLevels,
@@ -814,6 +849,52 @@ export const useGameStore = create<GameStore>()(
                 shield: undefined,
                 accessory: undefined
               };
+            }
+          }
+        }
+        if (version < 5) {
+          // 迁移到版本5：宝箱系统升级（number -> 数组）和装备星级系统
+          if (persistedState.player) {
+            // 迁移treasureBoxes从number到数组
+            if (typeof persistedState.player.treasureBoxes === 'number') {
+              const boxCount = persistedState.player.treasureBoxes;
+              persistedState.player.treasureBoxes = [];
+              for (let i = 0; i < boxCount; i++) {
+                persistedState.player.treasureBoxes.push({
+                  id: `migrated_box_${i}`,
+                  level: 1 // 旧宝箱默认为1级
+                });
+              }
+            }
+            
+            // 为现有装备添加stars属性
+            if (persistedState.player.inventory) {
+              persistedState.player.inventory = persistedState.player.inventory.map((item: any) => {
+                if (item.type === 'equipment' && item.stars === undefined) {
+                  return { ...item, stars: 1 };
+                }
+                return item;
+              });
+            }
+            
+            // 为已装备的装备添加stars属性
+            if (persistedState.player.equipment) {
+              Object.keys(persistedState.player.equipment).forEach(slot => {
+                const item = persistedState.player.equipment[slot];
+                if (item && item.stars === undefined) {
+                  persistedState.player.equipment[slot] = { ...item, stars: 1 };
+                }
+              });
+            }
+            
+            // 为血瓶添加level属性
+            if (persistedState.player.inventory) {
+              persistedState.player.inventory = persistedState.player.inventory.map((item: any) => {
+                if (item.type === 'health_potion' && item.level === undefined) {
+                  return { ...item, level: 1 };
+                }
+                return item;
+              });
             }
           }
         }

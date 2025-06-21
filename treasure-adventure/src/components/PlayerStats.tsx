@@ -148,7 +148,7 @@ const PlayerStats: React.FC = () => {
         </div>
         <div className="stat-item">
           <span>宝箱数</span>
-          <span>{player.treasureBoxes}</span>
+          <span>{Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0}</span>
         </div>
       </div>
       
@@ -175,6 +175,7 @@ const PlayerStats: React.FC = () => {
                         alt={equippedItem.name}
                         style={{ width: '32px', height: '32px' }}
                       />
+                      <span className="equipment-level">lv{equippedItem.level}</span>
                     </div>
                   ) : (
                     <div className="empty-slot">

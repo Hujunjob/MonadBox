@@ -89,6 +89,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
                 alt={equipment?.name || 'Equipment'}
                 style={{ width: '64px', height: '64px' }}
               />
+              <span className="equipment-level">lv{equipment?.level || 1}</span>
             </div>
             
             <div className="equipment-info">

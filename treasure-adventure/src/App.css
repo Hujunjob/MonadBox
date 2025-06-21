@@ -2118,3 +2118,29 @@
   background: #218838;
   transform: translateY(-1px);
 }
+
+/* 装备等级显示 */
+.equipment-level {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 3px;
+  border-radius: 3px 0 0 0;
+  line-height: 1;
+}
+
+.equipped-item {
+  position: relative;
+}
+
+.reward-item-icon {
+  position: relative;
+}
+
+.equipment-icon {
+  position: relative;
+}

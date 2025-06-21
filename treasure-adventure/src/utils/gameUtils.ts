@@ -1,5 +1,6 @@
 import {EquipmentType, ItemRarity } from '../types/game';
 import type { ForestLevel, Monster, EquipmentItem} from '../types/game';
+import { GAME_CONFIG } from '../config/gameConfig';
 
 export const generateForestLevels = (): ForestLevel[] => {
   const levels: ForestLevel[] = [];
@@ -55,12 +56,15 @@ export const generateMonster = (forestLevel: number, monsterIndex: number): Mons
   };
 };
 
-export const generateRandomEquipment = (level: number): EquipmentItem => {
+export const generateRandomEquipment = (level: number, targetLevel?: number): EquipmentItem => {
   const types = Object.values(EquipmentType);
   const rarities = Object.values(ItemRarity);
   
   const type = types[Math.floor(Math.random() * types.length)];
   const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+  
+  // 确定装备等级，如果指定了目标等级则使用，否则使用传入的level
+  const equipmentLevel = targetLevel || level;
   
   const rarityMultiplier = {
     [ItemRarity.COMMON]: 1,
@@ -71,12 +75,12 @@ export const generateRandomEquipment = (level: number): EquipmentItem => {
   };
   
   const baseStats = {
-    attack: type === EquipmentType.WEAPON ? 5 + level * 2 : 0,
-    defense: type === EquipmentType.ARMOR || type === EquipmentType.HELMET || type === EquipmentType.SHIELD ? 3 + level : 0,
-    health: type === EquipmentType.ARMOR || type === EquipmentType.SHIELD ? 10 + level * 3 : 0,
-    agility: type === EquipmentType.SHOES ? 2 + level : 0,
-    criticalRate: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 1 + Math.floor(level / 2) : 0,
-    criticalDamage: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 5 + level * 2 : 0
+    attack: type === EquipmentType.WEAPON ? 5 + equipmentLevel * 2 : 0,
+    defense: type === EquipmentType.ARMOR || type === EquipmentType.HELMET || type === EquipmentType.SHIELD ? 3 + equipmentLevel : 0,
+    health: type === EquipmentType.ARMOR || type === EquipmentType.SHIELD ? 10 + equipmentLevel * 3 : 0,
+    agility: type === EquipmentType.SHOES ? 2 + equipmentLevel : 0,
+    criticalRate: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 1 + Math.floor(equipmentLevel / 2) : 0,
+    criticalDamage: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY ? 5 + equipmentLevel * 2 : 0
   };
   
   const multiplier = rarityMultiplier[rarity];
@@ -95,10 +99,36 @@ export const generateRandomEquipment = (level: number): EquipmentItem => {
     name: `${rarity} ${type}`,
     type,
     rarity,
-    level: 1,
+    level: equipmentLevel,
+    stars: 1, // 初始为1星
     baseStats: { ...finalStats },
     stats: { ...finalStats }
   };
+};
+
+// 生成不同等级的血瓶
+export const generateHealthPotion = (level: number) => {
+  const healValue = GAME_CONFIG.HEALTH_POTION.BASE_HEAL_AMOUNT + 
+                   (level - 1) * GAME_CONFIG.HEALTH_POTION.HEAL_AMOUNT_PER_LEVEL;
+  
+  return {
+    id: `health_potion_${Date.now()}_${Math.random()}`,
+    name: `${level}级血瓶`,
+    type: 'health_potion' as any,
+    quantity: 1,
+    level: level,
+    effect: { type: 'heal' as any, value: healValue }
+  };
+};
+
+// 根据宝箱等级生成奖励等级
+export const generateRewardLevel = (boxLevel: number): number => {
+  const random = Math.random();
+  if (random < GAME_CONFIG.TREASURE_BOX.CURRENT_LEVEL_PROBABILITY) {
+    return boxLevel; // 当前等级
+  } else {
+    return Math.min(boxLevel + 1, GAME_CONFIG.TREASURE_BOX.MAX_LEVEL); // 下一级，但不超过最大等级
+  }
 };
 
 // 计算装备加成
