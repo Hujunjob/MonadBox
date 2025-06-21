@@ -23,10 +23,18 @@ body {
   max-width: 600px;
   margin: 0;
   padding: 20px;
+  margin-left: 0;
   background-color: white;
   min-height: 100vh;
   box-sizing: border-box;
   font-family: Arial, sans-serif;
+}
+
+/* 电脑端居中 */
+@media (min-width: 769px) {
+  .game-container {
+    margin-left: calc((100vw - 600px) / 2);
+  }
 }
 
 /* 游戏头部 */
@@ -548,9 +556,6 @@ body {
   background: white;
   border-radius: 5px;
 }
-
-@media (max-width: 768px) {
-  .reward-options {
 
 /* 怪物森林 */
 .monster-forest {
