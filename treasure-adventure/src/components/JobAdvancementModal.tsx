@@ -60,7 +60,7 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
   };
 
   const jobName = GAME_CONFIG.JOB_ADVANCEMENT.JOB_NAMES[targetJob] || '未知职业';
-  const currentJobLevelDisplay = getJobLevelDisplay(player.level, player.job);
+  const currentJobLevelDisplay = getJobLevelDisplay(player.level, player.job, player.canGainExperience);
 
   return (
     <div className="modal-overlay" onClick={handleClose}>

@@ -55,7 +55,7 @@ const PlayerStats: React.FC = () => {
       <h2>玩家信息</h2>
       <div className="stat-row">
         <span>姓名: {player.name}</span>
-        <span>{getJobLevelDisplay(player.level, player.job || 'swordsman')}</span>
+        <span>{getJobLevelDisplay(player.level, player.job || 'swordsman', player.canGainExperience)}</span>
         <span>金币: {player.gold}</span>
       </div>
       
@@ -207,25 +207,52 @@ const PlayerStats: React.FC = () => {
       
       <div style={{ marginTop: '20px', textAlign: 'center', display: 'flex', gap: '10px', justifyContent: 'center' }}>
         {import.meta.env.DEV && (
-          <button 
-            onClick={() => {
-              updatePlayer({
-                stamina: player.maxStamina || 24,
-                lastStaminaTime: Math.floor(Date.now() / 1000)
-              });
-            }}
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: '#28a745', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '12px'
-            }}
-          >
-            调试:恢复体力
-          </button>
+          <>
+            <button 
+              onClick={() => {
+                updatePlayer({
+                  stamina: player.maxStamina || 24,
+                  lastStaminaTime: Math.floor(Date.now() / 1000)
+                });
+              }}
+              style={{ 
+                padding: '10px 20px', 
+                backgroundColor: '#28a745', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              调试:恢复体力
+            </button>
+            <button 
+              onClick={() => {
+                const newBoxes = [];
+                for (let i = 0; i < 10; i++) {
+                  newBoxes.push({
+                    id: `debug_box_${Date.now()}_${i}`,
+                    level: Math.floor(Math.random() * 10) + 1 // 随机1-10级
+                  });
+                }
+                updatePlayer({
+                  treasureBoxes: [...(Array.isArray(player.treasureBoxes) ? player.treasureBoxes : []), ...newBoxes]
+                });
+              }}
+              style={{ 
+                padding: '10px 20px', 
+                backgroundColor: '#17a2b8', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              调试:给10个宝箱
+            </button>
+          </>
         )}
         <button 
           onClick={initializeGame}

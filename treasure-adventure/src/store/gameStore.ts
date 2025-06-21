@@ -80,7 +80,14 @@ const createInitialPlayer = (): Player => ({
       effect: { type: 'heal' as any, value: 50 }
     }
   ],
-  treasureBoxes: [{ id: 'box_1', level: 1 }],
+  treasureBoxes: [
+    { id: 'box_1', level: 1 },
+    { id: 'box_2', level: 1 },
+    { id: 'box_3', level: 1 },
+    { id: 'box_4', level: 1 },
+    { id: 'box_5', level: 1 },
+    { id: 'box_6', level: 1 }
+  ],
   currentForestLevel: 1,
   currentForestProgress: 0,
   lastTreasureBoxTime: Math.floor(Date.now() / 1000),
@@ -288,7 +295,42 @@ export const useGameStore = create<GameStore>()(
           
           let levelUpData = null;
           
-          if (newExp >= expNeeded) {
+          // 检查如果升级后会到达需要转职的等级（4的倍数），则限制经验获得
+          if (newExp >= expNeeded && (newLevel + 1) % 4 === 0) {
+            // 如果升级后会达到转职等级，先正常升级，然后停止经验获得
+            const oldLevel = newLevel;
+            newLevel++;
+            newExp = 0; // 转职等级经验清零，避免累积
+            
+            // 记录属性提升
+            const statsGained = {
+              maxHealth: 20,
+              attack: 3,
+              defense: 2,
+              agility: 1,
+              criticalRate: 1,
+              criticalDamage: 5
+            };
+            
+            newMaxHealth += statsGained.maxHealth;
+            newHealth = newMaxHealth;
+            newAttack += statsGained.attack;
+            newDefense += statsGained.defense;
+            newAgility += statsGained.agility;
+            newCriticalRate += statsGained.criticalRate;
+            newCriticalDamage += statsGained.criticalDamage;
+            
+            // 需要转职才能继续获得经验
+            canGainExperience = false;
+            
+            // 保存升级数据
+            levelUpData = {
+              oldLevel,
+              newLevel,
+              statsGained
+            };
+          } else if (newExp >= expNeeded) {
+            // 正常升级流程（非转职等级）
             const oldLevel = newLevel;
             newLevel++;
             newExp -= expNeeded;
@@ -310,11 +352,6 @@ export const useGameStore = create<GameStore>()(
             newAgility += statsGained.agility;
             newCriticalRate += statsGained.criticalRate;
             newCriticalDamage += statsGained.criticalDamage;
-            
-            // 检查是否需要转职（每4级）
-            if (newLevel % 4 === 0) {
-              canGainExperience = false; // 需要转职才能继续获得经验
-            }
             
             // 保存升级数据
             levelUpData = {

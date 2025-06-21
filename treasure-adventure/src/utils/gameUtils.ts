@@ -317,8 +317,14 @@ export const getRarityColor = (rarity: string): string => {
 };
 
 // 获取职业等级显示格式
-export const getJobLevelDisplay = (level: number, job: JobType): string => {
+export const getJobLevelDisplay = (level: number, job: JobType, canGainExperience?: boolean): string => {
   const { JOB_NAMES, LEVEL_PREFIXES } = GAME_CONFIG.JOB_ADVANCEMENT;
+  
+  // 检查是否为转职等级且不能继续获得经验（满级状态）
+  if (level % 4 === 0 && canGainExperience === false) {
+    const jobName = JOB_NAMES[job] || '剑士';
+    return `满级${jobName}`;
+  }
   
   // 计算当前职业内的等级（1-4）
   const jobInternalLevel = ((level - 1) % 4) + 1;

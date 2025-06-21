@@ -50,6 +50,13 @@ const Battle: React.FC = () => {
       setShowLevelUpModal(true);
     }
   }, [lastLevelUp, currentBattle?.isActive, showResultModal, showLevelUpModal]);
+
+  // 2级后自动启用自动战斗
+  useEffect(() => {
+    if (player.level >= 2 && !isAutoBattle) {
+      setIsAutoBattle(true);
+    }
+  }, [player.level, isAutoBattle]);
   
   // 检测血量变化并创建显示
   useEffect(() => {
@@ -258,7 +265,7 @@ const Battle: React.FC = () => {
                 </div>
               ))}
           </div>
-          <h3>{currentBattle.player.name} ({getJobLevelDisplay(currentBattle.player.level, currentBattle.player.job || 'swordsman')})</h3>
+          <h3>{currentBattle.player.name} ({getJobLevelDisplay(currentBattle.player.level, currentBattle.player.job || 'swordsman', currentBattle.player.canGainExperience)})</h3>
           <div className="health-bar">
             <div className="health-label">
               血量: {currentBattle.player.health}/{playerStats.maxHealth}
