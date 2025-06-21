@@ -5,6 +5,8 @@ import TreasureBox from './components/TreasureBox';
 import MonsterForest from './components/MonsterForest';
 import Battle from './components/Battle';
 import Inventory from './components/Inventory';
+import Market from './components/Market';
+import Rank from './components/Rank';
 import WalletConnect from './components/WalletConnect';
 import { ToastProvider } from './components/ToastManager';
 import OfflineRewardsModal from './components/OfflineRewardsModal';
@@ -41,6 +43,8 @@ function App() {
             {activeTab === 'inventory' && <Inventory />}
             {activeTab === 'treasure' && <TreasureBox />}
             {activeTab === 'forest' && <MonsterForest />}
+            {activeTab === 'market' && <Market />}
+            {activeTab === 'rank' && <Rank />}
           </main>
           
           <nav className="game-nav">
@@ -67,6 +71,18 @@ function App() {
               onClick={() => setActiveTab('forest')}
             >
               <img src="/assets/icons/hunt.png" alt="冒险" />
+            </button>
+            <button 
+              className={activeTab === 'market' ? 'active' : ''}
+              onClick={() => setActiveTab('market')}
+            >
+              <img src="/assets/icons/market.png" alt="市场" />
+            </button>
+            <button 
+              className={activeTab === 'rank' ? 'active' : ''}
+              onClick={() => setActiveTab('rank')}
+            >
+              <img src="/assets/icons/rank.png" alt="天梯榜" />
             </button>
           </nav>
           <OfflineRewardsModal />
