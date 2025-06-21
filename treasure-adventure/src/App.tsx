@@ -5,6 +5,7 @@ import TreasureBox from './components/TreasureBox';
 import MonsterForest from './components/MonsterForest';
 import Battle from './components/Battle';
 import Inventory from './components/Inventory';
+import WalletConnect from './components/WalletConnect';
 import { ToastProvider } from './components/ToastManager';
 import OfflineRewardsModal from './components/OfflineRewardsModal';
 import './App.css';
@@ -32,6 +33,7 @@ function App() {
         <div className="game-container">
           <header className="game-header">
             <h1>宝物冒险</h1>
+            <WalletConnect />
           </header>
           
           <main className="game-content">

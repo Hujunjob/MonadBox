@@ -78,15 +78,17 @@ body {
   width: 500px;
   min-width: 500px;
   max-width: 500px;
-  /* display: flex; */
-  /* justify-content: center; */
-  /* align-items: center; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 0;
   height: 50px;
+  padding: 0 15px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 0;
   z-index: 1001;
+  box-sizing: border-box;
 }
 
 .game-header h1 {
