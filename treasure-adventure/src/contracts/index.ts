@@ -1,9 +1,12 @@
 // 合约地址配置
 export const CONTRACT_ADDRESSES = {
-  // 本地测试网络地址（最新部署）
+  // 本地测试网络地址（修复权限问题后的合约系统）
   TREASURE_ADVENTURE: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+  GAME_MANAGER: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
   GOLD_TOKEN: '0x75537828f2ce51be7289709686A69CbFDbB714F1',
-  EQUIPMENT_NFT: '0xE451980132E65465d0a498c53f0b5227326Dd73F'
+  EQUIPMENT_NFT: '0xE451980132E65465d0a498c53f0b5227326Dd73F',
+  BATTLE_SYSTEM: '0xa783CDc72e34a174CCa57a6d9a74904d0Bec05A9',
+  TREASURE_BOX_SYSTEM: '0x5392A33F7F677f59e833FEBF4016cDDD88fF9E67'
 };
 
 // 简化的 ABI，只包含前端需要的函数
@@ -19,7 +22,9 @@ export const TREASURE_ADVENTURE_ABI = [
     "inputs": [
       {"internalType": "uint16","name": "experienceGained","type": "uint16"},
       {"internalType": "uint256","name": "goldGained","type": "uint256"},
-      {"internalType": "uint8","name": "staminaCost","type": "uint8"}
+      {"internalType": "uint8","name": "staminaCost","type": "uint8"},
+      {"internalType": "bool","name": "victory","type": "bool"},
+      {"internalType": "uint8","name": "monsterLevel","type": "uint8"}
     ],
     "name": "completeBattle",
     "outputs": [],
@@ -38,9 +43,44 @@ export const TREASURE_ADVENTURE_ABI = [
   },
   {
     "inputs": [],
-    "name": "claimTreasureBoxes",
+    "name": "claimOfflineTreasureBoxes",
     "outputs": [{"internalType": "uint8","name": "","type": "uint8"}],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256","name": "boxIndex","type": "uint256"}],
+    "name": "openTreasureBox",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256[]","name": "boxIndices","type": "uint256[]"}],
+    "name": "openMultipleTreasureBoxes",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address","name": "playerAddress","type": "address"}],
+    "name": "getClaimableOfflineBoxes",
+    "outputs": [{"internalType": "uint8","name": "","type": "uint8"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address","name": "playerAddress","type": "address"}],
+    "name": "getUnopenedBoxCount",
+    "outputs": [{"internalType": "uint256","name": "","type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address","name": "playerAddress","type": "address"}],
+    "name": "getPlayerTreasureBoxCount",
+    "outputs": [{"internalType": "uint256","name": "","type": "uint256"}],
+    "stateMutability": "view",
     "type": "function"
   },
   {

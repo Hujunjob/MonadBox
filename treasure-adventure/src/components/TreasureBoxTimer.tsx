@@ -1,18 +1,28 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
+import { useHybridGameStore } from '../store/web3GameStore';
+import { useWeb3Game } from '../hooks/useWeb3Game';
 import { useToast } from './ToastManager';
 
 const TreasureBoxTimer: React.FC = () => {
   const { claimTreasureBox, getClaimableTreasureBoxCount } = useGameStore();
+  const { isWeb3Mode } = useHybridGameStore();
+  const { claimTreasureBoxes: claimWeb3TreasureBoxes } = useWeb3Game();
   const { showToast } = useToast();
 
   // 处理领取宝箱
-  const handleClaimTreasureBox = () => {
-    const claimedCount = claimTreasureBox();
-    if (claimedCount > 0) {
-      showToast(`📦 成功领取了 ${claimedCount} 个宝箱！`, 'success');
+  const handleClaimTreasureBox = async () => {
+    if (isWeb3Mode) {
+      // Web3 模式：使用智能合约（已包含模拟调用）
+      await claimWeb3TreasureBoxes();
     } else {
-      showToast(`暂无待领取的宝箱`, 'info');
+      // 本地模式：使用原来的逻辑
+      const claimedCount = claimTreasureBox();
+      if (claimedCount > 0) {
+        showToast(`📦 成功领取了 ${claimedCount} 个宝箱！`, 'success');
+      } else {
+        showToast(`暂无待领取的宝箱`, 'info');
+      }
     }
   };
   

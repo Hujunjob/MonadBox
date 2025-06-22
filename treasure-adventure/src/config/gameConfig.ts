@@ -94,9 +94,9 @@ export const GAME_CONFIG = {
   // 宝箱奖励概率配置
   TREASURE_BOX_PROBABILITIES: {
     GOLD: 1,     // 金币 17%
-    BLOOD_POTION: 9,  // 血瓶 9%（原来10%减少为9%）
-    PET_EGG: 3,   // 宠物蛋 3%
-    JOB_ADVANCEMENT_BOOK: 17, // 转职书 1%
+    BLOOD_POTION: 13,  // 血瓶 9%（原来10%减少为9%）
+    PET_EGG: 8,   // 宠物蛋 3%
+    JOB_ADVANCEMENT_BOOK: 7, // 转职书 1%
     // 装备 70% (7种装备类型，每种10%)
     // 剩余概率自动分配给装备
   },

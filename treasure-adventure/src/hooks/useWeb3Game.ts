@@ -1,15 +1,14 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { CONTRACT_ADDRESSES, TREASURE_ADVENTURE_ABI, GOLD_TOKEN_ABI } from '../contracts';
 import { useToast } from '../components/ToastManager';
+import { useSafeContractCall } from './useSafeContractCall';
+import { useRegisterPlayerSimulation, useCompleteBattleSimulation, useClaimTreasureBoxesSimulation, useOpenTreasureBoxSimulation } from './useContractSimulation';
 import { useState, useEffect } from 'react';
 
 export function useWeb3Game() {
   const { address, isConnected } = useAccount();
   const { showToast } = useToast();
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { safeCall, hash, isPending, isConfirming, isConfirmed } = useSafeContractCall();
   
   // 读取玩家数据
   const { 
@@ -62,17 +61,31 @@ export function useWeb3Game() {
       return;
     }
 
-    try {
-      writeContract({
+    // 基本参数验证
+    if (!name || name.length < 2 || name.length > 20) {
+      showToast('玩家名称长度必须在2-20字符之间', 'error');
+      return;
+    }
+
+    if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(name)) {
+      showToast('玩家名称只能包含中文、英文、数字、下划线', 'error');
+      return;
+    }
+
+    await safeCall(
+      {
         address: CONTRACT_ADDRESSES.TREASURE_ADVENTURE as `0x${string}`,
         abi: TREASURE_ADVENTURE_ABI,
         functionName: 'registerPlayer',
         args: [name],
-      });
-    } catch (error) {
-      console.error('Registration error:', error);
-      showToast('注册失败', 'error');
-    }
+      },
+      null, // 暂时不使用模拟验证
+      {
+        loadingMessage: '🔍 正在验证注册参数...',
+        successMessage: '✅ 注册交易已发起！',
+        errorMessage: '❌ 注册失败'
+      }
+    );
   };
 
   // 完成战斗
@@ -82,17 +95,26 @@ export function useWeb3Game() {
       return;
     }
 
-    try {
-      writeContract({
+    // 基本参数验证
+    if (experienceGained <= 0 || goldGained <= 0 || staminaCost <= 0) {
+      showToast('战斗参数无效', 'error');
+      return;
+    }
+
+    await safeCall(
+      {
         address: CONTRACT_ADDRESSES.TREASURE_ADVENTURE as `0x${string}`,
         abi: TREASURE_ADVENTURE_ABI,
         functionName: 'completeBattle',
-        args: [experienceGained, BigInt(goldGained), staminaCost],
-      });
-    } catch (error) {
-      console.error('Battle completion error:', error);
-      showToast('战斗完成失败', 'error');
-    }
+        args: [experienceGained, goldGained, staminaCost, true, 1], // victory=true, monsterLevel=1
+      },
+      null, // 暂时不使用模拟验证
+      {
+        loadingMessage: '🔍 正在验证战斗参数...',
+        successMessage: '⚔️ 战斗结果已上链！',
+        errorMessage: '❌ 战斗失败'
+      }
+    );
   };
 
   // 更新体力
@@ -110,23 +132,54 @@ export function useWeb3Game() {
     }
   };
 
-  // 领取宝箱
+  // 领取离线宝箱
   const claimTreasureBoxes = async () => {
     if (!isConnected) {
       showToast('请先连接钱包', 'error');
       return;
     }
 
-    try {
-      writeContract({
+    await safeCall(
+      {
         address: CONTRACT_ADDRESSES.TREASURE_ADVENTURE as `0x${string}`,
         abi: TREASURE_ADVENTURE_ABI,
-        functionName: 'claimTreasureBoxes',
-      });
-    } catch (error) {
-      console.error('Claim treasure boxes error:', error);
-      showToast('领取宝箱失败', 'error');
+        functionName: 'claimOfflineTreasureBoxes',
+      },
+      null, // 暂时不使用模拟验证
+      {
+        loadingMessage: '🔍 正在检查可领取宝箱...',
+        successMessage: '📦 宝箱领取交易已发起！',
+        errorMessage: '❌ 宝箱领取失败'
+      }
+    );
+  };
+
+  // 开启宝箱
+  const openTreasureBox = async (boxIndex: number) => {
+    if (!isConnected) {
+      showToast('请先连接钱包', 'error');
+      return;
     }
+
+    if (boxIndex < 0) {
+      showToast('无效的宝箱索引', 'error');
+      return;
+    }
+
+    await safeCall(
+      {
+        address: CONTRACT_ADDRESSES.TREASURE_ADVENTURE as `0x${string}`,
+        abi: TREASURE_ADVENTURE_ABI,
+        functionName: 'openTreasureBox',
+        args: [boxIndex],
+      },
+      null, // 暂时不使用模拟验证
+      {
+        loadingMessage: '🔍 正在验证宝箱状态...',
+        successMessage: '🎁 宝箱开启交易已发起！',
+        errorMessage: '❌ 开箱失败'
+      }
+    );
   };
 
   // 监听交易确认
@@ -193,6 +246,7 @@ export function useWeb3Game() {
     completeBattle,
     updateStamina,
     claimTreasureBoxes,
+    openTreasureBox,
     refetchPlayer,
     refetchGold,
   };

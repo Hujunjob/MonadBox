@@ -463,6 +463,17 @@ export const useGameStore = create<GameStore>()(
           
           if (newMonsterHealth <= 0) {
             newBattleLog.push(`${battle.monster.name}被击败了！`);
+            
+            // 发布战斗胜利事件，让 Web3 组件监听
+            window.dispatchEvent(new CustomEvent('battleVictory', {
+              detail: {
+                experienceGained: battle.monster.experience,
+                goldGained: battle.monster.goldDrop,
+                monster: battle.monster
+              }
+            }));
+            
+            // 本地模式下的奖励处理
             get().gainExperience(battle.monster.experience);
             get().gainGold(battle.monster.goldDrop);
             get().addTreasureBox();

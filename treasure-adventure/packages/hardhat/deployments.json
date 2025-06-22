@@ -1,7 +1,11 @@
 {
+  "gameManager": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
   "treasureAdventure": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  "treasureAdventureGame": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
   "goldToken": "0x75537828f2ce51be7289709686A69CbFDbB714F1",
   "equipmentNFT": "0xE451980132E65465d0a498c53f0b5227326Dd73F",
+  "battleSystem": "0xa783CDc72e34a174CCa57a6d9a74904d0Bec05A9",
+  "treasureBoxSystem": "0x5392A33F7F677f59e833FEBF4016cDDD88fF9E67",
   "network": "localhost",
-  "deployedAt": "2025-06-22T07:15:38.945Z"
+  "deployedAt": "2025-06-22T08:16:18.070Z"
 }

@@ -1,49 +1,6 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/TreasureAdventure.sol": {
-      "lastModificationDate": 1750574879223,
-      "contentHash": "cc8ab7b867a12f4bbe5ce0978537e984",
-      "sourceName": "contracts/TreasureAdventure.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": true,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
-        "@openzeppelin/contracts/access/Ownable.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "AdventureGold",
-        "Equipment",
-        "TreasureAdventure"
-      ]
-    },
     "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
       "lastModificationDate": 1750574432435,
       "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
@@ -745,6 +702,499 @@
       ],
       "artifacts": [
         "IERC721Receiver"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/AdventureGold.sol": {
+      "lastModificationDate": 1750578138680,
+      "contentHash": "8223a63a57d0b3e839859e47edfcdf1a",
+      "sourceName": "contracts/AdventureGold.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "AdventureGold"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/Equipment.sol": {
+      "lastModificationDate": 1750595075505,
+      "contentHash": "4a968bb56be9f1a3a216fb38d3f235eb",
+      "sourceName": "contracts/Equipment.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Equipment"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/GameStructs.sol": {
+      "lastModificationDate": 1750578197310,
+      "contentHash": "6d7848d6ef33695906d0345f4451b519",
+      "sourceName": "contracts/GameStructs.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "GameStructs"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/GameConfig.sol": {
+      "lastModificationDate": 1750581111447,
+      "contentHash": "e7ea5a0cae2f58604fdc93e57cbc2f24",
+      "sourceName": "contracts/GameConfig.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "GameConfig"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/TreasureBoxSystem.sol": {
+      "lastModificationDate": 1750594641109,
+      "contentHash": "b96597f0c2a63d2e645f313942957535",
+      "sourceName": "contracts/TreasureBoxSystem.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "./AdventureGold.sol",
+        "./Equipment.sol",
+        "./GameStructs.sol",
+        "./GameConfig.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "TreasureBoxSystem"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/BattleSystem.sol": {
+      "lastModificationDate": 1750581040336,
+      "contentHash": "61bfd5d2d312cd9beb69825e2b9c20a5",
+      "sourceName": "contracts/BattleSystem.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "./AdventureGold.sol",
+        "./TreasureBoxSystem.sol",
+        "./GameStructs.sol",
+        "./GameConfig.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "BattleSystem"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/GameManager.sol": {
+      "lastModificationDate": 1750580402547,
+      "contentHash": "c725684ac3adbd9344f5afc3724e5c94",
+      "sourceName": "contracts/GameManager.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "./AdventureGold.sol",
+        "./Equipment.sol",
+        "./BattleSystem.sol",
+        "./TreasureBoxSystem.sol",
+        "./GameStructs.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "GameManager"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/Player.sol": {
+      "lastModificationDate": 1750595044876,
+      "contentHash": "3026aabb273b635f8410c336b58dd2f9",
+      "sourceName": "contracts/Player.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
+        "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "./GameStructs.sol",
+        "./GameConfig.sol",
+        "./Equipment.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Player"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/BattleSystemV2.sol": {
+      "lastModificationDate": 1750580967131,
+      "contentHash": "e46f50963e55dadf49524dded051df5f",
+      "sourceName": "contracts/BattleSystemV2.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "./Player.sol",
+        "./TreasureBoxSystem.sol",
+        "./GameConfig.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "BattleSystemV2"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/EquipmentSystem.sol": {
+      "lastModificationDate": 1750580884771,
+      "contentHash": "a0906d93e9997c0b69d480bde24c1d10",
+      "sourceName": "contracts/EquipmentSystem.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "./Equipment.sol",
+        "./AdventureGold.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "EquipmentSystem"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol": {
+      "lastModificationDate": 1750574432104,
+      "contentHash": "bf1596648447152f4d3a5f5bc4444a6e",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../ERC721.sol",
+        "./IERC721Enumerable.sol",
+        "../../../utils/introspection/ERC165.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ERC721Enumerable"
+      ]
+    },
+    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
+      "lastModificationDate": 1750574432419,
+      "contentHash": "3fdc14aab706458ae99314f6f7f529a2",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC721.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC721Enumerable"
       ]
     }
   }

@@ -73,6 +73,12 @@ const Web3Toggle: React.FC = () => {
           当前模式: {hybridStore.isWeb3Mode ? '🔗 Web3 链上模式' : '💻 本地模式'}
         </div>
         
+        {hybridStore.isWeb3Mode && hybridStore.isPlayerRegistered && (
+          <div style={{ fontSize: '12px', color: '#28a745', marginTop: '5px' }}>
+            ⚔️ 战斗结果将自动上链记录
+          </div>
+        )}
+        
         {hybridStore.isWeb3Mode && isConnected && (
           <div className="web3-info">
             <div className="wallet-info">

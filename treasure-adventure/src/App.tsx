@@ -9,6 +9,7 @@ import Inventory from './components/Inventory';
 import Market from './components/Market';
 import Rank from './components/Rank';
 import WalletConnect from './components/WalletConnect';
+import Web3BattleHandler from './components/Web3BattleHandler';
 import { ToastProvider } from './components/ToastManager';
 import './App.css';
 import { useConnectedUsers, useNicknames } from 'react-together'
@@ -97,6 +98,7 @@ function App() {
   if (currentBattle) {
     return (
       <ToastProvider>
+        <Web3BattleHandler />
         <div className="app-wrapper">
           <div className="game-container">
             <Battle />
@@ -108,6 +110,7 @@ function App() {
   
   return (
     <ToastProvider>
+      <Web3BattleHandler />
       <div className="app-wrapper">
         <div className="game-container">
           <header className="game-header">

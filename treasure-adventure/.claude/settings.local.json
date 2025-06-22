@@ -16,7 +16,8 @@
       "Bash(npm run contracts:test:*)",
       "Bash(npm run:*)",
       "Bash(ls:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(kill:*)"
     ],
     "deny": []
   }
