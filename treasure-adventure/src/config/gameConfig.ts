@@ -8,7 +8,7 @@ export const GAME_CONFIG = {
     // AUTO_GAIN_INTERVAL: 3600, // 1小时获得1个宝箱（正式版）
     
     // 最大离线宝箱积累数量
-    MAX_OFFLINE_BOXES: 24,
+    MAX_OFFLINE_BOXES: 100,
     
     // 购买宝箱的金币价格
     PURCHASE_COST: 200,

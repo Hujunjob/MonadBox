@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
+import { GAME_CONFIG } from '../config/gameConfig';
 
 const OfflineRewardsModal: React.FC = () => {
   const { player } = useGameStore();
@@ -16,9 +17,9 @@ const OfflineRewardsModal: React.FC = () => {
       const timeSinceLastBox = now - player.lastTreasureBoxTime;
       
       // 如果离线超过1小时就显示奖励
-      if (timeSinceLastBox >= 3600) {
-        const offlineBoxes = Math.floor(timeSinceLastBox / 3600);
-        const actualBoxes = Math.min(offlineBoxes, 24); // 最多24个
+      if (timeSinceLastBox >= GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL) {
+        const offlineBoxes = Math.floor(timeSinceLastBox / GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL);
+        const actualBoxes = Math.min(offlineBoxes, GAME_CONFIG.TREASURE_BOX.MAX_OFFLINE_BOXES); // 最多24个
         
         setOfflineRewards({
           boxes: actualBoxes,

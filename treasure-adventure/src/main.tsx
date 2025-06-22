@@ -7,6 +7,7 @@ import { config } from './config/wagmi';
 import './index.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import App from './App.tsx';
+import { ReactTogether } from 'react-together'
 
 const queryClient = new QueryClient();
 
@@ -15,7 +16,18 @@ createRoot(document.getElementById('root')!).render(
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <App />
+          <ReactTogether
+            sessionParams={{
+              appId: import.meta.env['VITE_APP_ID'],
+              apiKey: import.meta.env['VITE_API_KEY'],
+
+              // The options below will make every user immediately join session 'hello-world'
+              name: 'hello-world',
+              password: 'super-secret!!',
+            }}
+          >
+            <App />
+          </ReactTogether>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
