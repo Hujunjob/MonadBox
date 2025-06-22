@@ -4,7 +4,7 @@ import { useToast } from '../components/ToastManager';
 
 /**
  * 安全的合约调用 Hook
- * 在调用前进行各种检查和用户友好的错误处理
+ * 强制要求模拟调用，确保交易不会失败
  */
 export function useSafeContractCall() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
@@ -14,7 +14,7 @@ export function useSafeContractCall() {
 
   const safeCall = async (
     contractConfig: any,
-    simulationHook?: any,
+    simulationHook: any, // 现在是必需的
     options?: {
       loadingMessage?: string;
       successMessage?: string;
@@ -31,22 +31,27 @@ export function useSafeContractCall() {
       setIsSimulating(true);
       showToast(loadingMessage, 'info');
 
-      // 如果提供了模拟钩子，先检查模拟结果
-      if (simulationHook) {
-        console.log('🔍 检查合约模拟结果...');
-        
-        if (simulationHook.error) {
-          throw new Error(simulationHook.error.message || '模拟调用失败');
-        }
-
-        if (!simulationHook.data) {
-          throw new Error('无法获取模拟结果，请检查参数');
-        }
-
-        console.log('✅ 模拟成功，准备发起交易');
-      } else {
-        console.log('⚠️ 跳过模拟验证，直接发起交易');
+      // 强制检查模拟结果
+      if (!simulationHook) {
+        throw new Error('模拟调用是必需的，不能跳过安全验证');
       }
+
+      console.log('🔍 检查合约模拟结果...');
+      
+      if (simulationHook.isLoading) {
+        throw new Error('模拟调用正在进行中，请等待完成');
+      }
+
+      if (simulationHook.error) {
+        console.error('模拟调用错误:', simulationHook.error);
+        throw new Error(simulationHook.error.message || '模拟调用失败');
+      }
+
+      if (!simulationHook.data) {
+        throw new Error('无法获取模拟结果，请检查参数和网络连接');
+      }
+
+      console.log('✅ 模拟成功，准备发起交易');
 
       // 发起真实交易
       showToast('验证通过，正在发起交易...', 'info');

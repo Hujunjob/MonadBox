@@ -49,7 +49,7 @@ export function useOpenTreasureBoxSimulation(boxIndex: number, enabled: boolean 
     address: CONTRACT_ADDRESSES.TREASURE_ADVENTURE as `0x${string}`,
     abi: TREASURE_ADVENTURE_ABI,
     functionName: 'openTreasureBox',
-    args: [boxIndex],
+    args: [BigInt(boxIndex)],
     query: { 
       enabled: enabled && boxIndex >= 0 
     }

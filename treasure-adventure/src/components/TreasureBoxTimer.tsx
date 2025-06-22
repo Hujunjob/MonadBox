@@ -1,13 +1,13 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useHybridGameStore } from '../store/web3GameStore';
-import { useWeb3Game } from '../hooks/useWeb3Game';
+import { useWeb3GameV2 } from '../hooks/useWeb3GameV2';
 import { useToast } from './ToastManager';
 
 const TreasureBoxTimer: React.FC = () => {
   const { claimTreasureBox, getClaimableTreasureBoxCount } = useGameStore();
   const { isWeb3Mode } = useHybridGameStore();
-  const { claimTreasureBoxes: claimWeb3TreasureBoxes } = useWeb3Game();
+  const { claimTreasureBoxes: claimWeb3TreasureBoxes } = useWeb3GameV2();
   const { showToast } = useToast();
 
   // 处理领取宝箱

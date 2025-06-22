@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Player, GameState } from '../types/game';
-import { useWeb3Game } from '../hooks/useWeb3Game';
+import { useWeb3GameV2 } from '../hooks/useWeb3GameV2';
 
 interface Web3GameState {
   // 模式配置
@@ -116,7 +116,7 @@ export const useWeb3GameStore = create<Web3GameState>()(
 // 创建一个高阶组件来处理 Web3 同步
 export function useHybridGameStore() {
   const web3Store = useWeb3GameStore();
-  const web3Game = useWeb3Game();
+  const web3Game = useWeb3GameV2();
 
   // 混合模式下的玩家数据
   const getPlayer = () => {
@@ -129,8 +129,8 @@ export function useHybridGameStore() {
   // 混合模式下的战斗完成
   const completeBattle = async (experienceGained: number, goldGained: number) => {
     if (web3Store.isWeb3Mode && web3Game.isPlayerRegistered) {
-      // Web3 模式：直接调用智能合约
-      await web3Game.completeBattle(experienceGained, goldGained);
+      // Web3 模式：直接调用智能合约（新架构不产生金币）
+      await web3Game.completeBattle(experienceGained);
     } else {
       // 本地模式或离线模式：添加到待处理队列
       web3Store.addPendingOperation({
@@ -177,7 +177,7 @@ export function useHybridGameStore() {
     registerPlayer: web3Game.registerPlayer,
     completeBattle,
     claimTreasureBoxes,
-    updateStamina: web3Game.updateStamina,
+    updateStamina: () => {}, // 新架构中体力自动恢复
     syncWithBlockchain: web3Store.syncWithBlockchain,
     
     // 数据刷新

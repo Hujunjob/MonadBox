@@ -1,0 +1,41 @@
+# Hardhat files
+cache/
+artifacts/
+coverage/
+coverage.json
+typechain/
+typechain-types/
+
+# Gas reporting
+gas-report.txt
+
+# Hardhat console history
+.hardhat_console_history
+
+# Environment files
+.env
+.env.local
+.env.test
+
+# Dependencies (if different from root)
+node_modules/
+
+# Logs
+*.log
+
+# Coverage
+.nyc_output/
+
+# Slither analysis
+.slither/
+
+# Deployment files (uncomment if you want to ignore)
+# deployments/
+# deploymentsV2.json
+
+# Test artifacts
+test-results/
+
+# Temporary files
+tmp/
+temp/

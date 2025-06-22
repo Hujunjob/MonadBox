@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
-import { useWeb3Game } from '../hooks/useWeb3Game';
+import { useWeb3GameV2 } from '../hooks/useWeb3GameV2';
 import { useToast } from './ToastManager';
 
 const Web3BattleHandler: React.FC = () => {
   const { isWeb3Mode, isPlayerRegistered } = useHybridGameStore();
-  const { completeBattle, updateStamina } = useWeb3Game();
+  const { completeBattle } = useWeb3GameV2();
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -17,16 +17,16 @@ const Web3BattleHandler: React.FC = () => {
           console.log('🔗 Web3 模式: 将战斗结果上链...');
           console.log(`怪物: ${monster.name}, 经验: ${experienceGained}, 金币: ${goldGained}`);
           
-          // 调用智能合约记录战斗结果（包含体力消耗）
-          await completeBattle(experienceGained, goldGained, 1);
+          // 调用智能合约记录战斗结果（新架构不产生金币）
+          await completeBattle(experienceGained, 1, true, monster.level || 1);
           
           showToast('🎉 战斗结果已上链！经验和金币已到账', 'success');
         } catch (error) {
           console.error('Web3 战斗处理失败:', error);
-          showToast('⚠️ 链上战斗处理失败，但本地已记录', 'warning');
+          showToast('⚠️ 链上战斗处理失败，但本地已记录', 'error');
         }
       } else if (isWeb3Mode && !isPlayerRegistered) {
-        showToast('⚠️ 请先注册玩家才能使用 Web3 模式', 'warning');
+        showToast('⚠️ 请先注册玩家才能使用 Web3 模式', 'info');
       }
     };
 

@@ -1,13 +1,13 @@
 import React from 'react';
 import { useAccount, useChainId, useBalance } from 'wagmi';
 import { useToast } from './ToastManager';
-import { useWeb3Game } from '../hooks/useWeb3Game';
+import { useWeb3GameV2 } from '../hooks/useWeb3GameV2';
 
 const NetworkDebugger: React.FC = () => {
   const { address, isConnected, chain } = useAccount();
   const chainId = useChainId();
   const { showToast } = useToast();
-  const { playerData, isPlayerRegistered, isLoadingPlayer, refetchPlayer } = useWeb3Game();
+  const { playerData, isPlayerRegistered, refetchPlayer } = useWeb3GameV2();
   
   const { data: balance } = useBalance({
     address: address,
@@ -115,7 +115,7 @@ const NetworkDebugger: React.FC = () => {
         <div className="debug-item">
           <span>玩家注册状态:</span>
           <code className={isPlayerRegistered ? 'correct' : 'incorrect'}>
-            {isLoadingPlayer ? '读取中...' : (isPlayerRegistered ? '已注册 ✅' : '未注册 ❌')}
+            {isPlayerRegistered ? '已注册 ✅' : '未注册 ❌'}
           </code>
         </div>
 
@@ -149,9 +149,8 @@ const NetworkDebugger: React.FC = () => {
           <button
             onClick={handleRefreshData}
             className="refresh-data-btn"
-            disabled={isLoadingPlayer}
           >
-            {isLoadingPlayer ? '刷新中...' : '🔄 刷新数据'}
+            🔄 刷新数据
           </button>
         </div>
       )}
