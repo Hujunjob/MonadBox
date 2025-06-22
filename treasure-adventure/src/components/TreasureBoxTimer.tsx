@@ -1,39 +1,59 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useGameStore } from '../store/gameStore';
-import { formatTime } from '../utils/gameUtils';
-import { GAME_CONFIG } from '../config/gameConfig';
+import { useToast } from './ToastManager';
 
 const TreasureBoxTimer: React.FC = () => {
-  const { player, incrementGameTime } = useGameStore();
-  const [timeUntilNext, setTimeUntilNext] = useState(0);
-  
-  // 计算倒计时的函数
-  const calculateTimeUntilNext = () => {
-    const now = Math.floor(Date.now() / 1000);
-    const timeSinceLastBox = now - player.lastTreasureBoxTime;
-    return Math.max(0, GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL - timeSinceLastBox);
+  const { claimTreasureBox, getClaimableTreasureBoxCount } = useGameStore();
+  const { showToast } = useToast();
+
+  // 处理领取宝箱
+  const handleClaimTreasureBox = () => {
+    const claimedCount = claimTreasureBox();
+    if (claimedCount > 0) {
+      showToast(`📦 成功领取了 ${claimedCount} 个宝箱！`, 'success');
+    } else {
+      showToast(`暂无待领取的宝箱`, 'info');
+    }
   };
   
-  // 组件初始化时立即计算一次倒计时
-  useEffect(() => {
-    setTimeUntilNext(calculateTimeUntilNext());
-  }, [player.lastTreasureBoxTime]);
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      incrementGameTime();
-      setTimeUntilNext(calculateTimeUntilNext());
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [incrementGameTime, player.lastTreasureBoxTime]);
+  const claimableCount = getClaimableTreasureBoxCount();
   
   return (
     <div className="treasure-box-timer">
-      <span style={{ color: 'black', fontSize: '18px', fontWeight: 'bold' }}>
-        下一个 ：
-        {timeUntilNext > 0 ? `${formatTime(timeUntilNext)}/${formatTime(GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL)}` : `00:00:00/${formatTime(GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL)}`}
-      </span>
+      <button 
+        onClick={handleClaimTreasureBox}
+        style={{
+          backgroundColor: claimableCount > 0 ? '#28a745' : '#6c757d',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          padding: '8px 16px',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+          transition: 'all 0.2s'
+        }}
+        onMouseOver={(e) => {
+          if (claimableCount > 0) {
+            e.currentTarget.style.backgroundColor = '#218838';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          } else {
+            e.currentTarget.style.backgroundColor = '#5a6268';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }
+        }}
+        onMouseOut={(e) => {
+          if (claimableCount > 0) {
+            e.currentTarget.style.backgroundColor = '#28a745';
+          } else {
+            e.currentTarget.style.backgroundColor = '#6c757d';
+          }
+          e.currentTarget.style.transform = 'translateY(0)';
+        }}
+      >
+        📦 领取宝箱 ({claimableCount})
+      </button>
     </div>
   );
 };

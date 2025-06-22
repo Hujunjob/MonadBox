@@ -20,6 +20,8 @@ interface GameStore extends GameState {
   updateActionBars: () => void;
   openTreasureBox: () => void;
   addTreasureBox: (boxLevel?: number) => void;
+  claimTreasureBox: () => number; // 新增：手动领取宝箱，返回领取数量
+  getClaimableTreasureBoxCount: () => number; // 新增：获取可领取宝箱数量
   unlockNextForestLevel: () => void;
   incrementGameTime: () => void;
   calculateOfflineRewards: () => void;
@@ -673,37 +675,60 @@ export const useGameStore = create<GameStore>()(
       incrementGameTime: () => {
         set((state) => {
           const newTime = state.gameTime + 1;
-          const now = Math.floor(Date.now() / 1000);
-          const timeSinceLastBox = now - state.player.lastTreasureBoxTime;
-          
-          let updatedPlayer = state.player;
-          
-          if (timeSinceLastBox >= GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL) {
-            // 添加宝箱
-            const level = state.player.currentForestLevel;
-            const newTreasureBox = {
-              id: `box_${Date.now()}`,
-              level: Math.min(level, GAME_CONFIG.TREASURE_BOX.MAX_LEVEL)
-            };
-            
-            // 确保treasureBoxes是数组
-            const currentBoxes = Array.isArray(state.player.treasureBoxes) ? state.player.treasureBoxes : [];
-            
-            updatedPlayer = {
-              ...state.player,
-              treasureBoxes: [...currentBoxes, newTreasureBox],
-              lastTreasureBoxTime: now
-            };
-          }
           
           // 更新体力
           get().updateStamina();
           
           return { 
-            gameTime: newTime,
-            player: updatedPlayer
+            gameTime: newTime
           };
         });
+      },
+
+      // 获取可领取宝箱数量
+      getClaimableTreasureBoxCount: () => {
+        const state = get();
+        const now = Math.floor(Date.now() / 1000);
+        const timeSinceLastBox = now - state.player.lastTreasureBoxTime;
+        const boxCount = Math.floor(timeSinceLastBox / GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL);
+        return Math.max(0, boxCount);
+      },
+
+      // 手动领取宝箱
+      claimTreasureBox: () => {
+        const state = get();
+        const claimableCount = get().getClaimableTreasureBoxCount();
+        
+        if (claimableCount === 0) {
+          return 0;
+        }
+
+        set((state) => {
+          const now = Math.floor(Date.now() / 1000);
+          const level = state.player.currentForestLevel;
+          
+          // 创建多个宝箱
+          const newTreasureBoxes = [];
+          for (let i = 0; i < claimableCount; i++) {
+            newTreasureBoxes.push({
+              id: `box_${Date.now()}_${i}`,
+              level: Math.min(level, GAME_CONFIG.TREASURE_BOX.MAX_LEVEL)
+            });
+          }
+          
+          // 确保treasureBoxes是数组
+          const currentBoxes = Array.isArray(state.player.treasureBoxes) ? state.player.treasureBoxes : [];
+          
+          return {
+            player: {
+              ...state.player,
+              treasureBoxes: [...currentBoxes, ...newTreasureBoxes],
+              lastTreasureBoxTime: now
+            }
+          };
+        });
+        
+        return claimableCount;
       },
 
       // 计算离线宝箱奖励
