@@ -12,12 +12,7 @@ const TreasureBox: React.FC = () => {
   const [showSelection, setShowSelection] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [isClosing, setIsClosing] = useState(false);
-  const [boxCount, setBoxCount, countPerUser] = useStateTogetherWithPerUserValues('treasure-box', 0)
-
-  // 将useEffect移到组件顶层
-  useEffect(()=>{
-    console.log(countPerUser);
-  },[countPerUser])
+  // const [boxCount, setBoxCount, countPerUser] = useStateTogetherWithPerUserValues('treasure-box', 0)
 
   const handleOpenBox = () => {
     const currentBoxes = Array.isArray(player.treasureBoxes) ? player.treasureBoxes : [];
