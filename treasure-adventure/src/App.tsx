@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 import { useGameStore } from './store/gameStore';
 import PlayerStats from './components/PlayerStats';
 import TreasureBox from './components/TreasureBox';
@@ -11,13 +12,80 @@ import WalletConnect from './components/WalletConnect';
 import { ToastProvider } from './components/ToastManager';
 import OfflineRewardsModal from './components/OfflineRewardsModal';
 import './App.css';
-import { useConnectedUsers } from 'react-together'
+import { useConnectedUsers, useNicknames } from 'react-together'
 
 function App() {
   const [activeTab, setActiveTab] = useState('stats');
-  const { currentBattle } = useGameStore();
-  const connectedUsers = []
-  // const connectedUsers = useConnectedUsers()
+  const { currentBattle, updatePlayer, player } = useGameStore();
+  const { address, isConnected } = useAccount();
+  // const connectedUsers = []
+  const connectedUsers = useConnectedUsers()
+  const [nickname, setNickname, allNicknames] = useNicknames()
+  const [showNamingModal, setShowNamingModal] = useState(false);
+  const [userNameInput, setUserNameInput] = useState('');
+  const [hasCheckedNickname, setHasCheckedNickname] = useState(false);
+
+  // 从nickname中提取真实用户名
+  const extractUsernameFromNickname = (nickname: string): string | null => {
+    if (!nickname || !address) return null;
+    const expectedPrefix = `${address}&&name=`;
+    if (nickname.startsWith(expectedPrefix)) {
+      return nickname.substring(expectedPrefix.length);
+    }
+    return null;
+  };
+
+  // 用户名验证规则
+  const isValidUsername = (username: string): boolean => {
+    // 用户名长度2-20字符，只允许中文、英文、数字、下划线
+    return /^[\u4e00-\u9fa5a-zA-Z0-9_]{2,20}$/.test(username);
+  };
+
+  // 处理用户名提交
+  const handleNicknameSubmit = () => {
+    if (!isValidUsername(userNameInput)) {
+      alert('用户名格式不正确！用户名长度应为2-20字符，只允许中文、英文、数字、下划线');
+      return;
+    }
+    
+    if (address) {
+      const formattedNickname = `${address}&&name=${userNameInput}`;
+      setNickname(formattedNickname);
+      // 立即更新玩家姓名
+      updatePlayer({ name: userNameInput });
+      setShowNamingModal(false);
+      setUserNameInput('');
+      setHasCheckedNickname(true);
+    }
+  };
+
+  useEffect(()=>{
+    // 如果正在显示命名弹窗，跳过检查避免频繁触发
+    if (showNamingModal) return;
+    
+    connectedUsers.forEach((value)=>{
+      console.log(value);
+      
+      if(value.isYou && isConnected && address && value.nickname){
+        //nickname格式：evm钱包地址+"&&name="+用户昵称
+        const expectedPrefix = `${address}&&name=`;
+        if(!value.nickname.startsWith(expectedPrefix)){
+          // 未设置用户名或格式不正确，弹出命名框
+          if (!hasCheckedNickname) {
+            setShowNamingModal(true);
+            setHasCheckedNickname(true);
+          }
+        } else {
+          // 有有效的nickname，提取用户名并更新玩家姓名
+          const realUsername = extractUsernameFromNickname(value.nickname);
+          if (realUsername && realUsername !== player.name) {
+            updatePlayer({ name: realUsername });
+          }
+          setHasCheckedNickname(true);
+        }
+      }
+    })
+  },[connectedUsers, isConnected, address, updatePlayer, player.name, showNamingModal, hasCheckedNickname])
 
   if (currentBattle) {
     return (
@@ -90,6 +158,32 @@ function App() {
           </nav>
           <OfflineRewardsModal />
         </div>
+        
+        {/* 命名弹窗 */}
+        {showNamingModal && (
+          <div className="naming-modal-overlay">
+            <div className="naming-modal">
+              <h3>设置用户名</h3>
+              <p>请设置您的游戏用户名</p>
+              <input
+                type="text"
+                value={userNameInput}
+                onChange={(e) => setUserNameInput(e.target.value)}
+                placeholder="输入用户名 (2-20字符)"
+                maxLength={20}
+                className="naming-input"
+              />
+              <p className="naming-rules">
+                用户名规则：2-20字符，只允许中文、英文、数字、下划线
+              </p>
+              <div className="naming-buttons">
+                <button onClick={handleNicknameSubmit} className="naming-confirm">
+                  确定
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </ToastProvider>
   );

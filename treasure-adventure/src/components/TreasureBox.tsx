@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { generateRandomEquipment, generateHealthPotion, generatePetEgg, generateJobAdvancementBook, generateRewardLevel, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
 import TreasureBoxTimer from './TreasureBoxTimer';
 import { GAME_CONFIG } from '../config/gameConfig';
+import { useStateTogetherWithPerUserValues } from 'react-together'
 
 const TreasureBox: React.FC = () => {
   const { player, gainGold, updatePlayer } = useGameStore();
@@ -11,18 +12,23 @@ const TreasureBox: React.FC = () => {
   const [showSelection, setShowSelection] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [isClosing, setIsClosing] = useState(false);
-  
+  const [boxCount, setBoxCount, countPerUser] = useStateTogetherWithPerUserValues('treasure-box', 0)
+
   const handleOpenBox = () => {
     const currentBoxes = Array.isArray(player.treasureBoxes) ? player.treasureBoxes : [];
     if (currentBoxes.length <= 0 || openingBox) return;
     
+    useEffect(()=>{
+      console.log(countPerUser);
+    },[countPerUser])
+
     // 重置所有状态
     setOpeningBox(true);
     setShowSelection(false);
     setSelectedReward(null);
     setIsClosing(false);
     
-    setTimeout(() => {
+    setTimeout(() => {      
       // 获取第一个宝箱
       const treasureBox = currentBoxes[0];
       const boxLevel = treasureBox.level;

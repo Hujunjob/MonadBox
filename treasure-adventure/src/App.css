@@ -240,6 +240,83 @@ body {
   margin-bottom: 20px;
 }
 
+/* 命名弹窗样式 */
+.naming-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.naming-modal {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.naming-modal h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.naming-modal p {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.naming-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.naming-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.naming-rules {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 20px;
+}
+
+.naming-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.naming-confirm {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.naming-confirm:hover {
+  background-color: #0056b3;
+}
+
 .stat-row {
   display: flex;
   justify-content: space-between;
