@@ -390,6 +390,9 @@ export const useGameStore = create<GameStore>()(
       },
 
       startBattle: (monster) => {
+        // 战斗开始前先更新体力
+        // get().updateStamina();
+        
         const state = get();
         // 检查体力是否足够
         if (state.player.stamina < 1) {
@@ -429,6 +432,8 @@ export const useGameStore = create<GameStore>()(
       },
 
       endBattle: () => {
+        // 战斗结束时更新体力
+        // get().updateStamina();
         set({ currentBattle: undefined });
       },
 
@@ -999,19 +1004,23 @@ export const useGameStore = create<GameStore>()(
 
       updateStamina: () => {
         set((state) => {
+          console.log("updateStamina");
+          
           const now = Math.floor(Date.now() / 1000);
           const timeSinceLastUpdate = now - state.player.lastStaminaTime;
-          const hoursElapsed = Math.floor(timeSinceLastUpdate / 3600); // 3600秒 = 1小时
+          const recoveryPeriodsElapsed = Math.floor(timeSinceLastUpdate / GAME_CONFIG.STAMINA.RECOVERY_INTERVAL);
           
-          if (hoursElapsed > 0) {
-            const staminaToRecover = Math.min(hoursElapsed, state.player.maxStamina - state.player.stamina);
+          if (recoveryPeriodsElapsed > 0 && state.player.stamina < state.player.maxStamina) {
+            const staminaToRecover = Math.min(recoveryPeriodsElapsed, state.player.maxStamina - state.player.stamina);
             const newStamina = Math.min(state.player.stamina + staminaToRecover, state.player.maxStamina);
+            // 更新lastStaminaTime为实际消耗的恢复周期时间
+            const newLastStaminaTime = state.player.lastStaminaTime + (staminaToRecover * GAME_CONFIG.STAMINA.RECOVERY_INTERVAL);
             
             return {
               player: {
                 ...state.player,
                 stamina: newStamina,
-                lastStaminaTime: now
+                lastStaminaTime: newLastStaminaTime
               }
             };
           }
@@ -1021,16 +1030,31 @@ export const useGameStore = create<GameStore>()(
       },
 
       consumeStamina: (amount: number) => {
-        const state = get();
-        if (state.player.stamina >= amount) {
+        console.log("consumeStamina called");
+        
+        const currentState = get();
+        console.log("Before consume - stamina:", currentState.player.stamina);
+        
+        if (currentState.player.stamina >= amount) {
+          const newStamina = currentState.player.stamina - amount;
+          const now = Math.floor(Date.now() / 1000);
+          console.log("Setting stamina to:", newStamina);
+          
           set((state) => ({
             player: {
               ...state.player,
-              stamina: state.player.stamina - amount
+              stamina: newStamina,
+              lastStaminaTime: now // 更新体力时间，防止被updateStamina覆盖
             }
           }));
+          
+          // 验证更新后的状态
+          const updatedState = get();
+          console.log("After consume - stamina:", updatedState.player.stamina);
+          
           return true;
         }
+        console.log("Not enough stamina");
         return false;
       },
 

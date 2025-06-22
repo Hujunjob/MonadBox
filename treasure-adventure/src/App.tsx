@@ -10,19 +10,27 @@ import Market from './components/Market';
 import Rank from './components/Rank';
 import WalletConnect from './components/WalletConnect';
 import { ToastProvider } from './components/ToastManager';
-import OfflineRewardsModal from './components/OfflineRewardsModal';
 import './App.css';
 import { useConnectedUsers, useNicknames } from 'react-together'
 
 function App() {
   const [activeTab, setActiveTab] = useState('stats');
-  const { currentBattle, updatePlayer, player } = useGameStore();
+  const { currentBattle, updatePlayer, player, updateStamina } = useGameStore();
   const { address, isConnected } = useAccount();
   const connectedUsers = useConnectedUsers()
   const [nickname, setNickname] = useNicknames()
   const [showNamingModal, setShowNamingModal] = useState(false);
   const [userNameInput, setUserNameInput] = useState('');
   const [hasCheckedNickname, setHasCheckedNickname] = useState(false);
+
+  // 处理页面切换，在切换到特定页面时检查体力
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    // 切换到角色页面或森林页面时检查体力
+    if (tab === 'stats' || tab === 'forest') {
+      updateStamina();
+    }
+  };
 
   // 从nickname中提取真实用户名
   const extractUsernameFromNickname = (nickname: string): string | null => {
@@ -63,7 +71,7 @@ function App() {
     if (showNamingModal) return;
     
     connectedUsers.forEach((value)=>{
-      console.log(value);
+      // console.log(value);
       
       if(value.isYou && isConnected && address && value.nickname){
         //nickname格式：evm钱包地址+"&&name="+用户昵称
@@ -92,7 +100,6 @@ function App() {
         <div className="app-wrapper">
           <div className="game-container">
             <Battle />
-            <OfflineRewardsModal />
           </div>
         </div>
       </ToastProvider>
@@ -120,42 +127,41 @@ function App() {
           <nav className="game-nav">
             <button 
               className={activeTab === 'stats' ? 'active' : ''}
-              onClick={() => setActiveTab('stats')}
+              onClick={() => handleTabChange('stats')}
             >
               <img src="/assets/icons/profile.png" alt="角色" />
             </button>
             <button 
               className={activeTab === 'inventory' ? 'active' : ''}
-              onClick={() => setActiveTab('inventory')}
+              onClick={() => handleTabChange('inventory')}
             >
               <img src="/assets/icons/bag.png" alt="背包" />
             </button>
             <button 
               className={activeTab === 'treasure' ? 'active' : ''}
-              onClick={() => setActiveTab('treasure')}
+              onClick={() => handleTabChange('treasure')}
             >
               <img src="/assets/icons/box.png" alt="宝箱" />
             </button>
             <button 
               className={activeTab === 'forest' ? 'active' : ''}
-              onClick={() => setActiveTab('forest')}
+              onClick={() => handleTabChange('forest')}
             >
               <img src="/assets/icons/hunt.png" alt="冒险" />
             </button>
             <button 
               className={activeTab === 'market' ? 'active' : ''}
-              onClick={() => setActiveTab('market')}
+              onClick={() => handleTabChange('market')}
             >
               <img src="/assets/icons/market.png" alt="市场" />
             </button>
             <button 
               className={activeTab === 'rank' ? 'active' : ''}
-              onClick={() => setActiveTab('rank')}
+              onClick={() => handleTabChange('rank')}
             >
               <img src="/assets/icons/rank.png" alt="天梯榜" />
             </button>
           </nav>
-          <OfflineRewardsModal />
         </div>
         
         {/* 命名弹窗 */}

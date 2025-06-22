@@ -14,13 +14,14 @@ const TreasureBox: React.FC = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [boxCount, setBoxCount, countPerUser] = useStateTogetherWithPerUserValues('treasure-box', 0)
 
+  // 将useEffect移到组件顶层
+  useEffect(()=>{
+    console.log(countPerUser);
+  },[countPerUser])
+
   const handleOpenBox = () => {
     const currentBoxes = Array.isArray(player.treasureBoxes) ? player.treasureBoxes : [];
     if (currentBoxes.length <= 0 || openingBox) return;
-    
-    useEffect(()=>{
-      console.log(countPerUser);
-    },[countPerUser])
 
     // 重置所有状态
     setOpeningBox(true);

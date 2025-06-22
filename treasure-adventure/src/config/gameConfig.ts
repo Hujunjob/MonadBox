@@ -64,7 +64,7 @@ export const GAME_CONFIG = {
     MAX_STAMINA: 24,
     
     // 体力恢复间隔（秒）
-    RECOVERY_INTERVAL: 3600, // 1小时恢复1点体力
+    RECOVERY_INTERVAL: 20, // 1小时恢复1点体力
     
     // 战斗消耗体力
     BATTLE_COST: 1

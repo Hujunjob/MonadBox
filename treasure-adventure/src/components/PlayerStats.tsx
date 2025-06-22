@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay, getCanGainExperience } from '../utils/gameUtils';
 import { EquipmentType, JobType, ItemType } from '../types/game';
 import EquipmentModal from './EquipmentModal';
 
 const PlayerStats: React.FC = () => {
-  const { player, initializeGame, updatePlayer, gainExperience } = useGameStore();
+  const { player, initializeGame, updatePlayer, gainExperience, updateStamina } = useGameStore();
   const stats = calculatePlayerStats(player);
   const baseStats = getBaseStats(player);
   const equipmentBonus = calculateEquipmentBonus(player);
@@ -23,16 +23,20 @@ const PlayerStats: React.FC = () => {
     "🐾 宠物系统即将上线！"
   ];
   
+  useEffect(()=>{
+    console.log("player.stamina",player.stamina);
+    
+  },[player])
   // 确保体力属性存在
-  React.useEffect(() => {
-    if (player.stamina === undefined || player.maxStamina === undefined || player.lastStaminaTime === undefined) {
-      updatePlayer({
-        stamina: 24,
-        maxStamina: 24,
-        lastStaminaTime: Math.floor(Date.now() / 1000)
-      });
-    }
-  }, [player.stamina, player.maxStamina, player.lastStaminaTime, updatePlayer]);
+  // React.useEffect(() => {
+  //   if (player.stamina === undefined || player.maxStamina === undefined || player.lastStaminaTime === undefined) {
+  //     updatePlayer({
+  //       stamina: 24,
+  //       maxStamina: 24,
+  //       lastStaminaTime: Math.floor(Date.now() / 1000)
+  //     });
+  //   }
+  // }, [player.stamina, player.maxStamina, player.lastStaminaTime, updatePlayer]);
 
   // 点击外部隐藏tooltip
   React.useEffect(() => {
@@ -48,6 +52,18 @@ const PlayerStats: React.FC = () => {
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [activeTooltip]);
+
+  // // 进入角色页面时检查体力
+  // React.useEffect(() => {
+  //   updateStamina();
+  // }, [updateStamina]);
+  
+  // // 离开角色页面时也检查体力（清理时）
+  // React.useEffect(() => {
+  //   return () => {
+  //     updateStamina();
+  //   };
+  // }, [updateStamina]);
   
   const expNeeded = player.level * 100;
   
