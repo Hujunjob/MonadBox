@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <ReactTogether
+          {/* <ReactTogether
             sessionParams={{
               appId: import.meta.env['VITE_APP_ID'],
               apiKey: import.meta.env['VITE_API_KEY'],
@@ -26,8 +26,9 @@ createRoot(document.getElementById('root')!).render(
               password: 'super-secret!!',
             }}
           >
-            <App />
-          </ReactTogether>
+            
+          </ReactTogether> */}
+          <App />
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

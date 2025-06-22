@@ -11,11 +11,14 @@ import WalletConnect from './components/WalletConnect';
 import { ToastProvider } from './components/ToastManager';
 import OfflineRewardsModal from './components/OfflineRewardsModal';
 import './App.css';
+import { useConnectedUsers } from 'react-together'
 
 function App() {
   const [activeTab, setActiveTab] = useState('stats');
   const { currentBattle } = useGameStore();
-  
+  const connectedUsers = []
+  // const connectedUsers = useConnectedUsers()
+
   if (currentBattle) {
     return (
       <ToastProvider>
@@ -34,7 +37,7 @@ function App() {
       <div className="app-wrapper">
         <div className="game-container">
           <header className="game-header">
-            <h1>宝物冒险</h1>
+            <h1>宝物冒险 <small style={{fontSize: '12px', fontWeight: 'normal', color: 'white'}}>在线人数：{connectedUsers.length}</small></h1>
             <WalletConnect />
           </header>
           

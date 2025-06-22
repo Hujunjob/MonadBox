@@ -67,9 +67,9 @@ const OfflineRewardsModal: React.FC = () => {
               <span className="reward-icon">📦</span>
               <span className="reward-text">宝箱 ×{offlineRewards.boxes}</span>
             </div>
-            {offlineRewards.boxes >= 24 && (
+            {offlineRewards.boxes >= GAME_CONFIG.TREASURE_BOX.MAX_OFFLINE_BOXES && (
               <div className="max-rewards-note">
-                <small>💡 宝箱最多积累24个(24小时)</small>
+                <small>💡 宝箱最多积累{GAME_CONFIG.TREASURE_BOX.MAX_OFFLINE_BOXES}个</small>
               </div>
             )}
           </div>

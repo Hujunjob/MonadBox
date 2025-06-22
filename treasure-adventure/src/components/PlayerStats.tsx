@@ -50,7 +50,8 @@ const PlayerStats: React.FC = () => {
     { key: 'weapon', name: '武器', type: EquipmentType.WEAPON },
     { key: 'shield', name: '盾牌', type: EquipmentType.SHIELD },
     { key: 'accessory', name: '配饰', type: EquipmentType.ACCESSORY },
-    { key: 'ring', name: '戒指', type: EquipmentType.RING }
+    { key: 'ring', name: '戒指', type: EquipmentType.RING },
+    { key: 'pet', name: '宠物', type: EquipmentType.PET }
   ];
   
   const handleEquipmentClick = (equipment: any, slot: string) => {
@@ -205,7 +206,6 @@ const PlayerStats: React.FC = () => {
             
             return (
               <div key={slot.key} className="equipment-slot">
-                <label>{slot.name}</label>
                 <div className="slot-content">
                   {equippedItem ? (
                     <div 
@@ -235,7 +235,7 @@ const PlayerStats: React.FC = () => {
                     </div>
                   ) : (
                     <div className="empty-slot">
-                      <span>空</span>
+                      <span>{slot.name}</span>
                     </div>
                   )}
                 </div>

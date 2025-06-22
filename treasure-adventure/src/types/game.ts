@@ -30,6 +30,7 @@ export interface Equipment {
   shield?: EquipmentItem;
   accessory?: EquipmentItem;
   ring?: EquipmentItem;
+  pet?: EquipmentItem;
 }
 
 export interface EquipmentItem {
@@ -59,7 +60,8 @@ export const EquipmentType = {
   WEAPON: 'weapon',
   SHIELD: 'shield',
   ACCESSORY: 'accessory',
-  RING: 'ring'
+  RING: 'ring',
+  PET: 'pet'
 } as const;
 
 export type EquipmentType = typeof EquipmentType[keyof typeof EquipmentType];
