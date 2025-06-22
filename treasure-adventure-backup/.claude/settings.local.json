@@ -9,14 +9,7 @@
       "Bash(npm install:*)",
       "Bash(rg:*)",
       "Bash(grep -n \"consumeStamina:\" /Users/junhu/git/MonadBox/treasure-adventure/src/store/gameStore.ts)",
-      "Bash(cp:*)",
-      "Bash(mkdir:*)",
-      "Bash(npm init:*)",
-      "Bash(npx hardhat:*)",
-      "Bash(npm run contracts:test:*)",
-      "Bash(npm run:*)",
-      "Bash(ls:*)",
-      "Bash(node:*)"
+      "Bash(cp:*)"
     ],
     "deny": []
   }

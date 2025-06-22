@@ -3,11 +3,6 @@ import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay, getCanGainExperience } from '../utils/gameUtils';
 import { EquipmentType, JobType, ItemType } from '../types/game';
 import EquipmentModal from './EquipmentModal';
-import Web3Toggle from './Web3Toggle';
-import TestEthHelper from './TestEthHelper';
-import NetworkDebugger from './NetworkDebugger';
-import ContractInfo from './ContractInfo';
-import WalletAddressChecker from './WalletAddressChecker';
 
 const PlayerStats: React.FC = () => {
   const { player, initializeGame, updatePlayer, gainExperience, updateStamina } = useGameStore();
@@ -98,21 +93,6 @@ const PlayerStats: React.FC = () => {
   
   return (
     <div className="player-stats">
-      {/* Web3 模式切换 */}
-      <Web3Toggle />
-      
-      {/* 网络调试器 */}
-      <NetworkDebugger />
-      
-      {/* 钱包地址检查器 */}
-      <WalletAddressChecker />
-      
-      {/* 合约信息 */}
-      <ContractInfo />
-      
-      {/* 测试 ETH 助手 */}
-      <TestEthHelper />
-      
       {/* 通知栏 */}
       <div className="notification-bar">
         <div className="notification-content">
