@@ -197,8 +197,42 @@ body {
 
 /* 玩家状态 */
 .player-stats {
-  padding-top: 10px;
+  padding-top: 0px;
   max-width: 800px;
+}
+
+/* 通知栏样式 */
+.notification-bar {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  padding: 8px 0;
+  margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
+  height: 20px;
+}
+
+.notification-content {
+  display: flex;
+  animation: scroll 16s linear infinite;
+  white-space: nowrap;
+}
+
+.notification-item {
+  margin-right: 50px;
+  color: #495057;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-170%);
+  }
 }
 
 .player-stats h2 {

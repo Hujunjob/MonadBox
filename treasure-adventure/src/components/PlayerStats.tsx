@@ -15,6 +15,14 @@ const PlayerStats: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   
+  // 通知数据（示例）
+  const notifications = [
+    "🎉 欢迎来到宝物冒险！",
+    "💰 在线可以赚取MON，段位越高MON越多",
+    "📦 快开启宝箱获得资源",
+    "🐾 宠物系统即将上线！"
+  ];
+  
   // 确保体力属性存在
   React.useEffect(() => {
     if (player.stamina === undefined || player.maxStamina === undefined || player.lastStaminaTime === undefined) {
@@ -73,6 +81,17 @@ const PlayerStats: React.FC = () => {
   
   return (
     <div className="player-stats">
+      {/* 通知栏 */}
+      <div className="notification-bar">
+        <div className="notification-content">
+          {notifications.map((notification, index) => (
+            <span key={index} className="notification-item">
+              {notification}
+            </span>
+          ))}
+        </div>
+      </div>
+      
       <div className="stat-row">
         <span>姓名: {player.name}</span>
         <span>{getJobLevelDisplay(player.level, player.experience)}</span>
