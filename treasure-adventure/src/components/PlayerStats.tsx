@@ -23,10 +23,6 @@ const PlayerStats: React.FC = () => {
     "🐾 宠物系统即将上线！"
   ];
   
-  useEffect(()=>{
-    console.log("player.stamina",player.stamina);
-    
-  },[player])
   // 确保体力属性存在
   // React.useEffect(() => {
   //   if (player.stamina === undefined || player.maxStamina === undefined || player.lastStaminaTime === undefined) {
