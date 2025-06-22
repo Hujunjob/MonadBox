@@ -18,9 +18,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('stats');
   const { currentBattle, updatePlayer, player } = useGameStore();
   const { address, isConnected } = useAccount();
-  // const connectedUsers = []
   const connectedUsers = useConnectedUsers()
-  const [nickname, setNickname, allNicknames] = useNicknames()
+  const [nickname, setNickname] = useNicknames()
   const [showNamingModal, setShowNamingModal] = useState(false);
   const [userNameInput, setUserNameInput] = useState('');
   const [hasCheckedNickname, setHasCheckedNickname] = useState(false);

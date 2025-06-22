@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { GAME_CONFIG } from '../config/gameConfig';
+import { useToast } from './ToastManager';
 
 const OfflineRewardsModal: React.FC = () => {
   const { player } = useGameStore();
+  const { showToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [offlineRewards, setOfflineRewards] = useState<{
     boxes: number;
@@ -34,10 +36,13 @@ const OfflineRewardsModal: React.FC = () => {
   }, []); // 空依赖数组，只在首次挂载时执行
 
   const handleClaimRewards = () => {
-    const { calculateOfflineRewards } = useGameStore.getState();
-    calculateOfflineRewards();
-    setShowModal(false);
-    setOfflineRewards(null);
+    if (offlineRewards) {
+      const { calculateOfflineRewards } = useGameStore.getState();
+      calculateOfflineRewards();
+      showToast(`🎁 成功领取了 ${offlineRewards.boxes} 个离线宝箱！`, 'success');
+      setShowModal(false);
+      setOfflineRewards(null);
+    }
   };
 
   if (!showModal || !offlineRewards) return null;

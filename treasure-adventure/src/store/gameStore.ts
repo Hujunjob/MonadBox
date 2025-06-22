@@ -20,10 +20,9 @@ interface GameStore extends GameState {
   updateActionBars: () => void;
   openTreasureBox: () => void;
   addTreasureBox: (boxLevel?: number) => void;
-  claimTreasureBox: () => number; // 新增：手动领取宝箱，返回领取数量
-  getClaimableTreasureBoxCount: () => number; // 新增：获取可领取宝箱数量
+  claimTreasureBox: () => number;
+  getClaimableTreasureBoxCount: () => number;
   unlockNextForestLevel: () => void;
-  incrementGameTime: () => void;
   calculateOfflineRewards: () => void;
   upgradeEquipment: (equipmentId: string, count: number) => void;
   upgradeEquipmentStars: (equipmentId: string) => Promise<{ success: boolean; newStars: number; message: string }>;
@@ -672,18 +671,6 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
-      incrementGameTime: () => {
-        set((state) => {
-          const newTime = state.gameTime + 1;
-          
-          // 更新体力
-          get().updateStamina();
-          
-          return { 
-            gameTime: newTime
-          };
-        });
-      },
 
       // 获取可领取宝箱数量
       getClaimableTreasureBoxCount: () => {
@@ -1112,134 +1099,11 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'treasure-adventure-game',
-      version: 6,
       partialize: (state) => ({
         player: state.player,
         forestLevels: state.forestLevels,
         gameTime: state.gameTime
       }),
-      migrate: (persistedState: any, version: number) => {
-        if (version < 2) {
-          // 迁移到版本2：添加暴击属性
-          if (persistedState.player) {
-            persistedState.player.criticalRate = persistedState.player.criticalRate || 5;
-            persistedState.player.criticalDamage = persistedState.player.criticalDamage || 150;
-          }
-        }
-        if (version < 3) {
-          // 迁移到版本3：添加体力属性
-          if (persistedState.player) {
-            persistedState.player.stamina = persistedState.player.stamina || 24;
-            persistedState.player.maxStamina = persistedState.player.maxStamina || 24;
-            persistedState.player.lastStaminaTime = persistedState.player.lastStaminaTime || Math.floor(Date.now() / 1000);
-            
-            // 确保equipment对象正确初始化
-            if (!persistedState.player.equipment || typeof persistedState.player.equipment !== 'object') {
-              persistedState.player.equipment = {
-                helmet: undefined,
-                armor: undefined,
-                shoes: undefined,
-                weapon: undefined,
-                shield: undefined,
-                accessory: undefined
-              };
-            } else {
-              // 确保所有槽位都存在
-              const equipment = persistedState.player.equipment;
-              equipment.helmet = equipment.helmet || undefined;
-              equipment.armor = equipment.armor || undefined;
-              equipment.shoes = equipment.shoes || undefined;
-              equipment.weapon = equipment.weapon || undefined;
-              equipment.shield = equipment.shield || undefined;
-              equipment.accessory = equipment.accessory || undefined;
-            }
-          }
-        }
-        if (version < 4) {
-          // 迁移到版本4：修复equipment初始化问题
-          if (persistedState.player) {
-            // 重新初始化equipment对象以确保正确结构
-            if (!persistedState.player.equipment || typeof persistedState.player.equipment !== 'object') {
-              persistedState.player.equipment = {
-                helmet: undefined,
-                armor: undefined,
-                shoes: undefined,
-                weapon: undefined,
-                shield: undefined,
-                accessory: undefined
-              };
-            }
-          }
-        }
-        if (version < 5) {
-          // 迁移到版本5：宝箱系统升级（number -> 数组）和装备星级系统
-          if (persistedState.player) {
-            // 迁移treasureBoxes从number到数组
-            if (typeof persistedState.player.treasureBoxes === 'number') {
-              const boxCount = persistedState.player.treasureBoxes;
-              persistedState.player.treasureBoxes = [];
-              for (let i = 0; i < boxCount; i++) {
-                persistedState.player.treasureBoxes.push({
-                  id: `migrated_box_${i}`,
-                  level: 1 // 旧宝箱默认为1级
-                });
-              }
-            }
-            
-            // 为现有装备添加stars属性
-            if (persistedState.player.inventory) {
-              persistedState.player.inventory = persistedState.player.inventory.map((item: any) => {
-                if (item.type === 'equipment' && item.stars === undefined) {
-                  return { ...item, stars: 0 };
-                }
-                return item;
-              });
-            }
-            
-            // 为已装备的装备添加stars属性
-            if (persistedState.player.equipment) {
-              Object.keys(persistedState.player.equipment).forEach(slot => {
-                const item = persistedState.player.equipment[slot];
-                if (item && item.stars === undefined) {
-                  persistedState.player.equipment[slot] = { ...item, stars: 0 };
-                }
-              });
-            }
-            
-            // 为血瓶添加level属性并更新名称
-            if (persistedState.player.inventory) {
-              persistedState.player.inventory = persistedState.player.inventory.map((item: any) => {
-                if (item.type === 'health_potion') {
-                  const level = item.level || 1;
-                  return { 
-                    ...item, 
-                    level: level,
-                    name: `${level}级血瓶`, // 统一名称格式
-                    effect: item.effect || { type: 'heal', value: 50 + (level - 1) * 25 } // 确保效果值正确
-                  };
-                }
-                return item;
-              });
-            }
-          }
-        }
-        if (version < 6) {
-          // 迁移到版本6：添加职业系统
-          if (persistedState.player) {
-            // 删除job和canGainExperience字段，它们现在通过计算得到
-            delete persistedState.player.job;
-            delete persistedState.player.canGainExperience;
-            
-            // 添加戒指装备槽
-            if (persistedState.player.equipment) {
-              if (!persistedState.player.equipment.ring) {
-                persistedState.player.equipment.ring = undefined;
-              }
-            }
-          }
-        }
-        return persistedState;
-      },
       // 确保在hydration完成后才开始使用
       skipHydration: false,
     }
