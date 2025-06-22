@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
+import { useHybridGameStore } from '../store/web3GameStore';
 import { generateRandomEquipment, generateHealthPotion, generatePetEgg, generateJobAdvancementBook, generateRewardLevel, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
 import TreasureBoxTimer from './TreasureBoxTimer';
@@ -8,13 +9,32 @@ import { useStateTogetherWithPerUserValues } from 'react-together'
 
 const TreasureBox: React.FC = () => {
   const { player, gainGold, updatePlayer } = useGameStore();
+  const hybridStore = useHybridGameStore();
   const [openingBox, setOpeningBox] = useState(false);
   const [showSelection, setShowSelection] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [isClosing, setIsClosing] = useState(false);
   // const [boxCount, setBoxCount, countPerUser] = useStateTogetherWithPerUserValues('treasure-box', 0)
 
-  const handleOpenBox = () => {
+  const handleOpenBox = async () => {
+    if (hybridStore.isWeb3Mode) {
+      // Web3模式：调用智能合约开箱
+      if (hybridStore.treasureBoxCount <= 0 || openingBox) return;
+      
+      setOpeningBox(true);
+      try {
+        // 调用Web3开箱函数（openTreasureBox函数需要从hybridStore中获取）
+        // 暂时使用索引0，后续可以改进为具体的宝箱索引
+        await hybridStore.openTreasureBox?.(0);
+      } catch (error) {
+        console.error('Web3开箱失败:', error);
+      } finally {
+        setOpeningBox(false);
+      }
+      return;
+    }
+
+    // 本地模式：原有逻辑
     const currentBoxes = Array.isArray(player.treasureBoxes) ? player.treasureBoxes : [];
     if (currentBoxes.length <= 0 || openingBox) return;
 

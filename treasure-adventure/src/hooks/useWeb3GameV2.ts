@@ -1,8 +1,13 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { useToast } from '../components/ToastManager';
 import { useSafeContractCall } from './useSafeContractCall';
-import { useSimulateContract } from 'wagmi';
 import { useState, useEffect } from 'react';
+import { 
+  useRegisterPlayerSimulation,
+  useCompleteBattleSimulation,
+  useClaimOfflineTreasureBoxesSimulation,
+  useOpenTreasureBoxSimulation
+} from './useContractSimulationV2';
 
 // 合约地址（从部署信息中获取）
 const CONTRACTS = {
@@ -167,7 +172,40 @@ export function useWeb3GameV2() {
     query: { enabled: !!address && isConnected },
   });
 
-  // 移除复杂的模拟调用hooks，改为在函数内部使用
+  // 状态管理为模拟调用参数
+  const [simulationParams, setSimulationParams] = useState<{
+    registerPlayer?: { address: string; name: string; enabled: boolean };
+    completeBattle?: { playerId: number; experienceGained: number; staminaCost: number; victory: boolean; monsterLevel: number; enabled: boolean };
+    claimTreasureBoxes?: { address: string; enabled: boolean };
+    openTreasureBox?: { address: string; boxIndex: number; enabled: boolean };
+  }>({});
+
+  // 模拟调用hooks
+  const registerPlayerSim = useRegisterPlayerSimulation(
+    simulationParams.registerPlayer?.address || '',
+    simulationParams.registerPlayer?.name || '',
+    simulationParams.registerPlayer?.enabled || false
+  );
+
+  const completeBattleSim = useCompleteBattleSimulation(
+    simulationParams.completeBattle?.playerId || 0,
+    simulationParams.completeBattle?.experienceGained || 0,
+    simulationParams.completeBattle?.staminaCost || 1,
+    simulationParams.completeBattle?.victory || true,
+    simulationParams.completeBattle?.monsterLevel || 1,
+    simulationParams.completeBattle?.enabled || false
+  );
+
+  const claimTreasureBoxesSim = useClaimOfflineTreasureBoxesSimulation(
+    simulationParams.claimTreasureBoxes?.address || '',
+    simulationParams.claimTreasureBoxes?.enabled || false
+  );
+
+  const openTreasureBoxSim = useOpenTreasureBoxSimulation(
+    simulationParams.openTreasureBox?.address || '',
+    simulationParams.openTreasureBox?.boxIndex || 0,
+    simulationParams.openTreasureBox?.enabled || false
+  );
 
   // 更新当前玩家ID
   useEffect(() => {
@@ -188,7 +226,15 @@ export function useWeb3GameV2() {
       return;
     }
 
-    // 暂时跳过模拟验证，直接调用合约
+    // 启用模拟调用验证
+    setSimulationParams(prev => ({
+      ...prev,
+      registerPlayer: { address, name, enabled: true }
+    }));
+
+    // 等待一个微任务让hook更新
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
     await safeCall(
       {
         address: CONTRACTS.PLAYER_NFT,
@@ -196,13 +242,19 @@ export function useWeb3GameV2() {
         functionName: 'mintPlayer',
         args: [address, name],
       },
-      { data: true, isLoading: false, error: null }, // 跳过模拟验证
+      registerPlayerSim,
       {
         loadingMessage: '🔍 正在注册玩家...',
         successMessage: '✅ 玩家注册成功！',
         errorMessage: '❌ 注册失败'
       }
     );
+
+    // 重置模拟参数
+    setSimulationParams(prev => ({
+      ...prev,
+      registerPlayer: { address: '', name: '', enabled: false }
+    }));
   };
 
   // 完成战斗
@@ -217,6 +269,15 @@ export function useWeb3GameV2() {
       return;
     }
 
+    // 启用模拟调用验证
+    setSimulationParams(prev => ({
+      ...prev,
+      completeBattle: { playerId: currentPlayerId, experienceGained, staminaCost, victory, monsterLevel, enabled: true }
+    }));
+
+    // 等待一个微任务让hook更新
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     await safeCall(
       {
         address: CONTRACTS.BATTLE_SYSTEM,
@@ -224,21 +285,36 @@ export function useWeb3GameV2() {
         functionName: 'completeBattle',
         args: [BigInt(currentPlayerId), experienceGained, staminaCost, victory, monsterLevel],
       },
-      { data: true, isLoading: false, error: null }, // 跳过模拟验证
+      completeBattleSim,
       {
         loadingMessage: '⚔️ 正在处理战斗...',
         successMessage: '✅ 战斗结果已上链！',
         errorMessage: '❌ 战斗失败'
       }
     );
+
+    // 重置模拟参数
+    setSimulationParams(prev => ({
+      ...prev,
+      completeBattle: { playerId: 0, experienceGained: 0, staminaCost: 1, victory: true, monsterLevel: 1, enabled: false }
+    }));
   };
 
   // 领取离线宝箱
   const claimTreasureBoxes = async () => {
-    if (!isConnected) {
+    if (!isConnected || !address) {
       showToast('请先连接钱包', 'error');
       return;
     }
+
+    // 启用模拟调用验证
+    setSimulationParams(prev => ({
+      ...prev,
+      claimTreasureBoxes: { address, enabled: true }
+    }));
+
+    // 等待一个微任务让hook更新
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     await safeCall(
       {
@@ -246,18 +322,24 @@ export function useWeb3GameV2() {
         abi: TREASURE_BOX_ABI,
         functionName: 'claimOfflineTreasureBoxes',
       },
-      { data: true, isLoading: false, error: null }, // 跳过模拟验证
+      claimTreasureBoxesSim,
       {
         loadingMessage: '📦 正在领取宝箱...',
         successMessage: '✅ 宝箱领取成功！',
         errorMessage: '❌ 宝箱领取失败'
       }
     );
+
+    // 重置模拟参数
+    setSimulationParams(prev => ({
+      ...prev,
+      claimTreasureBoxes: { address: '', enabled: false }
+    }));
   };
 
   // 开启宝箱
   const openTreasureBox = async (boxIndex: number) => {
-    if (!isConnected) {
+    if (!isConnected || !address) {
       showToast('请先连接钱包', 'error');
       return;
     }
@@ -267,6 +349,15 @@ export function useWeb3GameV2() {
       return;
     }
 
+    // 启用模拟调用验证
+    setSimulationParams(prev => ({
+      ...prev,
+      openTreasureBox: { address, boxIndex, enabled: true }
+    }));
+
+    // 等待一个微任务让hook更新
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     await safeCall(
       {
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
@@ -274,13 +365,19 @@ export function useWeb3GameV2() {
         functionName: 'openTreasureBox',
         args: [BigInt(boxIndex)],
       },
-      { data: true, isLoading: false, error: null }, // 跳过模拟验证
+      openTreasureBoxSim,
       {
         loadingMessage: '🎁 正在开启宝箱...',
         successMessage: '✅ 宝箱开启成功！',
         errorMessage: '❌ 开箱失败'
       }
     );
+
+    // 重置模拟参数
+    setSimulationParams(prev => ({
+      ...prev,
+      openTreasureBox: { address: '', boxIndex: 0, enabled: false }
+    }));
   };
 
   // 监听交易确认

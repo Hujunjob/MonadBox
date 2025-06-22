@@ -20,7 +20,8 @@
       "Bash(kill:*)",
       "Bash(git check-ignore:*)",
       "Bash(npm start)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }

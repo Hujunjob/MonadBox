@@ -19,7 +19,7 @@ interface Web3GameState {
   // 操作队列（用于离线时缓存操作）
   pendingOperations: Array<{
     id: string;
-    type: 'battle' | 'claimBox' | 'equipItem';
+    type: 'battle' | 'claimBox' | 'openBox' | 'equipItem';
     data: any;
     timestamp: number;
   }>;
@@ -162,6 +162,18 @@ export function useHybridGameStore() {
     }
   };
 
+  // 混合模式下的开启宝箱
+  const openTreasureBox = async (boxIndex: number) => {
+    if (web3Store.isWeb3Mode && web3Game.isPlayerRegistered) {
+      await web3Game.openTreasureBox(boxIndex);
+    } else {
+      web3Store.addPendingOperation({
+        type: 'openBox',
+        data: { boxIndex }
+      });
+    }
+  };
+
   return {
     // 状态
     isWeb3Mode: web3Store.isWeb3Mode,
@@ -177,6 +189,7 @@ export function useHybridGameStore() {
     registerPlayer: web3Game.registerPlayer,
     completeBattle,
     claimTreasureBoxes,
+    openTreasureBox,
     updateStamina: () => {}, // 新架构中体力自动恢复
     syncWithBlockchain: web3Store.syncWithBlockchain,
     
