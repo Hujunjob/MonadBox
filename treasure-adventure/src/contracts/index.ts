@@ -1,12 +1,12 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/hardhat/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0' as `0x${string}`,
-  EQUIPMENT_NFT: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as `0x${string}`,
-  GOLD_TOKEN: '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' as `0x${string}`,
-  BATTLE_SYSTEM: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707' as `0x${string}`
+  PLAYER_NFT: '0x4A679253410272dd5232B3Ff7cF5dbB88f295319' as `0x${string}`,
+  EQUIPMENT_NFT: '0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f' as `0x${string}`,
+  GOLD_TOKEN: '0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F' as `0x${string}`,
+  BATTLE_SYSTEM: '0x09635F643e140090A9A8Dcd712eD6285858ceBef' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0xc5a5C42992dECbae36851359345FE25997F5C42d' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -15,6 +15,24 @@ export const CONTRACT_ADDRESSES = {
 
 // Player 合约 ABI
 export const PLAYER_NFT_ABI = [
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "equipmentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "addEquipmentToInventory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
   {
     "inputs": [
       {
@@ -277,9 +295,9 @@ export const PLAYER_NFT_ABI = [
             "type": "uint16"
           },
           {
-            "internalType": "uint32",
+            "internalType": "uint256",
             "name": "lastTreasureBoxTime",
-            "type": "uint32"
+            "type": "uint256"
           },
           {
             "internalType": "bool",
@@ -290,11 +308,59 @@ export const PLAYER_NFT_ABI = [
             "internalType": "uint8",
             "name": "job",
             "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "goldBalance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "inventory",
+            "type": "uint256[]"
           }
         ],
         "internalType": "struct GameStructs.Player",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPlayerGold",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPlayerInventory",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
       }
     ],
     "stateMutability": "view",
@@ -334,6 +400,43 @@ export const PLAYER_NFT_ABI = [
         "internalType": "uint16",
         "name": "totalCritDamage",
         "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "goldToken",
+    "outputs": [
+      {
+        "internalType": "contract AdventureGold",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "equipmentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "hasEquipmentInInventory",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -559,9 +662,9 @@ export const PLAYER_NFT_ABI = [
         "type": "uint16"
       },
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "lastTreasureBoxTime",
-        "type": "uint32"
+        "type": "uint256"
       },
       {
         "internalType": "bool",
@@ -572,6 +675,11 @@ export const PLAYER_NFT_ABI = [
         "internalType": "uint8",
         "name": "job",
         "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "goldBalance",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -593,6 +701,29 @@ export const PLAYER_NFT_ABI = [
         "type": "uint256"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "equipmentId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "removeEquipmentFromInventory",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -717,6 +848,19 @@ export const PLAYER_NFT_ABI = [
       }
     ],
     "name": "unequipItem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateLastTreasureBoxTime",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1387,25 +1531,6 @@ export const TREASURE_BOX_SYSTEM_ABI = [
         "internalType": "contract AdventureGold",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "lastOfflineBoxTime",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",

@@ -4,10 +4,12 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./GameStructs.sol";
 import "./GameConfig.sol";
 import "./Equipment.sol";
+import "./AdventureGold.sol";
 
 /**
  * @title Player
@@ -19,14 +21,16 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     // 玩家数据存储
     mapping(uint256 => GameStructs.Player) public players;
     
-    // 装备槽存储 (Player NFT ID => Equipment NFT ID)
-    mapping(uint256 => mapping(uint8 => uint256)) public equippedItems; // slot => tokenId
+    // 装备槽存储 (Player NFT ID => Equipment ID)
+    mapping(uint256 => mapping(uint8 => uint256)) public equippedItems; // slot => equipmentId
     
     // 装备类型槽位映射
     mapping(uint8 => uint8) public equipmentTypeToSlot; // equipmentType => slot
     
+    
     uint256 private _nextTokenId;
     Equipment public equipmentNFT;
+    AdventureGold public goldToken;
     
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
@@ -43,9 +47,13 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     event EquipmentUnequipped(uint256 indexed playerId, uint256 indexed equipmentId, uint8 slot);
     event PlayerLevelUp(uint256 indexed playerId, uint16 newLevel, uint16 oldLevel);
     event StaminaUpdated(uint256 indexed playerId, uint8 newStamina);
+    event GoldAdded(uint256 indexed playerId, uint256 amount);
+    event EquipmentAddedToInventory(uint256 indexed playerId, uint256 equipmentId);
+    event EquipmentRemovedFromInventory(uint256 indexed playerId, uint256 equipmentId);
     
-    constructor(address _equipmentNFT) ERC721("Adventure Player", "PLAYER") Ownable(msg.sender) {
+    constructor(address _equipmentNFT, address _goldToken) ERC721("Adventure Player", "PLAYER") Ownable(msg.sender) {
         equipmentNFT = Equipment(_equipmentNFT);
+        goldToken = AdventureGold(_goldToken);
         _nextTokenId = 1;
         
         // 设置装备类型到槽位的映射
@@ -98,9 +106,11 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
             lastStaminaTime: uint32(block.timestamp),
             currentForestLevel: 1,
             currentForestProgress: 0,
-            lastTreasureBoxTime: uint32(block.timestamp),
+            lastTreasureBoxTime: (block.timestamp),
             initialized: true,
-            job: 0
+            job: 0,
+            goldBalance: 0,
+            inventory: new uint256[](0)
         });
         
         emit PlayerMinted(to, playerId, name);
@@ -108,12 +118,13 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     }
     
     /**
-     * @dev 装备道具（接收Equipment NFT）
+     * @dev 装备道具（从Player NFT背包装备）
      * @param equipmentId Equipment NFT ID
      */
     function equipItem(uint256 playerId, uint256 equipmentId) external {
         require(ownerOf(playerId) == msg.sender, "Not your player");
-        require(equipmentNFT.ownerOf(equipmentId) == msg.sender, "Not your equipment");
+        require(_hasEquipmentInInventory(playerId, equipmentId), "Equipment not in inventory");
+        require(equipmentNFT.ownerOf(equipmentId) == address(this), "Equipment not owned by Player NFT");
         
         // 获取装备类型和对应槽位
         Equipment.EquipmentData memory equipData = equipmentNFT.getEquipment(equipmentId);
@@ -125,8 +136,7 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
             _unequipItem(playerId, slot);
         }
         
-        // 装备新道具（转移NFT到Player合约）
-        equipmentNFT.safeTransferFrom(msg.sender, address(this), equipmentId);
+        // 装备新道具（装备已在Player合约中）
         equippedItems[playerId][slot] = equipmentId;
         
         emit EquipmentEquipped(playerId, equipmentId, slot);
@@ -146,16 +156,13 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     }
     
     /**
-     * @dev 内部卸装备函数
+     * @dev 内部卸装备函数（装备回到背包）
      */
     function _unequipItem(uint256 playerId, uint8 slot) internal {
         uint256 equipmentId = equippedItems[playerId][slot];
         require(equipmentId != 0, "No equipment in this slot");
         
-        address playerOwner = ownerOf(playerId);
-        
-        // 转移装备NFT回给玩家
-        equipmentNFT.safeTransferFrom(address(this), playerOwner, equipmentId);
+        // 装备回到背包（装备仍在Player合约中）
         equippedItems[playerId][slot] = 0;
         
         emit EquipmentUnequipped(playerId, equipmentId, slot);
@@ -393,6 +400,116 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
         super._increaseBalance(account, value);
     }
     
+    /**
+     * @dev 添加金币到玩家NFT（记录余额，实际金币由Player NFT合约持有）
+     */
+    function addGold(uint256 playerId, uint256 amount) external onlyAuthorizedOrOwner {
+        GameStructs.Player storage player = players[playerId];
+        require(player.initialized, "Player not exists");
+        
+        player.goldBalance += amount;
+        emit GoldAdded(playerId, amount);
+    }
+    
+    /**
+     * @dev 消耗玩家金币（从余额和Player NFT合约中转移金币）
+     */
+    function spendGold(uint256 playerId, uint256 amount, address to) external onlyAuthorizedOrOwner {
+        GameStructs.Player storage player = players[playerId];
+        require(player.initialized, "Player not exists");
+        require(player.goldBalance >= amount, "Insufficient gold");
+        
+        player.goldBalance -= amount;
+        goldToken.transfer(to, amount);
+    }
+    
+    
+    /**
+     * @dev 添加装备到玩家NFT背包
+     */
+    function addEquipmentToInventory(uint256 playerId, uint256 equipmentId) external onlyAuthorizedOrOwner {
+        GameStructs.Player storage player = players[playerId];
+        require(player.initialized, "Player not exists");
+        require(equipmentNFT.ownerOf(equipmentId) == address(this), "Equipment not owned by Player NFT");
+        
+        player.inventory.push(equipmentId);
+        emit EquipmentAddedToInventory(playerId, equipmentId);
+    }
+    
+    /**
+     * @dev 从玩家NFT背包移除装备并转移给玩家
+     */
+    function removeEquipmentFromInventory(uint256 playerId, uint256 equipmentId, address to) external onlyAuthorizedOrOwner {
+        GameStructs.Player storage player = players[playerId];
+        require(player.initialized, "Player not exists");
+        require(ownerOf(playerId) == to, "Not player owner");
+        
+        // 查找并移除装备
+        for (uint256 i = 0; i < player.inventory.length; i++) {
+            if (player.inventory[i] == equipmentId) {
+                // 将最后一个元素移到当前位置，然后删除最后一个元素
+                player.inventory[i] = player.inventory[player.inventory.length - 1];
+                player.inventory.pop();
+                
+                // 转移装备NFT给玩家
+                equipmentNFT.safeTransferFrom(address(this), to, equipmentId);
+                
+                emit EquipmentRemovedFromInventory(playerId, equipmentId);
+                return;
+            }
+        }
+        revert("Equipment not found in inventory");
+    }
+    
+    /**
+     * @dev 获取玩家金币余额
+     */
+    function getPlayerGold(uint256 playerId) external view returns (uint256) {
+        require(players[playerId].initialized, "Player not exists");
+        return players[playerId].goldBalance;
+    }
+    
+    /**
+     * @dev 获取玩家背包装备
+     */
+    function getPlayerInventory(uint256 playerId) external view returns (uint256[] memory) {
+        require(players[playerId].initialized, "Player not exists");
+        return players[playerId].inventory;
+    }
+    
+    /**
+     * @dev 检查玩家是否拥有特定装备（内部函数）
+     */
+    function _hasEquipmentInInventory(uint256 playerId, uint256 equipmentId) internal view returns (bool) {
+        if (!players[playerId].initialized) return false;
+        
+        uint256[] memory inventory = players[playerId].inventory;
+        for (uint256 i = 0; i < inventory.length; i++) {
+            if (inventory[i] == equipmentId) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * @dev 检查玩家是否拥有特定装备（外部函数）
+     */
+    function hasEquipmentInInventory(uint256 playerId, uint256 equipmentId) external view returns (bool) {
+        return _hasEquipmentInInventory(playerId, equipmentId);
+    }
+    
+    /**
+     * @dev 更新宝箱时间
+     */
+    function updateLastTreasureBoxTime(uint256 playerId) external onlyAuthorizedOrOwner {
+        GameStructs.Player storage player = players[playerId];
+        require(player.initialized, "Player not exists");
+        
+        player.lastTreasureBoxTime = block.timestamp;
+    }
+    
+
     /**
      * @dev 重写supportsInterface函数
      */

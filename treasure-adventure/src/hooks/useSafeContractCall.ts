@@ -8,19 +8,47 @@ import { useToast } from '../components/ToastManager';
  */
 export function useSafeContractCall() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({ hash });
+  const { 
+    isLoading: isConfirming, 
+    isSuccess: isConfirmed, 
+    data: receipt,
+    error: receiptError
+  } = useWaitForTransactionReceipt({ 
+    hash,
+    query: {
+      enabled: !!hash, // 只有当有hash时才开始监听
+    }
+  });
   const { showToast } = useToast();
   const [isSimulating, setIsSimulating] = useState(false);
   const [currentOnSuccess, setCurrentOnSuccess] = useState<((receipt: any) => void) | null>(null);
 
   // 监听交易确认并触发成功回调
   useEffect(() => {
+    console.log('交易状态变化:', { 
+      hash,
+      isConfirmed, 
+      isConfirming,
+      hasReceipt: !!receipt, 
+      hasCallback: !!currentOnSuccess,
+      receiptError,
+      receipt 
+    });
+    
+    // 只有在交易确认且有收据且有回调的情况下才调用
     if (isConfirmed && receipt && currentOnSuccess) {
-      console.log('交易确认成功，触发成功回调');
+      console.log('交易确认成功，触发成功回调，receipt:', receipt);
       currentOnSuccess(receipt);
       setCurrentOnSuccess(null); // 清除回调避免重复调用
+    } else if (isConfirmed && !receipt && currentOnSuccess) {
+      console.error('⚠️ 交易确认但收据为空，这不应该发生');
+      console.log('等待收据数据...', { receiptError });
     }
-  }, [isConfirmed, receipt, currentOnSuccess]);
+    
+    if (receiptError) {
+      console.error('获取交易收据时出错:', receiptError);
+    }
+  }, [isConfirmed, isConfirming, receipt, currentOnSuccess, hash, receiptError]);
 
   const safeCall = async (
     contractConfig: any,
@@ -43,7 +71,7 @@ export function useSafeContractCall() {
       showToast(loadingMessage, 'info');
       
       // 保存成功回调
-      setCurrentOnSuccess(onSuccess || null);
+      setCurrentOnSuccess(() => onSuccess || null);
 
       // 如果没有提供模拟调用，直接执行（跳过验证）
       if (!simulationHook) {

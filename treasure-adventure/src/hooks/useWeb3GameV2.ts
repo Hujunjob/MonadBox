@@ -2,6 +2,7 @@ import { useAccount, useReadContract } from 'wagmi';
 import { useToast } from '../components/ToastManager';
 import { useSafeContractCall } from './useSafeContractCall';
 import { useState, useEffect } from 'react';
+import { decodeEventLog } from 'viem';
 import { 
   CONTRACT_ADDRESSES,
   PLAYER_NFT_ABI,
@@ -258,6 +259,68 @@ export function useWeb3GameV2() {
     return 0; // 如果没有找到未开启的宝箱，返回0
   };
 
+  // 解析宝箱开启事件
+  const parseTreasureBoxEvent = (receipt: any) => {
+    if (!receipt || !receipt.logs) {
+      console.error('收据为空或没有日志:', receipt);
+      return null;
+    }
+    
+    try {
+      for (const log of receipt.logs) {
+        try {
+          const decodedLog = decodeEventLog({
+            abi: TREASURE_BOX_SYSTEM_ABI,
+            data: log.data,
+            topics: log.topics,
+          });
+          
+          if (decodedLog.eventName === 'TreasureBoxOpened') {
+            const {
+              playerId,
+              boxIndex,
+              rewardType,
+              goldAmount,
+              equipmentIds,
+              itemId,
+              itemName,
+              itemLevel,
+              healAmount
+            } = decodedLog.args as any;
+            
+            console.log('解析到宝箱开启事件:', {
+              playerId: playerId.toString(),
+              boxIndex: boxIndex.toString(),
+              rewardType: rewardType.toString(),
+              goldAmount: goldAmount.toString(),
+              equipmentIds: equipmentIds.map((id: any) => id.toString()),
+              itemId: itemId.toString(),
+              itemName,
+              itemLevel: itemLevel.toString(),
+              healAmount: healAmount.toString()
+            });
+            
+            return {
+              rewardType: Number(rewardType),
+              goldAmount: goldAmount.toString(),
+              equipmentIds: equipmentIds.map((id: any) => id.toString()),
+              itemId: itemId.toString(),
+              itemName: itemName,
+              itemLevel: Number(itemLevel),
+              healAmount: healAmount.toString()
+            };
+          }
+        } catch (parseError) {
+          // 忽略无法解析的日志
+          continue;
+        }
+      }
+    } catch (error) {
+      console.error('解析事件失败:', error);
+    }
+    return null;
+  };
+
   // 开启宝箱
   const openTreasureBox = async (boxIndex?: number, onReward?: (reward: any) => void) => {
     if (!isConnected || !currentPlayerId) {
@@ -285,14 +348,61 @@ export function useWeb3GameV2() {
       undefined,
       {
         loadingMessage: '🎁 正在开启宝箱...',
-        successMessage: '✅ 宝箱开启成功！获得了奖励！',
+        successMessage: '✅ 宝箱开启成功！',
         errorMessage: '❌ 开箱失败',
-        onSuccess: () => {
-          // 这里应该从交易事件中解析奖励，但为了简化，我们先显示一个通用消息
-          if (onReward) {
+        onSuccess: (receipt: any) => {
+          console.log('开箱onSuccess被调用，receipt:', receipt);
+          
+          // 确保收据存在且有效
+          if (!receipt) {
+            console.error('收据为空，无法解析奖励');
+            if (onReward) {
+              onReward({
+                type: 'Web3',
+                description: '宝箱开启成功！请查看你的金币和装备余额。'
+              });
+            }
+            return;
+          }
+          
+          // 解析交易事件获取实际奖励
+          const rewardData = parseTreasureBoxEvent(receipt);
+          
+          if (onReward && rewardData) {
+            // 根据奖励类型构造详细的奖励信息
+            let rewardDescription = '';
+            let rewardType = 'Web3';
+            
+            switch (rewardData.rewardType) {
+              case 0: // 金币
+                rewardDescription = `获得 ${Number(rewardData.goldAmount) / 1e18} 金币！`;
+                break;
+              case 1: // 装备
+                rewardDescription = `获得 Lv.${rewardData.itemLevel} 装备！`;
+                break;
+              case 2: // 血瓶
+                rewardDescription = `获得 ${rewardData.itemName}！可恢复 ${rewardData.healAmount} 血量`;
+                break;
+              case 3: // 宠物蛋
+                rewardDescription = `获得 ${rewardData.itemName}！`;
+                break;
+              case 4: // 转职书
+                rewardDescription = `获得 ${rewardData.itemName}！`;
+                break;
+              default:
+                rewardDescription = '获得神秘奖励！';
+            }
+            
             onReward({
-              type: 'success',
-              message: '恭喜获得奖励！请查看你的金币和装备余额。'
+              type: rewardType,
+              description: rewardDescription,
+              rewardData: rewardData
+            });
+          } else if (onReward) {
+            // 如果无法解析事件，显示通用消息
+            onReward({
+              type: 'Web3',
+              description: '恭喜获得奖励！请查看你的金币和装备余额。'
             });
           }
         }
@@ -348,7 +458,9 @@ export function useWeb3GameV2() {
 
   // 监听交易确认
   useEffect(() => {
+    console.log('useWeb3GameV2 - 交易状态变化:', { isConfirmed, isConfirming, isPending });
     if (isConfirmed) {
+      console.log('useWeb3GameV2 - 交易确认成功，开始刷新数据');
       showToast('交易确认成功！', 'success');
       // 刷新数据
       refetchPlayer();
@@ -362,7 +474,7 @@ export function useWeb3GameV2() {
       refetchEquippedItems();
       refetchPlayerTreasureBoxes();
     }
-  }, [isConfirmed, refetchPlayer, refetchGold, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquipmentBalance, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
+  }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchGold, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquipmentBalance, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
 
   // 转换Player数据为前端格式，确保所有字段都有默认值
   const convertedPlayerData = {

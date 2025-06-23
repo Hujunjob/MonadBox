@@ -36,7 +36,6 @@ contract TreasureBoxSystem is Ownable {
 
     // 玩家宝箱存储（改为基于playerId）
     mapping(uint256 => TreasureBox[]) public playerTreasureBoxes;
-    mapping(uint256 => uint256) public lastOfflineBoxTime;
 
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
@@ -134,18 +133,19 @@ contract TreasureBoxSystem is Ownable {
     function claimOfflineTreasureBoxesForPlayer(
         uint256 playerId
     ) public onlyAuthorizedOrOwner returns (uint256) {
-        uint256 timeSinceLastBox = (block.timestamp) -
-            lastOfflineBoxTime[playerId];
-        uint256 boxesToClaim = 
-            timeSinceLastBox / GameConfig.TREASURE_BOX_INTERVAL
-        ;
+        // 获取Player NFT中的lastTreasureBoxTime
+        GameStructs.Player memory player = playerNFT.getPlayer(playerId);
+        
+        uint256 timeSinceLastBox = block.timestamp - player.lastTreasureBoxTime;
+        uint256 boxesToClaim = timeSinceLastBox / GameConfig.TREASURE_BOX_INTERVAL;
 
         if (boxesToClaim > GameConfig.MAX_OFFLINE_BOXES) {
             boxesToClaim = GameConfig.MAX_OFFLINE_BOXES;
         }
 
         if (boxesToClaim > 0) {
-            lastOfflineBoxTime[playerId] = (block.timestamp);
+            // 更新Player NFT中的lastTreasureBoxTime
+            playerNFT.updateLastTreasureBoxTime(playerId);
 
             // 添加离线宝箱 (等级1-3的普通宝箱)
             for (uint8 i = 0; i < boxesToClaim; i++) {
@@ -196,16 +196,17 @@ contract TreasureBoxSystem is Ownable {
         // 生成奖励
         BoxReward memory reward = _generateReward(box.level, box.rarity);
 
-        // 发放金币奖励
+        // 发放金币奖励到Player NFT合约
         if (reward.goldAmount > 0) {
-            goldToken.mint(msg.sender, reward.goldAmount);
+            goldToken.mint(address(playerNFT), reward.goldAmount);
+            playerNFT.addGold(playerId, reward.goldAmount);
         }
 
-        // 发放装备奖励
+        // 发放装备奖励到Player NFT合约
         if (reward.equipmentIds.length > 0) {
             for (uint256 i = 0; i < reward.equipmentIds.length; i++) {
-                // 实际铸造装备NFT
-                reward.equipmentIds[i] = _mintEquipmentReward(msg.sender, reward.itemLevel, box.rarity);
+                // 铸造装备NFT到Player NFT合约并添加到背包
+                reward.equipmentIds[i] = _mintEquipmentToPlayerNFT(playerId, reward.itemLevel, box.rarity);
             }
         }
 
@@ -458,16 +459,16 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 铸造装备奖励（按照前端逻辑）
+     * @dev 铸造装备NFT到Player NFT合约（按照前端逻辑）
      */
-    function _mintEquipmentReward(
-        address to,
+    function _mintEquipmentToPlayerNFT(
+        uint256 playerId,
         uint8 level,
         uint8 boxRarity
     ) internal returns (uint256) {
         // 随机装备类型 (0-7: helmet, armor, shoes, weapon, shield, accessory, ring, pet)
         uint8 equipmentType = uint8(
-            uint256(keccak256(abi.encodePacked(block.timestamp, to, level))) % 8
+            uint256(keccak256(abi.encodePacked(block.timestamp, playerId, level))) % 8
         );
 
         // 生成装备稀有度（独立于宝箱稀有度）
@@ -480,9 +481,9 @@ contract TreasureBoxSystem is Ownable {
         // 生成装备名称
         string memory name = _generateEquipmentName(equipmentType, equipmentRarity);
 
-        // 铸造装备NFT
-        return equipmentNFT.mintEquipment(
-            to,
+        // 铸造装备NFT到Player NFT合约
+        uint256 equipmentId = equipmentNFT.mintEquipment(
+            address(playerNFT),
             equipmentType,
             level,
             0, // stars = 0 (升星系统)
@@ -494,6 +495,11 @@ contract TreasureBoxSystem is Ownable {
             critDamage,
             name
         );
+
+        // 添加到Player的背包
+        playerNFT.addEquipmentToInventory(playerId, equipmentId);
+
+        return equipmentId;
     }
 
     /**
@@ -604,7 +610,10 @@ contract TreasureBoxSystem is Ownable {
     function getClaimableOfflineBoxes(
         uint256 playerId
     ) external view returns (uint256) {
-        uint256 timeSinceLastBox = block.timestamp - lastOfflineBoxTime[playerId];
+        // 获取Player NFT中的lastTreasureBoxTime
+        GameStructs.Player memory player = playerNFT.getPlayer(playerId);
+        
+        uint256 timeSinceLastBox = block.timestamp - player.lastTreasureBoxTime;
         uint256 boxesToClaim = timeSinceLastBox / GameConfig.TREASURE_BOX_INTERVAL;
 
         if (boxesToClaim > GameConfig.MAX_OFFLINE_BOXES) {

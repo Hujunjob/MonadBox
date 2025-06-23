@@ -22,9 +22,11 @@ library GameStructs {
         uint32 lastStaminaTime;
         uint16 currentForestLevel;
         uint16 currentForestProgress;
-        uint32 lastTreasureBoxTime;
+        uint256 lastTreasureBoxTime;
         bool initialized;
         uint8 job; // 0=swordsman, 1=great_swordsman, etc.
+        uint256 goldBalance; // Player NFT owns gold directly
+        uint256[] inventory; // Equipment IDs owned by Player NFT
     }
     
     struct EquippedItems {

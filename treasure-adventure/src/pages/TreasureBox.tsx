@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
@@ -22,6 +22,19 @@ const TreasureBox: React.FC = () => {
   const [isClosing, setIsClosing] = useState(false);
   // const [boxCount, setBoxCount, countPerUser] = useStateTogetherWithPerUserValues('treasure-box', 0)
 
+  // 使用 useCallback 防止回调函数重复创建
+  const handleReward = useCallback((reward: any) => {
+    console.log('handleReward被调用:', reward);
+    // 交易确认后显示真实奖励信息
+    setSelectedReward({
+      type: 'Web3',
+      description: reward.description,
+      rewardData: reward.rewardData
+    });
+    setShowSelection(true);
+    setOpeningBox(false); // 交易确认后才停止加载状态
+  }, []);
+
   const handleOpenBox = async () => {
     // Web3模式：调用智能合约开箱
     if (hybridStore.unopenedBoxCount <= 0 || openingBox) return;
@@ -29,24 +42,12 @@ const TreasureBox: React.FC = () => {
     setOpeningBox(true);
     try {
       // 调用Web3开箱函数 - 自动选择第一个未开启的宝箱
-      await hybridStore.openTreasureBox?.(undefined, (reward: any) => {
-        // 显示奖励信息
-        setTimeout(() => {
-          setSelectedReward({
-            type: 'Web3',
-            description: reward.message,
-          });
-          setShowSelection(true);
-        }, 1000);
-      });
+      await hybridStore.openTreasureBox?.(undefined, handleReward);
     } catch (error) {
       console.error('Web3开箱失败:', error);
-    } finally {
       setOpeningBox(false);
     }
-    return;
-
-
+    // 注意：不在这里设置 setOpeningBox(false)，因为要等待交易确认
   };
 
 
@@ -227,8 +228,26 @@ const TreasureBox: React.FC = () => {
                   {selectedReward.type === 'Web3' && (
                     <div className="web3-reward-info">
                       <p>🎉 开箱成功！</p>
-                      <p>奖励已自动发放到您的账户</p>
-                      <p>请查看金币余额和装备变化</p>
+                      {selectedReward.rewardData && (
+                        <div className="detailed-reward-info">
+                          {selectedReward.rewardData.rewardType === 0 && (
+                            <p>💰 金币数量: {(Number(selectedReward.rewardData.goldAmount) / 1e18).toFixed(2)}</p>
+                          )}
+                          {selectedReward.rewardData.rewardType === 1 && (
+                            <p>⚔️ 装备等级: Lv.{selectedReward.rewardData.itemLevel}</p>
+                          )}
+                          {selectedReward.rewardData.rewardType === 2 && (
+                            <p>❤️ 治疗量: {selectedReward.rewardData.healAmount} HP</p>
+                          )}
+                          {selectedReward.rewardData.rewardType === 3 && (
+                            <p>🥚 宠物蛋等级: Lv.{selectedReward.rewardData.itemLevel}</p>
+                          )}
+                          {selectedReward.rewardData.rewardType === 4 && (
+                            <p>📖 转职书: {selectedReward.rewardData.itemName}</p>
+                          )}
+                        </div>
+                      )}
+                      <p>奖励已自动发放到您的Player NFT</p>
                     </div>
                   )}
                   {selectedReward.type === RewardType.EQUIPMENT && (

@@ -29,7 +29,10 @@ function filterABI(abi, contractName) {
   const requiredFunctions = {
     Player: [
       'registerPlayer', 'getPlayer', 'balanceOf', 'tokenOfOwnerByIndex', 
-      'equipItem', 'unequipItem', 'heal', 'levelUp', 'updateStamina'
+      'equipItem', 'unequipItem', 'heal', 'levelUp', 'updateStamina',
+      'getPlayerGold', 'getPlayerInventory', 'hasEquipmentInInventory',
+      'addEquipmentToInventory', 'removeEquipmentFromInventory', 'getEquippedItems',
+      'getPlayerTotalStats', 'canBattle', 'updateLastTreasureBoxTime'
     ],
     BattleSystemV2: ['completeBattle', 'getBattleStats', 'canBattle'],
     AdventureGold: ['balanceOf'],
@@ -146,7 +149,7 @@ async function main() {
 
   // 3. 部署 Player NFT
   const Player = await hre.ethers.getContractFactory("Player");
-  const playerNFT = await Player.deploy(await equipmentNFT.getAddress());
+  const playerNFT = await Player.deploy(await equipmentNFT.getAddress(), await goldToken.getAddress());
   await playerNFT.waitForDeployment();
   console.log("Player NFT deployed to:", await playerNFT.getAddress());
 
@@ -201,6 +204,10 @@ async function main() {
   // BattleSystemV2需要调用TreasureBoxSystem的函数
   await treasureBoxSystem.authorizeSystem(await battleSystem.getAddress());
   console.log("BattleSystemV2 authorized to call TreasureBoxSystem functions");
+  
+  // TreasureBoxSystem需要调用Player合约的金币和装备管理函数
+  await playerNFT.authorizeSystem(await treasureBoxSystem.getAddress());
+  console.log("TreasureBoxSystem authorized to call Player functions");
 
   // 保存部署信息
   const deploymentInfo = {
