@@ -746,15 +746,6 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 获取玩家未开启的宝箱数量（现在等同于总宝箱数量，因为已开启的宝箱会被删除）
-     */
-    function getUnopenedBoxCount(
-        uint256 playerId
-    ) external view returns (uint256) {
-        return playerTreasureBoxes[playerId].length;
-    }
-
-    /**
      * @dev 获取可领取的离线宝箱数量
      */
     function getClaimableOfflineBoxes(

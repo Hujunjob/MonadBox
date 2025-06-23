@@ -37,7 +37,7 @@ function filterABI(abi, contractName) {
     ],
     BattleSystemV2: ['completeBattle', 'getBattleStats', 'canBattle'],
     AdventureGold: ['balanceOf'],
-    TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount', 'getUnopenedBoxCount', 'getClaimableOfflineBoxes', 'getPlayerTreasureBoxes'],
+    TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount', 'getClaimableOfflineBoxes', 'getPlayerTreasureBoxes'],
     EquipmentSystem: ['upgradeStars', 'enhanceEquipment'],
     Equipment: ['getEquipment'],
     Item: ['balanceOf', 'balanceOfBatch']

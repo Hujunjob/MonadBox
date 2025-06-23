@@ -37,7 +37,7 @@ const TreasureBox: React.FC = () => {
 
   const handleOpenBox = async () => {
     // Web3模式：调用智能合约开箱
-    if (hybridStore.unopenedBoxCount <= 0 || openingBox) return;
+    if (hybridStore.treasureBoxCount <= 0 || openingBox) return;
 
     setOpeningBox(true);
     try {
@@ -104,7 +104,6 @@ const TreasureBox: React.FC = () => {
       <div className="treasure-box-info">
         <>
           <p>总宝箱数: {hybridStore.treasureBoxCount}个</p>
-          <p>未开启宝箱: {hybridStore.unopenedBoxCount}个</p>
           <p>待领取宝箱: {hybridStore.claimableBoxes}个</p>
           <p><small>（每小时可领取1个，需要间隔1小时）</small></p>
           <p>金币余额: {hybridStore.player.gold.toFixed(2)}</p>
@@ -157,7 +156,7 @@ const TreasureBox: React.FC = () => {
         <button
           onClick={handleOpenBox}
           disabled={(() => {
-            return hybridStore.unopenedBoxCount <= 0 || openingBox || showSelection;
+            return hybridStore.treasureBoxCount <= 0 || openingBox || showSelection;
           })()}
           className="open-box-btn"
         >

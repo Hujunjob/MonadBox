@@ -69,15 +69,6 @@ export function useWeb3GameV2() {
     query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
   });
 
-  // 获取未开启的宝箱数量
-  const { data: unopenedBoxCount, refetch: refetchUnopenedBoxes } = useReadContract({
-    address: CONTRACTS.TREASURE_BOX_SYSTEM,
-    abi: TREASURE_BOX_SYSTEM_ABI,
-    functionName: 'getUnopenedBoxCount',
-    args: [BigInt(currentPlayerId)],
-    query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
-  });
-
   // 获取可领取的离线宝箱数量
   const { data: claimableBoxes, refetch: refetchClaimableBoxes } = useReadContract({
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
@@ -693,7 +684,6 @@ export function useWeb3GameV2() {
     console.log('刷新所有数据...');
     refetchPlayer();
     refetchTreasureBoxes();
-    refetchUnopenedBoxes();
     refetchClaimableBoxes();
     refetchPlayerBalance();
     refetchPlayerTokenId();
@@ -877,7 +867,6 @@ export function useWeb3GameV2() {
     // 数据
     playerData: convertedPlayerData,
     treasureBoxCount: treasureBoxCount ? Number(treasureBoxCount) : 0,
-    unopenedBoxCount: unopenedBoxCount ? Number(unopenedBoxCount) : 0,
     claimableBoxes: claimableBoxes ? Number(claimableBoxes) : 0,
     isPlayerRegistered: !!playerData?.initialized,
     currentPlayerId,
@@ -901,7 +890,6 @@ export function useWeb3GameV2() {
     refreshAllData,
     refetchPlayer,
     refetchTreasureBoxes,
-    refetchUnopenedBoxes,
     refetchClaimableBoxes,
     refetchEquippedItems,
     refetchPlayerInventory,
