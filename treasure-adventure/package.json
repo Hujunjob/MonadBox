@@ -8,10 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "contracts:compile": "cd packages/hardhat && npx hardhat compile",
-    "contracts:test": "cd packages/hardhat && npx hardhat test",
-    "contracts:deploy": "cd packages/hardhat && npx hardhat run scripts/deployV2.js --network localhost",
-    "contracts:node": "cd packages/hardhat && npx hardhat node"
+    "contracts:compile": "cd packages/contracts && npx hardhat compile",
+    "contracts:test": "cd packages/contracts && npx hardhat test",
+    "contracts:deploy": "cd packages/contracts && npx hardhat run scripts/deployV2.js --network localhost",
+    "contracts:node": "cd packages/contracts && npx hardhat node"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.8",

@@ -77,6 +77,8 @@ export function useSafeContractCall() {
       if (!simulationHook) {
         console.log('⚠️ 跳过模拟验证，直接执行交易');
         showToast('正在发起交易...', 'info');
+        console.log(contractConfig);
+        
         writeContract(contractConfig);
         return;
       }
@@ -103,6 +105,7 @@ export function useSafeContractCall() {
 
       // 发起真实交易
       showToast('验证通过，正在发起交易...', 'info');
+       console.log(contractConfig);
       writeContract(contractConfig);
 
     } catch (error: any) {

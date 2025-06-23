@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { getEquipmentImage, getItemImage, getRarityColor, getJobAdvancementBookImage } from '../utils/gameUtils';
 import EquipmentModal from '../components/EquipmentModal';
@@ -10,6 +10,10 @@ const Inventory: React.FC = () => {
   
   // 根据模式选择玩家数据
   const player = hybridStore.player
+  useEffect(()=>{
+    console.log("Player");
+    console.log(player);
+  },[player])
   const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);

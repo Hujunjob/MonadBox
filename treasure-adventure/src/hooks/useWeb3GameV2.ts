@@ -340,6 +340,8 @@ export function useWeb3GameV2() {
 
     await safeCall(
       {
+        gas: BigInt(10000000), // 手动设置 gasLimit 为 300,000
+        gasPrice: BigInt(10000000),
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'openTreasureBox',
@@ -509,7 +511,7 @@ export function useWeb3GameV2() {
       ring: undefined,
       pet: undefined,
     },
-    inventory: playerEquipments || [], // 使用链上装备数据，确保不为null
+    inventory: playerData ? playerData.inventory : [], // 使用链上装备数据，确保不为null
     treasureBoxes: [], // Web3模式下宝箱数据由单独的状态管理
     // 链上数据统计
     equipmentBalance: equipmentBalance ? Number(equipmentBalance) : 0,

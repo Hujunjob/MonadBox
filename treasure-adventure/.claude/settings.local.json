@@ -23,7 +23,8 @@
       "Bash(cat:*)",
       "Bash(npx tsc:*)",
       "Bash(sed:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(jq:*)"
     ],
     "deny": []
   }
