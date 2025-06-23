@@ -79,7 +79,9 @@ contract EquipmentSystem is Ownable {
         Equipment.EquipmentData memory equipment = equipmentNFT.getEquipment(tokenId);
         require(equipment.stars < 5, "Already max stars");
         
-        StarUpgradeConfig memory config = starConfigs[equipment.stars];
+        // 获取升星配置（要升到下一个星级的配置）
+        uint8 targetStars = equipment.stars + 1;
+        StarUpgradeConfig memory config = starConfigs[targetStars];
         require(config.goldCost > 0, "Invalid star level");
         require(goldToken.balanceOf(msg.sender) >= config.goldCost, "Insufficient gold");
         

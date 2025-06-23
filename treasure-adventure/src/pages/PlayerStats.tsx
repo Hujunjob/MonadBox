@@ -246,7 +246,7 @@ const PlayerStats: React.FC = () => {
                       </div>
                       <div className="item-display">
                         <img 
-                          src={getEquipmentImage(equippedItem.type)} 
+                          src={getEquipmentImage(equippedItem.equipmentType !== undefined ? equippedItem.equipmentType : equippedItem.type)} 
                           alt={equippedItem.name}
                           style={{ width: '32px', height: '32px' }}
                         />

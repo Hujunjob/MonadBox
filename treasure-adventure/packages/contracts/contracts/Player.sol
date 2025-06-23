@@ -4,8 +4,10 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "./GameStructs.sol";
 import "./GameConfig.sol";
 import "./Equipment.sol";
@@ -17,7 +19,7 @@ import "hardhat/console.sol";
  * @title Player
  * @dev 玩家NFT合约 - 玩家就是一个NFT，包含所有玩家属性和装备槽
  */
-contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
+contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, Ownable {
     using GameStructs for GameStructs.Player;
     
     // 玩家数据存储
@@ -375,6 +377,32 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     ) external pure override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
+
+    /**
+     * @dev 实现IERC1155Receiver以接收Item NFT
+     */
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 id,
+        uint256 value,
+        bytes calldata data
+    ) external pure override returns (bytes4) {
+        return IERC1155Receiver.onERC1155Received.selector;
+    }
+
+    /**
+     * @dev 实现IERC1155Receiver以接收批量Item NFT
+     */
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
+    ) external pure override returns (bytes4) {
+        return IERC1155Receiver.onERC1155BatchReceived.selector;
+    }
     
     /**
      * @dev 授权系统合约
@@ -590,7 +618,9 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     /**
      * @dev 重写supportsInterface函数
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
-        return super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, IERC165) returns (bool) {
+        return 
+            interfaceId == type(IERC1155Receiver).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

@@ -214,6 +214,10 @@ async function main() {
   await equipmentNFT.authorizeSystem(await treasureBoxSystem.getAddress());
   console.log("Equipment NFT ownership transferred to TreasureBoxSystem");
   
+  // 先授权EquipmentSystem调用AdventureGold的burn函数，然后再转移ownership
+  await goldToken.authorizeSystem(await equipmentSystem.getAddress());
+  console.log("EquipmentSystem authorized to burn gold");
+  
   // AdventureGold ownership给TreasureBoxSystem
   await goldToken.transferOwnership(await treasureBoxSystem.getAddress());
   console.log("AdventureGold ownership transferred to TreasureBoxSystem");
@@ -233,6 +237,10 @@ async function main() {
   // TreasureBoxSystem需要mint Item NFT作为奖励
   await itemNFT.authorizeSystem(await treasureBoxSystem.getAddress());
   console.log("TreasureBoxSystem authorized to mint Item NFTs");
+  
+  // EquipmentSystem需要调用Equipment合约的upgradeEquipment和burn函数
+  await equipmentNFT.authorizeSystem(await equipmentSystem.getAddress());
+  console.log("EquipmentSystem authorized to modify Equipment NFTs");
 
   // 保存部署信息
   const deploymentInfo = {

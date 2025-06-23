@@ -217,7 +217,7 @@ contract TreasureBoxSystem is Ownable {
             goldToken.mint(address(playerNFT), reward.goldAmount);
             playerNFT.addGold(playerId, reward.goldAmount);
         }
-        console.log("openTreasureBox 2");
+        console.log("openTreasureBox 2",reward.rewardType);
         // 发放装备奖励到Player NFT合约
         if (reward.equipmentIds.length > 0) {
             for (uint256 i = 0; i < reward.equipmentIds.length; i++) {

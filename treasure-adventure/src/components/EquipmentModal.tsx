@@ -49,57 +49,93 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
   const currentEquipment = getCurrentEquipment();
 
-  const handleEquip = () => {
-    if (!isEquipped) {
-      hybridStore.equipItem(parseInt(currentEquipment.id));
-      
-      // 显示装备成功提示
-      showToast(`装备成功：${currentEquipment?.name}`, 'success');
+  const handleEquip = async () => {
+    if (!isEquipped && currentEquipment) {
+      try {
+        await hybridStore.equipItem(parseInt(currentEquipment.id));
+        // 装备成功后刷新数据
+        hybridStore.refetchPlayer();
+        hybridStore.refetchPlayerInventory();
+        onClose();
+      } catch (error) {
+        console.error('装备失败:', error);
+      }
     }
-    onClose();
   };
 
-  const handleUnequip = () => {
+  const handleUnequip = async () => {
     if (isEquipped && slot) {
-      hybridStore.unequipItem(0); // 传入槽位索引
+      try {
+        // 将槽位名称转换为索引
+        const slotNames = ['helmet', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'pet'];
+        const slotIndex = slotNames.indexOf(slot);
+        
+        if (slotIndex >= 0) {
+          await hybridStore.unequipItem(slotIndex);
+          // 卸下成功后刷新数据
+          hybridStore.refetchPlayer();
+          hybridStore.refetchPlayerInventory();
+          onClose();
+        }
+      } catch (error) {
+        console.error('卸下装备失败:', error);
+      }
     }
-    onClose();
   };
 
   const handleUpgrade = async () => {
-    if (!currentEquipment) return; // 区块链模式下暂不支持升星
+    if (!currentEquipment) return;
     
     setIsUpgrading(true);
     try {
-      // 区块链模式下暂不支持升星
-      const result = { success: false, newStars: currentStars, message: '区块链模式下暂不支持升星' };
-      setUpgradeResult(result);
+      await hybridStore.upgradeEquipmentStars(parseInt(currentEquipment.id));
+      
+      // 升星成功
+      const newStars = Math.min((currentEquipment.stars || 0) + 1, 5);
+      setUpgradeResult({ 
+        success: true, 
+        newStars: newStars, 
+        message: `装备成功升至 ${newStars} 星！` 
+      });
+      
+      // 刷新数据
+      hybridStore.refetchPlayer();
+      hybridStore.refetchPlayerInventory();
     } catch (error) {
-      setUpgradeResult({ success: false, newStars: currentEquipment.stars || 0, message: '区块链模式下暂不支持升星' });
+      console.error('升星失败:', error);
+      setUpgradeResult({ 
+        success: false, 
+        newStars: currentEquipment.stars || 0, 
+        message: '升星失败，请检查金币余额和升星条件' 
+      });
     }
     setIsUpgrading(false);
   };
 
-  // 计算升星成本和成功率
+  // 计算升星成本和成功率 (根据合约中的配置)
   const currentStars = currentEquipment?.stars || 0;
-  const upgradeCost = (currentEquipment?.level || 1) * 100;
-  const requiredMaterials = currentStars + 1; // 升到下一星级需要的材料数 = 当前星级 + 1
+  
+  // 合约中的升星成本配置
+  const getStarUpgradeCost = (currentStars: number) => {
+    const costs = [0, 1000, 2500, 5000, 10000]; // costs[1] = 0->1星的费用, costs[2] = 1->2星的费用
+    const targetStars = currentStars + 1; // 要升到的目标星级
+    return costs[targetStars] || 0;
+  };
+  
+  // 合约中的成功率配置
+  const getStarUpgradeSuccessRate = (currentStars: number) => {
+    const rates = [0, 80, 70, 60, 50]; // rates[1] = 0->1星成功率, rates[2] = 1->2星成功率
+    const targetStars = currentStars + 1; // 要升到的目标星级
+    return rates[targetStars] || 0;
+  };
+  
+  const upgradeCost = getStarUpgradeCost(currentStars);
+  const successRate = getStarUpgradeSuccessRate(currentStars);
   const canAffordUpgrade = player.gold >= upgradeCost;
   const canUpgradeStars = currentStars < 5;
   
-  // 查找背包中同类型同稀有度同等级的装备作为材料
-  const availableMaterials = currentEquipment ? player.inventory.filter(item => 
-    item.type === 'equipment' && 
-    (item as any).equipmentType === currentEquipment.type &&
-    (item as any).rarity === currentEquipment.rarity &&
-    (item as any).level === currentEquipment.level &&
-    item.id !== currentEquipment.id
-  ).length : 0;
-  
-  // 从配置文件获取成功率
-  const successRate = GAME_CONFIG.EQUIPMENT.UPGRADE_SUCCESS_RATES[currentStars as keyof typeof GAME_CONFIG.EQUIPMENT.UPGRADE_SUCCESS_RATES] || 50;
-  
-  const canUpgrade = canAffordUpgrade && availableMaterials >= requiredMaterials && canUpgradeStars;
+  // Web3模式下不需要材料，只需要金币
+  const canUpgrade = canAffordUpgrade && canUpgradeStars;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -147,10 +183,10 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
             <h4>升星</h4>
             <div className="upgrade-info">
               <div>升星费用: {upgradeCost} 金币</div>
-              <div>需要材料: {requiredMaterials} 个同类装备</div>
-              <div>可用材料: {availableMaterials} 个</div>
               <div>成功率: {successRate}%</div>
+              <div>当前金币: {Math.floor(player.gold)}</div>
               {!canUpgradeStars && <div style={{ color: '#dc3545' }}>已达到最大星级</div>}
+              {!canAffordUpgrade && canUpgradeStars && <div style={{ color: '#dc3545' }}>金币不足</div>}
             </div>
           </div>
         </div>

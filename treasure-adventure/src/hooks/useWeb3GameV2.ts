@@ -1,4 +1,4 @@
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract, useReadContracts } from 'wagmi';
 import { useToast } from '../components/ToastManager';
 import { useSafeContractCall } from './useSafeContractCall';
 import { useState, useEffect } from 'react';
@@ -9,13 +9,16 @@ import {
   BATTLE_SYSTEM_ABI,
   GOLD_TOKEN_ABI,
   TREASURE_BOX_SYSTEM_ABI,
-  EQUIPMENT_NFT_ABI
+  EQUIPMENT_NFT_ABI,
+  ITEM_NFT_ABI,
+  EQUIPMENT_SYSTEM_ABI
 } from '../contracts';
 
 // 使用统一的合约地址配置
 const CONTRACTS = {
   PLAYER_NFT: CONTRACT_ADDRESSES.PLAYER_NFT,
   EQUIPMENT_NFT: CONTRACT_ADDRESSES.EQUIPMENT_NFT,
+  ITEM_NFT: CONTRACT_ADDRESSES.ITEM_NFT,
   GOLD_TOKEN: CONTRACT_ADDRESSES.GOLD_TOKEN,
   TREASURE_BOX_SYSTEM: CONTRACT_ADDRESSES.TREASURE_BOX_SYSTEM,
   BATTLE_SYSTEM: CONTRACT_ADDRESSES.BATTLE_SYSTEM,
@@ -28,6 +31,8 @@ export function useWeb3GameV2() {
   const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
   
   const [currentPlayerId, setCurrentPlayerId] = useState<number>(0);
+  const [inventoryEquipments, setInventoryEquipments] = useState<any[]>([]);
+  const [playerItems, setPlayerItems] = useState<any[]>([]);
 
   // 获取用户的Player NFT数量
   const { data: playerBalance, refetch: refetchPlayerBalance } = useReadContract({
@@ -100,6 +105,15 @@ export function useWeb3GameV2() {
     args: [BigInt(currentPlayerId)],
     query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
   });
+
+  // 获取玩家背包装备列表
+  const { data: playerInventory, refetch: refetchPlayerInventory } = useReadContract({
+    address: CONTRACTS.PLAYER_NFT,
+    abi: PLAYER_NFT_ABI,
+    functionName: 'getPlayerInventory',
+    args: [firstPlayerTokenId || 1n],
+    query: { enabled: !!firstPlayerTokenId },
+  });
   
 
   // 更新当前玩家ID
@@ -108,6 +122,82 @@ export function useWeb3GameV2() {
       setCurrentPlayerId(Number(firstPlayerTokenId));
     }
   }, [firstPlayerTokenId]);
+
+  // 获取装备详细信息的辅助函数
+  const fetchEquipmentDetails = async (equipmentIds: readonly bigint[]) => {
+    if (!equipmentIds || equipmentIds.length === 0) {
+      setInventoryEquipments([]);
+      return;
+    }
+
+    try {
+      // TODO: 实际项目中需要通过Equipment合约的getEquipment函数读取每个装备的详细信息
+      // 现在暂时使用基于ID的模拟数据，但只有当链上确实有装备时才生成
+      const mockEquipments = equipmentIds.map((id) => {
+        const numId = Number(id);
+        const seed = numId; // 使用ID作为种子保证一致性
+        
+        return {
+          id: numId,
+          name: `装备${numId}`,
+          equipmentType: numId % 8, // 0-7 分别对应不同类型
+          level: (seed % 10) + 1,
+          stars: seed % 3,
+          rarity: seed % 5,
+          attack: 10 + (seed % 20),
+          defense: 5 + (seed % 15),
+          agility: 8 + (seed % 12),
+          criticalRate: seed % 10,
+          criticalDamage: 150 + (seed % 50),
+        };
+      });
+      
+      setInventoryEquipments(mockEquipments);
+    } catch (error) {
+      console.error('Failed to fetch equipment details:', error);
+      setInventoryEquipments([]);
+    }
+  };
+
+  // 获取玩家物品数据的辅助函数
+  const fetchPlayerItems = async (playerId: number) => {
+    try {
+      // TODO: 实际项目中需要通过Player合约的getPlayerItemQuantity函数读取
+      // 现在返回空数组，新玩家开始时应该没有任何物品
+      setPlayerItems([]);
+    } catch (error) {
+      console.error('Failed to fetch player items:', error);
+      setPlayerItems([]);
+    }
+  };
+
+  // 判断物品类型的辅助函数
+  const getItemType = (itemId: number) => {
+    if (itemId >= 1000 && itemId < 2000) return 'health_potion';
+    if (itemId >= 2000 && itemId < 3000) return 'job_advancement_book';
+    if (itemId >= 3000 && itemId < 4000) return 'pet_egg';
+    return 'unknown';
+  };
+
+  // 监听装备数据变化
+  useEffect(() => {
+    if (playerInventory && Array.isArray(playerInventory) && playerInventory.length > 0) {
+      fetchEquipmentDetails(playerInventory);
+    } else {
+      // 如果没有装备，清空装备列表
+      setInventoryEquipments([]);
+    }
+  }, [playerInventory]);
+
+  // 监听玩家ID变化，获取物品数据
+  useEffect(() => {
+    if (currentPlayerId > 0) {
+      fetchPlayerItems(currentPlayerId);
+    } else {
+      // 如果没有玩家ID，清空物品列表
+      setPlayerItems([]);
+    }
+  }, [currentPlayerId]);
 
 
   // 玩家注册（铸造Player NFT）
@@ -405,6 +495,52 @@ export function useWeb3GameV2() {
     );
   };
 
+  // 装备升星
+  const upgradeEquipmentStars = async (equipmentId: number) => {
+    if (!isConnected || !address) {
+      showToast('请先连接钱包', 'error');
+      return;
+    }
+
+    await safeCall(
+      {
+        address: CONTRACTS.EQUIPMENT_SYSTEM,
+        abi: EQUIPMENT_SYSTEM_ABI,
+        functionName: 'upgradeStars',
+        args: [BigInt(equipmentId)],
+      },
+      undefined,
+      {
+        loadingMessage: '⭐ 正在升星...',
+        successMessage: '✅ 升星成功！',
+        errorMessage: '❌ 升星失败'
+      }
+    );
+  };
+
+  // 装备强化
+  const enhanceEquipment = async (equipmentId: number) => {
+    if (!isConnected || !address) {
+      showToast('请先连接钱包', 'error');
+      return;
+    }
+
+    await safeCall(
+      {
+        address: CONTRACTS.EQUIPMENT_SYSTEM,
+        abi: EQUIPMENT_SYSTEM_ABI,
+        functionName: 'enhanceEquipment',
+        args: [BigInt(equipmentId)],
+      },
+      undefined,
+      {
+        loadingMessage: '🔨 正在强化装备...',
+        successMessage: '✅ 强化成功！',
+        errorMessage: '❌ 强化失败'
+      }
+    );
+  };
+
   // 监听交易确认
   // useEffect(() => {
   //   console.log('useWeb3GameV2 - 交易状态变化:', { isConfirmed, isConfirming, isPending });
@@ -422,6 +558,133 @@ export function useWeb3GameV2() {
   //     refetchPlayerTreasureBoxes();
   //   }
   // }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquippedItems, refetchPlayerTreasureBoxes]);
+
+  // 处理装备槽位映射
+  const getEquippedItemsMap = () => {
+    const equippedMap: any = {
+      helmet: undefined,
+      armor: undefined,
+      shoes: undefined,
+      weapon: undefined,
+      shield: undefined,
+      accessory: undefined,
+      ring: undefined,
+      pet: undefined,
+    };
+
+    if (equippedItems && Array.isArray(equippedItems)) {
+      const slotNames = ['helmet', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'pet'];
+      equippedItems.forEach((equipmentId, index) => {
+        if (equipmentId && Number(equipmentId) > 0 && index < slotNames.length) {
+          // 从inventoryEquipments中找到对应的装备详细信息
+          const equipment = inventoryEquipments.find(eq => eq.id === Number(equipmentId));
+          if (equipment) {
+            equippedMap[slotNames[index]] = {
+              id: equipment.id.toString(),
+              name: equipment.name || `装备${equipment.id}`,
+              type: getEquipmentTypeName(equipment.equipmentType || 0),
+              equipmentType: equipment.equipmentType || 0,
+              level: equipment.level || 1,
+              stars: equipment.stars || 0,
+              rarity: equipment.rarity || 0,
+              stats: {
+                attack: equipment.attack || 0,
+                defense: equipment.defense || 0,
+                agility: equipment.agility || 0,
+                criticalRate: equipment.criticalRate || 0,
+                criticalDamage: equipment.criticalDamage || 0,
+              }
+            };
+          }
+        }
+      });
+    }
+
+    return equippedMap;
+  };
+
+  // 将装备类型数字转换为名称
+  const getEquipmentTypeName = (type: number) => {
+    const typeNames = ['helmet', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'pet'];
+    return typeNames[type] || 'weapon';
+  };
+
+  // 处理背包物品数据
+  const getInventoryItems = () => {
+    const items: any[] = [];
+    
+    // 添加装备
+    inventoryEquipments.forEach(equipment => {
+      // 如果装备没有被装备，就加入背包
+      const isEquipped = equippedItems && equippedItems.some(id => Number(id) === equipment.id);
+      if (!isEquipped) {
+        items.push({
+          id: equipment.id.toString(),
+          name: equipment.name || `装备${equipment.id}`,
+          type: 'equipment',
+          equipmentType: equipment.equipmentType || 0,
+          level: equipment.level || 1,
+          stars: equipment.stars || 0,
+          rarity: equipment.rarity || 0,
+          quantity: 1,
+          stats: {
+            attack: equipment.attack || 0,
+            defense: equipment.defense || 0,
+            agility: equipment.agility || 0,
+            criticalRate: equipment.criticalRate || 0,
+            criticalDamage: equipment.criticalDamage || 0,
+          }
+        });
+      }
+    });
+
+    // 添加物品（血瓶、转职书、宠物蛋）
+    playerItems.forEach(item => {
+      if (item.quantity > 0) {
+        items.push({
+          id: item.id.toString(),
+          name: getItemName(item.id, item.type),
+          type: item.type,
+          level: getItemLevel(item.id),
+          quantity: item.quantity,
+          targetJob: item.type === 'job_advancement_book' ? getJobTarget(item.id) : undefined,
+        });
+      }
+    });
+
+    return items;
+  };
+
+  // 获取物品名称
+  const getItemName = (itemId: number, type: string) => {
+    if (type === 'health_potion') {
+      const level = itemId - 1000 + 1;
+      return `Lv${level} Health Potion`;
+    }
+    if (type === 'job_advancement_book') {
+      const jobNames = ['', 'Great Swordsman', 'Temple Knight', 'Dragon Knight', 'Sword Master', 'Sword God', 'Plane Lord'];
+      const jobType = itemId - 2000;
+      return `${jobNames[jobType] || 'Unknown'} Job Book`;
+    }
+    if (type === 'pet_egg') {
+      const level = itemId - 3000 + 1;
+      return `Lv${level} Pet Egg`;
+    }
+    return `Item ${itemId}`;
+  };
+
+  // 获取物品等级
+  const getItemLevel = (itemId: number) => {
+    if (itemId >= 1000 && itemId < 2000) return itemId - 1000 + 1; // 血瓶
+    if (itemId >= 3000 && itemId < 4000) return itemId - 3000 + 1; // 宠物蛋
+    return 1;
+  };
+
+  // 获取转职书目标职业
+  const getJobTarget = (itemId: number) => {
+    if (itemId >= 2000 && itemId < 3000) return itemId - 2000;
+    return 0;
+  };
 
   // 转换Player数据为前端格式，确保所有字段都有默认值
   const convertedPlayerData = {
@@ -446,17 +709,8 @@ export function useWeb3GameV2() {
     job: playerData ? Number(playerData.job) : 0,
     // 前端需要的额外字段
     gold: playerData ? Number(playerData.goldBalance)/10**18 : 0,
-    equipment: {
-      helmet: undefined,
-      armor: undefined, 
-      shoes: undefined,
-      weapon: undefined,
-      shield: undefined,
-      accessory: undefined,
-      ring: undefined,
-      pet: undefined,
-    },
-    inventory: playerData ? playerData.inventory : [], // 使用链上装备数据，确保不为null
+    equipment: getEquippedItemsMap(),
+    inventory: getInventoryItems(), // 使用处理后的装备和物品数据
     treasureBoxes: [], // Web3模式下宝箱数据由单独的状态管理
     equippedItemIds: equippedItems || [],
   };
@@ -482,6 +736,8 @@ export function useWeb3GameV2() {
     openTreasureBox,
     equipItem,
     unequipItem,
+    upgradeEquipmentStars,
+    enhanceEquipment,
     
     // 数据刷新
     refetchPlayer,
@@ -489,5 +745,6 @@ export function useWeb3GameV2() {
     refetchUnopenedBoxes,
     refetchClaimableBoxes,
     refetchEquippedItems,
+    refetchPlayerInventory,
   };
 }

@@ -103,6 +103,8 @@ export function useHybridGameStore() {
     openTreasureBox,
     equipItem: web3Game.equipItem,
     unequipItem: web3Game.unequipItem,
+    upgradeEquipmentStars: web3Game.upgradeEquipmentStars,
+    enhanceEquipment: web3Game.enhanceEquipment,
     updateStamina: () => {}, // 新架构中体力自动恢复
     
     // 数据刷新
