@@ -122,8 +122,8 @@ contract BattleSystemV2 is Ownable {
         // 获取玩家总属性（包含装备加成）
         (uint16 playerAttack, uint16 playerDefense, , , ) = playerNFT.getPlayerTotalStats(playerId);
         
-        // 计算怪物属性 (基于等级)
-        uint16 monsterDefense = uint16(monsterLevel * 5 + 10); // 基础防御 + 等级加成
+        // 计算怪物属性 (基于等级) - 减弱一倍
+        uint16 monsterDefense = uint16((monsterLevel * 5 + 10) / 2); // 基础防御 + 等级加成，减弱一倍
         
         // 战斗判定：随机值(0到玩家攻击力) vs 怪物防御力
         uint256 randomAttack = _generateRandom(playerId, monsterLevel) % (playerAttack + 1);
@@ -162,52 +162,6 @@ contract BattleSystemV2 is Ownable {
      */
     function _generateRandom(uint256 playerId, uint8 monsterLevel) internal view returns (uint256) {
         return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, playerId, monsterLevel)));
-    }
-    
-    /**
-     * @dev 旧版本的completeBattle函数 - 保持兼容性
-     * @param playerId 玩家NFT ID
-     * @param experienceGained 获得的经验
-     * @param staminaCost 消耗的体力
-     * @param victory 是否胜利
-     * @param monsterLevel 怪物等级 (用于确定宝箱等级)
-     */
-    function completeBattle(
-        uint256 playerId,
-        uint16 experienceGained,
-        uint8 staminaCost,
-        bool victory,
-        uint8 monsterLevel
-    ) external {
-        // 验证调用者是玩家NFT的所有者
-        require(playerNFT.ownerOf(playerId) == msg.sender, "Not your player");
-        
-        // 检查是否可以战斗
-        require(_canBattle(playerId, staminaCost), "Cannot battle - insufficient stamina or player not exists");
-        
-        // 消耗体力
-        playerNFT.consumeStamina(playerId, staminaCost);
-        
-        // 更新战斗统计
-        totalBattles[playerId]++;
-        lastBattleTime[playerId] = uint32(block.timestamp);
-        
-        if (victory) {
-            totalVictories[playerId]++;
-            
-            // 获得经验（不再给金币）
-            playerNFT.addExperience(playerId, experienceGained);
-            
-            // 更新森林进度
-            GameStructs.Player memory player = playerNFT.getPlayer(playerId);
-            _updateForestProgress(playerId, player);
-            
-            // 生成战斗宝箱 (胜利才给宝箱)
-            uint8 boxLevel = _calculateBattleBoxLevel(monsterLevel, player.level, playerId);
-            treasureBoxSystem.addBattleTreasureBox(playerId, boxLevel);
-        }
-        
-        emit BattleCompleted(playerId, experienceGained, victory, monsterLevel, monsterLevel);
     }
     
     /**
@@ -284,7 +238,7 @@ contract BattleSystemV2 is Ownable {
      * @return defense 怪物防御力
      */
     function getMonsterStats(uint8 monsterLevel) external pure returns (uint16 defense) {
-        defense = uint16(monsterLevel * 5 + 10);
+        defense = uint16((monsterLevel * 5 + 10) / 2); // 减弱一倍
     }
     
     /**
@@ -295,7 +249,7 @@ contract BattleSystemV2 is Ownable {
      */
     function estimateWinRate(uint256 playerId, uint8 monsterLevel) external view returns (uint8) {
         (uint16 playerAttack, , , , ) = playerNFT.getPlayerTotalStats(playerId);
-        uint16 monsterDefense = uint16(monsterLevel * 5 + 10);
+        uint16 monsterDefense = uint16((monsterLevel * 5 + 10) / 2); // 减弱一倍
         
         if (playerAttack <= monsterDefense) {
             return 0;
