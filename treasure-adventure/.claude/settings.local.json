@@ -22,7 +22,8 @@
       "Bash(npm start)",
       "Bash(cat:*)",
       "Bash(npx tsc:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }

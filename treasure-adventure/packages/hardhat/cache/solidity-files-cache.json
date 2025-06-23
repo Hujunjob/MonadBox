@@ -823,8 +823,8 @@
       ]
     },
     "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/GameConfig.sol": {
-      "lastModificationDate": 1750581111447,
-      "contentHash": "e7ea5a0cae2f58604fdc93e57cbc2f24",
+      "lastModificationDate": 1750657365766,
+      "contentHash": "db2dcb0081c5e3a11d977e46274495f1",
       "sourceName": "contracts/GameConfig.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -860,8 +860,8 @@
       ]
     },
     "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/TreasureBoxSystem.sol": {
-      "lastModificationDate": 1750642094890,
-      "contentHash": "2e41afb5acedadb3786797ead873b8d4",
+      "lastModificationDate": 1750657923763,
+      "contentHash": "49cf1764149e15de5f7f656bbf39cf36",
       "sourceName": "contracts/TreasureBoxSystem.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -893,7 +893,8 @@
         "./AdventureGold.sol",
         "./Equipment.sol",
         "./GameStructs.sol",
-        "./GameConfig.sol"
+        "./GameConfig.sol",
+        "./Player.sol"
       ],
       "versionPragmas": [
         "^0.8.20"
@@ -948,8 +949,8 @@
       ]
     },
     "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/BattleSystemV2.sol": {
-      "lastModificationDate": 1750580967131,
-      "contentHash": "e46f50963e55dadf49524dded051df5f",
+      "lastModificationDate": 1750657991230,
+      "contentHash": "752d93ee9217cbca92cbe69fe3c48a4b",
       "sourceName": "contracts/BattleSystemV2.sol",
       "solcConfig": {
         "version": "0.8.20",

@@ -79,12 +79,12 @@ export function useClaimTreasureBoxesSimulation(enabled: boolean = false) {
 /**
  * 模拟开启宝箱
  */
-export function useOpenTreasureBoxSimulation(boxIndex: number, enabled: boolean = false) {
+export function useOpenTreasureBoxSimulation(playerId: number, boxIndex: number, enabled: boolean = false) {
   return useSimulateContract({
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
     abi: TREASURE_BOX_SYSTEM_ABI,
     functionName: 'openTreasureBox',
-    args: [BigInt(boxIndex)],
+    args: [BigInt(playerId), BigInt(boxIndex)],
     query: { 
       enabled: enabled && boxIndex >= 0 
     }

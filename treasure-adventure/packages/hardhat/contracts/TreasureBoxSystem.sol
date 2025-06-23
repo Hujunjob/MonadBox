@@ -6,6 +6,7 @@ import "./AdventureGold.sol";
 import "./Equipment.sol";
 import "./GameStructs.sol";
 import "./GameConfig.sol";
+import "./Player.sol";
 
 /**
  * @title TreasureBoxSystem
@@ -14,6 +15,7 @@ import "./GameConfig.sol";
 contract TreasureBoxSystem is Ownable {
     AdventureGold public goldToken;
     Equipment public equipmentNFT;
+    Player public playerNFT;
 
     struct TreasureBox {
         uint8 level; // 宝箱等级 (1-10)
@@ -32,9 +34,9 @@ contract TreasureBoxSystem is Ownable {
         uint256 healAmount; // 血瓶治疗量
     }
 
-    // 玩家宝箱存储
-    mapping(address => TreasureBox[]) public playerTreasureBoxes;
-    mapping(address => uint32) public lastOfflineBoxTime;
+    // 玩家宝箱存储（改为基于playerId）
+    mapping(uint256 => TreasureBox[]) public playerTreasureBoxes;
+    mapping(uint256 => uint256) public lastOfflineBoxTime;
 
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
@@ -66,10 +68,10 @@ contract TreasureBoxSystem is Ownable {
     uint8 public constant CURRENT_LEVEL_PROBABILITY = 95; // 95%
     uint8 public constant NEXT_LEVEL_PROBABILITY = 5;     // 5%
 
-    // 事件
-    event TreasureBoxAdded(address indexed player, uint8 level, uint8 rarity);
+    // 事件（改为基于playerId）
+    event TreasureBoxAdded(uint256 indexed playerId, uint8 level, uint8 rarity);
     event TreasureBoxOpened(
-        address indexed player,
+        uint256 indexed playerId,
         uint256 boxIndex,
         uint8 rewardType,
         uint256 goldAmount,
@@ -79,20 +81,21 @@ contract TreasureBoxSystem is Ownable {
         uint256 itemLevel,
         uint256 healAmount
     );
-    event OfflineBoxesClaimed(address indexed player, uint8 boxCount);
+    event OfflineBoxesClaimed(uint256 indexed playerId, uint256 boxCount);
 
-    constructor(address _goldToken, address _equipmentNFT) Ownable(msg.sender) {
+    constructor(address _goldToken, address _equipmentNFT, address _playerNFT) Ownable(msg.sender) {
         goldToken = AdventureGold(_goldToken);
         equipmentNFT = Equipment(_equipmentNFT);
+        playerNFT = Player(_playerNFT);
     }
 
     /**
      * @dev 添加战斗宝箱 (由战斗合约调用)
-     * @param player 玩家地址
+     * @param playerId 玩家ID
      * @param level 宝箱等级
      */
     function addBattleTreasureBox(
-        address player,
+        uint256 playerId,
         uint8 level
     ) external onlyAuthorizedOrOwner {
         require(level >= 1 && level <= 10, "Invalid box level");
@@ -100,7 +103,7 @@ contract TreasureBoxSystem is Ownable {
         // 根据等级确定稀有度
         uint8 rarity = _calculateBoxRarity(level);
 
-        playerTreasureBoxes[player].push(
+        playerTreasureBoxes[playerId].push(
             TreasureBox({
                 level: level,
                 rarity: rarity,
@@ -109,44 +112,47 @@ contract TreasureBoxSystem is Ownable {
             })
         );
 
-        emit TreasureBoxAdded(player, level, rarity);
+        emit TreasureBoxAdded(playerId, level, rarity);
     }
 
     /**
      * @dev 领取离线宝箱
+     * @param playerId 玩家ID
      * @return 领取的宝箱数量
      */
-    function claimOfflineTreasureBoxes() external returns (uint8) {
-        return claimOfflineTreasureBoxesForPlayer(msg.sender);
+    function claimOfflineTreasureBoxes(uint256 playerId) external returns (uint256) {
+        // 验证调用者拥有该Player NFT
+        require(playerNFT.ownerOf(playerId) == msg.sender, "Not owner of player NFT");
+        return claimOfflineTreasureBoxesForPlayer(playerId);
     }
 
     /**
      * @dev 为指定玩家领取离线宝箱（仅限授权系统调用）
-     * @param playerAddress 玩家地址
+     * @param playerId 玩家ID
      * @return 领取的宝箱数量
      */
     function claimOfflineTreasureBoxesForPlayer(
-        address playerAddress
-    ) public onlyAuthorizedOrOwner returns (uint8) {
-        uint32 timeSinceLastBox = uint32(block.timestamp) -
-            lastOfflineBoxTime[playerAddress];
-        uint8 boxesToClaim = uint8(
+        uint256 playerId
+    ) public onlyAuthorizedOrOwner returns (uint256) {
+        uint256 timeSinceLastBox = (block.timestamp) -
+            lastOfflineBoxTime[playerId];
+        uint256 boxesToClaim = 
             timeSinceLastBox / GameConfig.TREASURE_BOX_INTERVAL
-        );
+        ;
 
         if (boxesToClaim > GameConfig.MAX_OFFLINE_BOXES) {
             boxesToClaim = GameConfig.MAX_OFFLINE_BOXES;
         }
 
         if (boxesToClaim > 0) {
-            lastOfflineBoxTime[playerAddress] = uint32(block.timestamp);
+            lastOfflineBoxTime[playerId] = (block.timestamp);
 
             // 添加离线宝箱 (等级1-3的普通宝箱)
             for (uint8 i = 0; i < boxesToClaim; i++) {
                 uint8 boxLevel = uint8((block.timestamp + i) % 3) + 1; // 随机1-3级
                 uint8 rarity = _calculateBoxRarity(boxLevel);
 
-                playerTreasureBoxes[playerAddress].push(
+                playerTreasureBoxes[playerId].push(
                     TreasureBox({
                         level: boxLevel,
                         rarity: rarity,
@@ -155,10 +161,10 @@ contract TreasureBoxSystem is Ownable {
                     })
                 );
 
-                emit TreasureBoxAdded(playerAddress, boxLevel, rarity);
+                emit TreasureBoxAdded(playerId, boxLevel, rarity);
             }
 
-            emit OfflineBoxesClaimed(playerAddress, boxesToClaim);
+            emit OfflineBoxesClaimed(playerId, boxesToClaim);
         }
 
         return boxesToClaim;
@@ -166,19 +172,23 @@ contract TreasureBoxSystem is Ownable {
 
     /**
      * @dev 开启宝箱
+     * @param playerId 玩家ID
      * @param boxIndex 宝箱索引
      * @return 奖励信息
      */
     function openTreasureBox(
+        uint256 playerId,
         uint256 boxIndex
     ) external returns (BoxReward memory) {
-        address playerAddress = msg.sender;
+        // 验证调用者拥有该Player NFT
+        require(playerNFT.ownerOf(playerId) == msg.sender, "Not owner of player NFT");
+        
         require(
-            boxIndex < playerTreasureBoxes[playerAddress].length,
+            boxIndex < playerTreasureBoxes[playerId].length,
             "Invalid box index"
         );
 
-        TreasureBox storage box = playerTreasureBoxes[playerAddress][boxIndex];
+        TreasureBox storage box = playerTreasureBoxes[playerId][boxIndex];
         require(!box.opened, "Box already opened");
 
         box.opened = true;
@@ -188,19 +198,19 @@ contract TreasureBoxSystem is Ownable {
 
         // 发放金币奖励
         if (reward.goldAmount > 0) {
-            goldToken.mint(playerAddress, reward.goldAmount);
+            goldToken.mint(msg.sender, reward.goldAmount);
         }
 
         // 发放装备奖励
         if (reward.equipmentIds.length > 0) {
             for (uint256 i = 0; i < reward.equipmentIds.length; i++) {
                 // 实际铸造装备NFT
-                reward.equipmentIds[i] = _mintEquipmentReward(playerAddress, reward.itemLevel, box.rarity);
+                reward.equipmentIds[i] = _mintEquipmentReward(msg.sender, reward.itemLevel, box.rarity);
             }
         }
 
         emit TreasureBoxOpened(
-            playerAddress,
+            playerId,
             boxIndex,
             reward.rewardType,
             reward.goldAmount,
@@ -567,19 +577,19 @@ contract TreasureBoxSystem is Ownable {
      * @dev 获取玩家宝箱数量
      */
     function getPlayerTreasureBoxCount(
-        address player
+        uint256 playerId
     ) external view returns (uint256) {
-        return playerTreasureBoxes[player].length;
+        return playerTreasureBoxes[playerId].length;
     }
 
     /**
      * @dev 获取玩家未开启的宝箱数量
      */
     function getUnopenedBoxCount(
-        address player
+        uint256 playerId
     ) external view returns (uint256) {
         uint256 count = 0;
-        TreasureBox[] memory boxes = playerTreasureBoxes[player];
+        TreasureBox[] memory boxes = playerTreasureBoxes[playerId];
         for (uint256 i = 0; i < boxes.length; i++) {
             if (!boxes[i].opened) {
                 count++;
@@ -592,13 +602,10 @@ contract TreasureBoxSystem is Ownable {
      * @dev 获取可领取的离线宝箱数量
      */
     function getClaimableOfflineBoxes(
-        address player
-    ) external view returns (uint8) {
-        uint32 timeSinceLastBox = uint32(block.timestamp) -
-            lastOfflineBoxTime[player];
-        uint8 boxesToClaim = uint8(
-            timeSinceLastBox / GameConfig.TREASURE_BOX_INTERVAL
-        );
+        uint256 playerId
+    ) external view returns (uint256) {
+        uint256 timeSinceLastBox = block.timestamp - lastOfflineBoxTime[playerId];
+        uint256 boxesToClaim = timeSinceLastBox / GameConfig.TREASURE_BOX_INTERVAL;
 
         if (boxesToClaim > GameConfig.MAX_OFFLINE_BOXES) {
             return GameConfig.MAX_OFFLINE_BOXES;
@@ -611,23 +618,23 @@ contract TreasureBoxSystem is Ownable {
      * @dev 获取玩家特定宝箱信息
      */
     function getPlayerTreasureBox(
-        address player,
+        uint256 playerId,
         uint256 boxIndex
     ) external view returns (TreasureBox memory) {
         require(
-            boxIndex < playerTreasureBoxes[player].length,
+            boxIndex < playerTreasureBoxes[playerId].length,
             "Invalid box index"
         );
-        return playerTreasureBoxes[player][boxIndex];
+        return playerTreasureBoxes[playerId][boxIndex];
     }
 
     /**
      * @dev 获取玩家所有宝箱信息
      */
     function getPlayerTreasureBoxes(
-        address player
+        uint256 playerId
     ) external view returns (TreasureBox[] memory) {
-        return playerTreasureBoxes[player];
+        return playerTreasureBoxes[playerId];
     }
 
     /**

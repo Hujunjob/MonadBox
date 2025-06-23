@@ -67,7 +67,7 @@ contract BattleSystemV2 is Ownable {
             
             // 生成战斗宝箱 (胜利才给宝箱)
             uint8 boxLevel = _calculateBattleBoxLevel(monsterLevel, player.level, playerId);
-            treasureBoxSystem.addBattleTreasureBox(playerNFT.ownerOf(playerId), boxLevel);
+            treasureBoxSystem.addBattleTreasureBox(playerId, boxLevel);
         }
         
         emit BattleCompleted(playerId, experienceGained, victory, monsterLevel);

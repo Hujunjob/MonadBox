@@ -18,7 +18,11 @@ module.exports = {
       chainId: 31337
     },
     hardhat: {
-      chainId: 31337
+      chainId: 31337,
+      mining: {
+        auto: true,
+        interval: 1000 // 每1秒自动出一个块
+      }
     }
   },
   paths: {

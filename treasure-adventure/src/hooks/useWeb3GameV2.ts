@@ -69,8 +69,8 @@ export function useWeb3GameV2() {
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
     abi: TREASURE_BOX_SYSTEM_ABI,
     functionName: 'getPlayerTreasureBoxCount',
-    args: [address as `0x${string}`],
-    query: { enabled: !!address && isConnected },
+    args: [BigInt(currentPlayerId)],
+    query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
   });
 
   // 获取未开启的宝箱数量
@@ -78,8 +78,8 @@ export function useWeb3GameV2() {
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
     abi: TREASURE_BOX_SYSTEM_ABI,
     functionName: 'getUnopenedBoxCount',
-    args: [address as `0x${string}`],
-    query: { enabled: !!address && isConnected },
+    args: [BigInt(currentPlayerId)],
+    query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
   });
 
   // 获取可领取的离线宝箱数量
@@ -87,8 +87,8 @@ export function useWeb3GameV2() {
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
     abi: TREASURE_BOX_SYSTEM_ABI,
     functionName: 'getClaimableOfflineBoxes',
-    args: [address as `0x${string}`],
-    query: { enabled: !!address && isConnected },
+    args: [BigInt(currentPlayerId)],
+    query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
   });
 
   // 调试：监听claimableBoxes的变化
@@ -121,8 +121,8 @@ export function useWeb3GameV2() {
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
     abi: TREASURE_BOX_SYSTEM_ABI,
     functionName: 'getPlayerTreasureBoxes',
-    args: [address as `0x${string}`],
-    query: { enabled: !!address && isConnected },
+    args: [BigInt(currentPlayerId)],
+    query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
   });
 
 
@@ -221,8 +221,8 @@ export function useWeb3GameV2() {
 
   // 领取离线宝箱
   const claimTreasureBoxes = async () => {
-    if (!isConnected || !address) {
-      showToast('请先连接钱包', 'error');
+    if (!isConnected || !currentPlayerId) {
+      showToast('请先连接钱包并注册玩家', 'error');
       return;
     }
 
@@ -231,6 +231,7 @@ export function useWeb3GameV2() {
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'claimOfflineTreasureBoxes',
+        args: [BigInt(currentPlayerId)],
       },
       undefined,
       {
@@ -259,8 +260,8 @@ export function useWeb3GameV2() {
 
   // 开启宝箱
   const openTreasureBox = async (boxIndex?: number, onReward?: (reward: any) => void) => {
-    if (!isConnected || !address) {
-      showToast('请先连接钱包', 'error');
+    if (!isConnected || !currentPlayerId) {
+      showToast('请先连接钱包并注册玩家', 'error');
       return;
     }
 
@@ -272,14 +273,14 @@ export function useWeb3GameV2() {
       return;
     }
 
-    console.log(`正在开启宝箱索引: ${targetBoxIndex}`);
+    console.log(`正在开启宝箱索引: ${targetBoxIndex}，玩家ID: ${currentPlayerId}`);
 
     await safeCall(
       {
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'openTreasureBox',
-        args: [BigInt(targetBoxIndex)],
+        args: [BigInt(currentPlayerId), BigInt(targetBoxIndex)],
       },
       undefined,
       {

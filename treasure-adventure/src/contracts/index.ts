@@ -1,12 +1,12 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/hardhat/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB' as `0x${string}`,
-  EQUIPMENT_NFT: '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690' as `0x${string}`,
-  GOLD_TOKEN: '0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x9E545E3C0baAB3E08CdfD552C960A1050f373042' as `0x${string}`,
-  BATTLE_SYSTEM: '0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8' as `0x${string}`
+  PLAYER_NFT: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0' as `0x${string}`,
+  EQUIPMENT_NFT: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as `0x${string}`,
+  GOLD_TOKEN: '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' as `0x${string}`,
+  BATTLE_SYSTEM: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -1043,12 +1043,38 @@ export const GOLD_TOKEN_ABI = [
 export const TREASURE_BOX_SYSTEM_ABI = [
   {
     "inputs": [],
-    "name": "EQUIPMENT_PROBABILITY",
+    "name": "COMMON_RARITY",
     "outputs": [
       {
-        "internalType": "uint16",
+        "internalType": "uint8",
         "name": "",
-        "type": "uint16"
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "CURRENT_LEVEL_PROBABILITY",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "EPIC_RARITY",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -1059,9 +1085,9 @@ export const TREASURE_BOX_SYSTEM_ABI = [
     "name": "GOLD_PROBABILITY",
     "outputs": [
       {
-        "internalType": "uint16",
+        "internalType": "uint8",
         "name": "",
-        "type": "uint16"
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -1069,12 +1095,90 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   },
   {
     "inputs": [],
-    "name": "MULTIPLE_PROBABILITY",
+    "name": "HEALTH_POTION_PROBABILITY",
     "outputs": [
       {
-        "internalType": "uint16",
+        "internalType": "uint8",
         "name": "",
-        "type": "uint16"
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "JOB_BOOK_PROBABILITY",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "LEGENDARY_RARITY",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "NEXT_LEVEL_PROBABILITY",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PET_EGG_PROBABILITY",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "RARE_RARITY",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "UNCOMMON_RARITY",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -1100,13 +1204,19 @@ export const TREASURE_BOX_SYSTEM_ABI = [
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
     "name": "claimOfflineTreasureBoxes",
     "outputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -1128,17 +1238,17 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "player",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
       }
     ],
     "name": "getClaimableOfflineBoxes",
     "outputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1147,9 +1257,9 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "player",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -1193,9 +1303,9 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "player",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
       }
     ],
     "name": "getPlayerTreasureBoxCount",
@@ -1212,9 +1322,9 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "player",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
       }
     ],
     "name": "getPlayerTreasureBoxes",
@@ -1253,9 +1363,9 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "player",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
       }
     ],
     "name": "getUnopenedBoxCount",
@@ -1285,17 +1395,17 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "name": "lastOfflineBoxTime",
     "outputs": [
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint32"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1303,6 +1413,11 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
       {
         "internalType": "uint256",
         "name": "boxIndex",
@@ -1327,6 +1442,26 @@ export const TREASURE_BOX_SYSTEM_ABI = [
             "internalType": "uint256[]",
             "name": "equipmentIds",
             "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "itemId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "itemName",
+            "type": "string"
+          },
+          {
+            "internalType": "uint8",
+            "name": "itemLevel",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "healAmount",
+            "type": "uint256"
           }
         ],
         "internalType": "struct TreasureBoxSystem.BoxReward",
@@ -1351,11 +1486,24 @@ export const TREASURE_BOX_SYSTEM_ABI = [
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "playerNFT",
+    "outputs": [
       {
-        "internalType": "address",
+        "internalType": "contract Player",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",

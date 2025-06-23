@@ -2,12 +2,20 @@ import React, { useState } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
-import TreasureBoxTimer from '../components/TreasureBoxTimer';
 import { GAME_CONFIG } from '../config/gameConfig';
 
 const TreasureBox: React.FC = () => {
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player;
+  // const { showToast } = useToast();
+
+  // 处理领取宝箱
+  const handleClaimTreasureBox = async () => {
+    await hybridStore.claimTreasureBoxes();
+  };
+
+  // 获取可领取宝箱数量
+  const claimableCount = hybridStore.claimableBoxes
   const [openingBox, setOpeningBox] = useState(false);
   const [showSelection, setShowSelection] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
@@ -54,19 +62,54 @@ const TreasureBox: React.FC = () => {
 
   return (
     <div className="treasure-box-panel">
-      <TreasureBoxTimer />
+      <div className="treasure-box-timer">
+        <button
+          onClick={handleClaimTreasureBox}
+          style={{
+            backgroundColor: claimableCount > 0 ? '#28a745' : '#6c757d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            padding: '8px 16px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+            transition: 'all 0.2s'
+          }}
+          onMouseOver={(e) => {
+            if (claimableCount > 0) {
+              e.currentTarget.style.backgroundColor = '#218838';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            } else {
+              e.currentTarget.style.backgroundColor = '#5a6268';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }
+          }}
+          onMouseOut={(e) => {
+            if (claimableCount > 0) {
+              e.currentTarget.style.backgroundColor = '#28a745';
+            } else {
+              e.currentTarget.style.backgroundColor = '#6c757d';
+            }
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          📦 领取宝箱 ({claimableCount})
+        </button>
+      </div>
 
       {/* 显示宝箱信息 */}
       <div className="treasure-box-info">
-          <>
-            <p>总宝箱数: {hybridStore.treasureBoxCount}个</p>
-            <p>未开启宝箱: {hybridStore.unopenedBoxCount}个</p>
-            <p>待领取宝箱: {hybridStore.claimableBoxes}个</p>
-            <p><small>（每小时可领取1个，需要间隔1小时）</small></p>
-            <p>金币余额: {hybridStore.goldBalance.toFixed(2)}</p>
-            <p>装备NFT: {hybridStore.player?.equipmentBalance || 0}个</p>
-          </>
-        
+        <>
+          <p>总宝箱数: {hybridStore.treasureBoxCount}个</p>
+          <p>未开启宝箱: {hybridStore.unopenedBoxCount}个</p>
+          <p>待领取宝箱: {hybridStore.claimableBoxes}个</p>
+          <p><small>（每小时可领取1个，需要间隔1小时）</small></p>
+          <p>金币余额: {hybridStore.goldBalance.toFixed(2)}</p>
+          <p>装备NFT: {hybridStore.player?.equipmentBalance || 0}个</p>
+        </>
+
         <p>每个宝箱提供随机奖励，等级越高奖励越好！</p>
       </div>
 
@@ -114,7 +157,7 @@ const TreasureBox: React.FC = () => {
         <button
           onClick={handleOpenBox}
           disabled={(() => {
-              return hybridStore.unopenedBoxCount <= 0 || openingBox || showSelection;
+            return hybridStore.unopenedBoxCount <= 0 || openingBox || showSelection;
           })()}
           className="open-box-btn"
         >

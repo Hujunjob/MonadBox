@@ -33,7 +33,7 @@ function filterABI(abi, contractName) {
     ],
     BattleSystemV2: ['completeBattle', 'getBattleStats', 'canBattle'],
     AdventureGold: ['balanceOf'],
-    TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount'],
+    TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount', 'getUnopenedBoxCount', 'getClaimableOfflineBoxes', 'getPlayerTreasureBoxes'],
     EquipmentSystem: ['upgradeStars', 'enhanceEquipment'],
     Equipment: ['getEquipment']
   };
@@ -154,7 +154,8 @@ async function main() {
   const TreasureBoxSystem = await hre.ethers.getContractFactory("TreasureBoxSystem");
   const treasureBoxSystem = await TreasureBoxSystem.deploy(
     await goldToken.getAddress(),
-    await equipmentNFT.getAddress()
+    await equipmentNFT.getAddress(),
+    await playerNFT.getAddress()
   );
   await treasureBoxSystem.waitForDeployment();
   console.log("TreasureBoxSystem deployed to:", await treasureBoxSystem.getAddress());
