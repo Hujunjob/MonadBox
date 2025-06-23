@@ -287,7 +287,32 @@ export const getNextTreasureBoxTime = (lastBoxTime: number): number => {
   return Math.max(0, timeUntilNext);
 };
 
-export const getEquipmentImage = (type: string): string => {
+// 将数字类型的装备类型转换为字符串
+export const getEquipmentTypeString = (equipmentType: number | string): string => {
+  // 如果已经是字符串，直接返回
+  if (typeof equipmentType === 'string') {
+    return equipmentType;
+  }
+  
+  // 数字到字符串的映射 (0-7 对应不同装备类型)
+  const typeMap: { [key: number]: string } = {
+    0: 'helmet',
+    1: 'armor', 
+    2: 'shoes',
+    3: 'weapon',
+    4: 'shield',
+    5: 'accessory',
+    6: 'ring',
+    7: 'pet'
+  };
+  
+  return typeMap[equipmentType] || 'weapon';
+};
+
+export const getEquipmentImage = (type: string | number): string => {
+  // 首先转换为字符串类型
+  const typeString = getEquipmentTypeString(type);
+  
   // 映射装备类型到对应的图片文件名
   const imageMap: { [key: string]: string } = {
     'helmet': '/assets/helmet.png',
@@ -296,10 +321,11 @@ export const getEquipmentImage = (type: string): string => {
     'weapon': '/assets/weapon.png',
     'shield': '/assets/shield.png',
     'accessory': '/assets/accessory.png',
-    'ring': '/assets/ring.png'
+    'ring': '/assets/ring.png',
+    'pet': '/assets/weapon.png' // 暂时使用武器图片作为宠物图片
   };
   
-  return imageMap[type] || '/assets/weapon.png';
+  return imageMap[typeString] || '/assets/weapon.png';
 };
 
 export const getItemImage = (type: string): string => {

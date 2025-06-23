@@ -2,8 +2,6 @@ import React from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
 import type { EquipmentItem } from '../types/game';
 import { getEquipmentImage, getRarityColor } from '../utils/gameUtils';
-import { GAME_CONFIG } from '../config/gameConfig';
-import { useToast } from './ToastManager';
 
 interface EquipmentModalProps {
   equipment: EquipmentItem | null;
@@ -22,7 +20,6 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
 }) => {
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player;
-  const { showToast } = useToast();
   const [upgradeResult, setUpgradeResult] = React.useState<{success: boolean; newStars: number; message: string} | null>(null);
   const [isUpgrading, setIsUpgrading] = React.useState(false);
 
@@ -55,7 +52,6 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
         await hybridStore.equipItem(parseInt(currentEquipment.id));
         // 装备成功后刷新数据
         hybridStore.refetchPlayer();
-        hybridStore.refetchPlayerInventory();
         onClose();
       } catch (error) {
         console.error('装备失败:', error);
@@ -74,7 +70,6 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
           await hybridStore.unequipItem(slotIndex);
           // 卸下成功后刷新数据
           hybridStore.refetchPlayer();
-          hybridStore.refetchPlayerInventory();
           onClose();
         }
       } catch (error) {
@@ -100,7 +95,6 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
       
       // 刷新数据
       hybridStore.refetchPlayer();
-      hybridStore.refetchPlayerInventory();
     } catch (error) {
       console.error('升星失败:', error);
       setUpgradeResult({ 

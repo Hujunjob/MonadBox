@@ -577,6 +577,38 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
     }
     
     /**
+     * @dev 获取玩家所有物品（返回有数量的物品）
+     */
+    function getPlayerItems(uint256 playerId) external view returns (uint256[] memory itemIds, uint256[] memory quantities) {
+        require(players[playerId].initialized, "Player not exists");
+        
+        // 先计算有多少个非零物品
+        uint256 count = 0;
+        
+        // 检查所有可能的item ID范围
+        // 血瓶: 1000-1999, 转职书: 2000-2999, 宠物蛋: 3000-3999
+        for (uint256 i = 1000; i < 4000; i++) {
+            if (playerItems[playerId][i] > 0) {
+                count++;
+            }
+        }
+        
+        // 创建结果数组
+        itemIds = new uint256[](count);
+        quantities = new uint256[](count);
+        
+        // 填充结果数组
+        uint256 index = 0;
+        for (uint256 i = 1000; i < 4000; i++) {
+            if (playerItems[playerId][i] > 0) {
+                itemIds[index] = i;
+                quantities[index] = playerItems[playerId][i];
+                index++;
+            }
+        }
+    }
+    
+    /**
      * @dev 使用血瓶恢复血量
      */
     function useHealthPotion(uint256 playerId, uint256 itemId) external {

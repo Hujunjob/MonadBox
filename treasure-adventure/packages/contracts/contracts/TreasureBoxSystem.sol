@@ -544,9 +544,9 @@ contract TreasureBoxSystem is Ownable {
     /**
      * @dev 生成装备稀有度（按照前端概率）
      */
-    function _generateEquipmentRarity() internal view returns (uint8) {
+    function _generateEquipmentRarity(uint256 playerId, uint8 level) internal view returns (uint8) {
         uint256 random = uint256(
-            keccak256(abi.encodePacked(block.timestamp, msg.sender, "rarity"))
+            keccak256(abi.encodePacked(block.timestamp, msg.sender, playerId, level, "rarity"))
         ) % 100;
 
         if (random < COMMON_RARITY) {
@@ -576,12 +576,12 @@ contract TreasureBoxSystem is Ownable {
         // 随机装备类型 (0-7: helmet, armor, shoes, weapon, shield, accessory, ring, pet)
         uint8 equipmentType = uint8(
             uint256(
-                keccak256(abi.encodePacked(block.timestamp, playerId, level))
+                keccak256(abi.encodePacked(block.timestamp, playerId, level, "equipType"))
             ) % 8
         );
 
         // 生成装备稀有度（独立于宝箱稀有度）
-        uint8 equipmentRarity = _generateEquipmentRarity();
+        uint8 equipmentRarity = _generateEquipmentRarity(playerId, level);
 
         // 根据装备等级和稀有度计算装备属性
         (
@@ -592,7 +592,7 @@ contract TreasureBoxSystem is Ownable {
             uint8 critRate,
             uint16 critDamage
         ) = _calculateEquipmentStats(level, equipmentType, equipmentRarity);
-        console.log("_mintEquipmentToPlayerNFT 2");
+        console.log("_mintEquipmentToPlayerNFT 2",equipmentType);
         // 生成装备名称
         string memory name = _generateEquipmentName(
             equipmentType,
@@ -622,7 +622,7 @@ contract TreasureBoxSystem is Ownable {
             critDamage,
             name
         );
-        console.log("_mintEquipmentToPlayerNFT 3");
+        console.log("_mintEquipmentToPlayerNFT 3 type,id",equipmentType,equipmentId);
         // 添加到Player的背包
         playerNFT.addEquipmentToInventory(playerId, equipmentId);
         console.log("_mintEquipmentToPlayerNFT 4");

@@ -33,7 +33,7 @@ function filterABI(abi, contractName) {
       'getPlayerGold', 'getPlayerInventory', 'hasEquipmentInInventory',
       'addEquipmentToInventory', 'removeEquipmentFromInventory', 'getEquippedItems',
       'getPlayerTotalStats', 'canBattle', 'updateLastTreasureBoxTime',
-      'getPlayerItemQuantity', 'useHealthPotion', 'useItem'
+      'getPlayerItemQuantity', 'getPlayerItems', 'useHealthPotion', 'useItem'
     ],
     BattleSystemV2: ['completeBattle', 'getBattleStats', 'canBattle'],
     AdventureGold: ['balanceOf'],

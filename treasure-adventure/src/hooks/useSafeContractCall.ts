@@ -22,6 +22,7 @@ export function useSafeContractCall() {
   const { showToast } = useToast();
   const [isSimulating, setIsSimulating] = useState(false);
   const [currentOnSuccess, setCurrentOnSuccess] = useState<((receipt: any) => void) | null>(null);
+  const [currentSuccessMessage, setCurrentSuccessMessage] = useState<string>('');
 
   // 监听交易确认并触发成功回调
   useEffect(() => {
@@ -35,12 +36,23 @@ export function useSafeContractCall() {
       receipt 
     });
     
-    // 只有在交易确认且有收据且有回调的情况下才调用
-    if (isConfirmed && receipt && currentOnSuccess) {
-      console.log('交易确认成功，触发成功回调，receipt:', receipt);
-      currentOnSuccess(receipt);
-      setCurrentOnSuccess(null); // 清除回调避免重复调用
-    } else if (isConfirmed && !receipt && currentOnSuccess) {
+    // 交易确认后的处理逻辑
+    if (isConfirmed && receipt) {
+      console.log('交易确认成功，receipt:', receipt);
+      
+      // 显示成功toast
+      if (currentSuccessMessage) {
+        showToast(currentSuccessMessage, 'success');
+        setCurrentSuccessMessage(''); // 清除消息避免重复显示
+      }
+      
+      // 调用成功回调
+      if (currentOnSuccess) {
+        console.log('触发成功回调');
+        currentOnSuccess(receipt);
+        setCurrentOnSuccess(null); // 清除回调避免重复调用
+      }
+    } else if (isConfirmed && !receipt) {
       console.error('⚠️ 交易确认但收据为空，这不应该发生');
       console.log('等待收据数据...', { receiptError });
     }
@@ -48,7 +60,7 @@ export function useSafeContractCall() {
     if (receiptError) {
       console.error('获取交易收据时出错:', receiptError);
     }
-  }, [isConfirmed, isConfirming, receipt, currentOnSuccess, hash, receiptError]);
+  }, [isConfirmed, isConfirming, receipt, currentOnSuccess, currentSuccessMessage, hash, receiptError, showToast]);
 
   const safeCall = async (
     contractConfig: any,
@@ -62,6 +74,7 @@ export function useSafeContractCall() {
   ) => {
     const {
       loadingMessage = '正在验证交易参数...',
+      successMessage = '交易成功！',
       errorMessage = '交易验证失败',
       onSuccess
     } = options || {};
@@ -70,8 +83,9 @@ export function useSafeContractCall() {
       setIsSimulating(true);
       showToast(loadingMessage, 'info');
       
-      // 保存成功回调
+      // 保存成功回调和成功消息
       setCurrentOnSuccess(() => onSuccess || null);
+      setCurrentSuccessMessage(successMessage);
 
       // 如果没有提供模拟调用，直接执行（跳过验证）
       if (!simulationHook) {

@@ -1,4 +1,4 @@
-import { useAccount, useReadContract, useReadContracts } from 'wagmi';
+import { useAccount, useReadContract, usePublicClient } from 'wagmi';
 import { useToast } from '../components/ToastManager';
 import { useSafeContractCall } from './useSafeContractCall';
 import { useState, useEffect } from 'react';
@@ -7,11 +7,9 @@ import {
   CONTRACT_ADDRESSES,
   PLAYER_NFT_ABI,
   BATTLE_SYSTEM_ABI,
-  GOLD_TOKEN_ABI,
   TREASURE_BOX_SYSTEM_ABI,
-  EQUIPMENT_NFT_ABI,
-  ITEM_NFT_ABI,
-  EQUIPMENT_SYSTEM_ABI
+  EQUIPMENT_SYSTEM_ABI,
+  EQUIPMENT_NFT_ABI
 } from '../contracts';
 
 // 使用统一的合约地址配置
@@ -29,6 +27,7 @@ export function useWeb3GameV2() {
   const { address, isConnected } = useAccount();
   const { showToast } = useToast();
   const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
+  const publicClient = usePublicClient();
   
   const [currentPlayerId, setCurrentPlayerId] = useState<number>(0);
   const [inventoryEquipments, setInventoryEquipments] = useState<any[]>([]);
@@ -114,6 +113,15 @@ export function useWeb3GameV2() {
     args: [firstPlayerTokenId || 1n],
     query: { enabled: !!firstPlayerTokenId },
   });
+
+  // 获取玩家items列表
+  const { data: playerItemsData, refetch: refetchPlayerItems } = useReadContract({
+    address: CONTRACTS.PLAYER_NFT,
+    abi: PLAYER_NFT_ABI,
+    functionName: 'getPlayerItems',
+    args: [firstPlayerTokenId || 1n],
+    query: { enabled: !!firstPlayerTokenId },
+  });
   
 
   // 更新当前玩家ID
@@ -130,43 +138,108 @@ export function useWeb3GameV2() {
       return;
     }
 
+    if (!publicClient) {
+      console.warn('Public client not available, using fallback data');
+      setInventoryEquipments([]);
+      return;
+    }
+
     try {
-      // TODO: 实际项目中需要通过Equipment合约的getEquipment函数读取每个装备的详细信息
-      // 现在暂时使用基于ID的模拟数据，但只有当链上确实有装备时才生成
-      const mockEquipments = equipmentIds.map((id) => {
-        const numId = Number(id);
-        const seed = numId; // 使用ID作为种子保证一致性
+      // 使用publicClient并行获取所有装备数据
+      const equipmentDataPromises = equipmentIds.map(async (equipmentId) => {
+        try {
+          const data = await publicClient.readContract({
+            address: CONTRACTS.EQUIPMENT_NFT,
+            abi: EQUIPMENT_NFT_ABI,
+            functionName: 'getEquipment',
+            args: [equipmentId]
+          });
+          console.log("equipmentId",equipmentId,data);
+          
+          return {
+            id: Number(equipmentId),
+            data
+          };
+        } catch (error) {
+          console.error(`Error reading equipment ${equipmentId}:`, error);
+          // 如果读取失败，返回基础模拟数据
+          return {
+            id: Number(equipmentId),
+            data: {
+              equipmentType: 3, // 默认武器
+              level: 1,
+              stars: 0,
+              rarity: 0,
+              attack: 10,
+              defense: 5,
+              agility: 8,
+              criticalRate: 5,
+              criticalDamage: 150,
+              name: `装备${equipmentId}`
+            }
+          };
+        }
+      });
+
+      const equipmentResults = await Promise.all(equipmentDataPromises);
+
+      // 转换为前端格式
+      const equipments = equipmentResults.map(({ id, data }) => {
+        console.log("equipments type",data.equipmentType);
         
         return {
-          id: numId,
-          name: `装备${numId}`,
-          equipmentType: numId % 8, // 0-7 分别对应不同类型
-          level: (seed % 10) + 1,
-          stars: seed % 3,
-          rarity: seed % 5,
-          attack: 10 + (seed % 20),
-          defense: 5 + (seed % 15),
-          agility: 8 + (seed % 12),
-          criticalRate: seed % 10,
-          criticalDamage: 150 + (seed % 50),
+          id,
+          name: data.name || `装备${id}`,
+          equipmentType: Number(data.equipmentType || 3),
+          level: Number(data.level || 1),
+          stars: Number(data.stars || 0),
+          rarity: Number(data.rarity || 0),
+          attack: Number(data.attack || 0),
+          defense: Number(data.defense || 0),
+          agility: Number(data.agility || 0),
+          criticalRate: Number(data.criticalRate || 0),
+          criticalDamage: Number(data.criticalDamage || 0),
         };
       });
       
-      setInventoryEquipments(mockEquipments);
+      setInventoryEquipments(equipments);
     } catch (error) {
       console.error('Failed to fetch equipment details:', error);
       setInventoryEquipments([]);
     }
   };
 
-  // 获取玩家物品数据的辅助函数
-  const fetchPlayerItems = async (playerId: number) => {
-    try {
-      // TODO: 实际项目中需要通过Player合约的getPlayerItemQuantity函数读取
-      // 现在返回空数组，新玩家开始时应该没有任何物品
+  // 处理玩家物品数据
+  const processPlayerItemsData = () => {
+    if (!playerItemsData || !Array.isArray(playerItemsData) || playerItemsData.length !== 2) {
       setPlayerItems([]);
+      return;
+    }
+
+    try {
+      const [itemIds, quantities] = playerItemsData;
+      
+      if (!itemIds || !quantities || itemIds.length !== quantities.length) {
+        setPlayerItems([]);
+        return;
+      }
+      
+      // 转换为前端格式
+      const items = itemIds.map((id: bigint, index: number) => {
+        const itemId = Number(id);
+        const quantity = Number(quantities[index]);
+        const type = getItemType(itemId);
+        
+        return {
+          id: itemId,
+          type,
+          quantity,
+        };
+      });
+      
+      setPlayerItems(items);
     } catch (error) {
-      console.error('Failed to fetch player items:', error);
+      console.error('Failed to process player items data:', error);
       setPlayerItems([]);
     }
   };
@@ -189,15 +262,10 @@ export function useWeb3GameV2() {
     }
   }, [playerInventory]);
 
-  // 监听玩家ID变化，获取物品数据
+  // 监听玩家items数据变化
   useEffect(() => {
-    if (currentPlayerId > 0) {
-      fetchPlayerItems(currentPlayerId);
-    } else {
-      // 如果没有玩家ID，清空物品列表
-      setPlayerItems([]);
-    }
-  }, [currentPlayerId]);
+    processPlayerItemsData();
+  }, [playerItemsData]);
 
 
   // 玩家注册（铸造Player NFT）
@@ -224,7 +292,12 @@ export function useWeb3GameV2() {
       {
         loadingMessage: '🔍 正在注册玩家...',
         successMessage: '✅ 玩家注册成功！',
-        errorMessage: '❌ 注册失败'
+        errorMessage: '❌ 注册失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
       }
     );
   };
@@ -252,7 +325,12 @@ export function useWeb3GameV2() {
       {
         loadingMessage: '⚔️ 正在处理战斗...',
         successMessage: '✅ 战斗结果已上链！',
-        errorMessage: '❌ 战斗失败'
+        errorMessage: '❌ 战斗失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
       }
     );
   };
@@ -275,7 +353,12 @@ export function useWeb3GameV2() {
       {
         loadingMessage: '📦 正在领取宝箱...',
         successMessage: '✅ 宝箱领取成功！',
-        errorMessage: '❌ 宝箱领取失败'
+        errorMessage: '❌ 宝箱领取失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
       }
     );
   };
@@ -392,6 +475,11 @@ export function useWeb3GameV2() {
         onSuccess: (receipt: any) => {
           console.log('开箱onSuccess被调用，receipt:', receipt);
           
+          // 刷新数据
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+          
           // 确保收据存在且有效
           if (!receipt) {
             console.error('收据为空，无法解析奖励');
@@ -467,7 +555,12 @@ export function useWeb3GameV2() {
       {
         loadingMessage: '🛡️ 正在装备道具...',
         successMessage: '✅ 装备成功！',
-        errorMessage: '❌ 装备失败'
+        errorMessage: '❌ 装备失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
       }
     );
   };
@@ -490,7 +583,12 @@ export function useWeb3GameV2() {
       {
         loadingMessage: '🔄 正在卸下装备...',
         successMessage: '✅ 卸下成功！',
-        errorMessage: '❌ 卸下失败'
+        errorMessage: '❌ 卸下失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
       }
     );
   };
@@ -513,7 +611,12 @@ export function useWeb3GameV2() {
       {
         loadingMessage: '⭐ 正在升星...',
         successMessage: '✅ 升星成功！',
-        errorMessage: '❌ 升星失败'
+        errorMessage: '❌ 升星失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
       }
     );
   };
@@ -536,28 +639,42 @@ export function useWeb3GameV2() {
       {
         loadingMessage: '🔨 正在强化装备...',
         successMessage: '✅ 强化成功！',
-        errorMessage: '❌ 强化失败'
+        errorMessage: '❌ 强化失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
       }
     );
   };
 
-  // 监听交易确认
-  // useEffect(() => {
-  //   console.log('useWeb3GameV2 - 交易状态变化:', { isConfirmed, isConfirming, isPending });
-  //   if (isConfirmed) {
-  //     console.log('useWeb3GameV2 - 交易确认成功，开始刷新数据');
-  //     showToast('交易确认成功！', 'success');
-  //     // 刷新数据
-  //     refetchPlayer();
-  //     refetchTreasureBoxes();
-  //     refetchUnopenedBoxes();
-  //     refetchClaimableBoxes();
-  //     refetchPlayerBalance();
-  //     refetchPlayerTokenId();
-  //     refetchEquippedItems();
-  //     refetchPlayerTreasureBoxes();
-  //   }
-  // }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquippedItems, refetchPlayerTreasureBoxes]);
+  // 数据刷新辅助函数
+  const refreshAllData = () => {
+    console.log('刷新所有数据...');
+    refetchPlayer();
+    refetchTreasureBoxes();
+    refetchUnopenedBoxes();
+    refetchClaimableBoxes();
+    refetchPlayerBalance();
+    refetchPlayerTokenId();
+    refetchEquippedItems();
+    refetchPlayerTreasureBoxes();
+    refetchPlayerInventory();
+    refetchPlayerItems();
+  };
+
+  // 监听交易确认并自动刷新数据
+  useEffect(() => {
+    console.log('useWeb3GameV2 - 交易状态变化:', { isConfirmed, isConfirming, isPending });
+    if (isConfirmed) {
+      console.log('useWeb3GameV2 - 交易确认成功，开始刷新数据');
+      // 延迟刷新，确保区块链状态已更新
+      setTimeout(() => {
+        refreshAllData();
+      }, 1000);
+    }
+  }, [isConfirmed]);
 
   // 处理装备槽位映射
   const getEquippedItemsMap = () => {
@@ -740,11 +857,13 @@ export function useWeb3GameV2() {
     enhanceEquipment,
     
     // 数据刷新
+    refreshAllData,
     refetchPlayer,
     refetchTreasureBoxes,
     refetchUnopenedBoxes,
     refetchClaimableBoxes,
     refetchEquippedItems,
     refetchPlayerInventory,
+    refetchPlayerItems,
   };
 }

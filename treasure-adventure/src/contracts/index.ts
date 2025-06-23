@@ -1,13 +1,13 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0x40918Ba7f132E0aCba2CE4de4c4baF9BD2D7D849' as `0x${string}`,
-  EQUIPMENT_NFT: '0xb9bEECD1A582768711dE1EE7B0A1d582D9d72a6C' as `0x${string}`,
-  ITEM_NFT: '0x8A93d247134d91e0de6f96547cB0204e5BE8e5D8' as `0x${string}`,
-  GOLD_TOKEN: '0x2a810409872AfC346F9B5b26571Fd6eC42EA4849' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xF32D39ff9f6Aa7a7A64d7a4F00a54826Ef791a55' as `0x${string}`,
-  BATTLE_SYSTEM: '0xd6e1afe5cA8D00A2EFC01B89997abE2De47fdfAf' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x99dBE4AEa58E518C50a1c04aE9b48C9F6354612f' as `0x${string}`
+  PLAYER_NFT: '0x114e375B6FCC6d6fCb68c7A1d407E652C54F25FB' as `0x${string}`,
+  EQUIPMENT_NFT: '0x162700d1613DfEC978032A909DE02643bC55df1A' as `0x${string}`,
+  ITEM_NFT: '0x67aD6EA566BA6B0fC52e97Bc25CE46120fdAc04c' as `0x${string}`,
+  GOLD_TOKEN: '0x9385556B571ab92bf6dC9a0DbD75429Dd4d56F91' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xcD0048A5628B37B8f743cC2FeA18817A29e97270' as `0x${string}`,
+  BATTLE_SYSTEM: '0x976C214741b4657bd99DFD38a5c0E3ac5C99D903' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x8bEe2037448F096900Fd9affc427d38aE6CC0350' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -719,6 +719,30 @@ export const PLAYER_NFT_ABI = [
         "type": "uint256"
       }
     ],
+    "name": "getPlayerItems",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "itemIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "quantities",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
     "name": "getPlayerTotalStats",
     "outputs": [
       {
@@ -866,6 +890,84 @@ export const PLAYER_NFT_ABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "values",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "onERC1155BatchReceived",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "onERC1155Received",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
