@@ -406,22 +406,22 @@ export function useWeb3GameV2() {
   };
 
   // 监听交易确认
-  useEffect(() => {
-    console.log('useWeb3GameV2 - 交易状态变化:', { isConfirmed, isConfirming, isPending });
-    if (isConfirmed) {
-      console.log('useWeb3GameV2 - 交易确认成功，开始刷新数据');
-      showToast('交易确认成功！', 'success');
-      // 刷新数据
-      refetchPlayer();
-      refetchTreasureBoxes();
-      refetchUnopenedBoxes();
-      refetchClaimableBoxes();
-      refetchPlayerBalance();
-      refetchPlayerTokenId();
-      refetchEquippedItems();
-      refetchPlayerTreasureBoxes();
-    }
-  }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
+  // useEffect(() => {
+  //   console.log('useWeb3GameV2 - 交易状态变化:', { isConfirmed, isConfirming, isPending });
+  //   if (isConfirmed) {
+  //     console.log('useWeb3GameV2 - 交易确认成功，开始刷新数据');
+  //     showToast('交易确认成功！', 'success');
+  //     // 刷新数据
+  //     refetchPlayer();
+  //     refetchTreasureBoxes();
+  //     refetchUnopenedBoxes();
+  //     refetchClaimableBoxes();
+  //     refetchPlayerBalance();
+  //     refetchPlayerTokenId();
+  //     refetchEquippedItems();
+  //     refetchPlayerTreasureBoxes();
+  //   }
+  // }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquippedItems, refetchPlayerTreasureBoxes]);
 
   // 转换Player数据为前端格式，确保所有字段都有默认值
   const convertedPlayerData = {
