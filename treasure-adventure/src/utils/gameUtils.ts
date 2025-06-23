@@ -324,6 +324,7 @@ export const getEquipmentImage = (type: string | number): string => {
     'ring': '/assets/ring.png',
     'pet': '/assets/weapon.png' // 暂时使用武器图片作为宠物图片
   };
+  // console.log("getEquipmentImage type:%s,ts:%s,image:%s",type,typeString,imageMap[typeString]);
   
   return imageMap[typeString] || '/assets/weapon.png';
 };

@@ -598,16 +598,7 @@ contract TreasureBoxSystem is Ownable {
             equipmentType,
             equipmentRarity
         );
-        console.log("_mintEquipmentToPlayerNFT 2.5", address(playerNFT),equipmentType,level);
-            // level,
-            // 0, // stars = 0 (升星系统)
-            // equipmentRarity,
-            // attack,
-            // defense,
-            // agility,
-            // critRate,
-            // critDamage,
-            // name);
+        console.log("_mintEquipmentToPlayerNFT 2.5", address(playerNFT),equipmentType,name);
         // 铸造装备NFT到Player NFT合约
         uint256 equipmentId = equipmentNFT.mintEquipment(
             address(playerNFT),

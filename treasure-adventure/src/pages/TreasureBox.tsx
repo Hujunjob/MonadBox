@@ -169,7 +169,7 @@ const TreasureBox: React.FC = () => {
         <div className={`modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleCloseRewards}>
           <div className={`reward-modal ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>🎉 获得奖励</h3>
+              <h3>🎉 开箱结果</h3>
               <button className="close-btn" onClick={handleCloseRewards}>×</button>
             </div>
 
@@ -181,8 +181,8 @@ const TreasureBox: React.FC = () => {
                       {/* 金币奖励 */}
                       {selectedReward.rewardData.rewardType === 0 && (
                         <div className="reward-item-icon gold">
-                          <img 
-                            src="/assets/gold.png" 
+                          <img
+                            src="/assets/gold.png"
                             alt="金币"
                             style={{ width: '48px', height: '48px' }}
                             onError={(e) => {
@@ -199,30 +199,30 @@ const TreasureBox: React.FC = () => {
                       )}
                       {/* 装备奖励 */}
                       {selectedReward.rewardData.rewardType === 1 && (
-                        <div 
+                        <div
                           className="reward-item-icon equipment"
-                          style={{ 
-                            backgroundColor: selectedReward.rewardData.equipmentDetails 
+                          style={{
+                            backgroundColor: selectedReward.rewardData.equipmentDetails
                               ? (() => {
-                                  const rarityColors = ['#9ca3af', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'];
-                                  return rarityColors[selectedReward.rewardData.equipmentDetails.rarity] || '#9ca3af';
-                                })()
+                                const rarityColors = ['#9ca3af', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'];
+                                return rarityColors[selectedReward.rewardData.equipmentDetails.rarity] || '#9ca3af';
+                              })()
                               : '#9ca3af'
                           }}
                         >
                           {selectedReward.rewardData.equipmentDetails ? (
-                            <img 
+                            <img
                               src={getEquipmentImage(selectedReward.rewardData.equipmentDetails.equipmentType)}
                               alt="装备"
                               style={{ width: '48px', height: '48px' }}
                             />
                           ) : (
                             // 显示加载状态或默认装备图标，直到装备详情加载完成
-                            <div style={{ 
-                              width: '48px', 
-                              height: '48px', 
-                              display: 'flex', 
-                              alignItems: 'center', 
+                            <div style={{
+                              width: '48px',
+                              height: '48px',
+                              display: 'flex',
+                              alignItems: 'center',
                               justifyContent: 'center',
                               fontSize: '24px'
                             }}>
@@ -235,7 +235,7 @@ const TreasureBox: React.FC = () => {
                       {/* 血瓶奖励 */}
                       {selectedReward.rewardData.rewardType === 2 && (
                         <div className="reward-item-icon">
-                          <img 
+                          <img
                             src={getItemImage('health_potion')}
                             alt="血瓶"
                             style={{ width: '48px', height: '48px' }}
@@ -246,7 +246,7 @@ const TreasureBox: React.FC = () => {
                       {/* 宠物蛋奖励 */}
                       {selectedReward.rewardData.rewardType === 3 && (
                         <div className="reward-item-icon">
-                          <img 
+                          <img
                             src={getItemImage('pet_egg')}
                             alt="宠物蛋"
                             style={{ width: '48px', height: '48px' }}
@@ -257,7 +257,7 @@ const TreasureBox: React.FC = () => {
                       {/* 转职书奖励 */}
                       {selectedReward.rewardData.rewardType === 4 && (
                         <div className="reward-item-icon">
-                          <img 
+                          <img
                             src={getItemImage('job_advancement_book')}
                             alt="转职书"
                             style={{ width: '48px', height: '48px' }}
@@ -330,26 +330,16 @@ const TreasureBox: React.FC = () => {
                           )}
                           {selectedReward.rewardData.rewardType === 1 && (
                             <div className="equipment-reward-details">
-                              <p>等级: Lv.{selectedReward.rewardData.itemLevel}</p>
-                              <p>名称: {selectedReward.rewardData.itemName || `Lv.${selectedReward.rewardData.itemLevel} 装备`}</p>
-                              {/* 如果有equipmentIds数组，显示装备ID */}
-                              {selectedReward.rewardData.equipmentIds && selectedReward.rewardData.equipmentIds.length > 0 && (
-                                <p>装备ID: {selectedReward.rewardData.equipmentIds[0]}</p>
-                              )}
-                              <div className="equipment-type-info">
-                                <p>类型: {(() => {
-                                  const typeNames = ['头盔', '护甲', '鞋子', '武器', '盾牌', '饰品', '戒指', '宠物'];
-                                  const equipmentType = selectedReward.rewardData.equipmentDetails?.equipmentType || 
-                                                       selectedReward.rewardData.equipmentType || 
-                                                       3;
-                                  return typeNames[equipmentType] || '武器';
-                                })()}</p>
-                              </div>
-                              
                               {/* 显示装备详细属性 */}
                               {selectedReward.rewardData.equipmentDetails && (
+
                                 <div className="equipment-stats-details">
-                                  <p><strong>装备属性:</strong></p>
+                                  {/* <div className="equipment-rarity-display">
+                                    <span>稀有度: {(() => {
+                                      const rarityNames = ['普通', '不凡', '稀有', '史诗', '传说'];
+                                      return rarityNames[selectedReward.rewardData.equipmentDetails.rarity] || '普通';
+                                    })()}</span>
+                                  </div> */}
                                   <div className="stats-grid">
                                     {selectedReward.rewardData.equipmentDetails.attack > 0 && (
                                       <span className="stat-item">⚔️ 攻击: +{selectedReward.rewardData.equipmentDetails.attack}</span>
@@ -370,23 +360,11 @@ const TreasureBox: React.FC = () => {
                                       <span className="stat-item">💢 暴击伤害: +{selectedReward.rewardData.equipmentDetails.criticalDamage}%</span>
                                     )}
                                   </div>
-                                  <div className="equipment-stars-display">
-                                    <span>星级: </span>
-                                    {Array.from({length: 5}, (_, i) => (
-                                      <span key={i} className={`star ${i < (selectedReward.rewardData.equipmentDetails.stars || 0) ? 'filled' : 'empty'}`}>
-                                        ★
-                                      </span>
-                                    ))}
-                                  </div>
-                                  <div className="equipment-rarity-display">
-                                    <span>稀有度: {(() => {
-                                      const rarityNames = ['普通', '不凡', '稀有', '史诗', '传说'];
-                                      return rarityNames[selectedReward.rewardData.equipmentDetails.rarity] || '普通';
-                                    })()}</span>
-                                  </div>
+                                  
                                 </div>
+
                               )}
-                              
+
                               {!selectedReward.rewardData.equipmentDetails && (
                                 <p className="reward-tip">请前往背包查看详细属性</p>
                               )}
@@ -394,20 +372,18 @@ const TreasureBox: React.FC = () => {
                           )}
                           {selectedReward.rewardData.rewardType === 2 && (
                             <div className="potion-reward-details">
-                              <p>名称: {selectedReward.rewardData.itemName}</p>
-                              <p>等级: Lv.{selectedReward.rewardData.itemLevel}</p>
                               <p>治疗量: {selectedReward.rewardData.healAmount} HP</p>
                             </div>
                           )}
                           {selectedReward.rewardData.rewardType === 3 && (
                             <div className="pet-egg-reward-details">
-                              <p>名称: {selectedReward.rewardData.itemName}</p>
-                              <p>等级: Lv.{selectedReward.rewardData.itemLevel}</p>
+                              {/* <p>名称: {selectedReward.rewardData.itemName}</p>
+                              <p>等级: Lv.{selectedReward.rewardData.itemLevel}</p> */}
                             </div>
                           )}
                           {selectedReward.rewardData.rewardType === 4 && (
                             <div className="job-book-reward-details">
-                              <p>名称: {selectedReward.rewardData.itemName}</p>
+                              {/* <p>名称: {selectedReward.rewardData.itemName}</p> */}
                               <p>使用后可进行职业转职</p>
                             </div>
                           )}

@@ -190,7 +190,7 @@ export function useWeb3GameV2() {
         return {
           id,
           name: data.name || `装备${id}`,
-          equipmentType: Number(data.equipmentType || 3),
+          equipmentType: Number(data.equipmentType),
           level: Number(data.level || 1),
           stars: Number(data.stars || 0),
           rarity: Number(data.rarity || 0),
@@ -547,7 +547,7 @@ export function useWeb3GameV2() {
                 }
                 break;
               case 2: // 血瓶
-                rewardDescription = `获得 ${rewardData.itemName}！可恢复 ${rewardData.healAmount} 血量`;
+                rewardDescription = `获得 ${rewardData.itemName}！`;
                 break;
               case 3: // 宠物蛋
                 rewardDescription = `获得 ${rewardData.itemName}！`;
@@ -773,6 +773,8 @@ export function useWeb3GameV2() {
     inventoryEquipments.forEach(equipment => {
       // 如果装备没有被装备，就加入背包
       const isEquipped = equippedItems && equippedItems.some(id => Number(id) === equipment.id);
+      console.log("getInventoryItems",equipment);
+      
       if (!isEquipped) {
         items.push({
           id: equipment.id.toString(),
