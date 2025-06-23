@@ -10,6 +10,7 @@ import "./GameStructs.sol";
 import "./GameConfig.sol";
 import "./Equipment.sol";
 import "./AdventureGold.sol";
+import "./Item.sol";
 import "hardhat/console.sol";
 
 /**
@@ -28,10 +29,13 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     // 装备类型槽位映射
     mapping(uint8 => uint8) public equipmentTypeToSlot; // equipmentType => slot
     
+    // 玩家物品存储 (Player NFT ID => Item ID => quantity)
+    mapping(uint256 => mapping(uint256 => uint256)) public playerItems;
     
     uint256 private _nextTokenId;
     Equipment public equipmentNFT;
     AdventureGold public goldToken;
+    Item public itemNFT;
     
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
@@ -51,10 +55,13 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     event GoldAdded(uint256 indexed playerId, uint256 amount);
     event EquipmentAddedToInventory(uint256 indexed playerId, uint256 equipmentId);
     event EquipmentRemovedFromInventory(uint256 indexed playerId, uint256 equipmentId);
+    event ItemAdded(uint256 indexed playerId, uint256 itemId, uint256 quantity);
+    event ItemUsed(uint256 indexed playerId, uint256 itemId, uint256 quantity);
     
-    constructor(address _equipmentNFT, address _goldToken) ERC721("Adventure Player", "PLAYER") Ownable(msg.sender) {
+    constructor(address _equipmentNFT, address _goldToken, address _itemNFT) ERC721("Adventure Player", "PLAYER") Ownable(msg.sender) {
         equipmentNFT = Equipment(_equipmentNFT);
         goldToken = AdventureGold(_goldToken);
+        itemNFT = Item(_itemNFT);
         _nextTokenId = 1;
         
         // 设置装备类型到槽位的映射
@@ -511,6 +518,74 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
         player.lastTreasureBoxTime = block.timestamp;
     }
     
+    /**
+     * @dev 添加物品到玩家NFT
+     */
+    function addItem(uint256 playerId, uint256 itemId, uint256 quantity) external onlyAuthorizedOrOwner {
+        GameStructs.Player storage player = players[playerId];
+        require(player.initialized, "Player not exists");
+        
+        playerItems[playerId][itemId] += quantity;
+        emit ItemAdded(playerId, itemId, quantity);
+    }
+    
+    /**
+     * @dev 使用物品（减少数量）
+     */
+    function useItem(uint256 playerId, uint256 itemId, uint256 quantity) external {
+        require(ownerOf(playerId) == msg.sender || authorizedSystems[msg.sender] || msg.sender == owner(), "Not authorized");
+        require(playerItems[playerId][itemId] >= quantity, "Insufficient item quantity");
+        
+        playerItems[playerId][itemId] -= quantity;
+        emit ItemUsed(playerId, itemId, quantity);
+    }
+    
+    /**
+     * @dev 获取玩家特定物品数量
+     */
+    function getPlayerItemQuantity(uint256 playerId, uint256 itemId) external view returns (uint256) {
+        require(players[playerId].initialized, "Player not exists");
+        return playerItems[playerId][itemId];
+    }
+    
+    /**
+     * @dev 使用血瓶恢复血量
+     */
+    function useHealthPotion(uint256 playerId, uint256 itemId) external {
+        require(ownerOf(playerId) == msg.sender, "Not your player");
+        require(playerItems[playerId][itemId] > 0, "No health potion");
+        require(itemId >= 1000 && itemId < 2000, "Not a health potion");
+        
+        GameStructs.Player storage player = players[playerId];
+        require(player.initialized, "Player not exists");
+        require(player.health < player.maxHealth, "Health already full");
+        
+        // 计算治疗量（根据血瓶等级）
+        uint256 healAmount = _calculateHealAmount(itemId);
+        
+        // 恢复血量
+        uint16 newHealth = player.health + uint16(healAmount);
+        if (newHealth > player.maxHealth) {
+            newHealth = player.maxHealth;
+        }
+        player.health = newHealth;
+        
+        // 消耗血瓶
+        playerItems[playerId][itemId] -= 1;
+        emit ItemUsed(playerId, itemId, 1);
+    }
+    
+    /**
+     * @dev 计算血瓶治疗量（内部函数）
+     */
+    function _calculateHealAmount(uint256 itemId) internal pure returns (uint256) {
+        // 根据itemId计算等级，然后计算治疗量
+        // 假设itemId为1000+level的格式
+        uint256 level = (itemId - 1000) + 1;
+        if (level > 10) level = 10; // 最大等级10
+        
+        return 50 + (level - 1) * 25; // 基础50 + (level-1)*25
+    }
 
     /**
      * @dev 重写supportsInterface函数

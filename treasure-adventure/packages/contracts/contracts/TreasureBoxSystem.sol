@@ -8,6 +8,7 @@ import "./Equipment.sol";
 import "./GameStructs.sol";
 import "./GameConfig.sol";
 import "./Player.sol";
+import "./Item.sol";
 
 /**
  * @title TreasureBoxSystem
@@ -17,12 +18,12 @@ contract TreasureBoxSystem is Ownable {
     AdventureGold public goldToken;
     Equipment public equipmentNFT;
     Player public playerNFT;
+    Item public itemNFT;
 
     struct TreasureBox {
         uint8 level; // 宝箱等级 (1-10)
         uint8 rarity; // 稀有度 (0-4)
         uint32 createdTime; // 创建时间
-        bool opened; // 是否已开启
     }
 
     struct BoxReward {
@@ -86,11 +87,13 @@ contract TreasureBoxSystem is Ownable {
     constructor(
         address _goldToken,
         address _equipmentNFT,
-        address _playerNFT
+        address _playerNFT,
+        address _itemNFT
     ) Ownable(msg.sender) {
         goldToken = AdventureGold(_goldToken);
         equipmentNFT = Equipment(_equipmentNFT);
         playerNFT = Player(_playerNFT);
+        itemNFT = Item(_itemNFT);
     }
 
     /**
@@ -111,8 +114,7 @@ contract TreasureBoxSystem is Ownable {
             TreasureBox({
                 level: level,
                 rarity: rarity,
-                createdTime: uint32(block.timestamp),
-                opened: false
+                createdTime: uint32(block.timestamp)
             })
         );
 
@@ -167,8 +169,7 @@ contract TreasureBoxSystem is Ownable {
                     TreasureBox({
                         level: boxLevel,
                         rarity: rarity,
-                        createdTime: uint32(block.timestamp),
-                        opened: false
+                        createdTime: uint32(block.timestamp)
                     })
                 );
 
@@ -203,12 +204,13 @@ contract TreasureBoxSystem is Ownable {
         );
 
         TreasureBox storage box = playerTreasureBoxes[playerId][boxIndex];
-        require(!box.opened, "Box already opened");
 
-        box.opened = true;
         console.log("openTreasureBox 1");
         // 生成奖励
         BoxReward memory reward = _generateReward(box.level, box.rarity);
+        
+        // 删除已开启的宝箱
+        _removeBox(playerId, boxIndex);
 
         // 发放金币奖励到Player NFT合约
         if (reward.goldAmount > 0) {
@@ -226,6 +228,14 @@ contract TreasureBoxSystem is Ownable {
                     box.rarity
                 );
             }
+        }
+        
+        // 发放物品奖励（血瓶、转职书、宠物蛋）
+        if (reward.rewardType >= 2 && reward.rewardType <= 4 && reward.itemId > 0) {
+            // mint Item NFT 给 Player NFT 合约
+            itemNFT.mint(address(playerNFT), reward.itemId, 1);
+            // 添加到玩家的物品库存
+            playerNFT.addItem(playerId, reward.itemId, 1);
         }
         console.log("openTreasureBox 3");
         emit TreasureBoxOpened(
@@ -252,6 +262,21 @@ contract TreasureBoxSystem is Ownable {
 
     //     return string(abi.encodePacked(rarityPrefixes[rarity], " ", typeNames[equipmentType]));
     // }
+
+    /**
+     * @dev 删除指定索引的宝箱
+     * @param playerId 玩家ID
+     * @param boxIndex 宝箱索引
+     */
+    function _removeBox(uint256 playerId, uint256 boxIndex) internal {
+        TreasureBox[] storage boxes = playerTreasureBoxes[playerId];
+        require(boxIndex < boxes.length, "Invalid box index");
+        
+        // 将最后一个元素移到要删除的位置
+        boxes[boxIndex] = boxes[boxes.length - 1];
+        // 删除最后一个元素
+        boxes.pop();
+    }
 
     /**
      * @dev 计算宝箱稀有度
@@ -450,9 +475,8 @@ contract TreasureBoxSystem is Ownable {
         string memory name = string(
             abi.encodePacked("Lv", _toString(level), " Health Potion")
         );
-        uint256 itemId = uint256(
-            keccak256(abi.encodePacked("health_potion", level))
-        );
+        // 血瓶ID范围：1000-1999，根据等级生成ID
+        uint256 itemId = 1000 + (level - 1);
 
         return (itemId, name, healAmount);
     }
@@ -466,7 +490,8 @@ contract TreasureBoxSystem is Ownable {
         string memory name = string(
             abi.encodePacked("Lv", _toString(level), " Pet Egg")
         );
-        uint256 itemId = uint256(keccak256(abi.encodePacked("pet_egg", level)));
+        // 宠物蛋ID范围：3000-3999，根据等级生成ID
+        uint256 itemId = 3000 + (level - 1);
 
         return (itemId, name);
     }
@@ -478,24 +503,30 @@ contract TreasureBoxSystem is Ownable {
         uint8 boxLevel
     ) internal pure returns (uint256, string memory) {
         string memory bookName;
+        uint256 jobType;
 
         if (boxLevel <= 2) {
             bookName = "Great Swordsman Job Book";
+            jobType = 1;
         } else if (boxLevel <= 4) {
             bookName = "Temple Knight Job Book";
+            jobType = 2;
         } else if (boxLevel <= 6) {
             bookName = "Dragon Knight Job Book";
+            jobType = 3;
         } else if (boxLevel <= 8) {
             bookName = "Sword Master Job Book";
+            jobType = 4;
         } else if (boxLevel <= 10) {
             bookName = "Sword God Job Book";
+            jobType = 5;
         } else {
             bookName = "Plane Lord Job Book";
+            jobType = 6;
         }
 
-        uint256 itemId = uint256(
-            keccak256(abi.encodePacked("job_book", boxLevel))
-        );
+        // 转职书ID范围：2000-2999，根据职业类型生成ID
+        uint256 itemId = 2000 + jobType;
         return (itemId, bookName);
     }
 
@@ -724,19 +755,12 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 获取玩家未开启的宝箱数量
+     * @dev 获取玩家未开启的宝箱数量（现在等同于总宝箱数量，因为已开启的宝箱会被删除）
      */
     function getUnopenedBoxCount(
         uint256 playerId
     ) external view returns (uint256) {
-        uint256 count = 0;
-        TreasureBox[] memory boxes = playerTreasureBoxes[playerId];
-        for (uint256 i = 0; i < boxes.length; i++) {
-            if (!boxes[i].opened) {
-                count++;
-            }
-        }
-        return count;
+        return playerTreasureBoxes[playerId].length;
     }
 
     /**
