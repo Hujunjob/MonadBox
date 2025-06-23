@@ -427,7 +427,9 @@ export function useWeb3GameV2() {
               itemId: itemId.toString(),
               itemName: itemName,
               itemLevel: Number(itemLevel),
-              healAmount: healAmount.toString()
+              healAmount: healAmount.toString(),
+              // 如果是装备奖励，添加equipmentType (稍后会从合约中获取)
+              equipmentType: Number(rewardType) === 1 && equipmentIds.length > 0 ? null : undefined
             };
           }
         } catch (parseError) {
@@ -506,6 +508,43 @@ export function useWeb3GameV2() {
                 break;
               case 1: // 装备
                 rewardDescription = `获得 Lv.${rewardData.itemLevel} 装备！`;
+                // 如果是装备奖励且有装备ID，尝试获取装备详细信息
+                if (rewardData.equipmentIds && rewardData.equipmentIds.length > 0 && publicClient) {
+                  const equipmentId = BigInt(rewardData.equipmentIds[0]);
+                  publicClient.readContract({
+                    address: CONTRACTS.EQUIPMENT_NFT,
+                    abi: EQUIPMENT_NFT_ABI,
+                    functionName: 'getEquipment',
+                    args: [equipmentId]
+                  }).then((equipmentData: any) => {
+                    console.log('获取到装备详细信息:', equipmentData);
+                    // 更新奖励数据包含装备详细信息和equipmentType
+                    const enhancedRewardData = {
+                      ...rewardData,
+                      equipmentType: Number(equipmentData.equipmentType || 3),
+                      equipmentDetails: {
+                        equipmentType: Number(equipmentData.equipmentType || 3),
+                        rarity: Number(equipmentData.rarity || 0),
+                        attack: Number(equipmentData.attack || 0),
+                        defense: Number(equipmentData.defense || 0),
+                        health: Number(equipmentData.health || 0),
+                        agility: Number(equipmentData.agility || 0),
+                        criticalRate: Number(equipmentData.criticalRate || 0),
+                        criticalDamage: Number(equipmentData.criticalDamage || 0),
+                        stars: Number(equipmentData.stars || 0)
+                      }
+                    };
+                    
+                    // 重新调用回调函数更新UI
+                    onReward({
+                      type: rewardType,
+                      description: rewardDescription,
+                      rewardData: enhancedRewardData
+                    });
+                  }).catch(error => {
+                    console.error('获取装备详细信息失败:', error);
+                  });
+                }
                 break;
               case 2: // 血瓶
                 rewardDescription = `获得 ${rewardData.itemName}！可恢复 ${rewardData.healAmount} 血量`;

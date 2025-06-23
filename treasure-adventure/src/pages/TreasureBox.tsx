@@ -176,7 +176,101 @@ const TreasureBox: React.FC = () => {
             <div className="modal-content">
               <div className="reward-content">
                 <div className="reward-icon">
-                  {selectedReward.type === 'Web3' && (
+                  {selectedReward.type === 'Web3' && selectedReward.rewardData && (
+                    <div className="reward-item-icon web3">
+                      {/* 金币奖励 */}
+                      {selectedReward.rewardData.rewardType === 0 && (
+                        <div className="reward-item-icon gold">
+                          <img 
+                            src="/assets/gold.png" 
+                            alt="金币"
+                            style={{ width: '48px', height: '48px' }}
+                            onError={(e) => {
+                              // 如果金币图片不存在，使用emoji
+                              e.currentTarget.style.display = 'none';
+                              const nextSibling = e.currentTarget.nextElementSibling as HTMLElement;
+                              if (nextSibling) {
+                                nextSibling.style.display = 'block';
+                              }
+                            }}
+                          />
+                          <span style={{ fontSize: '48px', display: 'none' }}>💰</span>
+                        </div>
+                      )}
+                      {/* 装备奖励 */}
+                      {selectedReward.rewardData.rewardType === 1 && (
+                        <div 
+                          className="reward-item-icon equipment"
+                          style={{ 
+                            backgroundColor: selectedReward.rewardData.equipmentDetails 
+                              ? (() => {
+                                  const rarityColors = ['#9ca3af', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'];
+                                  return rarityColors[selectedReward.rewardData.equipmentDetails.rarity] || '#9ca3af';
+                                })()
+                              : '#9ca3af'
+                          }}
+                        >
+                          {selectedReward.rewardData.equipmentDetails ? (
+                            <img 
+                              src={getEquipmentImage(selectedReward.rewardData.equipmentDetails.equipmentType)}
+                              alt="装备"
+                              style={{ width: '48px', height: '48px' }}
+                            />
+                          ) : (
+                            // 显示加载状态或默认装备图标，直到装备详情加载完成
+                            <div style={{ 
+                              width: '48px', 
+                              height: '48px', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              fontSize: '24px'
+                            }}>
+                              ⚔️
+                            </div>
+                          )}
+                          <span className="equipment-level">Lv.{selectedReward.rewardData.itemLevel}</span>
+                        </div>
+                      )}
+                      {/* 血瓶奖励 */}
+                      {selectedReward.rewardData.rewardType === 2 && (
+                        <div className="reward-item-icon">
+                          <img 
+                            src={getItemImage('health_potion')}
+                            alt="血瓶"
+                            style={{ width: '48px', height: '48px' }}
+                          />
+                          <span className="item-level">Lv.{selectedReward.rewardData.itemLevel}</span>
+                        </div>
+                      )}
+                      {/* 宠物蛋奖励 */}
+                      {selectedReward.rewardData.rewardType === 3 && (
+                        <div className="reward-item-icon">
+                          <img 
+                            src={getItemImage('pet_egg')}
+                            alt="宠物蛋"
+                            style={{ width: '48px', height: '48px' }}
+                          />
+                          <span className="item-level">Lv.{selectedReward.rewardData.itemLevel}</span>
+                        </div>
+                      )}
+                      {/* 转职书奖励 */}
+                      {selectedReward.rewardData.rewardType === 4 && (
+                        <div className="reward-item-icon">
+                          <img 
+                            src={getItemImage('job_advancement_book')}
+                            alt="转职书"
+                            style={{ width: '48px', height: '48px' }}
+                          />
+                        </div>
+                      )}
+                      {/* 默认情况 */}
+                      {![0, 1, 2, 3, 4].includes(selectedReward.rewardData.rewardType) && (
+                        <span style={{ fontSize: '48px' }}>🎁</span>
+                      )}
+                    </div>
+                  )}
+                  {selectedReward.type === 'Web3' && !selectedReward.rewardData && (
                     <div className="reward-item-icon web3">
                       <span style={{ fontSize: '48px' }}>🎁</span>
                     </div>
@@ -226,27 +320,99 @@ const TreasureBox: React.FC = () => {
                   <span className="reward-description">{selectedReward.description}</span>
                   {selectedReward.type === 'Web3' && (
                     <div className="web3-reward-info">
-                      <p>🎉 开箱成功！</p>
                       {selectedReward.rewardData && (
                         <div className="detailed-reward-info">
                           {selectedReward.rewardData.rewardType === 0 && (
-                            <p>💰 金币数量: {(Number(selectedReward.rewardData.goldAmount) / 1e18).toFixed(2)}</p>
+                            <div className="gold-reward-details">
+                              <p><strong>💰 金币奖励</strong></p>
+                              <p>数量: {(Number(selectedReward.rewardData.goldAmount) / 1e18).toFixed(2)} 金币</p>
+                            </div>
                           )}
                           {selectedReward.rewardData.rewardType === 1 && (
-                            <p>⚔️ 装备等级: Lv.{selectedReward.rewardData.itemLevel}</p>
+                            <div className="equipment-reward-details">
+                              <p>等级: Lv.{selectedReward.rewardData.itemLevel}</p>
+                              <p>名称: {selectedReward.rewardData.itemName || `Lv.${selectedReward.rewardData.itemLevel} 装备`}</p>
+                              {/* 如果有equipmentIds数组，显示装备ID */}
+                              {selectedReward.rewardData.equipmentIds && selectedReward.rewardData.equipmentIds.length > 0 && (
+                                <p>装备ID: {selectedReward.rewardData.equipmentIds[0]}</p>
+                              )}
+                              <div className="equipment-type-info">
+                                <p>类型: {(() => {
+                                  const typeNames = ['头盔', '护甲', '鞋子', '武器', '盾牌', '饰品', '戒指', '宠物'];
+                                  const equipmentType = selectedReward.rewardData.equipmentDetails?.equipmentType || 
+                                                       selectedReward.rewardData.equipmentType || 
+                                                       3;
+                                  return typeNames[equipmentType] || '武器';
+                                })()}</p>
+                              </div>
+                              
+                              {/* 显示装备详细属性 */}
+                              {selectedReward.rewardData.equipmentDetails && (
+                                <div className="equipment-stats-details">
+                                  <p><strong>装备属性:</strong></p>
+                                  <div className="stats-grid">
+                                    {selectedReward.rewardData.equipmentDetails.attack > 0 && (
+                                      <span className="stat-item">⚔️ 攻击: +{selectedReward.rewardData.equipmentDetails.attack}</span>
+                                    )}
+                                    {selectedReward.rewardData.equipmentDetails.defense > 0 && (
+                                      <span className="stat-item">🛡️ 防御: +{selectedReward.rewardData.equipmentDetails.defense}</span>
+                                    )}
+                                    {selectedReward.rewardData.equipmentDetails.health > 0 && (
+                                      <span className="stat-item">❤️ 血量: +{selectedReward.rewardData.equipmentDetails.health}</span>
+                                    )}
+                                    {selectedReward.rewardData.equipmentDetails.agility > 0 && (
+                                      <span className="stat-item">💨 敏捷: +{selectedReward.rewardData.equipmentDetails.agility}</span>
+                                    )}
+                                    {selectedReward.rewardData.equipmentDetails.criticalRate > 0 && (
+                                      <span className="stat-item">💥 暴击率: +{selectedReward.rewardData.equipmentDetails.criticalRate}%</span>
+                                    )}
+                                    {selectedReward.rewardData.equipmentDetails.criticalDamage > 0 && (
+                                      <span className="stat-item">💢 暴击伤害: +{selectedReward.rewardData.equipmentDetails.criticalDamage}%</span>
+                                    )}
+                                  </div>
+                                  <div className="equipment-stars-display">
+                                    <span>星级: </span>
+                                    {Array.from({length: 5}, (_, i) => (
+                                      <span key={i} className={`star ${i < (selectedReward.rewardData.equipmentDetails.stars || 0) ? 'filled' : 'empty'}`}>
+                                        ★
+                                      </span>
+                                    ))}
+                                  </div>
+                                  <div className="equipment-rarity-display">
+                                    <span>稀有度: {(() => {
+                                      const rarityNames = ['普通', '不凡', '稀有', '史诗', '传说'];
+                                      return rarityNames[selectedReward.rewardData.equipmentDetails.rarity] || '普通';
+                                    })()}</span>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {!selectedReward.rewardData.equipmentDetails && (
+                                <p className="reward-tip">请前往背包查看详细属性</p>
+                              )}
+                            </div>
                           )}
                           {selectedReward.rewardData.rewardType === 2 && (
-                            <p>❤️ 治疗量: {selectedReward.rewardData.healAmount} HP</p>
+                            <div className="potion-reward-details">
+                              <p>名称: {selectedReward.rewardData.itemName}</p>
+                              <p>等级: Lv.{selectedReward.rewardData.itemLevel}</p>
+                              <p>治疗量: {selectedReward.rewardData.healAmount} HP</p>
+                            </div>
                           )}
                           {selectedReward.rewardData.rewardType === 3 && (
-                            <p>🥚 宠物蛋等级: Lv.{selectedReward.rewardData.itemLevel}</p>
+                            <div className="pet-egg-reward-details">
+                              <p>名称: {selectedReward.rewardData.itemName}</p>
+                              <p>等级: Lv.{selectedReward.rewardData.itemLevel}</p>
+                            </div>
                           )}
                           {selectedReward.rewardData.rewardType === 4 && (
-                            <p>📖 转职书: {selectedReward.rewardData.itemName}</p>
+                            <div className="job-book-reward-details">
+                              <p>名称: {selectedReward.rewardData.itemName}</p>
+                              <p>使用后可进行职业转职</p>
+                            </div>
                           )}
                         </div>
                       )}
-                      <p>奖励已自动发放到您的Player NFT</p>
                     </div>
                   )}
                   {selectedReward.type === RewardType.EQUIPMENT && (

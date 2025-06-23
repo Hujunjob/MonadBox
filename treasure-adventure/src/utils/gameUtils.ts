@@ -333,10 +333,16 @@ export const getItemImage = (type: string): string => {
   const imageMap: { [key: string]: string } = {
     'health_potion': '/assets/blood.png',
     'pet_egg': '/assets/egg.png',
-    'job_advancement_book': '/assets/scroll1.png' // 默认转职书图片
+    'job_advancement_book': '/assets/scroll1.png', // 默认转职书图片
+    'gold': '/assets/gold.png' // 金币图片
   };
   
   return imageMap[type] || '/assets/blood.png';
+};
+
+// 获取金币图片 
+export const getGoldImage = (): string => {
+  return '/assets/gold.png';
 };
 
 // 根据转职书目标职业获取对应图片
