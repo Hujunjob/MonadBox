@@ -54,10 +54,10 @@ contract TreasureBoxSystem is Ownable {
     }
 
     // 宝箱奖励概率配置 (基于100，匹配前端逻辑)
-    uint8 public constant GOLD_PROBABILITY = 1; // 1%
-    uint8 public constant HEALTH_POTION_PROBABILITY = 13; // 13%
+    uint8 public constant GOLD_PROBABILITY = 10; // 1%
+    uint8 public constant HEALTH_POTION_PROBABILITY = 4; // 13%
     uint8 public constant PET_EGG_PROBABILITY = 8; // 8%
-    uint8 public constant JOB_BOOK_PROBABILITY = 7; // 7%
+    uint8 public constant JOB_BOOK_PROBABILITY = 8; // 7%
     // 装备 71% (剩余概率)
 
     // 稀有度概率配置 (基于100)

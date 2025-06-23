@@ -314,7 +314,7 @@ export function useWeb3GameV2() {
   });
 
   // 开始冒险 - 新的战斗系统
-  const startAdventure = async (adventureLevel: number) => {
+  const startAdventure = async (adventureLevel: number, monsterLevel?: number) => {
     if (!isConnected || !currentPlayerId) {
       showToast('请先连接钱包并注册玩家', 'error');
       return;
@@ -325,25 +325,78 @@ export function useWeb3GameV2() {
       return;
     }
 
+    // 检查用户是否已通关该层级
+    const currentMaxLevel = maxAdventureLevel || 1;
+    if (adventureLevel > currentMaxLevel) {
+      showToast(`第${adventureLevel}层尚未解锁！请先通关第${currentMaxLevel}层`, 'error');
+      return;
+    }
+
+    // 默认怪物等级等于冒险层级
+    const finalMonsterLevel = monsterLevel || adventureLevel;
+
     await safeCall(
       {
         address: CONTRACTS.BATTLE_SYSTEM,
         abi: BATTLE_SYSTEM_ABI,
         functionName: 'startAdventure',
-        args: [BigInt(currentPlayerId), adventureLevel],
+        args: [BigInt(currentPlayerId), adventureLevel, finalMonsterLevel],
       },
       undefined,
       {
         loadingMessage: `⚔️ 正在挑战第${adventureLevel}层...`,
         successMessage: '✅ 冒险结果已上链！',
         errorMessage: '❌ 冒险失败',
-        onSuccess: () => {
+        onSuccess: (receipt: any) => {
+          // 解析战斗结果事件
+          const battleResult = parseBattleResult(receipt);
+          if (battleResult && typeof window !== 'undefined') {
+            // 触发自定义事件来显示战斗结果
+            window.dispatchEvent(new CustomEvent('battleResult', { 
+              detail: battleResult 
+            }));
+          }
           setTimeout(() => {
             refreshAllData();
           }, 500);
         }
       }
     );
+  };
+
+  // 解析战斗结果事件
+  const parseBattleResult = (receipt: any) => {
+    try {
+      if (!receipt?.logs) return null;
+      
+      for (const log of receipt.logs) {
+        try {
+          const decodedLog = decodeEventLog({
+            abi: BATTLE_SYSTEM_ABI,
+            data: log.data,
+            topics: log.topics,
+          });
+          
+          if (decodedLog.eventName === 'BattleCompleted') {
+            const { playerId, experienceGained, victory, adventureLevel, monsterLevel } = decodedLog.args as any;
+            return {
+              isVictory: victory,
+              experienceGained: Number(experienceGained),
+              adventureLevel: Number(adventureLevel),
+              monsterLevel: Number(monsterLevel),
+              monsterName: `第${adventureLevel}层怪物 (等级${monsterLevel})`
+            };
+          }
+        } catch (error) {
+          // 忽略无法解析的日志
+          continue;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('解析战斗结果失败:', error);
+      return null;
+    }
   };
 
   // 获取怪物属性
@@ -796,6 +849,12 @@ export function useWeb3GameV2() {
     }
   }, [isConfirmed]);
 
+  // 将装备类型数字转换为名称
+  const getEquipmentTypeName = (type: number) => {
+    const typeNames = ['helmet', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'pet'];
+    return typeNames[type] || 'weapon';
+  };
+
   // 处理装备槽位映射
   const getEquippedItemsMap = useMemo(() => {
     const equippedMap: any = {
@@ -839,12 +898,6 @@ export function useWeb3GameV2() {
 
     return equippedMap;
   }, [equippedItems, inventoryEquipments]);
-
-  // 将装备类型数字转换为名称
-  const getEquipmentTypeName = (type: number) => {
-    const typeNames = ['helmet', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'pet'];
-    return typeNames[type] || 'weapon';
-  };
 
   // 获取物品名称
   const getItemName = (itemId: number, type: string) => {

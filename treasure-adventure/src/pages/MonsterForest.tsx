@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
+import BattleResultModal from '../components/BattleResultModal';
 
 const MonsterForest: React.FC = () => {
   const hybridStore = useHybridGameStore();
@@ -8,6 +9,21 @@ const MonsterForest: React.FC = () => {
   const [isLevelExpanded, setIsLevelExpanded] = useState(false);
   const [monsterStats, setMonsterStats] = useState<{[key: number]: any}>({});
   const [winRates, setWinRates] = useState<{[key: number]: number}>({});
+  
+  // 战斗结果弹窗状态
+  const [battleResult, setBattleResult] = useState<{
+    isOpen: boolean;
+    isVictory: boolean;
+    monsterName: string;
+    expGained: number;
+    adventureLevel: number;
+  }>({
+    isOpen: false,
+    isVictory: false,
+    monsterName: '',
+    expGained: 0,
+    adventureLevel: 1
+  });
   
   // 获取玩家最大解锁层数
   const maxUnlockedLevel = hybridStore.maxAdventureLevel || 1;
@@ -59,6 +75,30 @@ const MonsterForest: React.FC = () => {
       fetchBattleData();
     }
   }, [hybridStore.currentPlayerId, player]);
+
+  // 监听战斗结果事件
+  useEffect(() => {
+    const handleBattleResult = (event: any) => {
+      const result = event.detail;
+      setBattleResult({
+        isOpen: true,
+        isVictory: result.isVictory,
+        monsterName: result.monsterName,
+        expGained: result.experienceGained,
+        adventureLevel: result.adventureLevel
+      });
+    };
+
+    window.addEventListener('battleResult', handleBattleResult);
+    
+    return () => {
+      window.removeEventListener('battleResult', handleBattleResult);
+    };
+  }, []);
+
+  const handleCloseBattleResult = () => {
+    setBattleResult(prev => ({ ...prev, isOpen: false }));
+  };
   
   const handleStartAdventure = async (adventureLevel: number) => {
     if (player.stamina < 1) {
@@ -247,6 +287,16 @@ const MonsterForest: React.FC = () => {
           <li>胜率基于你的总攻击力（包含装备加成）</li>
         </ul>
       </div>
+
+      {/* 战斗结果弹窗 */}
+      <BattleResultModal
+        isOpen={battleResult.isOpen}
+        isVictory={battleResult.isVictory}
+        monsterName={battleResult.monsterName}
+        expGained={battleResult.expGained}
+        adventureLevel={battleResult.adventureLevel}
+        onClose={handleCloseBattleResult}
+      />
     </div>
   );
 };

@@ -5,7 +5,7 @@ interface BattleResultModalProps {
   isVictory: boolean;
   monsterName: string;
   expGained: number;
-  goldGained: number;
+  adventureLevel: number;
   onClose: () => void;
 }
 
@@ -14,7 +14,7 @@ const BattleResultModal: React.FC<BattleResultModalProps> = ({
   isVictory,
   monsterName,
   expGained,
-  goldGained,
+  adventureLevel,
   onClose
 }) => {
   if (!isOpen) return null;
@@ -36,12 +36,8 @@ const BattleResultModal: React.FC<BattleResultModalProps> = ({
                   <span>获得经验: +{expGained}</span>
                 </div>
                 <div className="reward-item">
-                  <span className="reward-icon">💰</span>
-                  <span>获得金币: +{goldGained}</span>
-                </div>
-                <div className="reward-item">
                   <span className="reward-icon">📦</span>
-                  <span>获得宝箱: +1</span>
+                  <span>获得宝箱: +1 (等级{adventureLevel})</span>
                 </div>
               </div>
             </>
