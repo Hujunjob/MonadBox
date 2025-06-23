@@ -5,125 +5,31 @@ import { useState, useEffect } from 'react';
 import { 
   useRegisterPlayerSimulation,
   useCompleteBattleSimulation,
-  useClaimOfflineTreasureBoxesSimulation,
+  useClaimTreasureBoxesSimulation,
   useOpenTreasureBoxSimulation
 } from './useContractSimulationV2';
+import { 
+  CONTRACT_ADDRESSES,
+  PLAYER_NFT_ABI,
+  BATTLE_SYSTEM_ABI,
+  GOLD_TOKEN_ABI,
+  TREASURE_BOX_SYSTEM_ABI
+} from '../contracts';
 
-// 合约地址（从部署信息中获取）
+// 使用统一的合约地址配置
 const CONTRACTS = {
-  PLAYER_NFT: '0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB',
-  EQUIPMENT_NFT: '0x276C216D241856199A83bf27b2286659e5b877D3',
-  GOLD_TOKEN: '0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c',
-  TREASURE_BOX_SYSTEM: '0x3155755b79aA083bd953911C92705B7aA82a18F9',
-  BATTLE_SYSTEM: '0x5bf5b11053e734690269C6B9D438F8C9d48F528A',
-  EQUIPMENT_SYSTEM: '0xffa7CA1AEEEbBc30C874d32C7e22F052BbEa0429',
+  PLAYER_NFT: CONTRACT_ADDRESSES.PLAYER_NFT,
+  EQUIPMENT_NFT: CONTRACT_ADDRESSES.EQUIPMENT_NFT,
+  GOLD_TOKEN: CONTRACT_ADDRESSES.GOLD_TOKEN,
+  TREASURE_BOX_SYSTEM: CONTRACT_ADDRESSES.TREASURE_BOX_SYSTEM,
+  BATTLE_SYSTEM: CONTRACT_ADDRESSES.BATTLE_SYSTEM,
+  EQUIPMENT_SYSTEM: CONTRACT_ADDRESSES.EQUIPMENT_SYSTEM,
 } as const;
-
-// ABI 定义
-const PLAYER_NFT_ABI = [
-  {
-    "inputs": [{"internalType": "address", "name": "to", "type": "address"}, {"internalType": "string", "name": "name", "type": "string"}],
-    "name": "mintPlayer",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "playerId", "type": "uint256"}],
-    "name": "getPlayer",
-    "outputs": [{"internalType": "tuple", "name": "", "type": "tuple", "components": [
-      {"internalType": "string", "name": "name", "type": "string"},
-      {"internalType": "uint16", "name": "level", "type": "uint16"},
-      {"internalType": "uint32", "name": "experience", "type": "uint32"},
-      {"internalType": "uint16", "name": "health", "type": "uint16"},
-      {"internalType": "uint16", "name": "maxHealth", "type": "uint16"},
-      {"internalType": "uint16", "name": "attack", "type": "uint16"},
-      {"internalType": "uint16", "name": "defense", "type": "uint16"},
-      {"internalType": "uint16", "name": "agility", "type": "uint16"},
-      {"internalType": "uint8", "name": "criticalRate", "type": "uint8"},
-      {"internalType": "uint16", "name": "criticalDamage", "type": "uint16"},
-      {"internalType": "uint8", "name": "stamina", "type": "uint8"},
-      {"internalType": "uint8", "name": "maxStamina", "type": "uint8"},
-      {"internalType": "uint32", "name": "lastStaminaTime", "type": "uint32"},
-      {"internalType": "uint16", "name": "currentForestLevel", "type": "uint16"},
-      {"internalType": "uint16", "name": "currentForestProgress", "type": "uint16"},
-      {"internalType": "uint32", "name": "lastTreasureBoxTime", "type": "uint32"},
-      {"internalType": "bool", "name": "initialized", "type": "bool"},
-      {"internalType": "uint8", "name": "job", "type": "uint8"}
-    ]}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "address", "name": "owner", "type": "address"}],
-    "name": "balanceOf",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "uint256", "name": "index", "type": "uint256"}],
-    "name": "tokenOfOwnerByIndex",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  }
-] as const;
-
-const BATTLE_SYSTEM_ABI = [
-  {
-    "inputs": [
-      {"internalType": "uint256", "name": "playerId", "type": "uint256"},
-      {"internalType": "uint16", "name": "experienceGained", "type": "uint16"},
-      {"internalType": "uint8", "name": "staminaCost", "type": "uint8"},
-      {"internalType": "bool", "name": "victory", "type": "bool"},
-      {"internalType": "uint8", "name": "monsterLevel", "type": "uint8"}
-    ],
-    "name": "completeBattle",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-] as const;
-
-const GOLD_TOKEN_ABI = [
-  {
-    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-    "name": "balanceOf",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  }
-] as const;
-
-const TREASURE_BOX_ABI = [
-  {
-    "inputs": [],
-    "name": "claimOfflineTreasureBoxes",
-    "outputs": [{"internalType": "uint8", "name": "", "type": "uint8"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "boxIndex", "type": "uint256"}],
-    "name": "openTreasureBox",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "address", "name": "player", "type": "address"}],
-    "name": "getPlayerTreasureBoxCount",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  }
-] as const;
 
 export function useWeb3GameV2() {
   const { address, isConnected } = useAccount();
   const { showToast } = useToast();
-  const { safeCall, hash, isPending, isConfirming, isConfirmed } = useSafeContractCall();
+  const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
   
   const [currentPlayerId, setCurrentPlayerId] = useState<number>(0);
 
@@ -166,7 +72,7 @@ export function useWeb3GameV2() {
   // 获取宝箱数量
   const { data: treasureBoxCount, refetch: refetchTreasureBoxes } = useReadContract({
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
-    abi: TREASURE_BOX_ABI,
+    abi: TREASURE_BOX_SYSTEM_ABI,
     functionName: 'getPlayerTreasureBoxCount',
     args: [address as `0x${string}`],
     query: { enabled: !!address && isConnected },
@@ -174,15 +80,14 @@ export function useWeb3GameV2() {
 
   // 状态管理为模拟调用参数
   const [simulationParams, setSimulationParams] = useState<{
-    registerPlayer?: { address: string; name: string; enabled: boolean };
+    registerPlayer?: { name: string; enabled: boolean };
     completeBattle?: { playerId: number; experienceGained: number; staminaCost: number; victory: boolean; monsterLevel: number; enabled: boolean };
-    claimTreasureBoxes?: { address: string; enabled: boolean };
-    openTreasureBox?: { address: string; boxIndex: number; enabled: boolean };
+    claimTreasureBoxes?: { enabled: boolean };
+    openTreasureBox?: { boxIndex: number; enabled: boolean };
   }>({});
 
   // 模拟调用hooks
   const registerPlayerSim = useRegisterPlayerSimulation(
-    simulationParams.registerPlayer?.address || '',
     simulationParams.registerPlayer?.name || '',
     simulationParams.registerPlayer?.enabled || false
   );
@@ -196,13 +101,11 @@ export function useWeb3GameV2() {
     simulationParams.completeBattle?.enabled || false
   );
 
-  const claimTreasureBoxesSim = useClaimOfflineTreasureBoxesSimulation(
-    simulationParams.claimTreasureBoxes?.address || '',
+  const claimTreasureBoxesSim = useClaimTreasureBoxesSimulation(
     simulationParams.claimTreasureBoxes?.enabled || false
   );
 
   const openTreasureBoxSim = useOpenTreasureBoxSimulation(
-    simulationParams.openTreasureBox?.address || '',
     simulationParams.openTreasureBox?.boxIndex || 0,
     simulationParams.openTreasureBox?.enabled || false
   );
@@ -226,21 +129,26 @@ export function useWeb3GameV2() {
       return;
     }
 
+    // ✅ 使用安全的 registerPlayer 函数，只能为自己注册
+    
     // 启用模拟调用验证
     setSimulationParams(prev => ({
       ...prev,
-      registerPlayer: { address, name, enabled: true }
+      registerPlayer: { name, enabled: true }
     }));
 
     // 等待一个微任务让hook更新
     await new Promise(resolve => setTimeout(resolve, 0));
+    console.log("registerPlayerSim");
+    console.log(registerPlayerSim);
+    
     
     await safeCall(
       {
         address: CONTRACTS.PLAYER_NFT,
         abi: PLAYER_NFT_ABI,
-        functionName: 'mintPlayer',
-        args: [address, name],
+        functionName: 'registerPlayer',
+        args: [name], // 只需要名称，合约会自动使用 msg.sender
       },
       registerPlayerSim,
       {
@@ -253,7 +161,7 @@ export function useWeb3GameV2() {
     // 重置模拟参数
     setSimulationParams(prev => ({
       ...prev,
-      registerPlayer: { address: '', name: '', enabled: false }
+      registerPlayer: { name: '', enabled: false }
     }));
   };
 
@@ -310,7 +218,7 @@ export function useWeb3GameV2() {
     // 启用模拟调用验证
     setSimulationParams(prev => ({
       ...prev,
-      claimTreasureBoxes: { address, enabled: true }
+      claimTreasureBoxes: { enabled: true }
     }));
 
     // 等待一个微任务让hook更新
@@ -319,7 +227,7 @@ export function useWeb3GameV2() {
     await safeCall(
       {
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
-        abi: TREASURE_BOX_ABI,
+        abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'claimOfflineTreasureBoxes',
       },
       claimTreasureBoxesSim,
@@ -333,7 +241,7 @@ export function useWeb3GameV2() {
     // 重置模拟参数
     setSimulationParams(prev => ({
       ...prev,
-      claimTreasureBoxes: { address: '', enabled: false }
+      claimTreasureBoxes: { enabled: false }
     }));
   };
 
@@ -352,7 +260,7 @@ export function useWeb3GameV2() {
     // 启用模拟调用验证
     setSimulationParams(prev => ({
       ...prev,
-      openTreasureBox: { address, boxIndex, enabled: true }
+      openTreasureBox: { boxIndex, enabled: true }
     }));
 
     // 等待一个微任务让hook更新
@@ -361,7 +269,7 @@ export function useWeb3GameV2() {
     await safeCall(
       {
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
-        abi: TREASURE_BOX_ABI,
+        abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'openTreasureBox',
         args: [BigInt(boxIndex)],
       },
@@ -376,7 +284,7 @@ export function useWeb3GameV2() {
     // 重置模拟参数
     setSimulationParams(prev => ({
       ...prev,
-      openTreasureBox: { address: '', boxIndex: 0, enabled: false }
+      openTreasureBox: { boxIndex: 0, enabled: false }
     }));
   };
 

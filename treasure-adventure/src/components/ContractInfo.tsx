@@ -18,10 +18,26 @@ const ContractInfo: React.FC = () => {
 
       <div className="contract-addresses">
         <div className="address-item">
-          <span>主合约:</span>
-          <code onClick={() => copyToClipboard(CONTRACT_ADDRESSES.TREASURE_ADVENTURE)}>
-            {CONTRACT_ADDRESSES.TREASURE_ADVENTURE.slice(0, 10)}...
-            {CONTRACT_ADDRESSES.TREASURE_ADVENTURE.slice(-8)} 📋
+          <span>玩家 NFT:</span>
+          <code onClick={() => copyToClipboard(CONTRACT_ADDRESSES.PLAYER_NFT)}>
+            {CONTRACT_ADDRESSES.PLAYER_NFT.slice(0, 10)}...
+            {CONTRACT_ADDRESSES.PLAYER_NFT.slice(-8)} 📋
+          </code>
+        </div>
+
+        <div className="address-item">
+          <span>战斗系统:</span>
+          <code onClick={() => copyToClipboard(CONTRACT_ADDRESSES.BATTLE_SYSTEM)}>
+            {CONTRACT_ADDRESSES.BATTLE_SYSTEM.slice(0, 10)}...
+            {CONTRACT_ADDRESSES.BATTLE_SYSTEM.slice(-8)} 📋
+          </code>
+        </div>
+
+        <div className="address-item">
+          <span>宝箱系统:</span>
+          <code onClick={() => copyToClipboard(CONTRACT_ADDRESSES.TREASURE_BOX_SYSTEM)}>
+            {CONTRACT_ADDRESSES.TREASURE_BOX_SYSTEM.slice(0, 10)}...
+            {CONTRACT_ADDRESSES.TREASURE_BOX_SYSTEM.slice(-8)} 📋
           </code>
         </div>
 
@@ -38,6 +54,14 @@ const ContractInfo: React.FC = () => {
           <code onClick={() => copyToClipboard(CONTRACT_ADDRESSES.EQUIPMENT_NFT)}>
             {CONTRACT_ADDRESSES.EQUIPMENT_NFT.slice(0, 10)}...
             {CONTRACT_ADDRESSES.EQUIPMENT_NFT.slice(-8)} 📋
+          </code>
+        </div>
+
+        <div className="address-item">
+          <span>装备系统:</span>
+          <code onClick={() => copyToClipboard(CONTRACT_ADDRESSES.EQUIPMENT_SYSTEM)}>
+            {CONTRACT_ADDRESSES.EQUIPMENT_SYSTEM.slice(0, 10)}...
+            {CONTRACT_ADDRESSES.EQUIPMENT_SYSTEM.slice(-8)} 📋
           </code>
         </div>
       </div>

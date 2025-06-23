@@ -100,13 +100,13 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 为指定玩家领取离线宝箱
+     * @dev 为指定玩家领取离线宝箱（仅限授权系统调用）
      * @param playerAddress 玩家地址
      * @return 领取的宝箱数量
      */
     function claimOfflineTreasureBoxesForPlayer(
         address playerAddress
-    ) public returns (uint8) {
+    ) public onlyAuthorizedOrOwner returns (uint8) {
         uint32 timeSinceLastBox = uint32(block.timestamp) -
             lastOfflineBoxTime[playerAddress];
         uint8 boxesToClaim = uint8(

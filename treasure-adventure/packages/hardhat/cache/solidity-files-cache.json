@@ -860,8 +860,8 @@
       ]
     },
     "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/TreasureBoxSystem.sol": {
-      "lastModificationDate": 1750594641109,
-      "contentHash": "b96597f0c2a63d2e645f313942957535",
+      "lastModificationDate": 1750642094890,
+      "contentHash": "2e41afb5acedadb3786797ead873b8d4",
       "sourceName": "contracts/TreasureBoxSystem.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -902,96 +902,9 @@
         "TreasureBoxSystem"
       ]
     },
-    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/BattleSystem.sol": {
-      "lastModificationDate": 1750581040336,
-      "contentHash": "61bfd5d2d312cd9beb69825e2b9c20a5",
-      "sourceName": "contracts/BattleSystem.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": true,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/access/Ownable.sol",
-        "./AdventureGold.sol",
-        "./TreasureBoxSystem.sol",
-        "./GameStructs.sol",
-        "./GameConfig.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "BattleSystem"
-      ]
-    },
-    "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/GameManager.sol": {
-      "lastModificationDate": 1750580402547,
-      "contentHash": "c725684ac3adbd9344f5afc3724e5c94",
-      "sourceName": "contracts/GameManager.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": true,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/access/Ownable.sol",
-        "./AdventureGold.sol",
-        "./Equipment.sol",
-        "./BattleSystem.sol",
-        "./TreasureBoxSystem.sol",
-        "./GameStructs.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "GameManager"
-      ]
-    },
     "/Users/junhu/git/MonadBox/treasure-adventure/packages/hardhat/contracts/Player.sol": {
-      "lastModificationDate": 1750595044876,
-      "contentHash": "3026aabb273b635f8410c336b58dd2f9",
+      "lastModificationDate": 1750642480386,
+      "contentHash": "0144cb0a35e4474cf6e2fff2f3b1b56c",
       "sourceName": "contracts/Player.sol",
       "solcConfig": {
         "version": "0.8.20",

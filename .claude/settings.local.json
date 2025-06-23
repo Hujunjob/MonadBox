@@ -11,7 +11,12 @@
       "Bash(npm run build:*)",
       "Bash(grep:*)",
       "Bash(find:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint:*)",
+      "Bash(node:*)",
+      "Bash(npm run contracts:update-addresses:*)",
+      "Bash(npx hardhat:*)"
     ],
     "deny": []
   }

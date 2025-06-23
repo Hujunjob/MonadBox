@@ -7,7 +7,6 @@ import Web3Toggle from './Web3Toggle';
 import TestEthHelper from './TestEthHelper';
 import NetworkDebugger from './NetworkDebugger';
 import ContractInfo from './ContractInfo';
-import WalletAddressChecker from './WalletAddressChecker';
 
 const PlayerStats: React.FC = () => {
   const { player, initializeGame, updatePlayer, gainExperience, updateStamina } = useGameStore();
@@ -103,9 +102,6 @@ const PlayerStats: React.FC = () => {
       
       {/* 网络调试器 */}
       <NetworkDebugger />
-      
-      {/* 钱包地址检查器 */}
-      <WalletAddressChecker />
       
       {/* 合约信息 */}
       <ContractInfo />

@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "contracts:compile": "cd packages/hardhat && npx hardhat compile",
     "contracts:test": "cd packages/hardhat && npx hardhat test",
-    "contracts:deploy": "cd packages/hardhat && npx hardhat run scripts/deploy.js --network localhost",
+    "contracts:deploy": "cd packages/hardhat && npx hardhat run scripts/deployV2.js --network localhost",
     "contracts:node": "cd packages/hardhat && npx hardhat node"
   },
   "dependencies": {

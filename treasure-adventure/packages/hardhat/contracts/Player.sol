@@ -60,13 +60,23 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     }
     
     /**
-     * @dev 注册玩家（铸造Player NFT）
-     * @param to 玩家地址
+     * @dev 注册玩家（安全版本 - 只能为自己铸造）
      * @param name 玩家名称
      * @return playerId 玩家NFT ID
      */
-    function mintPlayer(address to, string memory name) external returns (uint256) {
+    function registerPlayer(string memory name) external returns (uint256) {
+        return mintPlayer(msg.sender, name);
+    }
+
+    /**
+     * @dev 铸造Player NFT（内部函数 + 管理员功能）
+     * @param to 接收地址
+     * @param name 玩家名称
+     * @return playerId 玩家NFT ID
+     */
+    function mintPlayer(address to, string memory name) public onlyAuthorizedOrOwner returns (uint256) {
         require(bytes(name).length >= 2 && bytes(name).length <= 20, "Invalid name length");
+        require(balanceOf(to) == 0, "Player already exists"); // 每个地址只能有一个 Player NFT
         
         uint256 playerId = _nextTokenId++;
         _safeMint(to, playerId);
@@ -210,16 +220,18 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     }
     
     /**
-     * @dev 升级玩家（公共接口）
+     * @dev 升级玩家（只有玩家自己或授权系统可以调用）
      */
     function levelUp(uint256 playerId) external {
+        require(ownerOf(playerId) == msg.sender || authorizedSystems[msg.sender] || msg.sender == owner(), "Not authorized");
         _levelUp(playerId);
     }
     
     /**
-     * @dev 更新体力（公共接口）
+     * @dev 更新体力（只有玩家自己或授权系统可以调用）
      */
     function updateStamina(uint256 playerId) external {
+        require(ownerOf(playerId) == msg.sender || authorizedSystems[msg.sender] || msg.sender == owner(), "Not authorized");
         _updateStamina(playerId);
     }
     
@@ -248,9 +260,10 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, Ownable {
     }
     
     /**
-     * @dev 恢复血量
+     * @dev 恢复血量（只有玩家自己或授权系统可以调用）
      */
     function heal(uint256 playerId, uint16 amount) external {
+        require(ownerOf(playerId) == msg.sender || authorizedSystems[msg.sender] || msg.sender == owner(), "Not authorized");
         GameStructs.Player storage player = players[playerId];
         require(player.initialized, "Player not exists");
         

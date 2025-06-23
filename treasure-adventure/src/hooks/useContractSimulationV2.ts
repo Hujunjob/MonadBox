@@ -1,110 +1,41 @@
 import { useSimulateContract } from 'wagmi';
+import { 
+  CONTRACT_ADDRESSES,
+  PLAYER_NFT_ABI,
+  BATTLE_SYSTEM_ABI,
+  TREASURE_BOX_SYSTEM_ABI,
+  EQUIPMENT_SYSTEM_ABI
+} from '../contracts';
 
 /**
  * 新架构合约调用模拟验证 Hook
  * 在实际调用合约之前先模拟执行，确保交易会成功
  */
 
-// 从部署信息中读取合约地址
+// 使用统一的合约地址配置
 const CONTRACTS = {
-  PLAYER_NFT: '0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB',
-  EQUIPMENT_NFT: '0x276C216D241856199A83bf27b2286659e5b877D3',
-  GOLD_TOKEN: '0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c',
-  TREASURE_BOX_SYSTEM: '0x3155755b79aA083bd953911C92705B7aA82a18F9',
-  BATTLE_SYSTEM: '0x5bf5b11053e734690269C6B9D438F8C9d48F528A',
-  EQUIPMENT_SYSTEM: '0xffa7CA1AEEEbBc30C874d32C7e22F052BbEa0429',
+  PLAYER_NFT: CONTRACT_ADDRESSES.PLAYER_NFT,
+  EQUIPMENT_NFT: CONTRACT_ADDRESSES.EQUIPMENT_NFT,
+  GOLD_TOKEN: CONTRACT_ADDRESSES.GOLD_TOKEN,
+  TREASURE_BOX_SYSTEM: CONTRACT_ADDRESSES.TREASURE_BOX_SYSTEM,
+  BATTLE_SYSTEM: CONTRACT_ADDRESSES.BATTLE_SYSTEM,
+  EQUIPMENT_SYSTEM: CONTRACT_ADDRESSES.EQUIPMENT_SYSTEM,
 } as const;
 
-// 简化的 ABI 定义（只包含需要模拟的函数）
-const PLAYER_NFT_ABI = [
-  {
-    "inputs": [{"internalType": "address", "name": "to", "type": "address"}, {"internalType": "string", "name": "name", "type": "string"}],
-    "name": "mintPlayer",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "playerId", "type": "uint256"}, {"internalType": "uint256", "name": "equipmentId", "type": "uint256"}],
-    "name": "equipItem",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "playerId", "type": "uint256"}, {"internalType": "uint8", "name": "slot", "type": "uint8"}],
-    "name": "unequipItem",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-] as const;
-
-const BATTLE_SYSTEM_ABI = [
-  {
-    "inputs": [
-      {"internalType": "uint256", "name": "playerId", "type": "uint256"},
-      {"internalType": "uint16", "name": "experienceGained", "type": "uint16"},
-      {"internalType": "uint8", "name": "staminaCost", "type": "uint8"},
-      {"internalType": "bool", "name": "victory", "type": "bool"},
-      {"internalType": "uint8", "name": "monsterLevel", "type": "uint8"}
-    ],
-    "name": "completeBattle",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-] as const;
-
-const TREASURE_BOX_ABI = [
-  {
-    "inputs": [],
-    "name": "claimOfflineTreasureBoxes",
-    "outputs": [{"internalType": "uint8", "name": "", "type": "uint8"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "boxIndex", "type": "uint256"}],
-    "name": "openTreasureBox",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-] as const;
-
-const EQUIPMENT_SYSTEM_ABI = [
-  {
-    "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
-    "name": "upgradeStars",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
-    "name": "enhanceEquipment",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-] as const;
-
 /**
- * 模拟注册玩家（铸造Player NFT）
+ * 模拟注册玩家（使用安全的 registerPlayer 函数）
  */
 export function useRegisterPlayerSimulation(
-  playerAddress: string,
   name: string,
   enabled: boolean = false
 ) {
   return useSimulateContract({
     address: CONTRACTS.PLAYER_NFT,
     abi: PLAYER_NFT_ABI,
-    functionName: 'mintPlayer',
-    args: [playerAddress as `0x${string}`, name],
+    functionName: 'registerPlayer',
+    args: [name],
     query: { 
-      enabled: enabled && !!playerAddress && !!name && name.length >= 2 && name.length <= 20 
+      enabled: enabled && !!name && name.length >= 2 && name.length <= 20 
     }
   });
 }
@@ -137,7 +68,7 @@ export function useCompleteBattleSimulation(
 export function useClaimTreasureBoxesSimulation(enabled: boolean = false) {
   return useSimulateContract({
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
-    abi: TREASURE_BOX_ABI,
+    abi: TREASURE_BOX_SYSTEM_ABI,
     functionName: 'claimOfflineTreasureBoxes',
     query: { enabled }
   });
@@ -149,7 +80,7 @@ export function useClaimTreasureBoxesSimulation(enabled: boolean = false) {
 export function useOpenTreasureBoxSimulation(boxIndex: number, enabled: boolean = false) {
   return useSimulateContract({
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
-    abi: TREASURE_BOX_ABI,
+    abi: TREASURE_BOX_SYSTEM_ABI,
     functionName: 'openTreasureBox',
     args: [BigInt(boxIndex)],
     query: { 

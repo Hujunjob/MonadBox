@@ -2,6 +2,133 @@ const hre = require("hardhat");
 const fs = require("fs");
 const path = require("path");
 
+/**
+ * 从artifacts中提取合约ABI
+ */
+function extractContractABI(contractName) {
+  try {
+    const artifactPath = path.join(__dirname, "..", "artifacts", "contracts", `${contractName}.sol`, `${contractName}.json`);
+    if (fs.existsSync(artifactPath)) {
+      const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
+      return artifact.abi;
+    }
+    return null;
+  } catch (error) {
+    console.warn(`⚠️ 无法读取 ${contractName} 的 ABI:`, error.message);
+    return null;
+  }
+}
+
+/**
+ * 过滤ABI，只保留前端需要的函数
+ */
+function filterABI(abi, contractName) {
+  if (!abi) return [];
+  
+  // 定义每个合约前端需要的函数
+  const requiredFunctions = {
+    Player: [
+      'registerPlayer', 'getPlayer', 'balanceOf', 'tokenOfOwnerByIndex', 
+      'equipItem', 'unequipItem', 'heal', 'levelUp', 'updateStamina'
+    ],
+    BattleSystemV2: ['completeBattle', 'getBattleStats', 'canBattle'],
+    AdventureGold: ['balanceOf'],
+    TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount'],
+    EquipmentSystem: ['upgradeStars', 'enhanceEquipment'],
+    Equipment: ['getEquipment']
+  };
+  
+  const required = requiredFunctions[contractName] || [];
+  
+  return abi.filter(item => {
+    if (item.type === 'function') {
+      return item.stateMutability === 'view' || 
+             item.stateMutability === 'pure' || 
+             required.includes(item.name);
+    }
+    return false;
+  });
+}
+
+/**
+ * 生成完整的前端contracts文件内容
+ */
+function generateContractsFile(addresses) {
+  const contracts = ['Player', 'BattleSystemV2', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment'];
+  
+  let content = `// 合约地址配置（自动生成）
+export const CONTRACT_ADDRESSES = {
+  // 本地测试网络地址（从 packages/hardhat/deploymentsV2.json 自动更新）
+  PLAYER_NFT: '${addresses.PLAYER_NFT}' as \`0x\${string}\`,
+  EQUIPMENT_NFT: '${addresses.EQUIPMENT_NFT}' as \`0x\${string}\`,
+  GOLD_TOKEN: '${addresses.GOLD_TOKEN}' as \`0x\${string}\`,
+  TREASURE_BOX_SYSTEM: '${addresses.TREASURE_BOX_SYSTEM}' as \`0x\${string}\`,
+  BATTLE_SYSTEM: '${addresses.BATTLE_SYSTEM}' as \`0x\${string}\`,
+  EQUIPMENT_SYSTEM: '${addresses.EQUIPMENT_SYSTEM}' as \`0x\${string}\`
+} as const;
+
+// =============================================================================
+// 合约 ABI 定义（自动生成）
+// =============================================================================
+
+`;
+  
+  contracts.forEach(contractName => {
+    const abi = extractContractABI(contractName);
+    const filteredABI = filterABI(abi, contractName);
+    
+    if (filteredABI.length > 0) {
+      const abiName = contractName === 'BattleSystemV2' ? 'BATTLE_SYSTEM_ABI' :
+                     contractName === 'AdventureGold' ? 'GOLD_TOKEN_ABI' :
+                     contractName === 'TreasureBoxSystem' ? 'TREASURE_BOX_SYSTEM_ABI' :
+                     contractName === 'EquipmentSystem' ? 'EQUIPMENT_SYSTEM_ABI' :
+                     contractName === 'Equipment' ? 'EQUIPMENT_NFT_ABI' :
+                     'PLAYER_NFT_ABI';
+      
+      content += `// ${contractName} 合约 ABI\n`;
+      content += `export const ${abiName} = ${JSON.stringify(filteredABI, null, 2)} as const;\n\n`;
+    }
+  });
+  
+  return content;
+}
+
+/**
+ * 同步合约地址和ABI到前端
+ */
+function syncContractsToFrontend(deploymentInfo) {
+  try {
+    const frontendContractsPath = path.join(__dirname, "..", "..", "..", "src", "contracts", "index.ts");
+    
+    // 构建合约地址配置
+    const addresses = {
+      PLAYER_NFT: deploymentInfo.playerNFT,
+      EQUIPMENT_NFT: deploymentInfo.equipmentNFT,
+      GOLD_TOKEN: deploymentInfo.goldToken,
+      TREASURE_BOX_SYSTEM: deploymentInfo.treasureBoxSystem,
+      BATTLE_SYSTEM: deploymentInfo.battleSystem,
+      EQUIPMENT_SYSTEM: deploymentInfo.equipmentSystem,
+    };
+
+    // 生成完整的contracts文件内容（包含地址和ABI）
+    const contractsContent = generateContractsFile(addresses);
+
+    // 写入到前端contracts文件
+    fs.writeFileSync(frontendContractsPath, contractsContent, "utf8");
+
+    console.log("✅ 合约地址和ABI已同步到前端");
+    console.log("📊 更新的地址:");
+    Object.entries(addresses).forEach(([key, value]) => {
+      console.log(`   ${key}: ${value}`);
+    });
+    console.log("📋 ABI已自动提取并更新到 src/contracts/index.ts");
+
+  } catch (error) {
+    console.error("❌ 同步合约到前端失败:", error.message);
+    console.log("💡 请检查 src/contracts/index.ts 文件是否存在");
+  }
+}
+
 async function main() {
   console.log("Deploying new architecture contracts...");
 
@@ -89,6 +216,10 @@ async function main() {
   const deploymentsPath = path.join(__dirname, "..", "deploymentsV2.json");
   fs.writeFileSync(deploymentsPath, JSON.stringify(deploymentInfo, null, 2));
   console.log("Deployment info saved to deploymentsV2.json");
+
+  // 自动同步合约地址和ABI到前端
+  console.log("🔄 正在同步合约到前端...");
+  syncContractsToFrontend(deploymentInfo);
 
   console.log("\n=== New Architecture Deployment Summary ===");
   console.log("✅ AdventureGold (Independent gold token, owned by TreasureBoxSystem)");
