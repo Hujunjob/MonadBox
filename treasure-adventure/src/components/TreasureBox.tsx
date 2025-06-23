@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { generateRandomEquipment, generateHealthPotion, generatePetEgg, generateJobAdvancementBook, generateRewardLevel, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
 import TreasureBoxTimer from './TreasureBoxTimer';
 import { GAME_CONFIG } from '../config/gameConfig';
-import { useStateTogetherWithPerUserValues } from 'react-together'
 
 const TreasureBox: React.FC = () => {
   const { player, gainGold, updatePlayer } = useGameStore();
@@ -19,13 +18,21 @@ const TreasureBox: React.FC = () => {
   const handleOpenBox = async () => {
     if (hybridStore.isWeb3Mode) {
       // Web3模式：调用智能合约开箱
-      if (hybridStore.treasureBoxCount <= 0 || openingBox) return;
+      if (hybridStore.unopenedBoxCount <= 0 || openingBox) return;
       
       setOpeningBox(true);
       try {
-        // 调用Web3开箱函数（openTreasureBox函数需要从hybridStore中获取）
-        // 暂时使用索引0，后续可以改进为具体的宝箱索引
-        await hybridStore.openTreasureBox?.(0);
+        // 调用Web3开箱函数 - 自动选择第一个未开启的宝箱
+        await hybridStore.openTreasureBox?.(undefined, (reward: any) => {
+          // 显示奖励信息
+          setTimeout(() => {
+            setSelectedReward({
+              type: 'Web3',
+              description: reward.message,
+            });
+            setShowSelection(true);
+          }, 1000);
+        });
       } catch (error) {
         console.error('Web3开箱失败:', error);
       } finally {
@@ -203,13 +210,27 @@ const TreasureBox: React.FC = () => {
     <div className="treasure-box-panel">      
       <TreasureBoxTimer />
       
-      {/* <div className="treasure-box-info">
-        <p>拥有宝箱: {Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0}个</p>
-        {Array.isArray(player.treasureBoxes) && player.treasureBoxes.length > 0 && (
-          <p>下一个宝箱等级: {player.treasureBoxes[0].level}级</p>
+      {/* 显示宝箱信息 */}
+      <div className="treasure-box-info">
+        {hybridStore.isWeb3Mode ? (
+          <>
+            <p>总宝箱数: {hybridStore.treasureBoxCount}个</p>
+            <p>未开启宝箱: {hybridStore.unopenedBoxCount}个</p>
+            <p>待领取宝箱: {hybridStore.claimableBoxes}个</p>
+            <p><small>（每小时可领取1个，需要间隔1小时）</small></p>
+            <p>金币余额: {hybridStore.goldBalance.toFixed(2)}</p>
+            <p>装备NFT: {hybridStore.player?.equipmentBalance || 0}个</p>
+          </>
+        ) : (
+          <>
+            <p>拥有宝箱: {Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0}个</p>
+            {Array.isArray(player.treasureBoxes) && player.treasureBoxes.length > 0 && (
+              <p>下一个宝箱等级: {player.treasureBoxes[0].level}级</p>
+            )}
+          </>
         )}
         <p>每个宝箱提供随机奖励，等级越高奖励越好！</p>
-      </div> */}
+      </div>
       
       {/* 宝箱列表 */}
       {Array.isArray(player.treasureBoxes) && player.treasureBoxes.length > 0 && (
@@ -254,7 +275,13 @@ const TreasureBox: React.FC = () => {
       <div className="treasure-box-actions">
         <button 
           onClick={handleOpenBox}
-          disabled={(Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0) <= 0 || openingBox || showSelection}
+          disabled={(() => {
+            if (hybridStore.isWeb3Mode) {
+              return hybridStore.unopenedBoxCount <= 0 || openingBox || showSelection;
+            } else {
+              return (Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0) <= 0 || openingBox || showSelection;
+            }
+          })()}
           className="open-box-btn"
         >
           {openingBox ? '开启中...' : '开启宝箱'}
@@ -272,6 +299,11 @@ const TreasureBox: React.FC = () => {
             <div className="modal-content">
               <div className="reward-content">
                 <div className="reward-icon">
+                  {selectedReward.type === 'Web3' && (
+                    <div className="reward-item-icon web3">
+                      <span style={{ fontSize: '48px' }}>🎁</span>
+                    </div>
+                  )}
                   {selectedReward.type === RewardType.EQUIPMENT && (
                     <div 
                       className="reward-item-icon"
@@ -315,6 +347,13 @@ const TreasureBox: React.FC = () => {
                 
                 <div className="reward-details">
                   <span className="reward-description">{selectedReward.description}</span>
+                  {selectedReward.type === 'Web3' && (
+                    <div className="web3-reward-info">
+                      <p>🎉 开箱成功！</p>
+                      <p>奖励已自动发放到您的账户</p>
+                      <p>请查看金币余额和装备变化</p>
+                    </div>
+                  )}
                   {selectedReward.type === RewardType.EQUIPMENT && (
                     <div className="equipment-stats">
                       <div className="stats">

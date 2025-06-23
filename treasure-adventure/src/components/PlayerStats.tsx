@@ -101,13 +101,13 @@ const PlayerStats: React.FC = () => {
       <Web3Toggle />
       
       {/* 网络调试器 */}
-      <NetworkDebugger />
+      {/* <NetworkDebugger /> */}
       
       {/* 合约信息 */}
-      <ContractInfo />
+      {/* <ContractInfo /> */}
       
       {/* 测试 ETH 助手 */}
-      <TestEthHelper />
+      {/* <TestEthHelper /> */}
       
       {/* 通知栏 */}
       <div className="notification-bar">

@@ -20,6 +20,7 @@ export interface Player {
   currentForestLevel: number;
   currentForestProgress: number;
   lastTreasureBoxTime: number;
+  equipmentBalance?: number; // Web3模式下的装备NFT数量
 }
 
 export interface Equipment {

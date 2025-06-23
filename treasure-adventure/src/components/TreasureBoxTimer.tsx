@@ -6,15 +6,14 @@ import { useToast } from './ToastManager';
 
 const TreasureBoxTimer: React.FC = () => {
   const { claimTreasureBox, getClaimableTreasureBoxCount } = useGameStore();
-  const { isWeb3Mode } = useHybridGameStore();
-  const { claimTreasureBoxes: claimWeb3TreasureBoxes } = useWeb3GameV2();
+  const hybridStore = useHybridGameStore();
   const { showToast } = useToast();
 
   // 处理领取宝箱
   const handleClaimTreasureBox = async () => {
-    if (isWeb3Mode) {
+    if (hybridStore.isWeb3Mode) {
       // Web3 模式：使用智能合约（已包含模拟调用）
-      await claimWeb3TreasureBoxes();
+      await hybridStore.claimTreasureBoxes();
     } else {
       // 本地模式：使用原来的逻辑
       const claimedCount = claimTreasureBox();
@@ -26,7 +25,10 @@ const TreasureBoxTimer: React.FC = () => {
     }
   };
   
-  const claimableCount = getClaimableTreasureBoxCount();
+  // 获取可领取宝箱数量
+  const claimableCount = hybridStore.isWeb3Mode 
+    ? hybridStore.claimableBoxes 
+    : getClaimableTreasureBoxCount();
   
   return (
     <div className="treasure-box-timer">

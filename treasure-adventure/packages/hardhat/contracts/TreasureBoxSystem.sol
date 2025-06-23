@@ -23,9 +23,13 @@ contract TreasureBoxSystem is Ownable {
     }
 
     struct BoxReward {
-        uint8 rewardType; // 0=gold, 1=equipment, 2=multiple
+        uint8 rewardType; // 0=gold, 1=equipment, 2=health_potion, 3=pet_egg, 4=job_book
         uint256 goldAmount; // 金币数量
         uint256[] equipmentIds; // 装备ID数组
+        uint256 itemId; // 其他物品ID（血瓶、宠物蛋、转职书）
+        string itemName; // 物品名称
+        uint8 itemLevel; // 物品等级
+        uint256 healAmount; // 血瓶治疗量
     }
 
     // 玩家宝箱存储
@@ -44,10 +48,23 @@ contract TreasureBoxSystem is Ownable {
         _;
     }
 
-    // 宝箱奖励概率配置 (基于1000)
-    uint16 public constant GOLD_PROBABILITY = 500; // 50%
-    uint16 public constant EQUIPMENT_PROBABILITY = 350; // 35%
-    uint16 public constant MULTIPLE_PROBABILITY = 150; // 15%
+    // 宝箱奖励概率配置 (基于100，匹配前端逻辑)
+    uint8 public constant GOLD_PROBABILITY = 1;          // 1%
+    uint8 public constant HEALTH_POTION_PROBABILITY = 13; // 13%
+    uint8 public constant PET_EGG_PROBABILITY = 8;       // 8%
+    uint8 public constant JOB_BOOK_PROBABILITY = 7;      // 7%
+    // 装备 71% (剩余概率)
+    
+    // 稀有度概率配置 (基于100)
+    uint8 public constant COMMON_RARITY = 60;     // 60%
+    uint8 public constant UNCOMMON_RARITY = 23;   // 23%
+    uint8 public constant RARE_RARITY = 10;       // 10%
+    uint8 public constant EPIC_RARITY = 5;        // 5%
+    uint8 public constant LEGENDARY_RARITY = 2;   // 2%
+    
+    // 奖励等级概率配置
+    uint8 public constant CURRENT_LEVEL_PROBABILITY = 95; // 95%
+    uint8 public constant NEXT_LEVEL_PROBABILITY = 5;     // 5%
 
     // 事件
     event TreasureBoxAdded(address indexed player, uint8 level, uint8 rarity);
@@ -56,7 +73,11 @@ contract TreasureBoxSystem is Ownable {
         uint256 boxIndex,
         uint8 rewardType,
         uint256 goldAmount,
-        uint256[] equipmentIds
+        uint256[] equipmentIds,
+        uint256 itemId,
+        string itemName,
+        uint256 itemLevel,
+        uint256 healAmount
     );
     event OfflineBoxesClaimed(address indexed player, uint8 boxCount);
 
@@ -174,7 +195,7 @@ contract TreasureBoxSystem is Ownable {
         if (reward.equipmentIds.length > 0) {
             for (uint256 i = 0; i < reward.equipmentIds.length; i++) {
                 // 实际铸造装备NFT
-                reward.equipmentIds[i] = _mintEquipmentReward(playerAddress, box.level, box.rarity);
+                reward.equipmentIds[i] = _mintEquipmentReward(playerAddress, reward.itemLevel, box.rarity);
             }
         }
 
@@ -183,90 +204,25 @@ contract TreasureBoxSystem is Ownable {
             boxIndex,
             reward.rewardType,
             reward.goldAmount,
-            reward.equipmentIds
+            reward.equipmentIds,
+            reward.itemId,
+            reward.itemName,
+            reward.itemLevel,
+            reward.healAmount
         );
 
         return reward;
     }
 
     /**
-     * @dev 批量开启宝箱
-     * @param boxIndices 宝箱索引数组
-     * @return 总奖励信息
+     * @dev 生成装备名称
      */
-    function openMultipleTreasureBoxes(
-        uint256[] calldata boxIndices
-    ) external returns (BoxReward memory) {
-        require(
-            boxIndices.length > 0 && boxIndices.length <= 10,
-            "Invalid box count"
-        );
-
-        BoxReward memory totalReward = BoxReward({
-            rewardType: 2, // multiple type
-            goldAmount: 0,
-            equipmentIds: new uint256[](0)
-        });
-
-        for (uint256 i = 0; i < boxIndices.length; i++) {
-            // 内联开箱逻辑避免递归调用
-            require(
-                boxIndices[i] < playerTreasureBoxes[msg.sender].length,
-                "Invalid box index"
-            );
-
-            TreasureBox storage box = playerTreasureBoxes[msg.sender][
-                boxIndices[i]
-            ];
-            require(!box.opened, "Box already opened");
-
-            box.opened = true;
-
-            BoxReward memory singleReward = _generateReward(
-                box.level,
-                box.rarity
-            );
-
-            // 发放金币奖励
-            if (singleReward.goldAmount > 0) {
-                goldToken.mint(msg.sender, singleReward.goldAmount);
-            }
-
-            totalReward.goldAmount += singleReward.goldAmount;
-
-            // 发放装备奖励
-            if (singleReward.equipmentIds.length > 0) {
-                for (uint256 j = 0; j < singleReward.equipmentIds.length; j++) {
-                    singleReward.equipmentIds[j] = _mintEquipmentReward(msg.sender, box.level, box.rarity);
-                }
-            }
-
-            // 合并装备ID数组
-            uint256[] memory newEquipmentIds = new uint256[](
-                totalReward.equipmentIds.length +
-                    singleReward.equipmentIds.length
-            );
-            for (uint256 j = 0; j < totalReward.equipmentIds.length; j++) {
-                newEquipmentIds[j] = totalReward.equipmentIds[j];
-            }
-            for (uint256 j = 0; j < singleReward.equipmentIds.length; j++) {
-                newEquipmentIds[
-                    totalReward.equipmentIds.length + j
-                ] = singleReward.equipmentIds[j];
-            }
-            totalReward.equipmentIds = newEquipmentIds;
-
-            emit TreasureBoxOpened(
-                msg.sender,
-                boxIndices[i],
-                singleReward.rewardType,
-                singleReward.goldAmount,
-                singleReward.equipmentIds
-            );
-        }
-
-        return totalReward;
-    }
+    // function _generateEquipmentName(uint8 equipmentType, uint8 rarity) internal pure returns (string memory) {
+    //     string[8] memory typeNames = ["Helmet", "Armor", "Shoes", "Weapon", "Shield", "Accessory", "Ring", "Pet"];
+    //     string[5] memory rarityPrefixes = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
+        
+    //     return string(abi.encodePacked(rarityPrefixes[rarity], " ", typeNames[equipmentType]));
+    // }
 
     /**
      * @dev 计算宝箱稀有度
@@ -303,64 +259,160 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 生成宝箱奖励
+     * @dev 生成宝箱奖励（完全按照前端游戏逻辑）
      * @param level 宝箱等级
-     * @param rarity 宝箱稀有度
+     * @param rarity 宝箱稀有度（未使用，保持兼容）
      * @return 奖励信息
      */
     function _generateReward(
         uint8 level,
         uint8 rarity
     ) internal view returns (BoxReward memory) {
+        // 首先确定奖励等级（95%当前等级，5%下一级）
+        uint8 rewardLevel = _generateRewardLevel(level);
+        
+        // 生成0-99的随机数
         uint256 random = uint256(
             keccak256(
                 abi.encodePacked(block.timestamp, msg.sender, level, rarity)
             )
-        ) % 1000;
+        ) % 100;
 
         if (random < GOLD_PROBABILITY) {
-            // 金币奖励
-            uint256 goldAmount = _calculateGoldReward(level, rarity);
-            return
-                BoxReward({
-                    rewardType: 0,
-                    goldAmount: goldAmount,
-                    equipmentIds: new uint256[](0)
-                });
-        } else if (random < GOLD_PROBABILITY + EQUIPMENT_PROBABILITY) {
-            // 装备奖励
-            uint256[] memory equipmentIds = new uint256[](1);
-            equipmentIds[0] = _generateEquipmentId(level, rarity);
-            return
-                BoxReward({
-                    rewardType: 1,
-                    goldAmount: 0,
-                    equipmentIds: equipmentIds
-                });
+            // 金币奖励 1%
+            uint256 goldAmount = _calculateGoldReward(rewardLevel);
+            return BoxReward({
+                rewardType: 0,
+                goldAmount: goldAmount,
+                equipmentIds: new uint256[](0),
+                itemId: 0,
+                itemName: "",
+                itemLevel: 0,
+                healAmount: 0
+            });
+        } else if (random < GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY) {
+            // 血瓶奖励 13%
+            (uint256 itemId, string memory itemName, uint256 healAmount) = _generateHealthPotion(rewardLevel);
+            return BoxReward({
+                rewardType: 2,
+                goldAmount: 0,
+                equipmentIds: new uint256[](0),
+                itemId: itemId,
+                itemName: itemName,
+                itemLevel: rewardLevel,
+                healAmount: healAmount
+            });
+        } else if (random < GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY + PET_EGG_PROBABILITY) {
+            // 宠物蛋奖励 8%
+            (uint256 itemId, string memory itemName) = _generatePetEgg(rewardLevel);
+            return BoxReward({
+                rewardType: 3,
+                goldAmount: 0,
+                equipmentIds: new uint256[](0),
+                itemId: itemId,
+                itemName: itemName,
+                itemLevel: rewardLevel,
+                healAmount: 0
+            });
+        } else if (random < GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY + PET_EGG_PROBABILITY + JOB_BOOK_PROBABILITY) {
+            // 转职书奖励 7%
+            (uint256 itemId, string memory itemName) = _generateJobAdvancementBook(level); // 注意这里用原始level
+            return BoxReward({
+                rewardType: 4,
+                goldAmount: 0,
+                equipmentIds: new uint256[](0),
+                itemId: itemId,
+                itemName: itemName,
+                itemLevel: level,
+                healAmount: 0
+            });
         } else {
-            // 多重奖励
-            uint256 goldAmount = _calculateGoldReward(level, rarity) / 2; // 减半金币
+            // 装备奖励 71% (剩余概率)
             uint256[] memory equipmentIds = new uint256[](1);
-            equipmentIds[0] = _generateEquipmentId(level, rarity);
-            return
-                BoxReward({
-                    rewardType: 2,
-                    goldAmount: goldAmount,
-                    equipmentIds: equipmentIds
-                });
+            equipmentIds[0] = 0; // 占位符，实际铸造在后面
+            return BoxReward({
+                rewardType: 1,
+                goldAmount: 0,
+                equipmentIds: equipmentIds,
+                itemId: 0,
+                itemName: "",
+                itemLevel: rewardLevel,
+                healAmount: 0
+            });
         }
     }
 
     /**
-     * @dev 计算金币奖励
+     * @dev 生成奖励等级（95%当前等级，5%下一级）
      */
-    function _calculateGoldReward(
-        uint8 level,
-        uint8 rarity
-    ) internal pure returns (uint256) {
-        uint256 baseAmount = uint256(level) * 10 * 10 ** 18; // 基础金币
-        uint256 rarityMultiplier = (uint256(rarity) + 1) * 150; // 稀有度倍数 (150%, 300%, 450%, 600%, 750%)
-        return (baseAmount * rarityMultiplier) / 100;
+    function _generateRewardLevel(uint8 boxLevel) internal view returns (uint8) {
+        uint256 random = uint256(
+            keccak256(abi.encodePacked(block.timestamp, msg.sender, boxLevel, "rewardLevel"))
+        ) % 100;
+        
+        if (random < CURRENT_LEVEL_PROBABILITY) {
+            return boxLevel; // 95%概率返回当前等级
+        } else {
+            return boxLevel >= 10 ? 10 : boxLevel + 1; // 5%概率返回下一级，最大10级
+        }
+    }
+
+    /**
+     * @dev 计算金币奖励（按照前端逻辑：50 + level*25 + random(0-49)）
+     */
+    function _calculateGoldReward(uint8 rewardLevel) internal view returns (uint256) {
+        uint256 baseAmount = 50; // 基础50金币
+        uint256 levelBonus = uint256(rewardLevel) * 25; // 每级25金币
+        uint256 randomBonus = uint256(
+            keccak256(abi.encodePacked(block.timestamp, msg.sender, rewardLevel, "gold"))
+        ) % 50; // 0-49随机金币
+        
+        return (baseAmount + levelBonus + randomBonus) * 10**18; // 转换为wei
+    }
+    
+    /**
+     * @dev 生成血瓶（按照前端逻辑：50 + (level-1)*25治疗量）
+     */
+    function _generateHealthPotion(uint8 level) internal pure returns (uint256, string memory, uint256) {
+        uint256 healAmount = 50 + (uint256(level - 1)) * 25; // 基础50 + (level-1)*25
+        string memory name = string(abi.encodePacked("Lv", _toString(level), " Health Potion"));
+        uint256 itemId = uint256(keccak256(abi.encodePacked("health_potion", level)));
+        
+        return (itemId, name, healAmount);
+    }
+    
+    /**
+     * @dev 生成宠物蛋
+     */
+    function _generatePetEgg(uint8 level) internal pure returns (uint256, string memory) {
+        string memory name = string(abi.encodePacked("Lv", _toString(level), " Pet Egg"));
+        uint256 itemId = uint256(keccak256(abi.encodePacked("pet_egg", level)));
+        
+        return (itemId, name);
+    }
+    
+    /**
+     * @dev 生成转职书（按照前端等级范围逻辑）
+     */
+    function _generateJobAdvancementBook(uint8 boxLevel) internal pure returns (uint256, string memory) {
+        string memory bookName;
+        
+        if (boxLevel <= 2) {
+            bookName = "Great Swordsman Job Book";
+        } else if (boxLevel <= 4) {
+            bookName = "Temple Knight Job Book";
+        } else if (boxLevel <= 6) {
+            bookName = "Dragon Knight Job Book";
+        } else if (boxLevel <= 8) {
+            bookName = "Sword Master Job Book";
+        } else if (boxLevel <= 10) {
+            bookName = "Sword God Job Book";
+        } else {
+            bookName = "Plane Lord Job Book";
+        }
+        
+        uint256 itemId = uint256(keccak256(abi.encodePacked("job_book", boxLevel)));
+        return (itemId, bookName);
     }
 
     /**
@@ -375,32 +427,56 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 铸造装备奖励
+     * @dev 生成装备稀有度（按照前端概率）
+     */
+    function _generateEquipmentRarity() internal view returns (uint8) {
+        uint256 random = uint256(
+            keccak256(abi.encodePacked(block.timestamp, msg.sender, "rarity"))
+        ) % 100;
+        
+        if (random < COMMON_RARITY) {
+            return 0; // 普通 60%
+        } else if (random < COMMON_RARITY + UNCOMMON_RARITY) {
+            return 1; // 非凡 23%
+        } else if (random < COMMON_RARITY + UNCOMMON_RARITY + RARE_RARITY) {
+            return 2; // 稀有 10%
+        } else if (random < COMMON_RARITY + UNCOMMON_RARITY + RARE_RARITY + EPIC_RARITY) {
+            return 3; // 史诗 5%
+        } else {
+            return 4; // 传说 2%
+        }
+    }
+
+    /**
+     * @dev 铸造装备奖励（按照前端逻辑）
      */
     function _mintEquipmentReward(
         address to,
         uint8 level,
-        uint8 rarity
+        uint8 boxRarity
     ) internal returns (uint256) {
-        // 随机装备类型 (0-7)
+        // 随机装备类型 (0-7: helmet, armor, shoes, weapon, shield, accessory, ring, pet)
         uint8 equipmentType = uint8(
             uint256(keccak256(abi.encodePacked(block.timestamp, to, level))) % 8
         );
 
-        // 根据宝箱等级和稀有度计算装备属性
-        (uint16 attack, uint16 defense, uint16 agility, uint8 critRate, uint16 critDamage) = 
-            _calculateEquipmentStats(level, rarity);
+        // 生成装备稀有度（独立于宝箱稀有度）
+        uint8 equipmentRarity = _generateEquipmentRarity();
+
+        // 根据装备等级和稀有度计算装备属性
+        (uint16 attack, uint16 defense, uint16 health, uint16 agility, uint8 critRate, uint16 critDamage) = 
+            _calculateEquipmentStats(level, equipmentType, equipmentRarity);
 
         // 生成装备名称
-        string memory name = _generateEquipmentName(equipmentType, rarity);
+        string memory name = _generateEquipmentName(equipmentType, equipmentRarity);
 
         // 铸造装备NFT
         return equipmentNFT.mintEquipment(
             to,
             equipmentType,
             level,
-            rarity + 1, // stars = rarity + 1 (1-5星)
-            rarity,
+            0, // stars = 0 (升星系统)
+            equipmentRarity,
             attack,
             defense,
             agility,
@@ -411,29 +487,68 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 计算装备属性
+     * @dev 计算装备属性（按照前端逻辑）
      */
-    function _calculateEquipmentStats(uint8 level, uint8 rarity) internal pure returns (
+    function _calculateEquipmentStats(
+        uint8 level, 
+        uint8 equipmentType, 
+        uint8 rarity
+    ) internal pure returns (
         uint16 attack,
         uint16 defense,
+        uint16 health,
         uint16 agility,
         uint8 critRate,
         uint16 critDamage
     ) {
-        // 基础属性
-        uint16 baseAttack = level * 3;
-        uint16 baseDefense = level * 2;
-        uint16 baseAgility = level * 2;
+        // 稀有度倍数: Common(1x), Uncommon(1.5x), Rare(2x), Epic(3x), Legendary(5x)
+        uint16 rarityMultiplier;
+        if (rarity == 0) rarityMultiplier = 100;      // 普通 1x
+        else if (rarity == 1) rarityMultiplier = 150; // 非凡 1.5x
+        else if (rarity == 2) rarityMultiplier = 200; // 稀有 2x
+        else if (rarity == 3) rarityMultiplier = 300; // 史诗 3x
+        else rarityMultiplier = 500;                  // 传说 5x
         
-        // 稀有度加成 (普通100%, 不普通150%, 稀有200%, 史诗300%, 传说500%)
-        uint16 rarityMultiplier = 100 + (uint16(rarity) * 50);
-        if (rarity >= 3) rarityMultiplier += 100; // 史诗和传说额外加成
-        
-        attack = (baseAttack * rarityMultiplier) / 100;
-        defense = (baseDefense * rarityMultiplier) / 100;
-        agility = (baseAgility * rarityMultiplier) / 100;
-        critRate = rarity + 1; // 1-5%
-        critDamage = 150 + (uint16(rarity) * 25); // 150%-275%
+        // 根据装备类型计算基础属性
+        if (equipmentType == 3) { // weapon
+            attack = uint16((5 + level * 2) * rarityMultiplier / 100);
+            critRate = uint8(1 + level / 2);
+            critDamage = uint16(5 + level * 2);
+        } else if (equipmentType == 1 || equipmentType == 0 || equipmentType == 4) { 
+            // armor, helmet, shield
+            defense = uint16((3 + level) * rarityMultiplier / 100);
+            if (equipmentType == 1 || equipmentType == 4) { // armor, shield
+                health = uint16((10 + level * 3) * rarityMultiplier / 100);
+            }
+        } else if (equipmentType == 2) { // shoes
+            agility = uint16((2 + level) * rarityMultiplier / 100);
+        } else if (equipmentType == 5 || equipmentType == 6) { // accessory, ring
+            critRate = uint8(1 + level / 2);
+            critDamage = uint16(5 + level * 2);
+        }
+        // pet (equipmentType == 7) 暂时不设置属性
+    }
+    
+    /**
+     * @dev 数字转字符串辅助函数
+     */
+    function _toString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
     }
 
     /**

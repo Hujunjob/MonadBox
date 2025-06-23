@@ -11,7 +11,7 @@ library GameConfig {
     uint32 public constant STAMINA_RECOVERY_INTERVAL = 3600; // 1 hour
     
     // 宝箱配置
-    uint32 public constant TREASURE_BOX_INTERVAL = 3600; // 1 hour
+    uint32 public constant TREASURE_BOX_INTERVAL = 20; // 1 hour
     uint8 public constant MAX_OFFLINE_BOXES = 100;
     
     // 经验和等级配置

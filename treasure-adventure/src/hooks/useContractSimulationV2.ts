@@ -35,7 +35,9 @@ export function useRegisterPlayerSimulation(
     functionName: 'registerPlayer',
     args: [name],
     query: { 
-      enabled: enabled && !!name && name.length >= 2 && name.length <= 20 
+      enabled: enabled && !!name && name.length >= 2 && name.length <= 20,
+      retry: false, // 禁用重试
+      refetchOnWindowFocus: false, // 禁用窗口聚焦时重新获取
     }
   });
 }

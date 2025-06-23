@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useToast } from '../components/ToastManager';
 
@@ -8,37 +8,57 @@ import { useToast } from '../components/ToastManager';
  */
 export function useSafeContractCall() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({ hash });
   const { showToast } = useToast();
   const [isSimulating, setIsSimulating] = useState(false);
+  const [currentOnSuccess, setCurrentOnSuccess] = useState<((receipt: any) => void) | null>(null);
+
+  // 监听交易确认并触发成功回调
+  useEffect(() => {
+    if (isConfirmed && receipt && currentOnSuccess) {
+      console.log('交易确认成功，触发成功回调');
+      currentOnSuccess(receipt);
+      setCurrentOnSuccess(null); // 清除回调避免重复调用
+    }
+  }, [isConfirmed, receipt, currentOnSuccess]);
 
   const safeCall = async (
     contractConfig: any,
-    simulationHook: any, // 现在是必需的
+    simulationHook?: any, // 现在是可选的
     options?: {
       loadingMessage?: string;
       successMessage?: string;
       errorMessage?: string;
+      onSuccess?: (receipt: any) => void; // 成功回调
     }
   ) => {
     const {
       loadingMessage = '正在验证交易参数...',
-      successMessage = '交易发起成功！',
-      errorMessage = '交易验证失败'
+      errorMessage = '交易验证失败',
+      onSuccess
     } = options || {};
 
     try {
       setIsSimulating(true);
       showToast(loadingMessage, 'info');
+      
+      // 保存成功回调
+      setCurrentOnSuccess(onSuccess || null);
 
-      // 强制检查模拟结果
+      // 如果没有提供模拟调用，直接执行（跳过验证）
       if (!simulationHook) {
-        throw new Error('模拟调用是必需的，不能跳过安全验证');
+        console.log('⚠️ 跳过模拟验证，直接执行交易');
+        showToast('正在发起交易...', 'info');
+        writeContract(contractConfig);
+        return;
       }
 
+      console.log("simulationHook");
+      console.log(simulationHook);
+      
       console.log('🔍 检查合约模拟结果...');
       
-      if (simulationHook.isLoading) {
+      if (simulationHook.isLoading || simulationHook.isPending) {
         throw new Error('模拟调用正在进行中，请等待完成');
       }
 

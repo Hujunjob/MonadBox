@@ -3,17 +3,12 @@ import { useToast } from '../components/ToastManager';
 import { useSafeContractCall } from './useSafeContractCall';
 import { useState, useEffect } from 'react';
 import { 
-  useRegisterPlayerSimulation,
-  useCompleteBattleSimulation,
-  useClaimTreasureBoxesSimulation,
-  useOpenTreasureBoxSimulation
-} from './useContractSimulationV2';
-import { 
   CONTRACT_ADDRESSES,
   PLAYER_NFT_ABI,
   BATTLE_SYSTEM_ABI,
   GOLD_TOKEN_ABI,
-  TREASURE_BOX_SYSTEM_ABI
+  TREASURE_BOX_SYSTEM_ABI,
+  EQUIPMENT_NFT_ABI
 } from '../contracts';
 
 // 使用统一的合约地址配置
@@ -69,7 +64,7 @@ export function useWeb3GameV2() {
     query: { enabled: !!address && isConnected },
   });
 
-  // 获取宝箱数量
+  // 获取总宝箱数量
   const { data: treasureBoxCount, refetch: refetchTreasureBoxes } = useReadContract({
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
     abi: TREASURE_BOX_SYSTEM_ABI,
@@ -78,37 +73,86 @@ export function useWeb3GameV2() {
     query: { enabled: !!address && isConnected },
   });
 
-  // 状态管理为模拟调用参数
-  const [simulationParams, setSimulationParams] = useState<{
-    registerPlayer?: { name: string; enabled: boolean };
-    completeBattle?: { playerId: number; experienceGained: number; staminaCost: number; victory: boolean; monsterLevel: number; enabled: boolean };
-    claimTreasureBoxes?: { enabled: boolean };
-    openTreasureBox?: { boxIndex: number; enabled: boolean };
-  }>({});
+  // 获取未开启的宝箱数量
+  const { data: unopenedBoxCount, refetch: refetchUnopenedBoxes } = useReadContract({
+    address: CONTRACTS.TREASURE_BOX_SYSTEM,
+    abi: TREASURE_BOX_SYSTEM_ABI,
+    functionName: 'getUnopenedBoxCount',
+    args: [address as `0x${string}`],
+    query: { enabled: !!address && isConnected },
+  });
 
-  // 模拟调用hooks
-  const registerPlayerSim = useRegisterPlayerSimulation(
-    simulationParams.registerPlayer?.name || '',
-    simulationParams.registerPlayer?.enabled || false
-  );
+  // 获取可领取的离线宝箱数量
+  const { data: claimableBoxes, refetch: refetchClaimableBoxes } = useReadContract({
+    address: CONTRACTS.TREASURE_BOX_SYSTEM,
+    abi: TREASURE_BOX_SYSTEM_ABI,
+    functionName: 'getClaimableOfflineBoxes',
+    args: [address as `0x${string}`],
+    query: { enabled: !!address && isConnected },
+  });
 
-  const completeBattleSim = useCompleteBattleSimulation(
-    simulationParams.completeBattle?.playerId || 0,
-    simulationParams.completeBattle?.experienceGained || 0,
-    simulationParams.completeBattle?.staminaCost || 1,
-    simulationParams.completeBattle?.victory || true,
-    simulationParams.completeBattle?.monsterLevel || 1,
-    simulationParams.completeBattle?.enabled || false
-  );
+  // 调试：监听claimableBoxes的变化
+  useEffect(() => {
+    if (claimableBoxes !== undefined) {
+      console.log('待领取宝箱数量:', Number(claimableBoxes));
+    }
+  }, [claimableBoxes]);
 
-  const claimTreasureBoxesSim = useClaimTreasureBoxesSimulation(
-    simulationParams.claimTreasureBoxes?.enabled || false
-  );
+  // 获取玩家拥有的装备NFT数量
+  const { data: equipmentBalance, refetch: refetchEquipmentBalance } = useReadContract({
+    address: CONTRACTS.EQUIPMENT_NFT,
+    abi: EQUIPMENT_NFT_ABI,
+    functionName: 'balanceOf',
+    args: [address as `0x${string}`],
+    query: { enabled: !!address && isConnected },
+  });
 
-  const openTreasureBoxSim = useOpenTreasureBoxSimulation(
-    simulationParams.openTreasureBox?.boxIndex || 0,
-    simulationParams.openTreasureBox?.enabled || false
-  );
+  // 获取玩家已装备的装备
+  const { data: equippedItems, refetch: refetchEquippedItems } = useReadContract({
+    address: CONTRACTS.PLAYER_NFT,
+    abi: PLAYER_NFT_ABI,
+    functionName: 'getEquippedItems',
+    args: [firstPlayerTokenId || 1n],
+    query: { enabled: !!firstPlayerTokenId },
+  });
+
+  // 获取玩家宝箱列表
+  const { data: playerTreasureBoxes, refetch: refetchPlayerTreasureBoxes } = useReadContract({
+    address: CONTRACTS.TREASURE_BOX_SYSTEM,
+    abi: TREASURE_BOX_SYSTEM_ABI,
+    functionName: 'getPlayerTreasureBoxes',
+    args: [address as `0x${string}`],
+    query: { enabled: !!address && isConnected },
+  });
+
+
+  // 获取玩家背包装备数据
+  const [playerEquipments, setPlayerEquipments] = useState<any[]>([]);
+  
+  // 当装备数量变化时，获取所有装备数据
+  useEffect(() => {
+    const fetchEquipments = async () => {
+      if (!address || !equipmentBalance || Number(equipmentBalance) === 0) {
+        setPlayerEquipments([]);
+        return;
+      }
+
+      try {
+        const equipments: any[] = [];
+        
+        // 暂时先显示一个简化的装备列表
+        // TODO: 需要使用 multicall 或者 React Query 来批量获取装备数据
+        console.log(`玩家拥有 ${Number(equipmentBalance)} 个装备NFT`);
+        
+        setPlayerEquipments(equipments);
+      } catch (error) {
+        console.error('获取装备数据失败:', error);
+        setPlayerEquipments([]);
+      }
+    };
+
+    fetchEquipments();
+  }, [address, equipmentBalance]);
 
   // 更新当前玩家ID
   useEffect(() => {
@@ -116,6 +160,7 @@ export function useWeb3GameV2() {
       setCurrentPlayerId(Number(firstPlayerTokenId));
     }
   }, [firstPlayerTokenId]);
+
 
   // 玩家注册（铸造Player NFT）
   const registerPlayer = async (name: string) => {
@@ -129,40 +174,21 @@ export function useWeb3GameV2() {
       return;
     }
 
-    // ✅ 使用安全的 registerPlayer 函数，只能为自己注册
-    
-    // 启用模拟调用验证
-    setSimulationParams(prev => ({
-      ...prev,
-      registerPlayer: { name, enabled: true }
-    }));
-
-    // 等待一个微任务让hook更新
-    await new Promise(resolve => setTimeout(resolve, 0));
-    console.log("registerPlayerSim");
-    console.log(registerPlayerSim);
-    
-    
+    // 直接调用，让 safeCall 处理模拟
     await safeCall(
       {
         address: CONTRACTS.PLAYER_NFT,
         abi: PLAYER_NFT_ABI,
         functionName: 'registerPlayer',
-        args: [name], // 只需要名称，合约会自动使用 msg.sender
+        args: [name],
       },
-      registerPlayerSim,
+      undefined, // 暂时跳过模拟调用
       {
         loadingMessage: '🔍 正在注册玩家...',
         successMessage: '✅ 玩家注册成功！',
         errorMessage: '❌ 注册失败'
       }
     );
-
-    // 重置模拟参数
-    setSimulationParams(prev => ({
-      ...prev,
-      registerPlayer: { name: '', enabled: false }
-    }));
   };
 
   // 完成战斗
@@ -177,15 +203,6 @@ export function useWeb3GameV2() {
       return;
     }
 
-    // 启用模拟调用验证
-    setSimulationParams(prev => ({
-      ...prev,
-      completeBattle: { playerId: currentPlayerId, experienceGained, staminaCost, victory, monsterLevel, enabled: true }
-    }));
-
-    // 等待一个微任务让hook更新
-    await new Promise(resolve => setTimeout(resolve, 0));
-
     await safeCall(
       {
         address: CONTRACTS.BATTLE_SYSTEM,
@@ -193,19 +210,13 @@ export function useWeb3GameV2() {
         functionName: 'completeBattle',
         args: [BigInt(currentPlayerId), experienceGained, staminaCost, victory, monsterLevel],
       },
-      completeBattleSim,
+      undefined,
       {
         loadingMessage: '⚔️ 正在处理战斗...',
         successMessage: '✅ 战斗结果已上链！',
         errorMessage: '❌ 战斗失败'
       }
     );
-
-    // 重置模拟参数
-    setSimulationParams(prev => ({
-      ...prev,
-      completeBattle: { playerId: 0, experienceGained: 0, staminaCost: 1, victory: true, monsterLevel: 1, enabled: false }
-    }));
   };
 
   // 领取离线宝箱
@@ -215,77 +226,123 @@ export function useWeb3GameV2() {
       return;
     }
 
-    // 启用模拟调用验证
-    setSimulationParams(prev => ({
-      ...prev,
-      claimTreasureBoxes: { enabled: true }
-    }));
-
-    // 等待一个微任务让hook更新
-    await new Promise(resolve => setTimeout(resolve, 0));
-
     await safeCall(
       {
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'claimOfflineTreasureBoxes',
       },
-      claimTreasureBoxesSim,
+      undefined,
       {
         loadingMessage: '📦 正在领取宝箱...',
         successMessage: '✅ 宝箱领取成功！',
         errorMessage: '❌ 宝箱领取失败'
       }
     );
+  };
 
-    // 重置模拟参数
-    setSimulationParams(prev => ({
-      ...prev,
-      claimTreasureBoxes: { enabled: false }
-    }));
+  // 获取第一个未开启的宝箱索引
+  const getFirstUnopenedBoxIndex = (): number => {
+    if (!playerTreasureBoxes || !Array.isArray(playerTreasureBoxes)) {
+      return 0;
+    }
+    
+    for (let i = 0; i < playerTreasureBoxes.length; i++) {
+      const box = playerTreasureBoxes[i];
+      if (!box.opened) {
+        return i;
+      }
+    }
+    
+    return 0; // 如果没有找到未开启的宝箱，返回0
   };
 
   // 开启宝箱
-  const openTreasureBox = async (boxIndex: number) => {
+  const openTreasureBox = async (boxIndex?: number, onReward?: (reward: any) => void) => {
     if (!isConnected || !address) {
       showToast('请先连接钱包', 'error');
       return;
     }
 
-    if (boxIndex < 0) {
+    // 如果没有提供 boxIndex，自动找到第一个未开启的宝箱
+    const targetBoxIndex = boxIndex !== undefined ? boxIndex : getFirstUnopenedBoxIndex();
+
+    if (targetBoxIndex < 0) {
       showToast('无效的宝箱索引', 'error');
       return;
     }
 
-    // 启用模拟调用验证
-    setSimulationParams(prev => ({
-      ...prev,
-      openTreasureBox: { boxIndex, enabled: true }
-    }));
-
-    // 等待一个微任务让hook更新
-    await new Promise(resolve => setTimeout(resolve, 0));
+    console.log(`正在开启宝箱索引: ${targetBoxIndex}`);
 
     await safeCall(
       {
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'openTreasureBox',
-        args: [BigInt(boxIndex)],
+        args: [BigInt(targetBoxIndex)],
       },
-      openTreasureBoxSim,
+      undefined,
       {
         loadingMessage: '🎁 正在开启宝箱...',
-        successMessage: '✅ 宝箱开启成功！',
-        errorMessage: '❌ 开箱失败'
+        successMessage: '✅ 宝箱开启成功！获得了奖励！',
+        errorMessage: '❌ 开箱失败',
+        onSuccess: () => {
+          // 这里应该从交易事件中解析奖励，但为了简化，我们先显示一个通用消息
+          if (onReward) {
+            onReward({
+              type: 'success',
+              message: '恭喜获得奖励！请查看你的金币和装备余额。'
+            });
+          }
+        }
       }
     );
+  };
 
-    // 重置模拟参数
-    setSimulationParams(prev => ({
-      ...prev,
-      openTreasureBox: { boxIndex: 0, enabled: false }
-    }));
+  // 装备道具
+  const equipItem = async (equipmentId: number) => {
+    if (!isConnected || !currentPlayerId) {
+      showToast('请先连接钱包并注册玩家', 'error');
+      return;
+    }
+
+    await safeCall(
+      {
+        address: CONTRACTS.PLAYER_NFT,
+        abi: PLAYER_NFT_ABI,
+        functionName: 'equipItem',
+        args: [BigInt(currentPlayerId), BigInt(equipmentId)],
+      },
+      undefined,
+      {
+        loadingMessage: '🛡️ 正在装备道具...',
+        successMessage: '✅ 装备成功！',
+        errorMessage: '❌ 装备失败'
+      }
+    );
+  };
+
+  // 卸下装备
+  const unequipItem = async (slot: number) => {
+    if (!isConnected || !currentPlayerId) {
+      showToast('请先连接钱包并注册玩家', 'error');
+      return;
+    }
+
+    await safeCall(
+      {
+        address: CONTRACTS.PLAYER_NFT,
+        abi: PLAYER_NFT_ABI,
+        functionName: 'unequipItem',
+        args: [BigInt(currentPlayerId), slot],
+      },
+      undefined,
+      {
+        loadingMessage: '🔄 正在卸下装备...',
+        successMessage: '✅ 卸下成功！',
+        errorMessage: '❌ 卸下失败'
+      }
+    );
   };
 
   // 监听交易确认
@@ -296,10 +353,15 @@ export function useWeb3GameV2() {
       refetchPlayer();
       refetchGold();
       refetchTreasureBoxes();
+      refetchUnopenedBoxes();
+      refetchClaimableBoxes();
       refetchPlayerBalance();
       refetchPlayerTokenId();
+      refetchEquipmentBalance();
+      refetchEquippedItems();
+      refetchPlayerTreasureBoxes();
     }
-  }, [isConfirmed, refetchPlayer, refetchGold, refetchTreasureBoxes, refetchPlayerBalance, refetchPlayerTokenId, showToast]);
+  }, [isConfirmed, refetchPlayer, refetchGold, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquipmentBalance, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
 
   // 转换Player数据为前端格式
   const convertedPlayerData = playerData ? {
@@ -326,7 +388,7 @@ export function useWeb3GameV2() {
     gold: goldBalance ? Number(goldBalance) / 10**18 : 0,
     equipment: {
       helmet: undefined,
-      armor: undefined,
+      armor: undefined, 
       shoes: undefined,
       weapon: undefined,
       shield: undefined,
@@ -334,8 +396,11 @@ export function useWeb3GameV2() {
       ring: undefined,
       pet: undefined,
     },
-    inventory: [],
-    treasureBoxes: [],
+    inventory: playerEquipments, // 使用链上装备数据
+    treasureBoxes: [], // Web3模式下宝箱数据由单独的状态管理
+    // 链上数据统计
+    equipmentBalance: equipmentBalance ? Number(equipmentBalance) : 0,
+    equippedItemIds: equippedItems || [],
   } : null;
 
   return {
@@ -343,6 +408,8 @@ export function useWeb3GameV2() {
     playerData: convertedPlayerData,
     goldBalance: goldBalance ? Number(goldBalance) / 10**18 : 0,
     treasureBoxCount: treasureBoxCount ? Number(treasureBoxCount) : 0,
+    unopenedBoxCount: unopenedBoxCount ? Number(unopenedBoxCount) : 0,
+    claimableBoxes: claimableBoxes ? Number(claimableBoxes) : 0,
     isPlayerRegistered: !!playerData?.initialized,
     currentPlayerId,
     
@@ -356,10 +423,16 @@ export function useWeb3GameV2() {
     completeBattle,
     claimTreasureBoxes,
     openTreasureBox,
+    equipItem,
+    unequipItem,
     
     // 数据刷新
     refetchPlayer,
     refetchGold,
     refetchTreasureBoxes,
+    refetchUnopenedBoxes,
+    refetchClaimableBoxes,
+    refetchEquipmentBalance,
+    refetchEquippedItems,
   };
 }

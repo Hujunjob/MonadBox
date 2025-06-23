@@ -163,13 +163,13 @@ export function useHybridGameStore() {
   };
 
   // 混合模式下的开启宝箱
-  const openTreasureBox = async (boxIndex: number) => {
+  const openTreasureBox = async (boxIndex?: number, onReward?: (reward: any) => void) => {
     if (web3Store.isWeb3Mode && web3Game.isPlayerRegistered) {
-      await web3Game.openTreasureBox(boxIndex);
+      await web3Game.openTreasureBox(boxIndex, onReward);
     } else {
       web3Store.addPendingOperation({
         type: 'openBox',
-        data: { boxIndex }
+        data: { boxIndex: boxIndex || 0 }
       });
     }
   };
@@ -184,17 +184,28 @@ export function useHybridGameStore() {
     syncInProgress: web3Store.syncInProgress,
     pendingOperations: web3Store.pendingOperations,
     
+    // Web3 宝箱数据
+    treasureBoxCount: web3Store.isWeb3Mode ? web3Game.treasureBoxCount : 0,
+    unopenedBoxCount: web3Store.isWeb3Mode ? web3Game.unopenedBoxCount : 0,
+    claimableBoxes: web3Store.isWeb3Mode ? web3Game.claimableBoxes : 0,
+    goldBalance: web3Store.isWeb3Mode ? web3Game.goldBalance : 0,
+    
     // 操作
     toggleWeb3Mode: web3Store.toggleWeb3Mode,
     registerPlayer: web3Game.registerPlayer,
     completeBattle,
     claimTreasureBoxes,
     openTreasureBox,
+    equipItem: web3Game.equipItem,
+    unequipItem: web3Game.unequipItem,
     updateStamina: () => {}, // 新架构中体力自动恢复
     syncWithBlockchain: web3Store.syncWithBlockchain,
     
     // 数据刷新
     refetchPlayer: web3Game.refetchPlayer,
     refetchGold: web3Game.refetchGold,
+    refetchTreasureBoxes: web3Game.refetchTreasureBoxes,
+    refetchUnopenedBoxes: web3Game.refetchUnopenedBoxes,
+    refetchClaimableBoxes: web3Game.refetchClaimableBoxes,
   };
 }
