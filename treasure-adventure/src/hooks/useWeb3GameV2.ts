@@ -1,7 +1,7 @@
 import { useAccount, useReadContract, usePublicClient } from 'wagmi';
 import { useToast } from '../components/ToastManager';
 import { useSafeContractCall } from './useSafeContractCall';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { decodeEventLog } from 'viem';
 import { 
   CONTRACT_ADDRESSES,
@@ -123,12 +123,12 @@ export function useWeb3GameV2() {
   }, [firstPlayerTokenId]);
 
   // 获取装备详细信息的辅助函数
-  const fetchEquipmentDetails = async (equipmentIds: readonly bigint[]) => {
+  const fetchEquipmentDetails = useCallback(async (equipmentIds: readonly bigint[]) => {
     if (!equipmentIds || equipmentIds.length === 0) {
       setInventoryEquipments([]);
       return;
     }
-    console.log("fetchEquipmentDetails");
+    console.log("fetchEquipmentDetails - optimized");
     
 
     if (!publicClient) {
@@ -200,7 +200,7 @@ export function useWeb3GameV2() {
       console.error('Failed to fetch equipment details:', error);
       setInventoryEquipments([]);
     }
-  };
+  }, [publicClient]);
 
   // 处理玩家物品数据
   const processPlayerItemsData = () => {
@@ -253,7 +253,7 @@ export function useWeb3GameV2() {
       // 如果没有装备，清空装备列表
       setInventoryEquipments([]);
     }
-  }, [playerInventory]);
+  }, [playerInventory, fetchEquipmentDetails]);
 
   // 监听玩家items数据变化
   useEffect(() => {
@@ -797,7 +797,7 @@ export function useWeb3GameV2() {
   }, [isConfirmed]);
 
   // 处理装备槽位映射
-  const getEquippedItemsMap = () => {
+  const getEquippedItemsMap = useMemo(() => {
     const equippedMap: any = {
       helmet: undefined,
       armor: undefined,
@@ -838,7 +838,7 @@ export function useWeb3GameV2() {
     }
 
     return equippedMap;
-  };
+  }, [equippedItems, inventoryEquipments]);
 
   // 将装备类型数字转换为名称
   const getEquipmentTypeName = (type: number) => {
@@ -847,8 +847,8 @@ export function useWeb3GameV2() {
   };
 
   // 处理背包物品数据
-  const getInventoryItems = () => {
-    console.log("getInventoryItems");
+  const getInventoryItems = useMemo(() => {
+    console.log("getInventoryItems - memoized");
     
     const items: any[] = [];
     
@@ -894,7 +894,7 @@ export function useWeb3GameV2() {
     });
 
     return items;
-  };
+  }, [inventoryEquipments, equippedItems, playerItems]);
 
   // 获取物品名称
   const getItemName = (itemId: number, type: string) => {
@@ -928,7 +928,7 @@ export function useWeb3GameV2() {
   };
 
   // 转换Player数据为前端格式，确保所有字段都有默认值
-  const convertedPlayerData = {
+  const convertedPlayerData = useMemo(() => ({
     id: currentPlayerId.toString(),
     name: playerData?.name || '未命名',
     level: playerData ? Number(playerData.level) : 1,
@@ -950,11 +950,11 @@ export function useWeb3GameV2() {
     job: playerData ? Number(playerData.job) : 0,
     // 前端需要的额外字段
     gold: playerData ? Number(playerData.goldBalance)/10**18 : 0,
-    equipment: getEquippedItemsMap(),
-    inventory: getInventoryItems(), // 使用处理后的装备和物品数据
+    equipment: getEquippedItemsMap,
+    inventory: getInventoryItems, // 使用处理后的装备和物品数据
     treasureBoxes: [], // Web3模式下宝箱数据由单独的状态管理
     equippedItemIds: equippedItems || [],
-  };
+  }), [currentPlayerId, playerData, getInventoryItems, getEquippedItemsMap, equippedItems]);
 
   return {
     // 数据

@@ -63,9 +63,7 @@ export function useHybridGameStore() {
   const web3Game = useWeb3GameV2();
 
   // 混合模式下的玩家数据
-  const getPlayer = () => {
-    return web3Game.playerData;
-  };
+  const player = web3Game.playerData;
 
   // 混合模式下的战斗完成
   const completeBattle = async (experienceGained: number) => {
@@ -85,7 +83,7 @@ export function useHybridGameStore() {
 
   return {
     // 状态
-    player: getPlayer(),
+    player,
     isPlayerRegistered: web3Game.isPlayerRegistered,
     isPending: web3Game.isPending,
     isConfirming: web3Game.isConfirming,
