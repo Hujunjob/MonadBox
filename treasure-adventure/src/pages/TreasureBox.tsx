@@ -107,7 +107,7 @@ const TreasureBox: React.FC = () => {
           <p>未开启宝箱: {hybridStore.unopenedBoxCount}个</p>
           <p>待领取宝箱: {hybridStore.claimableBoxes}个</p>
           <p><small>（每小时可领取1个，需要间隔1小时）</small></p>
-          <p>金币余额: {hybridStore.goldBalance.toFixed(2)}</p>
+          <p>金币余额: {hybridStore.player.gold.toFixed(2)}</p>
           <p>装备NFT: {hybridStore.player?.equipmentBalance || 0}个</p>
         </>
 

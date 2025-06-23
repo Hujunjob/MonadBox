@@ -96,7 +96,6 @@ export function useHybridGameStore() {
     treasureBoxCount: web3Game.treasureBoxCount,
     unopenedBoxCount:  web3Game.unopenedBoxCount ,
     claimableBoxes:  web3Game.claimableBoxes ,
-    goldBalance: web3Game.goldBalance ,
     
     registerPlayer: web3Game.registerPlayer,
     completeBattle,
@@ -108,7 +107,6 @@ export function useHybridGameStore() {
     
     // 数据刷新
     refetchPlayer: web3Game.refetchPlayer,
-    refetchGold: web3Game.refetchGold,
     refetchTreasureBoxes: web3Game.refetchTreasureBoxes,
     refetchUnopenedBoxes: web3Game.refetchUnopenedBoxes,
     refetchClaimableBoxes: web3Game.refetchClaimableBoxes,

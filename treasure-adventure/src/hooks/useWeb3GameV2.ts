@@ -56,15 +56,6 @@ export function useWeb3GameV2() {
     query: { enabled: !!firstPlayerTokenId },
   });
 
-  // 获取金币余额
-  const { data: goldBalance, refetch: refetchGold } = useReadContract({
-    address: CONTRACTS.GOLD_TOKEN,
-    abi: GOLD_TOKEN_ABI,
-    functionName: 'balanceOf',
-    args: [address as `0x${string}`],
-    query: { enabled: !!address && isConnected },
-  });
-
   // 获取总宝箱数量
   const { data: treasureBoxCount, refetch: refetchTreasureBoxes } = useReadContract({
     address: CONTRACTS.TREASURE_BOX_SYSTEM,
@@ -466,7 +457,6 @@ export function useWeb3GameV2() {
       showToast('交易确认成功！', 'success');
       // 刷新数据
       refetchPlayer();
-      refetchGold();
       refetchTreasureBoxes();
       refetchUnopenedBoxes();
       refetchClaimableBoxes();
@@ -476,7 +466,7 @@ export function useWeb3GameV2() {
       refetchEquippedItems();
       refetchPlayerTreasureBoxes();
     }
-  }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchGold, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquipmentBalance, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
+  }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquipmentBalance, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
 
   // 转换Player数据为前端格式，确保所有字段都有默认值
   const convertedPlayerData = {
@@ -500,7 +490,7 @@ export function useWeb3GameV2() {
     initialized: playerData?.initialized || false,
     job: playerData ? Number(playerData.job) : 0,
     // 前端需要的额外字段
-    gold: goldBalance ? Number(goldBalance) / 10**18 : 0,
+    gold: playerData ? Number(playerData.goldBalance)/10**18 : 0,
     equipment: {
       helmet: undefined,
       armor: undefined, 
@@ -521,7 +511,6 @@ export function useWeb3GameV2() {
   return {
     // 数据
     playerData: convertedPlayerData,
-    goldBalance: goldBalance ? Number(goldBalance) / 10**18 : 0,
     treasureBoxCount: treasureBoxCount ? Number(treasureBoxCount) : 0,
     unopenedBoxCount: unopenedBoxCount ? Number(unopenedBoxCount) : 0,
     claimableBoxes: claimableBoxes ? Number(claimableBoxes) : 0,
@@ -543,7 +532,6 @@ export function useWeb3GameV2() {
     
     // 数据刷新
     refetchPlayer,
-    refetchGold,
     refetchTreasureBoxes,
     refetchUnopenedBoxes,
     refetchClaimableBoxes,
