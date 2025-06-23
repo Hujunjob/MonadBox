@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay, getCanGainExperience } from '../utils/gameUtils';
 import { EquipmentType } from '../types/game';
 import EquipmentModal from '../components/EquipmentModal';
@@ -9,6 +9,11 @@ const PlayerStats: React.FC = () => {
   // const { player, initializeGame, updatePlayer、, gainExperience, updateStamina } = useGameStore();
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player
+
+  useEffect(()=>{
+    console.log("Player");
+    console.log(player);
+  },[player])
 
   const stats = calculatePlayerStats(player);
   const baseStats = getBaseStats(player);

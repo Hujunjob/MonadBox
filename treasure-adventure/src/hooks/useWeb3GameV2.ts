@@ -83,22 +83,6 @@ export function useWeb3GameV2() {
     query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
   });
 
-  // 调试：监听claimableBoxes的变化
-  useEffect(() => {
-    if (claimableBoxes !== undefined) {
-      console.log('待领取宝箱数量:', Number(claimableBoxes));
-    }
-  }, [claimableBoxes]);
-
-  // 获取玩家拥有的装备NFT数量
-  const { data: equipmentBalance, refetch: refetchEquipmentBalance } = useReadContract({
-    address: CONTRACTS.EQUIPMENT_NFT,
-    abi: EQUIPMENT_NFT_ABI,
-    functionName: 'balanceOf',
-    args: [address as `0x${string}`],
-    query: { enabled: !!address && isConnected },
-  });
-
   // 获取玩家已装备的装备
   const { data: equippedItems, refetch: refetchEquippedItems } = useReadContract({
     address: CONTRACTS.PLAYER_NFT,
@@ -116,35 +100,7 @@ export function useWeb3GameV2() {
     args: [BigInt(currentPlayerId)],
     query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
   });
-
-
-  // 获取玩家背包装备数据
-  const [playerEquipments, setPlayerEquipments] = useState<any[]>([]);
   
-  // 当装备数量变化时，获取所有装备数据
-  useEffect(() => {
-    const fetchEquipments = async () => {
-      if (!address || !equipmentBalance || Number(equipmentBalance) === 0) {
-        setPlayerEquipments([]);
-        return;
-      }
-
-      try {
-        const equipments: any[] = [];
-        
-        // 暂时先显示一个简化的装备列表
-        // TODO: 需要使用 multicall 或者 React Query 来批量获取装备数据
-        console.log(`玩家拥有 ${Number(equipmentBalance)} 个装备NFT`);
-        
-        setPlayerEquipments(equipments);
-      } catch (error) {
-        console.error('获取装备数据失败:', error);
-        setPlayerEquipments([]);
-      }
-    };
-
-    fetchEquipments();
-  }, [address, equipmentBalance]);
 
   // 更新当前玩家ID
   useEffect(() => {
@@ -462,11 +418,10 @@ export function useWeb3GameV2() {
       refetchClaimableBoxes();
       refetchPlayerBalance();
       refetchPlayerTokenId();
-      refetchEquipmentBalance();
       refetchEquippedItems();
       refetchPlayerTreasureBoxes();
     }
-  }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquipmentBalance, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
+  }, [isConfirmed, isConfirming, isPending, refetchPlayer, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
 
   // 转换Player数据为前端格式，确保所有字段都有默认值
   const convertedPlayerData = {
@@ -503,8 +458,6 @@ export function useWeb3GameV2() {
     },
     inventory: playerData ? playerData.inventory : [], // 使用链上装备数据，确保不为null
     treasureBoxes: [], // Web3模式下宝箱数据由单独的状态管理
-    // 链上数据统计
-    equipmentBalance: equipmentBalance ? Number(equipmentBalance) : 0,
     equippedItemIds: equippedItems || [],
   };
 
@@ -535,7 +488,6 @@ export function useWeb3GameV2() {
     refetchTreasureBoxes,
     refetchUnopenedBoxes,
     refetchClaimableBoxes,
-    refetchEquipmentBalance,
     refetchEquippedItems,
   };
 }

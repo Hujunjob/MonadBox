@@ -14,6 +14,7 @@ const Inventory: React.FC = () => {
     console.log("Player");
     console.log(player);
   },[player])
+
   const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
@@ -22,11 +23,12 @@ const Inventory: React.FC = () => {
   
   // 按类型分组物品
   const healthPotions = player.inventory.filter(item => item.type === 'health_potion');
-  const equipment = player.inventory.filter(item => item.type === 'equipment');
+  const equipments = player.inventory.filter(item => item.type === 'equipment');
   const petEggs = player.inventory.filter(item => item.type === 'pet_egg');
   
   // 转职书按目标职业分组合并
   const jobBooksRaw = player.inventory.filter(item => item.type === 'job_advancement_book');
+
   const jobBooksGrouped = jobBooksRaw.reduce((acc: any[], item) => {
     const existingBook = acc.find(book => book.targetJob === (item as any).targetJob);
     if (existingBook) {
@@ -151,7 +153,7 @@ const Inventory: React.FC = () => {
       <div className="inventory-section">
         <h3>装备</h3>
         <div className="items-grid">
-          {equipment.map(item => {
+          {equipments.map(item => {
             const equipmentItem = item as any;
             return (
               <div 
@@ -182,7 +184,7 @@ const Inventory: React.FC = () => {
               </div>
             );
           })}
-          {equipment.length === 0 && (
+          {equipments.length === 0 && (
             <div className="empty-slot">
               <span>没有装备</span>
             </div>

@@ -76,7 +76,7 @@ export function useSafeContractCall() {
       // 如果没有提供模拟调用，直接执行（跳过验证）
       if (!simulationHook) {
         console.log('⚠️ 跳过模拟验证，直接执行交易');
-        showToast('正在发起交易...', 'info');
+        // showToast('正在发起交易...', 'info');
         console.log(contractConfig);
         
         writeContract(contractConfig);
