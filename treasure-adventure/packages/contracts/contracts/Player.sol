@@ -343,28 +343,6 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
         }
     }
     
-    /**
-     * @dev 检查是否可以战斗
-     */
-    function canBattle(uint256 playerId, uint8 staminaCost) external view returns (bool) {
-        GameStructs.Player memory player = players[playerId];
-        if (!player.initialized) return false;
-        
-        // 计算当前体力
-        uint32 timeSinceLastUpdate = uint32(block.timestamp) - player.lastStaminaTime;
-        uint8 staminaToRecover = uint8(timeSinceLastUpdate / GameConfig.STAMINA_RECOVERY_INTERVAL);
-        uint8 currentStamina = player.stamina;
-        
-        if (staminaToRecover > 0 && currentStamina < player.maxStamina) {
-            uint8 actualRecovery = staminaToRecover;
-            if (currentStamina + actualRecovery > player.maxStamina) {
-                actualRecovery = player.maxStamina - currentStamina;
-            }
-            currentStamina += actualRecovery;
-        }
-        
-        return currentStamina >= staminaCost;
-    }
     
     /**
      * @dev 实现IERC721Receiver以接收Equipment NFT

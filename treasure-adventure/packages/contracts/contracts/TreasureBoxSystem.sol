@@ -21,7 +21,7 @@ contract TreasureBoxSystem is Ownable {
     Item public itemNFT;
 
     struct TreasureBox {
-        uint8 level; // 宝箱等级 (1-10)
+        uint32 level; // 宝箱等级 (1-10)
         uint8 rarity; // 稀有度 (0-4)
         uint32 createdTime; // 创建时间
     }
@@ -41,6 +41,8 @@ contract TreasureBoxSystem is Ownable {
 
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
+
+    mapping(uint256=>uint32) public playerBattleLevels;
 
     // 修饰符：只有授权的系统或owner可以调用
     modifier onlyAuthorizedOrOwner() {
@@ -103,7 +105,7 @@ contract TreasureBoxSystem is Ownable {
      */
     function addBattleTreasureBox(
         uint256 playerId,
-        uint8 level
+        uint32 level
     ) external onlyAuthorizedOrOwner {
         require(level >= 1 && level <= 10, "Invalid box level");
 
@@ -117,8 +119,11 @@ contract TreasureBoxSystem is Ownable {
                 createdTime: uint32(block.timestamp)
             })
         );
+        if(level>playerBattleLevels[playerId]){
+            playerBattleLevels[playerId] = level;
+        }
 
-        emit TreasureBoxAdded(playerId, level, rarity);
+        emit TreasureBoxAdded(playerId, uint8(level), rarity);
     }
 
     /**
@@ -160,9 +165,10 @@ contract TreasureBoxSystem is Ownable {
             // 更新Player NFT中的lastTreasureBoxTime
             playerNFT.updateLastTreasureBoxTime(playerId);
 
-            // 添加离线宝箱 (等级1-3的普通宝箱)
+            // 添加离线宝箱 (等级1-level的普通宝箱)
             for (uint8 i = 0; i < boxesToClaim; i++) {
-                uint8 boxLevel = uint8((block.timestamp + i) % 3) + 1; // 随机1-3级
+                uint32 level = playerBattleLevels[playerId];
+                uint32 boxLevel = uint32((block.timestamp + i) % level) + 1; // 随机1-3级
                 uint8 rarity = _calculateBoxRarity(boxLevel);
 
                 playerTreasureBoxes[playerId].push(
@@ -173,7 +179,7 @@ contract TreasureBoxSystem is Ownable {
                     })
                 );
 
-                emit TreasureBoxAdded(playerId, boxLevel, rarity);
+                emit TreasureBoxAdded(playerId, uint8(boxLevel), rarity);
             }
 
             emit OfflineBoxesClaimed(playerId, boxesToClaim);
@@ -207,7 +213,7 @@ contract TreasureBoxSystem is Ownable {
 
         console.log("openTreasureBox 1");
         // 生成奖励
-        BoxReward memory reward = _generateReward(box.level, box.rarity);
+        BoxReward memory reward = _generateReward(uint8(box.level), box.rarity);
         
         // 删除已开启的宝箱
         _removeBox(playerId, boxIndex);
@@ -283,7 +289,7 @@ contract TreasureBoxSystem is Ownable {
      * @param level 宝箱等级
      * @return 稀有度
      */
-    function _calculateBoxRarity(uint8 level) internal view returns (uint8) {
+    function _calculateBoxRarity(uint32 level) internal view returns (uint8) {
         uint256 random = uint256(
             keccak256(abi.encodePacked(block.timestamp, msg.sender, level))
         ) % 1000;

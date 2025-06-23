@@ -43,11 +43,11 @@ const Web3Toggle: React.FC = () => {
         
         { isConnected && (
           <div className="web3-info">
-            <div className="wallet-info">
+            {/* <div className="wallet-info">
               钱包: {address?.slice(0, 6)}...{address?.slice(-4)}
-            </div>
+            </div> */}
             {hybridStore.isPlayerRegistered ? (
-              <div className="player-status">✅ 已注册</div>
+              <div className="player-status"></div>
             ) : (
               <div className="player-status">❌ 未注册</div>
             )}

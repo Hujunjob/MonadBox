@@ -96,6 +96,11 @@ export function useHybridGameStore() {
     treasureBoxCount: web3Game.treasureBoxCount,
     claimableBoxes:  web3Game.claimableBoxes ,
     
+    // MonsterForest 所需属性
+    maxAdventureLevel: web3Game.maxAdventureLevel,
+    battleStats: web3Game.battleStats,
+    currentPlayerId: web3Game.currentPlayerId,
+    
     registerPlayer: web3Game.registerPlayer,
     completeBattle,
     claimTreasureBoxes,
@@ -105,6 +110,11 @@ export function useHybridGameStore() {
     upgradeEquipmentStars: web3Game.upgradeEquipmentStars,
     enhanceEquipment: web3Game.enhanceEquipment,
     updateStamina: () => {}, // 新架构中体力自动恢复
+    
+    // MonsterForest 所需方法
+    getMonsterStats: web3Game.getMonsterStats,
+    estimateWinRate: web3Game.estimateWinRate,
+    startAdventure: web3Game.startAdventure,
     
     // 数据刷新
     refetchPlayer: web3Game.refetchPlayer,

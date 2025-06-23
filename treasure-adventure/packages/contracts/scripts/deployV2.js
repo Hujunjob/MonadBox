@@ -32,10 +32,10 @@ function filterABI(abi, contractName) {
       'equipItem', 'unequipItem', 'heal', 'levelUp', 'updateStamina',
       'getPlayerGold', 'getPlayerInventory', 'hasEquipmentInInventory',
       'addEquipmentToInventory', 'removeEquipmentFromInventory', 'getEquippedItems',
-      'getPlayerTotalStats', 'canBattle', 'updateLastTreasureBoxTime',
+      'getPlayerTotalStats', 'updateLastTreasureBoxTime',
       'getPlayerItemQuantity', 'getPlayerItems', 'useHealthPotion', 'useItem'
     ],
-    BattleSystemV2: ['completeBattle', 'getBattleStats', 'canBattle'],
+    BattleSystemV2: ['completeBattle', 'startAdventure', 'getBattleStats', 'canBattle', 'getMaxAdventureLevel', 'getMonsterStats', 'estimateWinRate'],
     AdventureGold: ['balanceOf'],
     TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount', 'getClaimableOfflineBoxes', 'getPlayerTreasureBoxes'],
     EquipmentSystem: ['upgradeStars', 'enhanceEquipment'],
@@ -197,7 +197,8 @@ async function main() {
   const EquipmentSystem = await hre.ethers.getContractFactory("EquipmentSystem");
   const equipmentSystem = await EquipmentSystem.deploy(
     await equipmentNFT.getAddress(),
-    await goldToken.getAddress()
+    await goldToken.getAddress(),
+    await playerNFT.getAddress()
   );
   await equipmentSystem.waitForDeployment();
   console.log("EquipmentSystem deployed to:", await equipmentSystem.getAddress());
@@ -241,6 +242,10 @@ async function main() {
   // EquipmentSystem需要调用Equipment合约的upgradeEquipment和burn函数
   await equipmentNFT.authorizeSystem(await equipmentSystem.getAddress());
   console.log("EquipmentSystem authorized to modify Equipment NFTs");
+  
+  // EquipmentSystem需要调用Player合约的金币和装备管理函数
+  await playerNFT.authorizeSystem(await equipmentSystem.getAddress());
+  console.log("EquipmentSystem authorized to call Player functions");
 
   // 保存部署信息
   const deploymentInfo = {

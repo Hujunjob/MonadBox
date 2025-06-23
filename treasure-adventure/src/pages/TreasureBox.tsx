@@ -105,11 +105,7 @@ const TreasureBox: React.FC = () => {
         <>
           <p>总宝箱数: {hybridStore.treasureBoxCount}个</p>
           <p>待领取宝箱: {hybridStore.claimableBoxes}个</p>
-          <p><small>（每小时可领取1个，需要间隔1小时）</small></p>
-          <p>金币余额: {hybridStore.player.gold.toFixed(2)}</p>
         </>
-
-        <p>每个宝箱提供随机奖励，等级越高奖励越好！</p>
       </div>
 
       {/* 宝箱列表 */}
@@ -423,6 +419,7 @@ const TreasureBox: React.FC = () => {
         <ul>
           <li>每{GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL}秒自动获得 1 个</li>
           <li>击杀怪物获得 1 个 (等级与森林层级对应)</li>
+          <li>宝箱是金币、装备、血瓶等的唯一来源</li>
         </ul>
       </div>
     </div>

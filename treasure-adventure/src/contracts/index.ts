@@ -1,13 +1,13 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0x114e375B6FCC6d6fCb68c7A1d407E652C54F25FB' as `0x${string}`,
-  EQUIPMENT_NFT: '0x162700d1613DfEC978032A909DE02643bC55df1A' as `0x${string}`,
-  ITEM_NFT: '0x67aD6EA566BA6B0fC52e97Bc25CE46120fdAc04c' as `0x${string}`,
-  GOLD_TOKEN: '0x9385556B571ab92bf6dC9a0DbD75429Dd4d56F91' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xcD0048A5628B37B8f743cC2FeA18817A29e97270' as `0x${string}`,
-  BATTLE_SYSTEM: '0x976C214741b4657bd99DFD38a5c0E3ac5C99D903' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x8bEe2037448F096900Fd9affc427d38aE6CC0350' as `0x${string}`
+  PLAYER_NFT: '0x3f9A1B67F3a3548e0ea5c9eaf43A402d12b6a273' as `0x${string}`,
+  EQUIPMENT_NFT: '0xeC827421505972a2AE9C320302d3573B42363C26' as `0x${string}`,
+  ITEM_NFT: '0x74Df809b1dfC099E8cdBc98f6a8D1F5c2C3f66f8' as `0x${string}`,
+  GOLD_TOKEN: '0x6b39b761b1b64C8C095BF0e3Bb0c6a74705b4788' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xFD6D23eE2b6b136E34572fc80cbCd33E9787705e' as `0x${string}`,
+  BATTLE_SYSTEM: '0x4DAf17c8142A483B2E2348f56ae0F2cFDAe22ceE' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x1D13fF25b10C9a6741DFdce229073bed652197c7' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -387,30 +387,6 @@ export const PLAYER_NFT_ABI = [
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "playerId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "staminaCost",
-        "type": "uint8"
-      }
-    ],
-    "name": "canBattle",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -1418,6 +1394,25 @@ export const BATTLE_SYSTEM_ABI = [
       },
       {
         "indexed": false,
+        "internalType": "uint8",
+        "name": "newMaxLevel",
+        "type": "uint8"
+      }
+    ],
+    "name": "AdventureLevelUnlocked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "uint16",
         "name": "experienceGained",
         "type": "uint16"
@@ -1427,6 +1422,12 @@ export const BATTLE_SYSTEM_ABI = [
         "internalType": "bool",
         "name": "victory",
         "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "adventureLevel",
+        "type": "uint8"
       },
       {
         "indexed": false,
@@ -1520,6 +1521,30 @@ export const BATTLE_SYSTEM_ABI = [
         "internalType": "uint256",
         "name": "playerId",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "monsterLevel",
+        "type": "uint8"
+      }
+    ],
+    "name": "estimateWinRate",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
       }
     ],
     "name": "getBattleStats",
@@ -1552,6 +1577,44 @@ export const BATTLE_SYSTEM_ABI = [
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMaxAdventureLevel",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "monsterLevel",
+        "type": "uint8"
+      }
+    ],
+    "name": "getMonsterStats",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "defense",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -1562,6 +1625,25 @@ export const BATTLE_SYSTEM_ABI = [
         "internalType": "uint32",
         "name": "",
         "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "maxAdventureLevel",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -1591,6 +1673,24 @@ export const BATTLE_SYSTEM_ABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "adventureLevel",
+        "type": "uint8"
+      }
+    ],
+    "name": "startAdventure",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2203,9 +2303,9 @@ export const TREASURE_BOX_SYSTEM_ABI = [
       {
         "components": [
           {
-            "internalType": "uint8",
+            "internalType": "uint32",
             "name": "level",
-            "type": "uint8"
+            "type": "uint32"
           },
           {
             "internalType": "uint8",
@@ -2258,9 +2358,9 @@ export const TREASURE_BOX_SYSTEM_ABI = [
       {
         "components": [
           {
-            "internalType": "uint8",
+            "internalType": "uint32",
             "name": "level",
-            "type": "uint8"
+            "type": "uint32"
           },
           {
             "internalType": "uint8",
@@ -2276,25 +2376,6 @@ export const TREASURE_BOX_SYSTEM_ABI = [
         "internalType": "struct TreasureBoxSystem.TreasureBox[]",
         "name": "",
         "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "playerId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getUnopenedBoxCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -2401,6 +2482,25 @@ export const TREASURE_BOX_SYSTEM_ABI = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "playerBattleLevels",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "playerNFT",
     "outputs": [
@@ -2429,9 +2529,9 @@ export const TREASURE_BOX_SYSTEM_ABI = [
     "name": "playerTreasureBoxes",
     "outputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint32",
         "name": "level",
-        "type": "uint8"
+        "type": "uint32"
       },
       {
         "internalType": "uint8",
@@ -2726,6 +2826,19 @@ export const EQUIPMENT_SYSTEM_ABI = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "playerNFT",
+    "outputs": [
+      {
+        "internalType": "contract Player",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint8",
@@ -2754,6 +2867,11 @@ export const EQUIPMENT_SYSTEM_ABI = [
         "internalType": "uint16",
         "name": "statMultiplier",
         "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "materialCount",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -2761,6 +2879,11 @@ export const EQUIPMENT_SYSTEM_ABI = [
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
       {
         "internalType": "uint256",
         "name": "tokenId",

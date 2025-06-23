@@ -1,175 +1,250 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
-import { generateForestLevels } from '../utils/gameUtils';
 
 const MonsterForest: React.FC = () => {
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player;
-  const forestLevels = React.useMemo(() => {
-    const levels = generateForestLevels();
-    // Unlock levels based on player progress
-    const currentForestLevel = player.currentForestLevel;
-    const currentForestProgress = player.currentForestProgress;
-    
-    levels.forEach((level, index) => {
-      level.isUnlocked = index < currentForestLevel || index === 0;
-      if (index === currentForestLevel - 1) {
-        level.monstersKilled = currentForestProgress;
+  const [selectedAdventureLevel, setSelectedAdventureLevel] = useState(1);
+  const [isLevelExpanded, setIsLevelExpanded] = useState(false);
+  const [monsterStats, setMonsterStats] = useState<{[key: number]: any}>({});
+  const [winRates, setWinRates] = useState<{[key: number]: number}>({});
+  
+  // 获取玩家最大解锁层数
+  const maxUnlockedLevel = hybridStore.maxAdventureLevel || 1;
+  const battleStats = hybridStore.battleStats || { totalBattles: 0, totalVictories: 0, winRate: 0, lastBattle: 0 };
+  
+  // 生成冒险层数列表 (1-10)
+  const adventureLevels = Array.from({ length: 10 }, (_, i) => {
+    const level = i + 1;
+    return {
+      level,
+      name: `第${level}层冒险`,
+      isUnlocked: level <= maxUnlockedLevel,
+      monsterLevel: level,
+      baseExp: level * 10 + 20,
+      description: `挑战等级${level}的怪物`
+    };
+  });
+  
+  const currentAdventure = adventureLevels.find(adv => adv.level === selectedAdventureLevel);
+  
+  // 获取怪物属性和胜率
+  useEffect(() => {
+    const fetchBattleData = async () => {
+      // 检查必要的方法是否存在
+      if (typeof hybridStore.getMonsterStats !== 'function' || 
+          typeof hybridStore.estimateWinRate !== 'function') {
+        console.error('Required game methods not available');
+        return;
       }
-    });
-    return levels;
-  }, [player.currentForestLevel, player.currentForestProgress]);
-  const [selectedForestLevel, setSelectedForestLevel] = React.useState(player.currentForestLevel);
-  const [isForestLevelExpanded, setIsForestLevelExpanded] = React.useState(false);
-  
-  const currentForest = forestLevels.find(forest => forest.level === selectedForestLevel);
-  
-  const handleFightMonster = async (monster: any) => {
-    if (player.health <= 0) {
-      alert('血량不足，无法战斗！请使用血瓶恢复。');
-      return;
+
+      for (let level = 1; level <= 10; level++) {
+        try {
+          // 获取怪物属性
+          const stats = await hybridStore.getMonsterStats(level);
+          if (stats) {
+            setMonsterStats(prev => ({ ...prev, [level]: stats }));
+          }
+          
+          // 获取胜率
+          const winRate = await hybridStore.estimateWinRate(level);
+          setWinRates(prev => ({ ...prev, [level]: winRate }));
+        } catch (error) {
+          console.error(`Failed to fetch data for level ${level}:`, error);
+        }
+      }
+    };
+    
+    if (hybridStore.currentPlayerId) {
+      fetchBattleData();
     }
+  }, [hybridStore.currentPlayerId, player]);
+  
+  const handleStartAdventure = async (adventureLevel: number) => {
     if (player.stamina < 1) {
       alert('体力不足，无法战斗！请等待体力恢复。');
       return;
     }
     
-    // Complete battle on blockchain with experience gained from monster
+    if (adventureLevel > maxUnlockedLevel) {
+      alert(`第${adventureLevel}层尚未解锁！请先完成第${maxUnlockedLevel}层冒险。`);
+      return;
+    }
+    
+    // 检查startAdventure方法是否存在
+    if (typeof hybridStore.startAdventure !== 'function') {
+      console.error('startAdventure method not available');
+      alert('游戏方法不可用，请重新加载页面');
+      return;
+    }
+    
     try {
-      await hybridStore.completeBattle(monster.experience);
-      // Refresh player data after battle
-      hybridStore.refetchPlayer();
+      await hybridStore.startAdventure(adventureLevel);
     } catch (error) {
-      console.error('Battle failed:', error);
+      console.error('Adventure failed:', error);
     }
   };
   
   return (
     <div className="monster-forest">
-      <div className="forest-levels">
+      <div className="adventure-levels">
         <div 
-          className="forest-levels-header"
-          onClick={() => setIsForestLevelExpanded(!isForestLevelExpanded)}
+          className="adventure-levels-header"
+          onClick={() => setIsLevelExpanded(!isLevelExpanded)}
           style={{ cursor: 'pointer' }}
         >
-          <h3>冒险等级</h3>
-          <span className="expand-icon">{isForestLevelExpanded ? '▼' : '▶'}</span>
+          <h3>冒险层数选择</h3>
+          <span className="expand-icon">{isLevelExpanded ? '▼' : '▶'}</span>
         </div>
         
-        {isForestLevelExpanded && (
+        {isLevelExpanded && (
           <div className="level-list">
-            {forestLevels.map(forest => (
+            {adventureLevels.map(adventure => (
               <div 
-                key={forest.level} 
-                className={`forest-level ${forest.isUnlocked ? 'unlocked' : 'locked'} ${
-                  forest.level === selectedForestLevel ? 'selected' : ''
-                } ${forest.level === player.currentForestLevel ? 'current' : ''}`}
-                onClick={() => forest.isUnlocked && setSelectedForestLevel(forest.level)}
-                style={{ cursor: forest.isUnlocked ? 'pointer' : 'default' }}
+                key={adventure.level} 
+                className={`adventure-level ${adventure.isUnlocked ? 'unlocked' : 'locked'} ${
+                  adventure.level === selectedAdventureLevel ? 'selected' : ''
+                }`}
+                onClick={() => adventure.isUnlocked && setSelectedAdventureLevel(adventure.level)}
+                style={{ cursor: adventure.isUnlocked ? 'pointer' : 'default' }}
               >
-                <span>{forest.name}</span>
-                <span>
-                  {forest.isUnlocked ? 
-                    (forest.level === player.currentForestLevel ? 
-                      `进度: ${player.currentForestProgress}/10` : 
-                      '已完成'
-                    ) : 
-                    '未解锁'
-                  }
-                </span>
+                <div className="level-info">
+                  <span className="level-name">{adventure.name}</span>
+                  <span className="level-status">
+                    {adventure.isUnlocked ? '可挑战' : '未解锁'}
+                  </span>
+                </div>
+                <div className="level-details">
+                  <span>怪物防御: {monsterStats[adventure.level] || '...'}</span>
+                  <span>胜率: {winRates[adventure.level] || 0}%</span>
+                  <span>经验: {adventure.baseExp}</span>
+                </div>
               </div>
             ))}
           </div>
         )}
         
-        {!isForestLevelExpanded && (
-          <div className="current-forest-summary">
-            <span> {currentForest?.name || `第${selectedForestLevel}层森林`}</span>
+        {!isLevelExpanded && (
+          <div className="current-adventure-summary">
+            <span>{currentAdventure?.name || `第${selectedAdventureLevel}层冒险`}</span>
+            <span>胜率: {winRates[selectedAdventureLevel] || 0}%</span>
           </div>
         )}
       </div>
       
-      {currentForest && (
-        <div className="current-forest">
-          <div className="monsters-grid">
-            {currentForest.monsters.map((monster, index) => {
-              // 如果是当前层级，使用正常的进度逻辑
-              // 如果是已完成的层级，所有怪物都可以挑战
-              const isCurrentLevel = selectedForestLevel === player.currentForestLevel;
-              const isDefeated = isCurrentLevel ? index < player.currentForestProgress : false;
-              const isCurrent = isCurrentLevel ? index === player.currentForestProgress : false;
-              const isLocked = isCurrentLevel ? index > player.currentForestProgress : false;
-              const canFight = isCurrentLevel ? (!isLocked && player.health > 0 && player.stamina >= 1) : (player.health > 0 && player.stamina >= 1);
-              
-              return (
-                <div 
-                  key={monster.id} 
-                  className={`monster-card-compact ${
-                    isDefeated ? 'defeated' : 
-                    isCurrent ? 'current' : 
-                    isLocked ? 'locked' : 'available'
-                  }`}
-                >
-                  <div className="monster-header">
-                    <span className="monster-name">{monster.name}</span>
-                  </div>
-                  
-                  <div className="monster-info-compact">
-                    <div className="monster-stat-row">
-                      <span>❤️{monster.health}</span>
-                      <span>⚔️{monster.attack}</span>
-                    </div>
-                    <div className="reward-row">
-                      <span>📖{monster.experience}</span>
-                      <span>💰{monster.goldDrop}</span>
-                    </div>
-                  </div>
-                  
-                  {isDefeated && (
-                    <div className="status-label defeated">✓</div>
-                  )}
-                  {isCurrent && (
-                    <div className="status-label current">●</div>
-                  )}
-                  {isLocked && (
-                    <div className="status-label locked">🔒</div>
-                  )}
-                  
-                  <button 
-                    onClick={() => handleFightMonster(monster)}
-                    className={`fight-btn-compact ${!canFight ? 'disabled' : ''}`}
-                    disabled={!canFight}
-                  >
-                    {isDefeated ? '重战' : '挑战'}
-                  </button>
-                </div>
-              );
-            })}
+      {/* 战斗统计 */}
+      <div className="battle-stats">
+        <h3>战斗统计</h3>
+        <div className="stats-grid">
+          <div className="stat-item">
+            <span className="stat-label">总战斗次数</span>
+            <span className="stat-value">{battleStats.totalBattles}</span>
           </div>
-          
-          {player.currentForestProgress >= 10 && player.currentForestLevel < 10 && (
-            <div className="level-complete">
-              <p>恭喜！你已经完成了这一层冒险！</p>
-              <p>下一冒险已解锁！</p>
+          <div className="stat-item">
+            <span className="stat-label">胜利次数</span>
+            <span className="stat-value">{battleStats.totalVictories}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">胜率</span>
+            <span className="stat-value">{battleStats.winRate}%</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">最大解锁层数</span>
+            <span className="stat-value">{maxUnlockedLevel}</span>
+          </div>
+        </div>
+      </div>
+      
+      {currentAdventure && (
+        <div className="current-adventure">
+          <div className="adventure-card">
+            <div className="adventure-header">
+              <h2>{currentAdventure.name}</h2>
+              <div className="adventure-level">等级 {currentAdventure.level}</div>
             </div>
-          )}
-          
-          {player.currentForestLevel >= 10 && player.currentForestProgress >= 10 && (
-            <div className="game-complete">
-              <p>🎉 恭喜！你已经征服了整个冒险区域！🎉</p>
+            
+            <div className="monster-info">
+              <h3>怪物信息</h3>
+              <div className="monster-stats">
+                <div className="stat-row">
+                  <span>怪物等级:</span>
+                  <span>{currentAdventure.monsterLevel}</span>
+                </div>
+                <div className="stat-row">
+                  <span>怪物防御:</span>
+                  <span>{monsterStats[currentAdventure.level] || '加载中...'}</span>
+                </div>
+                <div className="stat-row">
+                  <span>预估胜率:</span>
+                  <span className={`win-rate ${winRates[currentAdventure.level] > 70 ? 'high' : winRates[currentAdventure.level] > 40 ? 'medium' : 'low'}`}>
+                    {winRates[currentAdventure.level] || 0}%
+                  </span>
+                </div>
+                <div className="stat-row">
+                  <span>经验奖励:</span>
+                  <span>{currentAdventure.baseExp}</span>
+                </div>
+              </div>
             </div>
-          )}
+            
+            <div className="player-status">
+              <h3>玩家状态</h3>
+              <div className="status-grid">
+                <div className="status-item">
+                  <span>体力:</span>
+                  <span className={player.stamina < 1 ? 'low' : ''}>{player.stamina}/{player.maxStamina}</span>
+                </div>
+                <div className="status-item">
+                  <span>攻击力:</span>
+                  <span>{player.attack}</span>
+                </div>
+                <div className="status-item">
+                  <span>防御力:</span>
+                  <span>{player.defense}</span>
+                </div>
+                <div className="status-item">
+                  <span>敏捷:</span>
+                  <span>{player.agility}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="adventure-actions">
+              <button 
+                onClick={() => handleStartAdventure(currentAdventure.level)}
+                className={`adventure-btn ${
+                  !currentAdventure.isUnlocked || player.stamina < 1 ? 'disabled' : 
+                  winRates[currentAdventure.level] > 70 ? 'high-chance' :
+                  winRates[currentAdventure.level] > 40 ? 'medium-chance' : 'low-chance'
+                }`}
+                disabled={!currentAdventure.isUnlocked || player.stamina < 1 || hybridStore.isPending}
+              >
+                {hybridStore.isPending ? '冒险中...' : 
+                 !currentAdventure.isUnlocked ? '未解锁' :
+                 player.stamina < 1 ? '体力不足' :
+                 `开始第${currentAdventure.level}层冒险`}
+              </button>
+              
+              {currentAdventure.level > maxUnlockedLevel && (
+                <div className="unlock-hint">
+                  需要先完成第{maxUnlockedLevel}层冒险才能解锁
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
       
-      <div className="forest-info">
-        <h3>规则说明</h3>
+      <div className="adventure-info">
+        <h3>新战斗系统说明</h3>
         <ul>
-          <li>每层森林有10只怪物，必须按顺序击败</li>
-          <li>击败10只怪物后，下一层森林解锁</li>
-          <li>每击败一只怪物获得经验、金币和宝箱</li>
-          <li>怪物等级越高，奖励越丰富</li>
-          <li>战斗需要消耗血量，注意及时恢复</li>
+          <li>选择冒险层数1-10，挑战对应等级的怪物</li>
+          <li>胜利后自动解锁下一层冒险</li>
+          <li>战斗胜负基于你的攻击力与怪物防御力的随机对决</li>
+          <li>胜利获得经验奖励和战斗宝箱</li>
+          <li>每次冒险消耗1点体力</li>
+          <li>怪物防御力 = 等级 × 5 + 10</li>
+          <li>胜率基于你的总攻击力（包含装备加成）</li>
         </ul>
       </div>
     </div>

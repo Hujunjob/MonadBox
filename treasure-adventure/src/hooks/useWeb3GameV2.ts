@@ -128,6 +128,8 @@ export function useWeb3GameV2() {
       setInventoryEquipments([]);
       return;
     }
+    console.log("fetchEquipmentDetails");
+    
 
     if (!publicClient) {
       console.warn('Public client not available, using fallback data');
@@ -293,7 +295,94 @@ export function useWeb3GameV2() {
     );
   };
 
-  // 完成战斗
+  // 获取玩家最大冒险层数
+  const { data: maxAdventureLevel, refetch: refetchMaxAdventureLevel } = useReadContract({
+    address: CONTRACTS.BATTLE_SYSTEM,
+    abi: BATTLE_SYSTEM_ABI,
+    functionName: 'getMaxAdventureLevel',
+    args: [BigInt(currentPlayerId)],
+    query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
+  });
+
+  // 获取玩家战斗统计
+  const { data: battleStats, refetch: refetchBattleStats } = useReadContract({
+    address: CONTRACTS.BATTLE_SYSTEM,
+    abi: BATTLE_SYSTEM_ABI,
+    functionName: 'getBattleStats',
+    args: [BigInt(currentPlayerId)],
+    query: { enabled: !!currentPlayerId && currentPlayerId > 0 },
+  });
+
+  // 开始冒险 - 新的战斗系统
+  const startAdventure = async (adventureLevel: number) => {
+    if (!isConnected || !currentPlayerId) {
+      showToast('请先连接钱包并注册玩家', 'error');
+      return;
+    }
+
+    if (adventureLevel < 1 || adventureLevel > 10) {
+      showToast('冒险层数必须在1-10之间', 'error');
+      return;
+    }
+
+    await safeCall(
+      {
+        address: CONTRACTS.BATTLE_SYSTEM,
+        abi: BATTLE_SYSTEM_ABI,
+        functionName: 'startAdventure',
+        args: [BigInt(currentPlayerId), adventureLevel],
+      },
+      undefined,
+      {
+        loadingMessage: `⚔️ 正在挑战第${adventureLevel}层...`,
+        successMessage: '✅ 冒险结果已上链！',
+        errorMessage: '❌ 冒险失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
+      }
+    );
+  };
+
+  // 获取怪物属性
+  const getMonsterStats = async (monsterLevel: number) => {
+    if (!publicClient) return null;
+    
+    try {
+      const stats = await publicClient.readContract({
+        address: CONTRACTS.BATTLE_SYSTEM,
+        abi: BATTLE_SYSTEM_ABI,
+        functionName: 'getMonsterStats',
+        args: [monsterLevel]
+      });
+      return stats;
+    } catch (error) {
+      console.error('Failed to get monster stats:', error);
+      return null;
+    }
+  };
+
+  // 估算胜率
+  const estimateWinRate = async (monsterLevel: number) => {
+    if (!publicClient || !currentPlayerId) return 0;
+    
+    try {
+      const winRate = await publicClient.readContract({
+        address: CONTRACTS.BATTLE_SYSTEM,
+        abi: BATTLE_SYSTEM_ABI,
+        functionName: 'estimateWinRate',
+        args: [BigInt(currentPlayerId), monsterLevel]
+      });
+      return Number(winRate);
+    } catch (error) {
+      console.error('Failed to estimate win rate:', error);
+      return 0;
+    }
+  };
+
+  // 完成战斗 - 保留旧版本兼容性
   const completeBattle = async (
     experienceGained: number, 
     staminaCost: number = 1, 
@@ -623,10 +712,10 @@ export function useWeb3GameV2() {
     );
   };
 
-  // 装备升星
+  // 装备升星 - 更新为使用playerId
   const upgradeEquipmentStars = async (equipmentId: number) => {
-    if (!isConnected || !address) {
-      showToast('请先连接钱包', 'error');
+    if (!isConnected || !currentPlayerId) {
+      showToast('请先连接钱包并注册玩家', 'error');
       return;
     }
 
@@ -635,7 +724,7 @@ export function useWeb3GameV2() {
         address: CONTRACTS.EQUIPMENT_SYSTEM,
         abi: EQUIPMENT_SYSTEM_ABI,
         functionName: 'upgradeStars',
-        args: [BigInt(equipmentId)],
+        args: [BigInt(currentPlayerId), BigInt(equipmentId)],
       },
       undefined,
       {
@@ -691,6 +780,8 @@ export function useWeb3GameV2() {
     refetchPlayerTreasureBoxes();
     refetchPlayerInventory();
     refetchPlayerItems();
+    refetchMaxAdventureLevel();
+    refetchBattleStats();
   };
 
   // 监听交易确认并自动刷新数据
@@ -757,13 +848,15 @@ export function useWeb3GameV2() {
 
   // 处理背包物品数据
   const getInventoryItems = () => {
+    console.log("getInventoryItems");
+    
     const items: any[] = [];
     
     // 添加装备
     inventoryEquipments.forEach(equipment => {
       // 如果装备没有被装备，就加入背包
       const isEquipped = equippedItems && equippedItems.some(id => Number(id) === equipment.id);
-      console.log("getInventoryItems",equipment);
+      // console.log("getInventoryItems",equipment);
       
       if (!isEquipped) {
         items.push({
@@ -871,6 +964,15 @@ export function useWeb3GameV2() {
     isPlayerRegistered: !!playerData?.initialized,
     currentPlayerId,
     
+    // 新战斗系统数据
+    maxAdventureLevel: maxAdventureLevel ? Number(maxAdventureLevel) : 1,
+    battleStats: battleStats ? {
+      totalBattles: Number(battleStats[0]),
+      totalVictories: Number(battleStats[1]),
+      winRate: Number(battleStats[2]),
+      lastBattle: Number(battleStats[3])
+    } : { totalBattles: 0, totalVictories: 0, winRate: 0, lastBattle: 0 },
+    
     // 状态
     isPending,
     isConfirming,
@@ -879,6 +981,9 @@ export function useWeb3GameV2() {
     // 函数
     registerPlayer,
     completeBattle,
+    startAdventure,
+    getMonsterStats,
+    estimateWinRate,
     claimTreasureBoxes,
     openTreasureBox,
     equipItem,
@@ -894,5 +999,7 @@ export function useWeb3GameV2() {
     refetchEquippedItems,
     refetchPlayerInventory,
     refetchPlayerItems,
+    refetchMaxAdventureLevel,
+    refetchBattleStats,
   };
 }

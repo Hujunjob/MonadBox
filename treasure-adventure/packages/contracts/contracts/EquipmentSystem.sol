@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Equipment.sol";
 import "./AdventureGold.sol";
+import "./Player.sol";
 
 /**
  * @title EquipmentSystem
@@ -12,6 +13,7 @@ import "./AdventureGold.sol";
 contract EquipmentSystem is Ownable {
     Equipment public equipmentNFT;
     AdventureGold public goldToken;
+    Player public playerNFT;
     
     // 升星配置
     struct StarUpgradeConfig {
@@ -19,6 +21,7 @@ contract EquipmentSystem is Ownable {
         uint8 successRate;     // 成功率 (0-100)
         uint8 maxLevel;        // 该星级的最大强化等级
         uint16 statMultiplier; // 属性倍数 (百分比)
+        uint8 materialCount;   // 需要的同类装备数量
     }
     
     // 强化配置
@@ -42,9 +45,10 @@ contract EquipmentSystem is Ownable {
     event EquipmentEnhanced(uint256 indexed tokenId, uint8 oldLevel, uint8 newLevel);
     event EquipmentUpgradeFailed(uint256 indexed tokenId, string reason);
     
-    constructor(address _equipmentNFT, address _goldToken) Ownable(msg.sender) {
+    constructor(address _equipmentNFT, address _goldToken, address _playerNFT) Ownable(msg.sender) {
         equipmentNFT = Equipment(_equipmentNFT);
         goldToken = AdventureGold(_goldToken);
+        playerNFT = Player(_playerNFT);
         
         _initializeConfigs();
     }
@@ -54,10 +58,10 @@ contract EquipmentSystem is Ownable {
      */
     function _initializeConfigs() internal {
         // 升星配置 (星级越高，消耗越大，成功率越低)
-        starConfigs[1] = StarUpgradeConfig(1000e18, 80, 5, 120);   // 1星->2星: 1000金币, 80%成功率
-        starConfigs[2] = StarUpgradeConfig(2500e18, 70, 10, 150);  // 2星->3星: 2500金币, 70%成功率
-        starConfigs[3] = StarUpgradeConfig(5000e18, 60, 15, 200);  // 3星->4星: 5000金币, 60%成功率
-        starConfigs[4] = StarUpgradeConfig(10000e18, 50, 20, 300); // 4星->5星: 10000金币, 50%成功率
+        starConfigs[1] = StarUpgradeConfig(1000e18, 80, 5, 120, 1);   // 1星->2星: 1000金币, 80%成功率, 1个同类装备
+        starConfigs[2] = StarUpgradeConfig(2500e18, 70, 10, 150, 2);  // 2星->3星: 2500金币, 70%成功率, 2个同类装备
+        starConfigs[3] = StarUpgradeConfig(5000e18, 60, 15, 200, 3);  // 3星->4星: 5000金币, 60%成功率, 3个同类装备
+        starConfigs[4] = StarUpgradeConfig(10000e18, 50, 20, 300, 4); // 4星->5星: 10000金币, 50%成功率, 4个同类装备
         
         // 强化配置 (等级越高，消耗越大)
         for (uint8 i = 1; i <= 20; i++) {
@@ -70,11 +74,13 @@ contract EquipmentSystem is Ownable {
     }
     
     /**
-     * @dev 装备升星
+     * @dev 装备升星 - 新版本支持消耗同类装备
+     * @param playerId 玩家NFT ID
      * @param tokenId 装备NFT ID
      */
-    function upgradeStars(uint256 tokenId) external {
-        require(equipmentNFT.ownerOf(tokenId) == msg.sender, "Not your equipment");
+    function upgradeStars(uint256 playerId, uint256 tokenId) external {
+        require(playerNFT.ownerOf(playerId) == msg.sender, "Not your player");
+        require(playerNFT.hasEquipmentInInventory(playerId, tokenId), "Equipment not in inventory");
         
         Equipment.EquipmentData memory equipment = equipmentNFT.getEquipment(tokenId);
         require(equipment.stars < 5, "Already max stars");
@@ -83,10 +89,19 @@ contract EquipmentSystem is Ownable {
         uint8 targetStars = equipment.stars + 1;
         StarUpgradeConfig memory config = starConfigs[targetStars];
         require(config.goldCost > 0, "Invalid star level");
-        require(goldToken.balanceOf(msg.sender) >= config.goldCost, "Insufficient gold");
+        require(playerNFT.getPlayerGold(playerId) >= config.goldCost, "Insufficient gold");
         
-        // 消耗金币
-        goldToken.burn(msg.sender, config.goldCost);
+        // 检查是否有足够的同类装备作为材料
+        uint256[] memory materialIds = _findSimilarEquipments(playerId, equipment.equipmentType, equipment.rarity, tokenId, config.materialCount);
+        require(materialIds.length >= config.materialCount, "Insufficient material equipments");
+        
+        // 消耗金币 (从PlayerNFT的金币余额)
+        playerNFT.spendGold(playerId, config.goldCost, address(this));
+        
+        // 消耗同类装备 (烧毁材料装备)
+        for (uint256 i = 0; i < config.materialCount; i++) {
+            _burnMaterialEquipment(playerId, materialIds[i]);
+        }
         
         // 随机判断成功
         uint256 random = _generateRandom(tokenId, block.timestamp) % 100;
@@ -281,6 +296,53 @@ contract EquipmentSystem is Ownable {
         if (equipmentData.stars < 5) {
             nextStarCost = starConfigs[equipmentData.stars].goldCost;
         }
+    }
+    
+    /**
+     * @dev 查找相似装备作为升星材料
+     * @param playerId 玩家ID
+     * @param equipmentType 装备类型
+     * @param rarity 稀有度
+     * @param excludeId 排除的装备ID（要升星的装备本身）
+     * @param needed 需要的数量
+     * @return 符合条件的装备ID数组
+     */
+    function _findSimilarEquipments(uint256 playerId, uint8 equipmentType, uint8 rarity, uint256 excludeId, uint8 needed) internal view returns (uint256[] memory) {
+        uint256[] memory inventory = playerNFT.getPlayerInventory(playerId);
+        uint256[] memory materials = new uint256[](needed);
+        uint256 found = 0;
+        
+        for (uint256 i = 0; i < inventory.length && found < needed; i++) {
+            uint256 equipId = inventory[i];
+            if (equipId != excludeId) {
+                Equipment.EquipmentData memory equipData = equipmentNFT.getEquipment(equipId);
+                // 同类型、同稀有度的装备可以作为材料
+                if (equipData.equipmentType == equipmentType && equipData.rarity == rarity) {
+                    materials[found] = equipId;
+                    found++;
+                }
+            }
+        }
+        
+        // 创建实际大小的数组
+        uint256[] memory result = new uint256[](found);
+        for (uint256 i = 0; i < found; i++) {
+            result[i] = materials[i];
+        }
+        
+        return result;
+    }
+    
+    /**
+     * @dev 烧毁材料装备
+     * @param playerId 玩家ID
+     * @param equipmentId 装备ID
+     */
+    function _burnMaterialEquipment(uint256 playerId, uint256 equipmentId) internal {
+        // 从玩家背包中移除装备
+        playerNFT.removeEquipmentFromInventory(playerId, equipmentId, address(this));
+        // 烧毁装备NFT
+        equipmentNFT.burn(equipmentId);
     }
     
     /**
