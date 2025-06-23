@@ -24,7 +24,8 @@
       "Bash(npx tsc:*)",
       "Bash(sed:*)",
       "Bash(chmod:*)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

@@ -42,7 +42,7 @@ contract TreasureBoxSystem is Ownable {
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
 
-    mapping(uint256=>uint32) public playerBattleLevels;
+    mapping(uint256 => uint32) public playerBattleLevels;
 
     // 修饰符：只有授权的系统或owner可以调用
     modifier onlyAuthorizedOrOwner() {
@@ -119,7 +119,7 @@ contract TreasureBoxSystem is Ownable {
                 createdTime: uint32(block.timestamp)
             })
         );
-        if(level>playerBattleLevels[playerId]){
+        if (level > playerBattleLevels[playerId]) {
             playerBattleLevels[playerId] = level;
         }
 
@@ -162,13 +162,17 @@ contract TreasureBoxSystem is Ownable {
         }
 
         if (boxesToClaim > 0) {
+            uint32 level = playerBattleLevels[playerId];
+            if (level == 0) {
+                playerBattleLevels[playerId] = 1;
+                level = 1;
+            }
             // 更新Player NFT中的lastTreasureBoxTime
             playerNFT.updateLastTreasureBoxTime(playerId);
 
             // 添加离线宝箱 (等级1-level的普通宝箱)
-            for (uint8 i = 0; i < boxesToClaim; i++) {
-                uint32 level = playerBattleLevels[playerId];
-                uint32 boxLevel = uint32((block.timestamp + i) % level) + 1; // 随机1-3级
+            for (uint32 i = 0; i < boxesToClaim; i++) {
+                uint32 boxLevel = (i % level) + 1;
                 uint8 rarity = _calculateBoxRarity(boxLevel);
 
                 playerTreasureBoxes[playerId].push(
@@ -214,7 +218,7 @@ contract TreasureBoxSystem is Ownable {
         console.log("openTreasureBox 1");
         // 生成奖励
         BoxReward memory reward = _generateReward(uint8(box.level), box.rarity);
-        
+
         // 删除已开启的宝箱
         _removeBox(playerId, boxIndex);
 
@@ -223,7 +227,7 @@ contract TreasureBoxSystem is Ownable {
             goldToken.mint(address(playerNFT), reward.goldAmount);
             playerNFT.addGold(playerId, reward.goldAmount);
         }
-        console.log("openTreasureBox 2",reward.rewardType);
+        console.log("openTreasureBox 2", reward.rewardType);
         // 发放装备奖励到Player NFT合约
         if (reward.equipmentIds.length > 0) {
             for (uint256 i = 0; i < reward.equipmentIds.length; i++) {
@@ -235,9 +239,13 @@ contract TreasureBoxSystem is Ownable {
                 );
             }
         }
-        
+
         // 发放物品奖励（血瓶、转职书、宠物蛋）
-        if (reward.rewardType >= 2 && reward.rewardType <= 4 && reward.itemId > 0) {
+        if (
+            reward.rewardType >= 2 &&
+            reward.rewardType <= 4 &&
+            reward.itemId > 0
+        ) {
             // mint Item NFT 给 Player NFT 合约
             itemNFT.mint(address(playerNFT), reward.itemId, 1);
             // 添加到玩家的物品库存
@@ -277,7 +285,7 @@ contract TreasureBoxSystem is Ownable {
     function _removeBox(uint256 playerId, uint256 boxIndex) internal {
         TreasureBox[] storage boxes = playerTreasureBoxes[playerId];
         require(boxIndex < boxes.length, "Invalid box index");
-        
+
         // 将最后一个元素移到要删除的位置
         boxes[boxIndex] = boxes[boxes.length - 1];
         // 删除最后一个元素
@@ -550,9 +558,20 @@ contract TreasureBoxSystem is Ownable {
     /**
      * @dev 生成装备稀有度（按照前端概率）
      */
-    function _generateEquipmentRarity(uint256 playerId, uint8 level) internal view returns (uint8) {
+    function _generateEquipmentRarity(
+        uint256 playerId,
+        uint8 level
+    ) internal view returns (uint8) {
         uint256 random = uint256(
-            keccak256(abi.encodePacked(block.timestamp, msg.sender, playerId, level, "rarity"))
+            keccak256(
+                abi.encodePacked(
+                    block.timestamp,
+                    msg.sender,
+                    playerId,
+                    level,
+                    "rarity"
+                )
+            )
         ) % 100;
 
         if (random < COMMON_RARITY) {
@@ -582,7 +601,14 @@ contract TreasureBoxSystem is Ownable {
         // 随机装备类型 (0-7: helmet, armor, shoes, weapon, shield, accessory, ring, pet)
         uint8 equipmentType = uint8(
             uint256(
-                keccak256(abi.encodePacked(block.timestamp, playerId, level, "equipType"))
+                keccak256(
+                    abi.encodePacked(
+                        block.timestamp,
+                        playerId,
+                        level,
+                        "equipType"
+                    )
+                )
             ) % 8
         );
 
@@ -598,13 +624,18 @@ contract TreasureBoxSystem is Ownable {
             uint8 critRate,
             uint16 critDamage
         ) = _calculateEquipmentStats(level, equipmentType, equipmentRarity);
-        console.log("_mintEquipmentToPlayerNFT 2",equipmentType);
+        console.log("_mintEquipmentToPlayerNFT 2", equipmentType);
         // 生成装备名称
         string memory name = _generateEquipmentName(
             equipmentType,
             equipmentRarity
         );
-        console.log("_mintEquipmentToPlayerNFT 2.5", address(playerNFT),equipmentType,name);
+        console.log(
+            "_mintEquipmentToPlayerNFT 2.5",
+            address(playerNFT),
+            equipmentType,
+            name
+        );
         // 铸造装备NFT到Player NFT合约
         uint256 equipmentId = equipmentNFT.mintEquipment(
             address(playerNFT),
@@ -619,7 +650,11 @@ contract TreasureBoxSystem is Ownable {
             critDamage,
             name
         );
-        console.log("_mintEquipmentToPlayerNFT 3 type,id",equipmentType,equipmentId);
+        console.log(
+            "_mintEquipmentToPlayerNFT 3 type,id",
+            equipmentType,
+            equipmentId
+        );
         // 添加到Player的背包
         playerNFT.addEquipmentToInventory(playerId, equipmentId);
         console.log("_mintEquipmentToPlayerNFT 4");

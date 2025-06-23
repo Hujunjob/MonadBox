@@ -846,6 +846,37 @@ export function useWeb3GameV2() {
     return typeNames[type] || 'weapon';
   };
 
+  // 获取物品名称
+  const getItemName = (itemId: number, type: string) => {
+    if (type === 'health_potion') {
+      const level = itemId - 1000 + 1;
+      return `Lv${level} Health Potion`;
+    }
+    if (type === 'job_advancement_book') {
+      const jobNames = ['', 'Great Swordsman', 'Temple Knight', 'Dragon Knight', 'Sword Master', 'Sword God', 'Plane Lord'];
+      const jobType = itemId - 2000;
+      return `${jobNames[jobType] || 'Unknown'} Job Book`;
+    }
+    if (type === 'pet_egg') {
+      const level = itemId - 3000 + 1;
+      return `Lv${level} Pet Egg`;
+    }
+    return `Item ${itemId}`;
+  };
+
+  // 获取物品等级
+  const getItemLevel = (itemId: number) => {
+    if (itemId >= 1000 && itemId < 2000) return itemId - 1000 + 1; // 血瓶
+    if (itemId >= 3000 && itemId < 4000) return itemId - 3000 + 1; // 宠物蛋
+    return 1;
+  };
+
+  // 获取转职书目标职业
+  const getJobTarget = (itemId: number) => {
+    if (itemId >= 2000 && itemId < 3000) return itemId - 2000;
+    return 0;
+  };
+
   // 处理背包物品数据
   const getInventoryItems = useMemo(() => {
     console.log("getInventoryItems - memoized");
@@ -895,37 +926,6 @@ export function useWeb3GameV2() {
 
     return items;
   }, [inventoryEquipments, equippedItems, playerItems]);
-
-  // 获取物品名称
-  const getItemName = (itemId: number, type: string) => {
-    if (type === 'health_potion') {
-      const level = itemId - 1000 + 1;
-      return `Lv${level} Health Potion`;
-    }
-    if (type === 'job_advancement_book') {
-      const jobNames = ['', 'Great Swordsman', 'Temple Knight', 'Dragon Knight', 'Sword Master', 'Sword God', 'Plane Lord'];
-      const jobType = itemId - 2000;
-      return `${jobNames[jobType] || 'Unknown'} Job Book`;
-    }
-    if (type === 'pet_egg') {
-      const level = itemId - 3000 + 1;
-      return `Lv${level} Pet Egg`;
-    }
-    return `Item ${itemId}`;
-  };
-
-  // 获取物品等级
-  const getItemLevel = (itemId: number) => {
-    if (itemId >= 1000 && itemId < 2000) return itemId - 1000 + 1; // 血瓶
-    if (itemId >= 3000 && itemId < 4000) return itemId - 3000 + 1; // 宠物蛋
-    return 1;
-  };
-
-  // 获取转职书目标职业
-  const getJobTarget = (itemId: number) => {
-    if (itemId >= 2000 && itemId < 3000) return itemId - 2000;
-    return 0;
-  };
 
   // 转换Player数据为前端格式，确保所有字段都有默认值
   const convertedPlayerData = useMemo(() => ({
