@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useGameStore } from '../store/gameStore';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { getEquipmentImage, getItemImage, getRarityColor, getJobAdvancementBookImage } from '../utils/gameUtils';
 import EquipmentModal from '../components/EquipmentModal';
@@ -7,11 +6,10 @@ import ItemModal from '../components/ItemModal';
 import JobAdvancementModal from '../components/JobAdvancementModal';
 
 const Inventory: React.FC = () => {
-  const gameStore = useGameStore();
   const hybridStore = useHybridGameStore();
   
   // 根据模式选择玩家数据
-  const player = hybridStore.isWeb3Mode ? hybridStore.player : gameStore.player;
+  const player = hybridStore.player
   const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);

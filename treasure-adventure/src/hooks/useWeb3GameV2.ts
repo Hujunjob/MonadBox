@@ -363,27 +363,27 @@ export function useWeb3GameV2() {
     }
   }, [isConfirmed, refetchPlayer, refetchGold, refetchTreasureBoxes, refetchUnopenedBoxes, refetchClaimableBoxes, refetchPlayerBalance, refetchPlayerTokenId, refetchEquipmentBalance, refetchEquippedItems, refetchPlayerTreasureBoxes, showToast]);
 
-  // 转换Player数据为前端格式
-  const convertedPlayerData = playerData ? {
+  // 转换Player数据为前端格式，确保所有字段都有默认值
+  const convertedPlayerData = {
     id: currentPlayerId.toString(),
-    name: playerData.name || '未命名',
-    level: Number(playerData.level),
-    experience: Number(playerData.experience),
-    health: Number(playerData.health),
-    maxHealth: Number(playerData.maxHealth),
-    attack: Number(playerData.attack),
-    defense: Number(playerData.defense),
-    agility: Number(playerData.agility),
-    criticalRate: Number(playerData.criticalRate),
-    criticalDamage: Number(playerData.criticalDamage),
-    stamina: Number(playerData.stamina),
-    maxStamina: Number(playerData.maxStamina),
-    lastStaminaTime: Number(playerData.lastStaminaTime),
-    currentForestLevel: Number(playerData.currentForestLevel),
-    currentForestProgress: Number(playerData.currentForestProgress),
-    lastTreasureBoxTime: Number(playerData.lastTreasureBoxTime),
-    initialized: playerData.initialized,
-    job: Number(playerData.job),
+    name: playerData?.name || '未命名',
+    level: playerData ? Number(playerData.level) : 1,
+    experience: playerData ? Number(playerData.experience) : 0,
+    health: playerData ? Number(playerData.health) : 100,
+    maxHealth: playerData ? Number(playerData.maxHealth) : 100,
+    attack: playerData ? Number(playerData.attack) : 10,
+    defense: playerData ? Number(playerData.defense) : 5,
+    agility: playerData ? Number(playerData.agility) : 8,
+    criticalRate: playerData ? Number(playerData.criticalRate) : 5,
+    criticalDamage: playerData ? Number(playerData.criticalDamage) : 150,
+    stamina: playerData ? Number(playerData.stamina) : 10,
+    maxStamina: playerData ? Number(playerData.maxStamina) : 10,
+    lastStaminaTime: playerData ? Number(playerData.lastStaminaTime) : 0,
+    currentForestLevel: playerData ? Number(playerData.currentForestLevel) : 1,
+    currentForestProgress: playerData ? Number(playerData.currentForestProgress) : 0,
+    lastTreasureBoxTime: playerData ? Number(playerData.lastTreasureBoxTime) : 0,
+    initialized: playerData?.initialized || false,
+    job: playerData ? Number(playerData.job) : 0,
     // 前端需要的额外字段
     gold: goldBalance ? Number(goldBalance) / 10**18 : 0,
     equipment: {
@@ -396,12 +396,12 @@ export function useWeb3GameV2() {
       ring: undefined,
       pet: undefined,
     },
-    inventory: playerEquipments, // 使用链上装备数据
+    inventory: playerEquipments || [], // 使用链上装备数据，确保不为null
     treasureBoxes: [], // Web3模式下宝箱数据由单独的状态管理
     // 链上数据统计
     equipmentBalance: equipmentBalance ? Number(equipmentBalance) : 0,
     equippedItemIds: equippedItems || [],
-  } : {};
+  };
 
   return {
     // 数据

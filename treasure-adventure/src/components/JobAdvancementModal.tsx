@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useHybridGameStore } from '../store/web3GameStore';
 import { getNextJob, canAdvanceJob, getJobLevelDisplay, getJobAdvancementBookImage } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { JobType } from '../types/game';
@@ -10,7 +11,8 @@ interface JobAdvancementModalProps {
 }
 
 const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen, onClose }) => {
-  const { player, updatePlayer, advanceJob } = useGameStore();
+  const hybridStore = useHybridGameStore();
+  const player = hybridStore.player;
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -49,18 +51,12 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
     setIsAdvancing(true);
     
     try {
-      // 使用转职书
-      const newInventory = player.inventory.map(invItem => {
-        if (invItem.id === item.id) {
-          return { ...invItem, quantity: invItem.quantity - 1 };
-        }
-        return invItem;
-      }).filter(invItem => invItem.quantity > 0);
-
-      updatePlayer({ inventory: newInventory });
-
-      // 执行转职
-      const advancementResult = await advanceJob(targetJob);
+      // 在区块链模式下，转职需要调用智能合约
+      // 这里暂时显示提示，实际功能需要合约支持
+      const advancementResult = {
+        success: false,
+        message: '区块链模式下暂不支持转职功能'
+      };
       setResult(advancementResult);
     } catch (error) {
       setResult({

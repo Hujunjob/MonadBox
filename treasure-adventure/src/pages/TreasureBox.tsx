@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
-import { generateRandomEquipment, generateHealthPotion, generatePetEgg, generateJobAdvancementBook, generateRewardLevel, getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
+import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { RewardType } from '../types/game';
 import TreasureBoxTimer from '../components/TreasureBoxTimer';
 import { GAME_CONFIG } from '../config/gameConfig';
 
 const TreasureBox: React.FC = () => {
-  // const { player, gainGold, updatePlayer } = useGameStore();
   const hybridStore = useHybridGameStore();
+  const player = hybridStore.player;
   const [openingBox, setOpeningBox] = useState(false);
   const [showSelection, setShowSelection] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
@@ -77,7 +77,7 @@ const TreasureBox: React.FC = () => {
           <div className="boxes-grid">
             {(() => {
               // 按等级分组并统计数量
-              const groupedBoxes = player.treasureBoxes.reduce((acc, box) => {
+              const groupedBoxes = player.treasureBoxes.reduce((acc: any, box: any) => {
                 const level = box.level;
                 if (!acc[level]) {
                   acc[level] = 0;
@@ -95,7 +95,7 @@ const TreasureBox: React.FC = () => {
                   isNext: index === 0
                 }));
 
-              return sortedGroups.map(({ level, count, isNext }) => (
+              return sortedGroups.map(({ level, count, isNext }: any) => (
                 <div key={level} className="treasure-box-item">
                   <div className="box-icon">
                     📦

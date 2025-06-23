@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHybridGameStore } from '../store/web3GameStore';
 import type { EquipmentItem } from '../types/game';
 import { getEquipmentImage, getRarityColor } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
@@ -19,7 +20,8 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   onClose, 
   isEquipped = false 
 }) => {
-  const { equipItem, unequipItem, upgradeEquipmentStars, player } = useGameStore();
+  const hybridStore = useHybridGameStore();
+  const player = hybridStore.player;
   const { showToast } = useToast();
   const [upgradeResult, setUpgradeResult] = React.useState<{success: boolean; newStars: number; message: string} | null>(null);
   const [isUpgrading, setIsUpgrading] = React.useState(false);
@@ -49,20 +51,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
   const handleEquip = () => {
     if (!isEquipped) {
-      // 装备类型到槽位的映射
-      const typeToSlot = {
-        'helmet': 'helmet',
-        'armor': 'armor', 
-        'shoes': 'shoes',
-        'weapon': 'weapon',
-        'shield': 'shield',
-        'accessory': 'accessory',
-        'ring': 'ring'
-      };
-      
-      const actualEquipmentType = (currentEquipment as any).equipmentType || currentEquipment.type;
-      const targetSlot = typeToSlot[actualEquipmentType as keyof typeof typeToSlot] || actualEquipmentType;
-      equipItem(currentEquipment, targetSlot);
+      hybridStore.equipItem(parseInt(currentEquipment.id));
       
       // 显示装备成功提示
       showToast(`装备成功：${currentEquipment?.name}`, 'success');
@@ -72,20 +61,21 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
   const handleUnequip = () => {
     if (isEquipped && slot) {
-      unequipItem(slot);
+      hybridStore.unequipItem(0); // 传入槽位索引
     }
     onClose();
   };
 
   const handleUpgrade = async () => {
-    if (!upgradeEquipmentStars || !currentEquipment) return;
+    if (!currentEquipment) return; // 区块链模式下暂不支持升星
     
     setIsUpgrading(true);
     try {
-      const result = await upgradeEquipmentStars(currentEquipment.id);
+      // 区块链模式下暂不支持升星
+      const result = { success: false, newStars: currentStars, message: '区块链模式下暂不支持升星' };
       setUpgradeResult(result);
     } catch (error) {
-      setUpgradeResult({ success: false, newStars: currentEquipment.stars || 0, message: '升星失败' });
+      setUpgradeResult({ success: false, newStars: currentEquipment.stars || 0, message: '区块链模式下暂不支持升星' });
     }
     setIsUpgrading(false);
   };

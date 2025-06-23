@@ -1,23 +1,47 @@
 import React from 'react';
-import { useGameStore } from '../store/gameStore';
+import { useHybridGameStore } from '../store/web3GameStore';
+import { generateForestLevels } from '../utils/gameUtils';
 
 const MonsterForest: React.FC = () => {
-  const { player, forestLevels, startBattle } = useGameStore();
+  const hybridStore = useHybridGameStore();
+  const player = hybridStore.player;
+  const forestLevels = React.useMemo(() => {
+    const levels = generateForestLevels();
+    // Unlock levels based on player progress
+    const currentForestLevel = player.currentForestLevel;
+    const currentForestProgress = player.currentForestProgress;
+    
+    levels.forEach((level, index) => {
+      level.isUnlocked = index < currentForestLevel || index === 0;
+      if (index === currentForestLevel - 1) {
+        level.monstersKilled = currentForestProgress;
+      }
+    });
+    return levels;
+  }, [player.currentForestLevel, player.currentForestProgress]);
   const [selectedForestLevel, setSelectedForestLevel] = React.useState(player.currentForestLevel);
   const [isForestLevelExpanded, setIsForestLevelExpanded] = React.useState(false);
   
   const currentForest = forestLevels.find(forest => forest.level === selectedForestLevel);
   
-  const handleFightMonster = (monster: any) => {
+  const handleFightMonster = async (monster: any) => {
     if (player.health <= 0) {
-      alert('血量不足，无法战斗！请使用血瓶恢复。');
+      alert('血량不足，无法战斗！请使用血瓶恢复。');
       return;
     }
     if (player.stamina < 1) {
       alert('体力不足，无法战斗！请等待体力恢复。');
       return;
     }
-    startBattle(monster);
+    
+    // Complete battle on blockchain with experience gained from monster
+    try {
+      await hybridStore.completeBattle(monster.experience);
+      // Refresh player data after battle
+      hybridStore.refetchPlayer();
+    } catch (error) {
+      console.error('Battle failed:', error);
+    }
   };
   
   return (

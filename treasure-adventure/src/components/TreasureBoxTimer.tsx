@@ -1,10 +1,10 @@
 import React from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
-import { useToast } from './ToastManager';
+// import { useToast } from './ToastManager';
 
 const TreasureBoxTimer: React.FC = () => {
   const hybridStore = useHybridGameStore();
-  const { showToast } = useToast();
+  // const { showToast } = useToast();
 
   // 处理领取宝箱
   const handleClaimTreasureBox = async () => {

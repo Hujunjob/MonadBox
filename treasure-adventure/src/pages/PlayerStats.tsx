@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay, getCanGainExperience } from '../utils/gameUtils';
-import { EquipmentType, JobType, ItemType } from '../types/game';
+import { EquipmentType } from '../types/game';
 import EquipmentModal from '../components/EquipmentModal';
 import Web3Toggle from '../components/Web3Toggle';
-import TestEthHelper from '../components/TestEthHelper';
-import NetworkDebugger from '../components/NetworkDebugger';
-import ContractInfo from '../components/ContractInfo';
 import { useHybridGameStore } from '../store/web3GameStore';
 
 const PlayerStats: React.FC = () => {
@@ -229,7 +226,7 @@ const PlayerStats: React.FC = () => {
       <div className="equipment-section">
         <div className="equipment-slots">
           {equipmentSlots.map(slot => {
-            const equippedItem = player.equipment[slot.key as keyof typeof player.equipment];
+            const equippedItem = player.equipment[slot.key as keyof typeof player.equipment] as any;
             return (
               <div key={slot.key} className="equipment-slot">
                 <div className="slot-content">

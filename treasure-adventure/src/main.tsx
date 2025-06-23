@@ -7,7 +7,7 @@ import { config } from './config/wagmi';
 import './index.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import App from './App.tsx';
-import { ReactTogether } from 'react-together'
+// import { ReactTogether } from 'react-together'
 
 const queryClient = new QueryClient();
 

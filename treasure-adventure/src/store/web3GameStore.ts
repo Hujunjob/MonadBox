@@ -22,7 +22,7 @@ interface Web3GameState {
 
 export const useWeb3GameStore = create<Web3GameState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       isWeb3Mode: false,
       localPlayer: null,
       localGameState: {},
@@ -68,7 +68,7 @@ export function useHybridGameStore() {
   };
 
   // 混合模式下的战斗完成
-  const completeBattle = async (experienceGained: number, goldGained: number) => {
+  const completeBattle = async (experienceGained: number) => {
      // Web3 模式：直接调用智能合约（新架构不产生金币）
     await web3Game.completeBattle(experienceGained);
   };

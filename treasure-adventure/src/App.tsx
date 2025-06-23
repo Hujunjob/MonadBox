@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useState } from 'react';
 import PlayerStats from './pages/PlayerStats';
 import TreasureBox from './pages/TreasureBox';
 import MonsterForest from './pages/MonsterForest';
-import Battle from './components/Battle';
 import Inventory from './pages/Inventory';
 import Market from './pages/Market';
 import Rank from './pages/Rank';
@@ -11,15 +9,14 @@ import WalletConnect from './components/WalletConnect';
 import Web3BattleHandler from './components/Web3BattleHandler';
 import { ToastProvider } from './components/ToastManager';
 import './App.css';
-import { useConnectedUsers, useNicknames } from 'react-together'
 
 function App() {
   const [activeTab, setActiveTab] = useState('stats');
   // const connectedUsers = useConnectedUsers()
   // const [nickname, setNickname] = useNicknames()
-  const [showNamingModal, setShowNamingModal] = useState(false);
+  // const [showNamingModal, setShowNamingModal] = useState(false);
   const [userNameInput, setUserNameInput] = useState('');
-  const [hasCheckedNickname, setHasCheckedNickname] = useState(false);
+  // const [hasCheckedNickname, setHasCheckedNickname] = useState(false);
 
   // 处理页面切换，在切换到特定页面时检查体力
   const handleTabChange = (tab: string) => {
@@ -119,7 +116,7 @@ function App() {
         </div>
         
         {/* 命名弹窗 */}
-        {showNamingModal && (
+        {false && (
           <div className="naming-modal-overlay">
             <div className="naming-modal">
               <h3>设置用户名</h3>

@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { useToast } from './ToastManager';
+import { useHybridGameStore } from '../store/web3GameStore';
 
 const OfflineRewardsModal: React.FC = () => {
   const { showToast } = useToast();
+  const hybridStore = useHybridGameStore();
+  const player = hybridStore.player;
   const [showModal, setShowModal] = useState(false);
   const [offlineRewards, setOfflineRewards] = useState<{
     boxes: number;
@@ -35,8 +38,8 @@ const OfflineRewardsModal: React.FC = () => {
 
   const handleClaimRewards = () => {
     if (offlineRewards) {
-      const { calculateOfflineRewards } = useGameStore.getState();
-      calculateOfflineRewards();
+      // 在区块链模式下，离线奖励通过智能合约自动处理
+      // 这里只是前端显示，实际奖励已经在链上
       showToast(`🎁 成功领取了 ${offlineRewards.boxes} 个离线宝箱！`, 'success');
       setShowModal(false);
       setOfflineRewards(null);

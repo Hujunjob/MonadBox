@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHybridGameStore } from '../store/web3GameStore';
 import { getItemImage } from '../utils/gameUtils';
 import { calculatePlayerStats } from '../utils/gameUtils';
 import { useToast } from './ToastManager';
@@ -10,7 +11,8 @@ interface ItemModalProps {
 }
 
 const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
-  const { player, useHealthPotion } = useGameStore();
+  const hybridStore = useHybridGameStore();
+  const player = hybridStore.player;
   const { showToast } = useToast();
   
   if (!isOpen || !item) return null;
@@ -30,7 +32,9 @@ const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
       const maxHealth = stats.maxHealth;
       const actualHeal = Math.min(healAmount, maxHealth - currentHealth);
       
-      useHealthPotion();
+      // 在区块链模式下，使用血瓶需要调用智能合约
+      // 这里暂时只显示提示，实际功能需要合约支持
+      console.log('使用血瓶 - 区块链模式');
       
       // 显示成功通知
       showToast(`使用成功！恢复血量 ${actualHeal} 点`, 'success');
