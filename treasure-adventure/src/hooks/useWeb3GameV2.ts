@@ -401,7 +401,7 @@ export function useWeb3GameV2() {
     // 链上数据统计
     equipmentBalance: equipmentBalance ? Number(equipmentBalance) : 0,
     equippedItemIds: equippedItems || [],
-  } : null;
+  } : {};
 
   return {
     // 数据

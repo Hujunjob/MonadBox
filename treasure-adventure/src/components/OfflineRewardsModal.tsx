@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useGameStore } from '../store/gameStore';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { useToast } from './ToastManager';
 
 const OfflineRewardsModal: React.FC = () => {
-  const { player } = useGameStore();
   const { showToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [offlineRewards, setOfflineRewards] = useState<{

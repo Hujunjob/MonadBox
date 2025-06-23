@@ -1,17 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Player, GameState } from '../types/game';
 import { useWeb3GameV2 } from '../hooks/useWeb3GameV2';
 
-interface Web3GameState {
-  // 模式配置
-  isWeb3Mode: boolean;
-  toggleWeb3Mode: () => void;
-  
-  // 本地游戏状态（作为备份和快速响应）
-  localPlayer: Player | null;
-  localGameState: Partial<GameState>;
-  
+interface Web3GameState {    
   // Web3 同步状态
   lastSyncTime: number;
   syncInProgress: boolean;
@@ -27,8 +18,6 @@ interface Web3GameState {
   // 功能函数
   addPendingOperation: (operation: any) => void;
   clearPendingOperations: () => void;
-  syncWithBlockchain: () => Promise<void>;
-  updateLocalPlayer: (updates: Partial<Player>) => void;
 }
 
 export const useWeb3GameStore = create<Web3GameState>()(
@@ -40,12 +29,6 @@ export const useWeb3GameStore = create<Web3GameState>()(
       lastSyncTime: 0,
       syncInProgress: false,
       pendingOperations: [],
-
-      toggleWeb3Mode: () => {
-        set((state) => ({ 
-          isWeb3Mode: !state.isWeb3Mode 
-        }));
-      },
 
       addPendingOperation: (operation) => {
         set((state) => ({
@@ -63,49 +46,10 @@ export const useWeb3GameStore = create<Web3GameState>()(
       clearPendingOperations: () => {
         set({ pendingOperations: [] });
       },
-
-      updateLocalPlayer: (updates) => {
-        set((state) => ({
-          localPlayer: state.localPlayer ? {
-            ...state.localPlayer,
-            ...updates
-          } : null
-        }));
-      },
-
-      syncWithBlockchain: async () => {
-        const { isWeb3Mode, pendingOperations } = get();
-        if (!isWeb3Mode) return;
-
-        set({ syncInProgress: true });
-
-        try {
-          // 这里应该使用 Web3 hooks 来同步数据
-          // 由于hooks只能在组件中使用，我们需要在组件层面处理同步
-          
-          // 处理待同步的操作
-          for (const operation of pendingOperations) {
-            // 根据操作类型执行相应的链上操作
-            console.log('Syncing operation:', operation);
-          }
-
-          set({
-            lastSyncTime: Date.now(),
-            syncInProgress: false,
-            pendingOperations: []
-          });
-        } catch (error) {
-          console.error('Sync error:', error);
-          set({ syncInProgress: false });
-        }
-      },
     }),
     {
       name: 'web3-game-storage',
       partialize: (state) => ({
-        isWeb3Mode: state.isWeb3Mode,
-        localPlayer: state.localPlayer,
-        localGameState: state.localGameState,
         lastSyncTime: state.lastSyncTime,
         pendingOperations: state.pendingOperations,
       }),
@@ -120,78 +64,40 @@ export function useHybridGameStore() {
 
   // 混合模式下的玩家数据
   const getPlayer = () => {
-    if (web3Store.isWeb3Mode && web3Game.playerData) {
-      return web3Game.playerData;
-    }
-    return web3Store.localPlayer;
+    return web3Game.playerData;
   };
 
   // 混合模式下的战斗完成
   const completeBattle = async (experienceGained: number, goldGained: number) => {
-    if (web3Store.isWeb3Mode && web3Game.isPlayerRegistered) {
-      // Web3 模式：直接调用智能合约（新架构不产生金币）
-      await web3Game.completeBattle(experienceGained);
-    } else {
-      // 本地模式或离线模式：添加到待处理队列
-      web3Store.addPendingOperation({
-        type: 'battle',
-        data: { experienceGained, goldGained }
-      });
-      
-      // 更新本地状态
-      const currentPlayer = getPlayer();
-      if (currentPlayer) {
-        web3Store.updateLocalPlayer({
-          experience: currentPlayer.experience + experienceGained,
-          gold: currentPlayer.gold + goldGained,
-          stamina: Math.max(0, currentPlayer.stamina - 1)
-        });
-      }
-    }
+     // Web3 模式：直接调用智能合约（新架构不产生金币）
+    await web3Game.completeBattle(experienceGained);
   };
 
   // 混合模式下的宝箱领取
   const claimTreasureBoxes = async () => {
-    if (web3Store.isWeb3Mode && web3Game.isPlayerRegistered) {
-      await web3Game.claimTreasureBoxes();
-    } else {
-      web3Store.addPendingOperation({
-        type: 'claimBox',
-        data: {}
-      });
-    }
+    await web3Game.claimTreasureBoxes();
   };
 
   // 混合模式下的开启宝箱
   const openTreasureBox = async (boxIndex?: number, onReward?: (reward: any) => void) => {
-    if (web3Store.isWeb3Mode && web3Game.isPlayerRegistered) {
-      await web3Game.openTreasureBox(boxIndex, onReward);
-    } else {
-      web3Store.addPendingOperation({
-        type: 'openBox',
-        data: { boxIndex: boxIndex || 0 }
-      });
-    }
+     await web3Game.openTreasureBox(boxIndex, onReward);
   };
 
   return {
     // 状态
-    isWeb3Mode: web3Store.isWeb3Mode,
     player: getPlayer(),
-    isPlayerRegistered: web3Store.isWeb3Mode ? web3Game.isPlayerRegistered : !!web3Store.localPlayer,
+    isPlayerRegistered: web3Game.isPlayerRegistered,
     isPending: web3Game.isPending,
     isConfirming: web3Game.isConfirming,
     syncInProgress: web3Store.syncInProgress,
     pendingOperations: web3Store.pendingOperations,
     
     // Web3 宝箱数据
-    treasureBoxCount: web3Store.isWeb3Mode ? web3Game.treasureBoxCount : 0,
-    unopenedBoxCount: web3Store.isWeb3Mode ? web3Game.unopenedBoxCount : 0,
-    claimableBoxes: web3Store.isWeb3Mode ? web3Game.claimableBoxes : 0,
-    goldBalance: web3Store.isWeb3Mode ? web3Game.goldBalance : 0,
+    treasureBoxCount: web3Game.treasureBoxCount,
+    unopenedBoxCount:  web3Game.unopenedBoxCount ,
+    claimableBoxes:  web3Game.claimableBoxes ,
+    goldBalance: web3Game.goldBalance ,
     
-    // 操作
-    toggleWeb3Mode: web3Store.toggleWeb3Mode,
     registerPlayer: web3Game.registerPlayer,
     completeBattle,
     claimTreasureBoxes,
@@ -199,7 +105,6 @@ export function useHybridGameStore() {
     equipItem: web3Game.equipItem,
     unequipItem: web3Game.unequipItem,
     updateStamina: () => {}, // 新架构中体力自动恢复
-    syncWithBlockchain: web3Store.syncWithBlockchain,
     
     // 数据刷新
     refetchPlayer: web3Game.refetchPlayer,

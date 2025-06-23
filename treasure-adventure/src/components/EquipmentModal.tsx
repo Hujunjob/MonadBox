@@ -1,6 +1,5 @@
 import React from 'react';
 import type { EquipmentItem } from '../types/game';
-import { useGameStore } from '../store/gameStore';
 import { getEquipmentImage, getRarityColor } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { useToast } from './ToastManager';

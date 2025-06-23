@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats, getJobLevelDisplay, getJobFromLevel } from '../utils/gameUtils';
 import BattleResultModal from './BattleResultModal';
 import LevelUpModal from './LevelUpModal';

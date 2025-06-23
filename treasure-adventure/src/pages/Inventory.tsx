@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { getEquipmentImage, getItemImage, getRarityColor, getJobAdvancementBookImage } from '../utils/gameUtils';
-import EquipmentModal from './EquipmentModal';
-import ItemModal from './ItemModal';
-import JobAdvancementModal from './JobAdvancementModal';
+import EquipmentModal from '../components/EquipmentModal';
+import ItemModal from '../components/ItemModal';
+import JobAdvancementModal from '../components/JobAdvancementModal';
 
 const Inventory: React.FC = () => {
   const gameStore = useGameStore();

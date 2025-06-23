@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
-import { useGameStore } from './store/gameStore';
-import PlayerStats from './components/PlayerStats';
-import TreasureBox from './components/TreasureBox';
-import MonsterForest from './components/MonsterForest';
+import PlayerStats from './pages/PlayerStats';
+import TreasureBox from './pages/TreasureBox';
+import MonsterForest from './pages/MonsterForest';
 import Battle from './components/Battle';
-import Inventory from './components/Inventory';
-import Market from './components/Market';
-import Rank from './components/Rank';
+import Inventory from './pages/Inventory';
+import Market from './pages/Market';
+import Rank from './pages/Rank';
 import WalletConnect from './components/WalletConnect';
 import Web3BattleHandler from './components/Web3BattleHandler';
 import { ToastProvider } from './components/ToastManager';
@@ -16,8 +15,6 @@ import { useConnectedUsers, useNicknames } from 'react-together'
 
 function App() {
   const [activeTab, setActiveTab] = useState('stats');
-  const { currentBattle, updatePlayer, player, updateStamina } = useGameStore();
-  const { address, isConnected } = useAccount();
   // const connectedUsers = useConnectedUsers()
   // const [nickname, setNickname] = useNicknames()
   const [showNamingModal, setShowNamingModal] = useState(false);
@@ -29,18 +26,8 @@ function App() {
     setActiveTab(tab);
     // 切换到角色页面或森林页面时检查体力
     if (tab === 'stats' || tab === 'forest') {
-      updateStamina();
+      // updateStamina();
     }
-  };
-
-  // 从nickname中提取真实用户名
-  const extractUsernameFromNickname = (nickname: string): string | null => {
-    if (!nickname || !address) return null;
-    const expectedPrefix = `${address}&&name=`;
-    if (nickname.startsWith(expectedPrefix)) {
-      return nickname.substring(expectedPrefix.length);
-    }
-    return null;
   };
 
   // 用户名验证规则
@@ -55,58 +42,21 @@ function App() {
       alert('用户名格式不正确！用户名长度应为2-20字符，只允许中文、英文、数字、下划线');
       return;
     }
-    
-    // if (address) {
-    //   const formattedNickname = `${address}&&name=${userNameInput}`;
-    //   setNickname(formattedNickname);
-    //   // 立即更新玩家姓名
-    //   updatePlayer({ name: userNameInput });
-    //   setShowNamingModal(false);
-    //   setUserNameInput('');
-    //   setHasCheckedNickname(true);
-    // }
+  
   };
 
-  // useEffect(()=>{
-  //   // 如果正在显示命名弹窗，跳过检查避免频繁触发
-  //   if (showNamingModal) return;
-    
-  //   connectedUsers.forEach((value)=>{
-  //     // console.log(value);
-      
-  //     if(value.isYou && isConnected && address && value.nickname){
-  //       //nickname格式：evm钱包地址+"&&name="+用户昵称
-  //       const expectedPrefix = `${address}&&name=`;
-  //       if(!value.nickname.startsWith(expectedPrefix)){
-  //         // 未设置用户名或格式不正确，弹出命名框
-  //         if (!hasCheckedNickname) {
-  //           setShowNamingModal(true);
-  //           setHasCheckedNickname(true);
-  //         }
-  //       } else {
-  //         // 有有效的nickname，提取用户名并更新玩家姓名
-  //         const realUsername = extractUsernameFromNickname(value.nickname);
-  //         if (realUsername && realUsername !== player.name) {
-  //           updatePlayer({ name: realUsername });
-  //         }
-  //         setHasCheckedNickname(true);
-  //       }
-  //     }
-  //   })
-  // },[connectedUsers, isConnected, address, updatePlayer, player.name, showNamingModal, hasCheckedNickname])
-
-  if (currentBattle) {
-    return (
-      <ToastProvider>
-        <Web3BattleHandler />
-        <div className="app-wrapper">
-          <div className="game-container">
-            <Battle />
-          </div>
-        </div>
-      </ToastProvider>
-    );
-  }
+  // if (currentBattle) {
+  //   return (
+  //     <ToastProvider>
+  //       <Web3BattleHandler />
+  //       <div className="app-wrapper">
+  //         <div className="game-container">
+  //           <Battle />
+  //         </div>
+  //       </div>
+  //     </ToastProvider>
+  //   );
+  // }
   
   return (
     <ToastProvider>
@@ -115,7 +65,6 @@ function App() {
         <div className="game-container">
           <header className="game-header">
             <h1>宝物冒险 
-              {/* <small style={{fontSize: '12px', fontWeight: 'normal', color: 'white'}}>在线人数：{connectedUsers.length}</small> */}
             </h1>
             <WalletConnect />
           </header>

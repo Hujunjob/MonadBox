@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useGameStore } from '../store/gameStore';
 import { getNextJob, canAdvanceJob, getJobLevelDisplay, getJobAdvancementBookImage } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { JobType } from '../types/game';

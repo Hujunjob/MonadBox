@@ -1,5 +1,4 @@
 import React from 'react';
-import { useGameStore } from '../store/gameStore';
 import { getItemImage } from '../utils/gameUtils';
 import { calculatePlayerStats } from '../utils/gameUtils';
 import { useToast } from './ToastManager';

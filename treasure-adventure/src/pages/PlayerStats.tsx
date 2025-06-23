@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useGameStore } from '../store/gameStore';
 import { calculatePlayerStats, getEquipmentImage, getRarityColor, getBaseStats, calculateEquipmentBonus, getJobLevelDisplay, getCanGainExperience } from '../utils/gameUtils';
 import { EquipmentType, JobType, ItemType } from '../types/game';
-import EquipmentModal from './EquipmentModal';
-import Web3Toggle from './Web3Toggle';
-import TestEthHelper from './TestEthHelper';
-import NetworkDebugger from './NetworkDebugger';
-import ContractInfo from './ContractInfo';
+import EquipmentModal from '../components/EquipmentModal';
+import Web3Toggle from '../components/Web3Toggle';
+import TestEthHelper from '../components/TestEthHelper';
+import NetworkDebugger from '../components/NetworkDebugger';
+import ContractInfo from '../components/ContractInfo';
+import { useHybridGameStore } from '../store/web3GameStore';
 
 const PlayerStats: React.FC = () => {
-  const { player, initializeGame, updatePlayer, gainExperience, updateStamina } = useGameStore();
+  // const { player, initializeGame, updatePlayer、, gainExperience, updateStamina } = useGameStore();
+  const hybridStore = useHybridGameStore();
+  const player = hybridStore.player
+
   const stats = calculatePlayerStats(player);
   const baseStats = getBaseStats(player);
   const equipmentBonus = calculateEquipmentBonus(player);
@@ -26,17 +29,7 @@ const PlayerStats: React.FC = () => {
     "📦 快开启宝箱获得资源",
     "🐾 宠物系统即将上线！"
   ];
-  
-  // 确保体力属性存在
-  // React.useEffect(() => {
-  //   if (player.stamina === undefined || player.maxStamina === undefined || player.lastStaminaTime === undefined) {
-  //     updatePlayer({
-  //       stamina: 24,
-  //       maxStamina: 24,
-  //       lastStaminaTime: Math.floor(Date.now() / 1000)
-  //     });
-  //   }
-  // }, [player.stamina, player.maxStamina, player.lastStaminaTime, updatePlayer]);
+
 
   // 点击外部隐藏tooltip
   React.useEffect(() => {
@@ -52,18 +45,6 @@ const PlayerStats: React.FC = () => {
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [activeTooltip]);
-
-  // // 进入角色页面时检查体力
-  // React.useEffect(() => {
-  //   updateStamina();
-  // }, [updateStamina]);
-  
-  // // 离开角色页面时也检查体力（清理时）
-  // React.useEffect(() => {
-  //   return () => {
-  //     updateStamina();
-  //   };
-  // }, [updateStamina]);
   
   const expNeeded = player.level * 100;
   
@@ -249,8 +230,6 @@ const PlayerStats: React.FC = () => {
         <div className="equipment-slots">
           {equipmentSlots.map(slot => {
             const equippedItem = player.equipment[slot.key as keyof typeof player.equipment];
-            
-            
             return (
               <div key={slot.key} className="equipment-slot">
                 <div className="slot-content">
@@ -292,141 +271,6 @@ const PlayerStats: React.FC = () => {
         </div>
         
         
-      </div>
-      
-      <div style={{ marginTop: '20px', textAlign: 'center', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-        {import.meta.env.DEV && (
-          <>
-            <button 
-              onClick={() => {
-                updatePlayer({
-                  stamina: player.maxStamina || 24,
-                  lastStaminaTime: Math.floor(Date.now() / 1000)
-                });
-              }}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#28a745', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '12px'
-              }}
-            >
-              调试:恢复体力
-            </button>
-            <button 
-              onClick={() => {
-                const newBoxes = [];
-                for (let i = 0; i < 10; i++) {
-                  newBoxes.push({
-                    id: `debug_box_${Date.now()}_${i}`,
-                    level: Math.floor(Math.random() * 10) + 1 // 随机1-10级
-                  });
-                }
-                updatePlayer({
-                  treasureBoxes: [...(Array.isArray(player.treasureBoxes) ? player.treasureBoxes : []), ...newBoxes]
-                });
-              }}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#17a2b8', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '12px'
-              }}
-            >
-              调试:给10个宝箱
-            </button>
-            <button 
-              onClick={() => {
-                gainExperience(100);
-              }}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#6f42c1', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '12px'
-              }}
-            >
-              调试:增加100经验
-            </button>
-            <button 
-              onClick={() => {
-                const jobBooks = [
-                  JobType.GREAT_SWORDSMAN,
-                  JobType.TEMPLE_KNIGHT,
-                  JobType.DRAGON_KNIGHT,
-                  JobType.SWORD_MASTER,
-                  JobType.SWORD_GOD,
-                  JobType.PLANE_LORD
-                ];
-                
-                const newBooks = jobBooks.map(job => ({
-                  id: `debug_job_book_${job}_${Date.now()}`,
-                  name: `${job === JobType.GREAT_SWORDSMAN ? '大剑士' : 
-                          job === JobType.TEMPLE_KNIGHT ? '圣殿骑士' :
-                          job === JobType.DRAGON_KNIGHT ? '龙骑士' :
-                          job === JobType.SWORD_MASTER ? '剑圣' :
-                          job === JobType.SWORD_GOD ? '剑神' : '位面领主'}转职书`,
-                  type: ItemType.JOB_ADVANCEMENT_BOOK,
-                  quantity: 2,
-                  targetJob: job
-                }));
-                
-                updatePlayer({
-                  inventory: [...player.inventory, ...newBooks]
-                });
-              }}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#fd7e14', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '12px'
-              }}
-            >
-              调试:给转职书
-            </button>
-          </>
-        )}
-        <button 
-          onClick={initializeGame}
-          style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#dc3545', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-        >
-          重置游戏
-        </button>
-        <button 
-          onClick={() => {
-            localStorage.removeItem('treasure-adventure-game');
-            window.location.reload();
-          }}
-          style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#ffc107', 
-            color: 'black', 
-            border: 'none', 
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-        >
-          清理存储并重启
-        </button>
       </div>
 
       <EquipmentModal
