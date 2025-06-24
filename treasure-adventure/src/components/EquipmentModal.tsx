@@ -24,8 +24,8 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   const [upgradeResult, setUpgradeResult] = React.useState<{success: boolean; newStars: number; message: string} | null>(null);
   const [isUpgrading, setIsUpgrading] = React.useState(false);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
-
-  if (!isOpen || !equipment) return null;
+  const [availableMaterials, setAvailableMaterials] = React.useState<{materialIds: number[]; materialsNeeded: number}>({materialIds: [], materialsNeeded: 0});
+  const [selectedMaterials, setSelectedMaterials] = React.useState<number[]>([]);
 
   // 从store中获取最新的装备数据，确保响应式更新
   const getCurrentEquipment = () => {
@@ -47,6 +47,25 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   };
 
   const currentEquipment = getCurrentEquipment();
+
+  // 加载可用材料
+  React.useEffect(() => {
+    if (currentEquipment && isOpen) {
+      const loadMaterials = async () => {
+        try {
+          const materials = await hybridStore.getAvailableMaterials(parseInt(currentEquipment.id));
+          setAvailableMaterials(materials);
+          // 自动选择足够的材料
+          setSelectedMaterials(materials.materialIds.slice(0, materials.materialsNeeded));
+        } catch (error) {
+          console.error('Failed to load materials:', error);
+        }
+      };
+      loadMaterials();
+    }
+  }, [currentEquipment?.id, isOpen]);
+
+  if (!isOpen || !equipment) return null;
 
   const handleEquip = async () => {
     if (!isEquipped && currentEquipment) {
@@ -85,7 +104,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
     
     setIsUpgrading(true);
     try {
-      await hybridStore.upgradeEquipmentStars(parseInt(currentEquipment.id));
+      await hybridStore.upgradeEquipmentStars(parseInt(currentEquipment.id), selectedMaterials);
       
       // 升星成功
       const newStars = Math.min((currentEquipment.stars || 0) + 1, 5);
@@ -102,7 +121,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
       setUpgradeResult({ 
         success: false, 
         newStars: currentEquipment.stars || 0, 
-        message: '升星失败，请检查金币余额和升星条件' 
+        message: '升星失败，请检查金币余额和升星材料' 
       });
     }
     setIsUpgrading(false);
@@ -129,9 +148,10 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   const successRate = getStarUpgradeSuccessRate(currentStars);
   const canAffordUpgrade = player.gold >= upgradeCost;
   const canUpgradeStars = currentStars < 5;
+  const hasSufficientMaterials = selectedMaterials.length >= availableMaterials.materialsNeeded;
   
-  // Web3模式下不需要材料，只需要金币
-  const canUpgrade = canAffordUpgrade && canUpgradeStars;
+  // 需要金币和足够的材料装备
+  const canUpgrade = canAffordUpgrade && canUpgradeStars && hasSufficientMaterials;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -181,8 +201,12 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
               <div>升星费用: {upgradeCost} 金币</div>
               <div>成功率: {successRate}%</div>
               <div>当前金币: {Math.floor(player.gold)}</div>
+              <div>需要材料: {availableMaterials.materialsNeeded} 个同类装备</div>
+              <div>可用材料: {availableMaterials.materialIds.length} 个</div>
+              <div>已选择: {selectedMaterials.length} 个</div>
               {!canUpgradeStars && <div style={{ color: '#dc3545' }}>已达到最大星级</div>}
               {!canAffordUpgrade && canUpgradeStars && <div style={{ color: '#dc3545' }}>金币不足</div>}
+              {!hasSufficientMaterials && canUpgradeStars && <div style={{ color: '#dc3545' }}>材料装备不足</div>}
             </div>
           </div>
         </div>

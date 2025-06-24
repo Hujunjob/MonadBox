@@ -74,11 +74,12 @@ contract EquipmentSystem is Ownable {
     }
     
     /**
-     * @dev 装备升星 - 新版本支持消耗同类装备
+     * @dev 装备升星 - 优化版本，直接传入消耗的装备IDs
      * @param playerId 玩家NFT ID
      * @param tokenId 装备NFT ID
+     * @param materialIds 消耗的装备ID数组
      */
-    function upgradeStars(uint256 playerId, uint256 tokenId) external {
+    function upgradeStars(uint256 playerId, uint256 tokenId, uint256[] calldata materialIds) external {
         require(playerNFT.ownerOf(playerId) == msg.sender, "Not your player");
         require(playerNFT.hasEquipmentInInventory(playerId, tokenId), "Equipment not in inventory");
         
@@ -91,15 +92,15 @@ contract EquipmentSystem is Ownable {
         require(config.goldCost > 0, "Invalid star level");
         require(playerNFT.getPlayerGold(playerId) >= config.goldCost, "Insufficient gold");
         
-        // 检查是否有足够的同类装备作为材料
-        uint256[] memory materialIds = _findSimilarEquipments(playerId, equipment.equipmentType, equipment.rarity, tokenId, config.materialCount);
-        require(materialIds.length >= config.materialCount, "Insufficient material equipments");
+        // 验证材料装备数量和类型
+        require(materialIds.length == config.materialCount, "Incorrect material count");
+        _validateMaterialEquipments(playerId, materialIds, equipment.equipmentType, equipment.rarity, tokenId);
         
         // 消耗金币 (从PlayerNFT的金币余额)
         playerNFT.spendGold(playerId, config.goldCost, address(this));
         
         // 消耗同类装备 (烧毁材料装备)
-        for (uint256 i = 0; i < config.materialCount; i++) {
+        for (uint256 i = 0; i < materialIds.length; i++) {
             _burnMaterialEquipment(playerId, materialIds[i]);
         }
         
@@ -134,56 +135,6 @@ contract EquipmentSystem is Ownable {
         } else {
             // 升星失败
             emit EquipmentUpgradeFailed(tokenId, "Star upgrade failed");
-        }
-    }
-    
-    /**
-     * @dev 装备强化
-     * @param tokenId 装备NFT ID
-     */
-    function enhanceEquipment(uint256 tokenId) external {
-        require(equipmentNFT.ownerOf(tokenId) == msg.sender, "Not your equipment");
-        
-        uint8 currentLevel = equipmentEnhanceLevel[tokenId];
-        require(currentLevel < 20, "Already max enhance level");
-        
-        Equipment.EquipmentData memory equipment = equipmentNFT.getEquipment(tokenId);
-        StarUpgradeConfig memory starConfig = starConfigs[equipment.stars];
-        require(currentLevel < starConfig.maxLevel, "Enhance level limited by stars");
-        
-        EnhanceConfig memory config = enhanceConfigs[currentLevel + 1];
-        require(goldToken.balanceOf(msg.sender) >= config.goldCost, "Insufficient gold");
-        
-        // 消耗金币
-        goldToken.burn(msg.sender, config.goldCost);
-        
-        // 随机判断成功
-        uint256 random = _generateRandom(tokenId, block.timestamp + 1) % 100;
-        if (random < config.successRate) {
-            // 强化成功
-            uint8 oldLevel = currentLevel;
-            uint8 newLevel = currentLevel + 1;
-            equipmentEnhanceLevel[tokenId] = newLevel;
-            
-            // 增加装备属性
-            uint16 newAttack = equipment.attack + config.statBonus;
-            uint16 newDefense = equipment.defense + config.statBonus;
-            uint16 newAgility = equipment.agility + config.statBonus;
-            
-            equipmentNFT.updateEquipment(
-                tokenId,
-                equipment.stars,
-                newAttack,
-                newDefense,
-                newAgility,
-                equipment.criticalRate,
-                equipment.criticalDamage
-            );
-            
-            emit EquipmentEnhanced(tokenId, oldLevel, newLevel);
-        } else {
-            // 强化失败
-            emit EquipmentUpgradeFailed(tokenId, "Enhancement failed");
         }
     }
     
@@ -299,7 +250,32 @@ contract EquipmentSystem is Ownable {
     }
     
     /**
-     * @dev 查找相似装备作为升星材料
+     * @dev 验证材料装备是否符合要求
+     * @param playerId 玩家ID
+     * @param materialIds 材料装备ID数组
+     * @param equipmentType 目标装备类型
+     * @param rarity 目标装备稀有度
+     * @param excludeId 排除的装备ID（要升星的装备本身）
+     */
+    function _validateMaterialEquipments(uint256 playerId, uint256[] calldata materialIds, uint8 equipmentType, uint8 rarity, uint256 excludeId) internal view {
+        for (uint256 i = 0; i < materialIds.length; i++) {
+            uint256 materialId = materialIds[i];
+            
+            // 不能使用要升星的装备本身作为材料
+            require(materialId != excludeId, "Cannot use equipment itself as material");
+            
+            // 验证装备是否在玩家背包中
+            require(playerNFT.hasEquipmentInInventory(playerId, materialId), "Material equipment not in inventory");
+            
+            // 验证装备类型和稀有度
+            Equipment.EquipmentData memory materialData = equipmentNFT.getEquipment(materialId);
+            require(materialData.equipmentType == equipmentType, "Wrong equipment type");
+            require(materialData.rarity == rarity, "Wrong equipment rarity");
+        }
+    }
+    
+    /**
+     * @dev 查找相似装备作为升星材料 - 保留用于UI查询
      * @param playerId 玩家ID
      * @param equipmentType 装备类型
      * @param rarity 稀有度
@@ -357,5 +333,23 @@ contract EquipmentSystem is Ownable {
      */
     function updateEnhanceConfig(uint8 level, EnhanceConfig memory config) external onlyOwner {
         enhanceConfigs[level] = config;
+    }
+    
+    /**
+     * @dev 获取可用于升星的材料装备 - 供UI调用
+     * @param playerId 玩家ID
+     * @param tokenId 要升星的装备ID
+     * @return materialIds 可用的材料装备ID数组
+     * @return materialsNeeded 升星需要的材料数量
+     */
+    function getAvailableMaterials(uint256 playerId, uint256 tokenId) external view returns (uint256[] memory materialIds, uint8 materialsNeeded) {
+        Equipment.EquipmentData memory equipment = equipmentNFT.getEquipment(tokenId);
+        require(equipment.stars < 5, "Already max stars");
+        
+        uint8 targetStars = equipment.stars + 1;
+        StarUpgradeConfig memory config = starConfigs[targetStars];
+        materialsNeeded = config.materialCount;
+        
+        materialIds = _findSimilarEquipments(playerId, equipment.equipmentType, equipment.rarity, tokenId, materialsNeeded);
     }
 }

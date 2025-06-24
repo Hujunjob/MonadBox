@@ -42,7 +42,8 @@ function filterABI(abi, contractName) {
     Equipment: ['getEquipment'],
     Item: ['balanceOf', 'balanceOfBatch'],
     Market: ['listEquipment', 'listItem', 'purchaseEquipment', 'purchaseItem', 'cancelListing', 'getListing', 'getActiveListings', 'getPlayerListings'],
-    Rank: ['fight', 'getRankInfo', 'getPlayerRank', 'getTopRanks', 'getNextChallengeTime', 'canChallenge']
+    Rank: ['fight', 'getRankInfo', 'getPlayerRank', 'getTopRanks', 'getNextChallengeTime', 'canChallenge'],
+    SuperMarket: ['buyGold', 'calculateEthRequired', 'calculateGoldAmount', 'getPurchaseLimits']
   };
   
   const required = requiredFunctions[contractName] || [];
@@ -66,7 +67,7 @@ function filterABI(abi, contractName) {
  * 生成完整的前端contracts文件内容
  */
 function generateContractsFile(addresses) {
-  const contracts = ['Player', 'BattleSystemV2', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market', 'Rank'];
+  const contracts = ['Player', 'BattleSystemV2', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market', 'Rank', 'SuperMarket'];
   
   let content = `// 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
@@ -79,7 +80,8 @@ export const CONTRACT_ADDRESSES = {
   BATTLE_SYSTEM: '${addresses.BATTLE_SYSTEM}' as \`0x\${string}\`,
   EQUIPMENT_SYSTEM: '${addresses.EQUIPMENT_SYSTEM}' as \`0x\${string}\`,
   MARKET: '${addresses.MARKET}' as \`0x\${string}\`,
-  RANK: '${addresses.RANK}' as \`0x\${string}\`
+  RANK: '${addresses.RANK}' as \`0x\${string}\`,
+  SUPER_MARKET: '${addresses.SUPER_MARKET}' as \`0x\${string}\`
 } as const;
 
 // =============================================================================
@@ -101,6 +103,7 @@ export const CONTRACT_ADDRESSES = {
                      contractName === 'Item' ? 'ITEM_NFT_ABI' :
                      contractName === 'Market' ? 'MARKET_ABI' :
                      contractName === 'Rank' ? 'RANK_ABI' :
+                     contractName === 'SuperMarket' ? 'SUPER_MARKET_ABI' :
                      'PLAYER_NFT_ABI';
       
       content += `// ${contractName} 合约 ABI\n`;
@@ -129,6 +132,7 @@ function syncContractsToFrontend(deploymentInfo) {
       EQUIPMENT_SYSTEM: deploymentInfo.equipmentSystem,
       MARKET: deploymentInfo.market,
       RANK: deploymentInfo.rank,
+      SUPER_MARKET: deploymentInfo.superMarket,
     };
 
     // 生成完整的contracts文件内容（包含地址和ABI）
@@ -231,6 +235,15 @@ async function main() {
   await rank.waitForDeployment();
   console.log("Rank deployed to:", await rank.getAddress());
 
+  // 10. 部署 SuperMarket
+  const SuperMarket = await hre.ethers.getContractFactory("SuperMarket");
+  const superMarket = await SuperMarket.deploy(
+    await playerNFT.getAddress(),
+    await goldToken.getAddress()
+  );
+  await superMarket.waitForDeployment();
+  console.log("SuperMarket deployed to:", await superMarket.getAddress());
+
   // 设置权限
   console.log("Setting up permissions...");
   
@@ -243,7 +256,7 @@ async function main() {
   await equipmentNFT.authorizeSystem(await treasureBoxSystem.getAddress());
   console.log("Equipment NFT ownership transferred to TreasureBoxSystem");
   
-  // 先授权EquipmentSystem、Market和Rank调用AdventureGold的burn函数，然后再转移ownership
+  // 先授权EquipmentSystem、Market、Rank和SuperMarket调用AdventureGold的burn/mint函数，然后再转移ownership
   await goldToken.authorizeSystem(await equipmentSystem.getAddress());
   console.log("EquipmentSystem authorized to burn gold");
   
@@ -252,6 +265,9 @@ async function main() {
   
   await goldToken.authorizeSystem(await rank.getAddress());
   console.log("Rank authorized to burn gold");
+  
+  await goldToken.authorizeSystem(await superMarket.getAddress());
+  console.log("SuperMarket authorized to mint gold");
   
   // AdventureGold ownership给TreasureBoxSystem
   await goldToken.transferOwnership(await treasureBoxSystem.getAddress());
@@ -288,6 +304,10 @@ async function main() {
   // Rank需要调用Player合约的金币管理函数
   await playerNFT.authorizeSystem(await rank.getAddress());
   console.log("Rank authorized to call Player functions");
+  
+  // SuperMarket需要调用Player合约的金币管理函数
+  await playerNFT.authorizeSystem(await superMarket.getAddress());
+  console.log("SuperMarket authorized to call Player functions");
 
   // 保存部署信息
   const deploymentInfo = {
@@ -301,6 +321,7 @@ async function main() {
     equipmentSystem: await equipmentSystem.getAddress(),
     market: await market.getAddress(),
     rank: await rank.getAddress(),
+    superMarket: await superMarket.getAddress(),
     deployedAt: new Date().toISOString(),
   };
 

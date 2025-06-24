@@ -4,6 +4,7 @@ import { EquipmentType } from '../types/game';
 import EquipmentModal from '../components/EquipmentModal';
 import Web3Toggle from '../components/Web3Toggle';
 import { useHybridGameStore } from '../store/web3GameStore';
+import BuyGoldModal from '../components/BuyGoldModal';
 
 const PlayerStats: React.FC = () => {
   // const { player, initializeGame, updatePlayer、, gainExperience, updateStamina } = useGameStore();
@@ -23,6 +24,7 @@ const PlayerStats: React.FC = () => {
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const [isBuyGoldModalOpen, setIsBuyGoldModalOpen] = useState(false);
   
   // 通知数据（示例）
   const notifications = [
@@ -106,7 +108,25 @@ const PlayerStats: React.FC = () => {
       <div className="stat-row">
         <span>姓名: {player.name}</span>
         <span>{getJobLevelDisplay(player.level, player.experience)}</span>
-        <span>金币: {player.gold}</span>
+        <span>
+          金币: {player.gold}
+          <button 
+            className="gold-add-btn"
+            onClick={() => setIsBuyGoldModalOpen(true)}
+            style={{
+              marginLeft: '8px',
+              padding: '2px 6px',
+              backgroundColor: '#ffd700',
+              border: 'none',
+              borderRadius: '50%',
+              fontSize: '12px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            +
+          </button>
+        </span>
       </div>
       
       <div className="stat-row">
@@ -281,6 +301,12 @@ const PlayerStats: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         isEquipped={true}
+      />
+      
+      <BuyGoldModal
+        isOpen={isBuyGoldModalOpen}
+        onClose={() => setIsBuyGoldModalOpen(false)}
+        playerId={player.id}
       />
     </div>
   );

@@ -766,18 +766,20 @@ export function useWeb3GameV2() {
   };
 
   // 装备升星 - 更新为使用playerId
-  const upgradeEquipmentStars = async (equipmentId: number) => {
+  const upgradeEquipmentStars = async (equipmentId: number, materialIds: number[] = []) => {
     if (!isConnected || !currentPlayerId) {
       showToast('请先连接钱包并注册玩家', 'error');
       return;
     }
+
+    const materialIdsBigInt = materialIds.map(id => BigInt(id));
 
     await safeCall(
       {
         address: CONTRACTS.EQUIPMENT_SYSTEM,
         abi: EQUIPMENT_SYSTEM_ABI,
         functionName: 'upgradeStars',
-        args: [BigInt(currentPlayerId), BigInt(equipmentId)],
+        args: [BigInt(currentPlayerId), BigInt(equipmentId), materialIdsBigInt],
       },
       undefined,
       {
@@ -791,6 +793,28 @@ export function useWeb3GameV2() {
         }
       }
     );
+  };
+
+  // 获取可用于升星的材料装备
+  const getAvailableMaterials = async (equipmentId: number) => {
+    if (!publicClient || !currentPlayerId) return { materialIds: [], materialsNeeded: 0 };
+
+    try {
+      const result = await publicClient.readContract({
+        address: CONTRACTS.EQUIPMENT_SYSTEM,
+        abi: EQUIPMENT_SYSTEM_ABI,
+        functionName: 'getAvailableMaterials',
+        args: [BigInt(currentPlayerId), BigInt(equipmentId)]
+      });
+
+      return {
+        materialIds: (result[0] as bigint[]).map(id => Number(id)),
+        materialsNeeded: Number(result[1])
+      };
+    } catch (error) {
+      console.error('Failed to get available materials:', error);
+      return { materialIds: [], materialsNeeded: 0 };
+    }
   };
 
   // 装备强化
@@ -1042,6 +1066,7 @@ export function useWeb3GameV2() {
     equipItem,
     unequipItem,
     upgradeEquipmentStars,
+    getAvailableMaterials,
     enhanceEquipment,
     
     // 数据刷新
