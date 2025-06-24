@@ -139,17 +139,6 @@ contract TreasureBoxSystem is Ownable {
             playerNFT.ownerOf(playerId) == msg.sender,
             "Not owner of player NFT"
         );
-        return claimOfflineTreasureBoxesForPlayer(playerId);
-    }
-
-    /**
-     * @dev 为指定玩家领取离线宝箱（仅限授权系统调用）
-     * @param playerId 玩家ID
-     * @return 领取的宝箱数量
-     */
-    function claimOfflineTreasureBoxesForPlayer(
-        uint256 playerId
-    ) public onlyAuthorizedOrOwner returns (uint256) {
         // 获取Player NFT中的lastTreasureBoxTime
         GameStructs.Player memory player = playerNFT.getPlayer(playerId);
 
@@ -190,6 +179,7 @@ contract TreasureBoxSystem is Ownable {
         }
 
         return boxesToClaim;
+        // return claimOfflineTreasureBoxesForPlayer(playerId);
     }
 
     /**

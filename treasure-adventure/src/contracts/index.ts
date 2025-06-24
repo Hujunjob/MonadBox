@@ -1,15 +1,15 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0xaca81583840B1bf2dDF6CDe824ada250C1936B4D' as `0x${string}`,
-  EQUIPMENT_NFT: '0x74Cf9087AD26D541930BaC724B7ab21bA8F00a27' as `0x${string}`,
-  ITEM_NFT: '0xefAB0Beb0A557E452b398035eA964948c750b2Fd' as `0x${string}`,
-  GOLD_TOKEN: '0x8bCe54ff8aB45CB075b044AE117b8fD91F9351aB' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x70bDA08DBe07363968e9EE53d899dFE48560605B' as `0x${string}`,
-  BATTLE_SYSTEM: '0x26B862f640357268Bd2d9E95bc81553a2Aa81D7E' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0xA56F946D6398Dd7d9D4D9B337Cf9E0F68982ca5B' as `0x${string}`,
-  MARKET: '0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F' as `0x${string}`,
-  RANK: '0xddE78e6202518FF4936b5302cC2891ec180E8bFf' as `0x${string}`
+  PLAYER_NFT: '0xCD8a1C3ba11CF5ECfa6267617243239504a98d90' as `0x${string}`,
+  EQUIPMENT_NFT: '0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154' as `0x${string}`,
+  ITEM_NFT: '0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575' as `0x${string}`,
+  GOLD_TOKEN: '0x1291Be112d480055DaFd8a610b7d1e203891C274' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x82e01223d51Eb87e16A03E24687EDF0F294da6f1' as `0x${string}`,
+  BATTLE_SYSTEM: '0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x7969c5eD335650692Bc04293B07F5BF2e7A673C0' as `0x${string}`,
+  MARKET: '0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650' as `0x${string}`,
+  RANK: '0xc351628EB244ec633d5f21fBD6621e1a683B1181' as `0x${string}`
 } as const;
 
 // =============================================================================

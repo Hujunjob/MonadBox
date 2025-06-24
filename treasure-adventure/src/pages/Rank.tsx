@@ -3,6 +3,7 @@ import { useAccount } from 'wagmi';
 import { useRank } from '../hooks/useRank';
 import './Rank.css';
 import { useHybridGameStore } from '../store/web3GameStore';
+import { useToast } from '../components/ToastManager';
 
 interface RankData {
   rankIndex: number;
@@ -11,6 +12,7 @@ interface RankData {
 }
 
 const Rank: React.FC = () => {
+  const { showToast } = useToast();
   const { address } = useAccount();
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player;
@@ -32,7 +34,8 @@ const Rank: React.FC = () => {
   const [nextChallengeTime, setNextChallengeTime] = useState<number>(0);
   const [countdown, setCountdown] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-
+    // 检查金币余额
+  const challengeCost = 20; // 200 金币
   // 加载排行榜数据
   const loadRankData = async () => {
     try {
@@ -104,10 +107,10 @@ const Rank: React.FC = () => {
   const handleChallenge = async (targetRank: number) => {
     if (!canChallengeNow) return;
     
-    // 检查金币余额
-    const challengeCost = 200; // 200 金币
+
     if (playerGold < challengeCost) {
-      alert(`金币不足！挑战需要 ${challengeCost} 金币，你当前只有 ${playerGold} 金币。`);
+      showToast('金币不足！挑战需要200Gold', 'error');
+      // alert(`金币不足！挑战需要 ${challengeCost} 金币，你当前只有 ${playerGold} 金币。`);
       return;
     }
     

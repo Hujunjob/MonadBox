@@ -83,16 +83,7 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
      * @return playerId 玩家NFT ID
      */
     function registerPlayer(string memory name) external returns (uint256) {
-        return mintPlayer(msg.sender, name);
-    }
-
-    /**
-     * @dev 铸造Player NFT（内部函数 + 管理员功能）
-     * @param to 接收地址
-     * @param name 玩家名称
-     * @return playerId 玩家NFT ID
-     */
-    function mintPlayer(address to, string memory name) public onlyAuthorizedOrOwner returns (uint256) {
+        address to = msg.sender;
         require(bytes(name).length >= 2 && bytes(name).length <= 20, "Invalid name length");
         require(balanceOf(to) == 0, "Player already exists"); // 每个地址只能有一个 Player NFT
         
@@ -125,6 +116,7 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
         
         emit PlayerMinted(to, playerId, name);
         return playerId;
+        // return mintPlayer(msg.sender, name);
     }
     
     /**

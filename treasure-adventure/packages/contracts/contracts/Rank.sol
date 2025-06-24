@@ -15,7 +15,7 @@ contract Rank is Ownable, ReentrancyGuard {
     AdventureGold public goldToken;
     
     // 挑战费用和手续费配置
-    uint256 public constant CHALLENGE_COST = 200e18; // 200 gold
+    uint256 public constant CHALLENGE_COST = 20e18; // 200 gold
     uint256 public constant FEE_RATE = 2000; // 20% = 2000 basis points
     uint256 public constant BASIS_POINTS = 10000; // 100%
     
