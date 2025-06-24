@@ -48,7 +48,7 @@ contract SuperMarket is Ownable, ReentrancyGuard {
         playerNFT.addGold(playerId, goldAmount);
         
         // 给用户mint真正的AdventureGold代币
-        goldToken.mint(msg.sender, goldAmount);
+        goldToken.mint(address(playerNFT), goldAmount);
         
         // 如果用户发送的ETH超过需要的数量，退还多余的ETH
         if (msg.value > requiredEth) {

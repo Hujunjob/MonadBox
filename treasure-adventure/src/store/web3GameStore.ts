@@ -118,5 +118,7 @@ export function useHybridGameStore() {
     refetchPlayer: web3Game.refetchPlayer,
     refetchTreasureBoxes: web3Game.refetchTreasureBoxes,
     refetchClaimableBoxes: web3Game.refetchClaimableBoxes,
+
+    getAvailableMaterials:web3Game.getAvailableMaterials,
   };
 }

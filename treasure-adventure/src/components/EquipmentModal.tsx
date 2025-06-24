@@ -53,7 +53,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
     if (currentEquipment && isOpen) {
       const loadMaterials = async () => {
         try {
-          const materials = await hybridStore.getAvailableMaterials(parseInt(currentEquipment.id));
+          const materials = await hybridStore.getAvailableMaterials(currentEquipment.id);
           setAvailableMaterials(materials);
           // 自动选择足够的材料
           setSelectedMaterials(materials.materialIds.slice(0, materials.materialsNeeded));
