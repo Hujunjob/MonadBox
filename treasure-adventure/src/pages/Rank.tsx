@@ -135,9 +135,9 @@ const Rank: React.FC = () => {
           <div className="my-rank">
             我的排名: <span className="rank-number">{playerRank > 0 ? `#${playerRank}` : '未上榜'}</span>
           </div>
-          <div className="challenge-cost">
+          {/* <div className="challenge-cost">
             挑战费用: 200 金币 | 我的金币: {playerGold}
-          </div>
+          </div> */}
         </div>
       </div>
 

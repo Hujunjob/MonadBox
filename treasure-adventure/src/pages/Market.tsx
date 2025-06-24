@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { useMarket } from '../hooks/useMarket';
-import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
+import { getEquipmentImage, getItemImage, getRarityColor, getEquipmentTypeString } from '../utils/gameUtils';
 import { formatEther } from 'viem';
+import { usePublicClient } from 'wagmi';
+import { CONTRACT_ADDRESSES, EQUIPMENT_NFT_ABI } from '../contracts';
 
 interface MarketListing {
   listingId: bigint;
@@ -16,11 +18,26 @@ interface MarketListing {
   createdAt: bigint;
 }
 
+interface EquipmentDetails {
+  name: string;
+  equipmentType: number;
+  level: number;
+  stars: number;
+  rarity: number;
+  attack: number;
+  defense: number;
+  agility: number;
+  criticalRate: number;
+  criticalDamage: number;
+}
+
 const Market: React.FC = () => {
   const hybridStore = useHybridGameStore();
   const [currentPage, setCurrentPage] = useState(0);
   const [activeTab, setActiveTab] = useState<'all' | 'my'>('all');
+  const [equipmentCache, setEquipmentCache] = useState<Map<string, EquipmentDetails>>(new Map());
   const itemsPerPage = 20;
+  const publicClient = usePublicClient();
   
   const player = hybridStore.player;
   const { 
@@ -82,13 +99,91 @@ const Market: React.FC = () => {
     }
   };
 
+  // 获取装备详细信息
+  const fetchEquipmentDetails = async (equipmentId: bigint): Promise<EquipmentDetails | null> => {
+    if (!publicClient) return null;
+    
+    try {
+      const data = await publicClient.readContract({
+        address: CONTRACT_ADDRESSES.EQUIPMENT_NFT,
+        abi: EQUIPMENT_NFT_ABI,
+        functionName: 'getEquipment',
+        args: [equipmentId]
+      }) as any;
+      
+      return {
+        name: data.name || `装备${equipmentId}`,
+        equipmentType: Number(data.equipmentType),
+        level: Number(data.level),
+        stars: Number(data.stars),
+        rarity: Number(data.rarity),
+        attack: Number(data.attack),
+        defense: Number(data.defense),
+        agility: Number(data.agility),
+        criticalRate: Number(data.criticalRate),
+        criticalDamage: Number(data.criticalDamage),
+      };
+    } catch (error) {
+      console.error('Failed to fetch equipment details:', error);
+      return null;
+    }
+  };
+
+  // 获取缓存的装备信息或从合约获取
+  const getEquipmentInfo = async (equipmentId: bigint) => {
+    const cacheKey = equipmentId.toString();
+    
+    if (equipmentCache.has(cacheKey)) {
+      return equipmentCache.get(cacheKey)!;
+    }
+    
+    const details = await fetchEquipmentDetails(equipmentId);
+    if (details) {
+      setEquipmentCache(prev => new Map(prev.set(cacheKey, details)));
+      return details;
+    }
+    
+    // 返回默认值
+    return {
+      name: `装备 #${equipmentId}`,
+      equipmentType: 3, // weapon
+      level: 1,
+      stars: 0,
+      rarity: 0, // common
+      attack: 0,
+      defense: 0,
+      agility: 0,
+      criticalRate: 0,
+      criticalDamage: 0,
+    };
+  };
+
   const getItemInfo = (listing: MarketListing) => {
     if (listing.listingType === 0) { // EQUIPMENT
-      // TODO: 从合约获取装备信息
+      // 从缓存获取装备信息
+      const cacheKey = listing.tokenId.toString();
+      const cachedEquipment = equipmentCache.get(cacheKey);
+      
+      if (cachedEquipment) {
+        const equipmentTypeStr = getEquipmentTypeString(cachedEquipment.equipmentType);
+        const rarityStr = ['common', 'uncommon', 'rare', 'epic', 'legendary'][cachedEquipment.rarity] || 'common';
+        return {
+          name: cachedEquipment.name,
+          image: getEquipmentImage(equipmentTypeStr),
+          rarity: rarityStr,
+          level: cachedEquipment.level,
+          stars: cachedEquipment.stars
+        };
+      }
+      
+      // 如果缓存中没有，返回默认值并异步加载
+      getEquipmentInfo(listing.tokenId);
       return {
         name: `装备 #${listing.tokenId}`,
         image: getEquipmentImage('weapon'),
-        rarity: 'common'
+        rarity: 'common',
+        level: 1,
+        stars: 0
       };
     } else { // ITEM
       // 根据物品ID范围判断类型
@@ -119,6 +214,27 @@ const Market: React.FC = () => {
       type: 'unknown'
     };
   };
+
+  // 当listings变化时，预加载装备信息
+  useEffect(() => {
+    const loadEquipmentDetails = async () => {
+      if (!publicClient || !listings) return;
+      
+      const equipmentListings = listings.filter(listing => listing.listingType === 0);
+      const uncachedEquipmentIds = equipmentListings
+        .map(listing => listing.tokenId)
+        .filter(tokenId => !equipmentCache.has(tokenId.toString()));
+      
+      if (uncachedEquipmentIds.length > 0) {
+        // 批量加载装备详情
+        for (const equipmentId of uncachedEquipmentIds) {
+          getEquipmentInfo(equipmentId);
+        }
+      }
+    };
+    
+    loadEquipmentDetails();
+  }, [listings, publicClient]);
 
   const formatTime = (timestamp: bigint) => {
     const now = Date.now();
@@ -202,6 +318,9 @@ const Market: React.FC = () => {
                         />
                         <div className="item-info">
                           <h4>{itemInfo.name}</h4>
+                          {listing.listingType === 0 && itemInfo.level && (
+                            <span className="quantity">Lv.{itemInfo.level} {itemInfo.stars ? `★${itemInfo.stars}` : ''}</span>
+                          )}
                           {Number(listing.quantity) > 1 && (
                             <span className="quantity">数量: {Number(listing.quantity)}</span>
                           )}
