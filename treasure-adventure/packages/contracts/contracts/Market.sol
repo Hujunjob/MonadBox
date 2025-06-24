@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./Player.sol";
 import "./Equipment.sol";
 import "./Item.sol";
@@ -12,7 +14,7 @@ import "./AdventureGold.sol";
  * @title Market
  * @dev 市场合约 - 玩家可以在这里买卖物品和装备
  */
-contract Market is Ownable, ReentrancyGuard {
+contract Market is Ownable, ReentrancyGuard, IERC1155Receiver, IERC721Receiver {
     Player public playerNFT;
     Equipment public equipmentNFT;
     Item public itemNFT;
@@ -103,6 +105,8 @@ contract Market is Ownable, ReentrancyGuard {
             "Equipment not in inventory"
         );
         
+        playerNFT.removeEquipmentFromInventory(playerId, equipmentId, address(this));
+
         // 创建挂单
         uint256 listingId = nextListingId++;
         listings[listingId] = Listing({
@@ -148,6 +152,9 @@ contract Market is Ownable, ReentrancyGuard {
             playerNFT.getPlayerItemQuantity(playerId, itemId) >= quantity,
             "Insufficient item quantity"
         );
+        
+        // 将物品从玩家实际转移到市场
+        playerNFT.transferItemToMarket(playerId, itemId, quantity, address(this));
         
         // 创建挂单
         uint256 listingId = nextListingId++;
@@ -199,22 +206,14 @@ contract Market is Ownable, ReentrancyGuard {
             "Insufficient gold"
         );
         
-        // 验证装备仍在卖家背包中
-        require(
-            playerNFT.hasEquipmentInInventory(listing.playerId, listing.tokenId),
-            "Equipment no longer available"
-        );
-        
         // 转移金币：买家 -> 卖家
-        playerNFT.spendGold(buyerPlayerId, sellerAmount, address(this));
-        playerNFT.addGold(listing.playerId, sellerAmount-fee);
+        playerNFT.spendGold(buyerPlayerId, totalPrice, address(this));
+        playerNFT.addGold(listing.playerId, sellerAmount);
         
         // 销毁手续费金币
-        // playerNFT.spendGold(buyerPlayerId, fee, address(this));
         goldToken.burn(address(this), fee);
         
-        // 转移装备：卖家 -> 买家
-        playerNFT.removeEquipmentFromInventory(listing.playerId, listing.tokenId, address(this));
+        // 转移装备：市场 -> 买家
         equipmentNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId);
         playerNFT.addEquipmentToInventory(buyerPlayerId, listing.tokenId);
         
@@ -263,22 +262,15 @@ contract Market is Ownable, ReentrancyGuard {
             "Insufficient gold"
         );
         
-        // 验证物品仍在卖家背包中
-        require(
-            playerNFT.getPlayerItemQuantity(listing.playerId, listing.tokenId) >= quantity,
-            "Item no longer available"
-        );
-        
         // 转移金币：买家 -> 卖家
-        playerNFT.spendGold(buyerPlayerId, sellerAmount, address(this));
+        playerNFT.spendGold(buyerPlayerId, totalPrice, address(this));
         playerNFT.addGold(listing.playerId, sellerAmount);
         
         // 销毁手续费金币
-        playerNFT.spendGold(buyerPlayerId, fee, address(this));
         goldToken.burn(address(this), fee);
         
-        // 转移物品：卖家 -> 买家
-        playerNFT.useItem(listing.playerId, listing.tokenId, quantity);
+        // 转移物品：市场 -> 买家的Player NFT
+        itemNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId, quantity, "");
         playerNFT.addItem(buyerPlayerId, listing.tokenId, quantity);
         
         // 更新挂单数量
@@ -311,6 +303,17 @@ contract Market is Ownable, ReentrancyGuard {
             listing.seller == msg.sender || msg.sender == owner(),
             "Not authorized to cancel"
         );
+        
+        // 将物品返还给卖家
+        if (listing.listingType == ListingType.EQUIPMENT) {
+            // 返还装备
+            equipmentNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId);
+            playerNFT.addEquipmentToInventory(listing.playerId, listing.tokenId);
+        } else {
+            // 返还物品：市场 -> 玩家的Player NFT
+            itemNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId, listing.quantity, "");
+            playerNFT.addItem(listing.playerId, listing.tokenId, listing.quantity);
+        }
         
         listing.active = false;
         
@@ -396,5 +399,51 @@ contract Market is Ownable, ReentrancyGuard {
         }
         
         return playerListings;
+    }
+
+    /**
+     * @dev 支持接收ERC1155代币
+     */
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 id,
+        uint256 value,
+        bytes calldata data
+    ) external pure override returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    /**
+     * @dev 支持批量接收ERC1155代币
+     */
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
+    ) external pure override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
+    }
+
+    /**
+     * @dev 支持接收ERC721代币
+     */
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external pure override returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    /**
+     * @dev 支持接口检查
+     */
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == type(IERC1155Receiver).interfaceId ||
+               interfaceId == type(IERC721Receiver).interfaceId;
     }
 }

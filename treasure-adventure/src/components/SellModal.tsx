@@ -46,7 +46,7 @@ const SellModal: React.FC<SellModalProps> = ({ item, isOpen, onClose, itemType }
         await listItemForSale(player.id, parseInt(item.id), quantity, priceInGold);
       }
       
-      alert('物品已成功上架！');
+      // alert('物品已成功上架！');
       onClose();
     } catch (error) {
       console.error('上架失败:', error);

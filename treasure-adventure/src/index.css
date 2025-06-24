@@ -234,8 +234,8 @@ button:focus-visible {
   padding: 8px 12px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
   font-size: 1rem;
 }
 
@@ -301,4 +301,79 @@ button:focus-visible {
 
 .sell-btn:hover:not(:disabled) {
   background: #e0a800;
+}
+
+/* Market Tabs */
+.market-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-btn {
+  background: transparent;
+  color: #ccc;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+}
+
+/* My Listings */
+.my-listing-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listing-action-btn {
+  width: 100%;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.listing-action-btn.cancel-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.listing-action-btn.cancel-btn:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.listing-action-btn.inactive-btn {
+  background: #6c757d;
+  color: white;
+  cursor: not-allowed;
+}
+
+.listing-status {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.status-active {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.status-inactive {
+  color: #6c757d;
 }

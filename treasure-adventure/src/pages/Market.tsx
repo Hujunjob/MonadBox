@@ -19,22 +19,27 @@ interface MarketListing {
 const Market: React.FC = () => {
   const hybridStore = useHybridGameStore();
   const [currentPage, setCurrentPage] = useState(0);
+  const [activeTab, setActiveTab] = useState<'all' | 'my'>('all');
   const itemsPerPage = 20;
   
   const player = hybridStore.player;
   const { 
     activeListings, 
     totalActiveListings, 
+    playerListings,
     buyEquipment, 
     buyItem, 
+    cancelListingById,
     isPurchasingEquipment, 
     isPurchasingItem,
-    refetchActiveListings 
+    isCancellingListing,
+    refetchActiveListings,
+    refetchPlayerListings
   } = useMarket();
 
   const loading = false; // Market hook handles loading states
-  const listings = activeListings || [];
-  const totalCount = Number(totalActiveListings || 0n);
+  const listings = activeTab === 'all' ? (activeListings || []) : (playerListings || []);
+  const totalCount = activeTab === 'all' ? Number(totalActiveListings || 0n) : listings.length;
 
   const handlePurchase = async (listing: MarketListing) => {
     if (!player) {
@@ -52,9 +57,28 @@ const Market: React.FC = () => {
       alert('购买成功！');
       // 刷新列表
       refetchActiveListings();
+      refetchPlayerListings();
     } catch (error) {
       console.error('Purchase failed:', error);
       alert('购买失败：' + (error as Error).message);
+    }
+  };
+
+  const handleCancelListing = async (listing: MarketListing) => {
+    if (!player) {
+      alert('请先连接钱包并创建角色');
+      return;
+    }
+
+    try {
+      await cancelListingById(Number(listing.listingId));
+      alert('取消挂单成功！');
+      // 刷新列表
+      refetchActiveListings();
+      refetchPlayerListings();
+    } catch (error) {
+      console.error('Cancel listing failed:', error);
+      alert('取消挂单失败：' + (error as Error).message);
     }
   };
 
@@ -115,6 +139,22 @@ const Market: React.FC = () => {
     <div className="market-panel">
       <h2>市场</h2>
       
+      {/* Tab Navigation */}
+      <div className="market-tabs">
+        <button 
+          className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          所有商品
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'my' ? 'active' : ''}`}
+          onClick={() => setActiveTab('my')}
+        >
+          我的物品
+        </button>
+      </div>
+      
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px' }}>
           <p>加载中...</p>
@@ -122,7 +162,7 @@ const Market: React.FC = () => {
       ) : (
         <>
           <div className="market-stats">
-            <p>共 {totalCount} 个挂单</p>
+            <p>{activeTab === 'all' ? `共 ${totalCount} 个挂单` : `我的挂单: ${totalCount} 个`}</p>
           </div>
           
           <div className="market-listings">
@@ -135,7 +175,7 @@ const Market: React.FC = () => {
                 borderRadius: '10px',
                 margin: '20px 0'
               }}>
-                <p>暂无商品挂单</p>
+                <p>{activeTab === 'all' ? '暂无商品挂单' : '您还没有挂单'}</p>
               </div>
             ) : (
               <div className="listings-grid">
@@ -182,15 +222,36 @@ const Market: React.FC = () => {
                         <span>卖家: {listing.seller.slice(0, 6)}...{listing.seller.slice(-4)}</span>
                       </div>
                       
-                      <button 
-                        className="purchase-btn"
-                        onClick={() => handlePurchase(listing)}
-                        disabled={!player || isPurchasingEquipment || isPurchasingItem || Number(formatEther(listing.price)) > player.goldBalance}
-                      >
-                        {!player ? '请先连接钱包' : 
-                         (isPurchasingEquipment || isPurchasingItem) ? '购买中...' :
-                         Number(formatEther(listing.price)) > player.goldBalance ? '金币不足' : '购买'}
-                      </button>
+                      {activeTab === 'all' ? (
+                        <button 
+                          className="purchase-btn"
+                          onClick={() => handlePurchase(listing)}
+                          disabled={!player || isPurchasingEquipment || isPurchasingItem || Number(formatEther(listing.price)) > player.goldBalance}
+                        >
+                          {!player ? '请先连接钱包' : 
+                           (isPurchasingEquipment || isPurchasingItem) ? '购买中...' :
+                           Number(formatEther(listing.price)) > player.goldBalance ? '金币不足' : '购买'}
+                        </button>
+                      ) : (
+                        <div className="my-listing-actions">
+                          <button 
+                            className={`listing-action-btn ${listing.active ? 'cancel-btn' : 'inactive-btn'}`}
+                            onClick={() => handleCancelListing(listing)}
+                            disabled={!player || !listing.active || isCancellingListing}
+                          >
+                            {!player ? '请先连接钱包' : 
+                             isCancellingListing ? '取消中...' :
+                             !listing.active ? '已取消/已售出' : '取消挂单'}
+                          </button>
+                          <div className="listing-status">
+                            {listing.active ? (
+                              <span className="status-active">挂单中</span>
+                            ) : (
+                              <span className="status-inactive">已完成</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

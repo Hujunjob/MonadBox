@@ -982,7 +982,7 @@ export function useWeb3GameV2() {
 
   // 转换Player数据为前端格式，确保所有字段都有默认值
   const convertedPlayerData = useMemo(() => ({
-    id: currentPlayerId.toString(),
+    id: currentPlayerId,
     name: playerData?.name || '未命名',
     level: playerData ? Number(playerData.level) : 1,
     experience: playerData ? Number(playerData.experience) : 0,

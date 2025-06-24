@@ -1,4 +1,4 @@
-import { useContractWrite, useContractRead, useAccount } from 'wagmi'
+import { useWriteContract, useReadContract, useAccount } from 'wagmi'
 import { CONTRACT_ADDRESSES, MARKET_ABI } from '../contracts'
 import { parseEther, formatEther } from 'viem'
 
@@ -18,81 +18,74 @@ export function useMarket() {
   const { address } = useAccount()
 
   // 读取合约函数
-  const { data: activeListings, refetch: refetchActiveListings } = useContractRead({
+  const { data: activeListings, refetch: refetchActiveListings } = useReadContract({
     address: CONTRACT_ADDRESSES.MARKET,
     abi: MARKET_ABI,
     functionName: 'getActiveListings',
     args: [0n, 20n], // offset, limit
   })
 
-  const { data: playerListings, refetch: refetchPlayerListings } = useContractRead({
+  const { data: playerListings, refetch: refetchPlayerListings } = useReadContract({
     address: CONTRACT_ADDRESSES.MARKET,
     abi: MARKET_ABI,
     functionName: 'getPlayerListings',
     args: [1n], // For now using playerId 1, TODO: get actual playerId from player data
-    enabled: !!address,
+    query: { enabled: !!address },
   })
 
   // 写入合约函数
-  const { write: listEquipment, isLoading: isListingEquipment } = useContractWrite({
-    address: CONTRACT_ADDRESSES.MARKET,
-    abi: MARKET_ABI,
-    functionName: 'listEquipment',
-  })
+  const { writeContract, isPending } = useWriteContract()
 
-  const { write: listItem, isLoading: isListingItem } = useContractWrite({
-    address: CONTRACT_ADDRESSES.MARKET,
-    abi: MARKET_ABI,
-    functionName: 'listItem',
-  })
-
-  const { write: purchaseEquipment, isLoading: isPurchasingEquipment } = useContractWrite({
-    address: CONTRACT_ADDRESSES.MARKET,
-    abi: MARKET_ABI,
-    functionName: 'purchaseEquipment',
-  })
-
-  const { write: purchaseItem, isLoading: isPurchasingItem } = useContractWrite({
-    address: CONTRACT_ADDRESSES.MARKET,
-    abi: MARKET_ABI,
-    functionName: 'purchaseItem',
-  })
-
-  const { write: cancelListing, isLoading: isCancellingListing } = useContractWrite({
-    address: CONTRACT_ADDRESSES.MARKET,
-    abi: MARKET_ABI,
-    functionName: 'cancelListing',
-  })
+  const isListingEquipment = isPending
+  const isListingItem = isPending
+  const isPurchasingEquipment = isPending
+  const isPurchasingItem = isPending
+  const isCancellingListing = isPending
 
   // 辅助函数
   const listEquipmentForSale = async (playerId: number, equipmentId: number, priceInGold: number) => {
     const priceInWei = parseEther(priceInGold.toString())
-    listEquipment({
+    writeContract({
+      address: CONTRACT_ADDRESSES.MARKET,
+      abi: MARKET_ABI,
+      functionName: 'listEquipment',
       args: [BigInt(playerId), BigInt(equipmentId), priceInWei],
     })
   }
 
   const listItemForSale = async (playerId: number, itemId: number, quantity: number, priceInGold: number) => {
     const priceInWei = parseEther(priceInGold.toString())
-    listItem({
+    writeContract({
+      address: CONTRACT_ADDRESSES.MARKET,
+      abi: MARKET_ABI,
+      functionName: 'listItem',
       args: [BigInt(playerId), BigInt(itemId), BigInt(quantity), priceInWei],
     })
   }
 
   const buyEquipment = async (listingId: number, buyerPlayerId: number) => {
-    purchaseEquipment({
+    writeContract({
+      address: CONTRACT_ADDRESSES.MARKET,
+      abi: MARKET_ABI,
+      functionName: 'purchaseEquipment',
       args: [BigInt(listingId), BigInt(buyerPlayerId)],
     })
   }
 
   const buyItem = async (listingId: number, buyerPlayerId: number, quantity: number) => {
-    purchaseItem({
+    writeContract({
+      address: CONTRACT_ADDRESSES.MARKET,
+      abi: MARKET_ABI,
+      functionName: 'purchaseItem',
       args: [BigInt(listingId), BigInt(buyerPlayerId), BigInt(quantity)],
     })
   }
 
   const cancelListingById = async (listingId: number) => {
-    cancelListing({
+    writeContract({
+      address: CONTRACT_ADDRESSES.MARKET,
+      abi: MARKET_ABI,
+      functionName: 'cancelListing',
       args: [BigInt(listingId)],
     })
   }

@@ -457,7 +457,6 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
     function removeEquipmentFromInventory(uint256 playerId, uint256 equipmentId, address to) external onlyAuthorizedOrOwner {
         GameStructs.Player storage player = players[playerId];
         require(player.initialized, "Player not exists");
-        require(ownerOf(playerId) == to, "Not player owner");
         
         // 查找并移除装备
         for (uint256 i = 0; i < player.inventory.length; i++) {
@@ -543,6 +542,23 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
         require(playerItems[playerId][itemId] >= quantity, "Insufficient item quantity");
         
         playerItems[playerId][itemId] -= quantity;
+        emit ItemUsed(playerId, itemId, quantity);
+    }
+
+    /**
+     * @dev 将物品从玩家转移到市场
+     */
+    function transferItemToMarket(uint256 playerId, uint256 itemId, uint256 quantity, address marketAddress) external onlyAuthorizedOrOwner {
+        GameStructs.Player storage player = players[playerId];
+        require(player.initialized, "Player not exists");
+        require(playerItems[playerId][itemId] >= quantity, "Insufficient item quantity");
+        
+        // 减少玩家的物品记录
+        playerItems[playerId][itemId] -= quantity;
+        
+        // 实际转移 ERC1155 NFT 到市场
+        itemNFT.safeTransferFrom(address(this), marketAddress, itemId, quantity, "");
+        
         emit ItemUsed(playerId, itemId, quantity);
     }
     
