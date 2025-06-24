@@ -22,7 +22,6 @@ const Rank: React.FC = () => {
     getTopRanks, 
     getPlayerRank, 
     canChallenge, 
-    getNextChallengeTime, 
     fight,
     isPending 
   } = useRank();
@@ -30,9 +29,6 @@ const Rank: React.FC = () => {
   const [topRanks, setTopRanks] = useState<RankData[]>([]);
   const [playerRank, setPlayerRank] = useState<number>(0);
   const [challengeTarget, setChallengeTarget] = useState<number | null>(null);
-  const [canChallengeNow, setCanChallengeNow] = useState<boolean>(true);
-  const [nextChallengeTime, setNextChallengeTime] = useState<number>(0);
-  const [countdown, setCountdown] = useState<number>(0);
   const [loading, setLoading] = useState(true);
     // 检查金币余额
   const challengeCost = 20; // 200 金币
@@ -60,15 +56,6 @@ const Rank: React.FC = () => {
       if (currentPlayerId) {
         const rank = await getPlayerRank(currentPlayerId);
         setPlayerRank(Number(rank));
-        
-        // 检查挑战冷却
-        const canChal = await canChallenge(currentPlayerId);
-        setCanChallengeNow(canChal);
-        
-        if (!canChal) {
-          const nextTime = await getNextChallengeTime(currentPlayerId);
-          setNextChallengeTime(Number(nextTime));
-        }
       }
     } catch (error) {
       console.error('Error loading rank data:', error);
@@ -83,34 +70,19 @@ const Rank: React.FC = () => {
     }
   }, [currentPlayerId]);
 
-  // 倒计时更新
-  useEffect(() => {
-    if (!canChallengeNow && nextChallengeTime > 0) {
-      const interval = setInterval(() => {
-        const now = Math.floor(Date.now() / 1000);
-        const timeLeft = nextChallengeTime - now;
-        
-        if (timeLeft <= 0) {
-          setCanChallengeNow(true);
-          setCountdown(0);
-          clearInterval(interval);
-        } else {
-          setCountdown(timeLeft);
-        }
-      }, 1000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [canChallengeNow, nextChallengeTime]);
-
   // 处理挑战
   const handleChallenge = async (targetRank: number) => {
-    if (!canChallengeNow) return;
     
 
     if (playerGold < challengeCost) {
       showToast('金币不足！挑战需要200Gold', 'error');
       // alert(`金币不足！挑战需要 ${challengeCost} 金币，你当前只有 ${playerGold} 金币。`);
+      return;
+    }
+    
+    // 检查不能挑战比自己排名低的玩家
+    if (playerRank > 0 && targetRank > playerRank) {
+      showToast('不能挑战比自己排名低的玩家！', 'error');
       return;
     }
     
@@ -129,18 +101,16 @@ const Rank: React.FC = () => {
     }
   };
 
-  // 格式化倒计时
-  const formatCountdown = (seconds: number): string => {
-    if (seconds <= 0) return '';
-    return `${seconds}s`;
-  };
-
   // 获取挑战按钮状态
   const getChallengeButtonState = (rankIndex: number, playerId: number) => {
     if (playerId === currentPlayerId) return { disabled: true, text: '我的位置' };
-    if (!canChallengeNow) return { disabled: true, text: `冷却中 ${formatCountdown(countdown)}s` };
     if (challengeTarget === rankIndex || isPending) return { disabled: true, text: '挑战中...' };
-    if (playerGold < 200) return { disabled: false, text: '金币不足' };
+    if (playerGold < 200) return { disabled: true, text: '金币不足' };
+    
+    // 检查不能挑战比自己排名低的玩家
+    if (playerRank > 0 && rankIndex > playerRank && playerId > 0) {
+      return { disabled: true, text: '不可挑战' };
+    }
     
     return { disabled: false, text: playerId > 0 ? '挑战' : '占据' };
   };
@@ -165,10 +135,9 @@ const Rank: React.FC = () => {
           <div className="my-rank">
             我的排名: <span className="rank-number">{playerRank > 0 ? `#${playerRank}` : '未上榜'}</span>
           </div>
-          {/* <div className="challenge-cost">
+          <div className="challenge-cost">
             挑战费用: 200 金币 | 我的金币: {playerGold}
-            {!canChallengeNow && <span className="cooldown"> ({formatCountdown(countdown)}s)</span>}
-          </div> */}
+          </div>
         </div>
       </div>
 
@@ -182,9 +151,9 @@ const Rank: React.FC = () => {
                 <div className="empty-state">
                   <div className="empty-text">暂无排名</div>
                   <button
-                    className={`challenge-btn ${!canChallengeNow || isPending ? 'disabled' : ''}`}
+                    className={`challenge-btn ${isPending ? 'disabled' : ''}`}
                     onClick={() => handleChallenge(1)}
-                    disabled={!canChallengeNow || isPending}
+                    disabled={isPending}
                   >
                     占据第1名
                   </button>
@@ -233,9 +202,9 @@ const Rank: React.FC = () => {
                         </div>
                       </div>
                       <button
-                        className={`challenge-btn ${!canChallengeNow || isPending ? 'disabled' : ''}`}
+                        className={`challenge-btn ${isPending ? 'disabled' : ''}`}
                         onClick={() => handleChallenge(topRanks.length + 1)}
-                        disabled={!canChallengeNow || isPending}
+                        disabled={isPending}
                       >
                         占据
                       </button>
@@ -251,7 +220,6 @@ const Rank: React.FC = () => {
           <div className="rules-simple">
             <div>💰 挑战费用: 200金币 (20%手续费)</div>
             <div>🔄 胜利后与对手交换排名</div>
-            <div>⏱️ 挑战冷却: 20秒</div>
             <div>📍 空位必须按顺序占据</div>
           </div>
         </div>

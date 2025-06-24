@@ -55,20 +55,7 @@ export function useRank() {
     return data as [bigint[], bigint[], string[]];
   };
 
-  // 获取下次挑战时间
-  const getNextChallengeTime = async (playerId: number) => {
-    if (!publicClient) throw new Error('Public client not available');
-    
-    const data = await publicClient.readContract({
-      address: CONTRACT_ADDRESSES.RANK,
-      abi: RANK_ABI,
-      functionName: 'getNextChallengeTime',
-      args: [BigInt(playerId)]
-    });
-    return data as bigint;
-  };
-
-  // 检查是否可以挑战
+  // 检查是否可以挑战（冷却已移除，始终返回true）
   const canChallenge = async (playerId: number) => {
     if (!publicClient) throw new Error('Public client not available');
     
@@ -86,7 +73,6 @@ export function useRank() {
     getRankInfo,
     getPlayerRank,
     getTopRanks,
-    getNextChallengeTime,
     canChallenge,
     isPending
   };

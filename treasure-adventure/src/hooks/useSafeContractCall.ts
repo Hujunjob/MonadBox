@@ -83,7 +83,7 @@ export function useSafeContractCall() {
 
     try {
       setIsSimulating(true);
-      showToast(loadingMessage, 'info');
+      // showToast(loadingMessage, 'info');
       
       // 保存成功回调和成功消息
       setCurrentOnSuccess(() => onSuccess || null);

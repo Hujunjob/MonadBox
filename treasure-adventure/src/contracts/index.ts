@@ -1,16 +1,16 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' as `0x${string}`,
-  EQUIPMENT_NFT: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as `0x${string}`,
-  ITEM_NFT: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0' as `0x${string}`,
-  GOLD_TOKEN: '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9' as `0x${string}`,
-  BATTLE_SYSTEM: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x0165878A594ca255338adfa4d48449f69242Eb8F' as `0x${string}`,
-  MARKET: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853' as `0x${string}`,
-  RANK: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6' as `0x${string}`,
-  SUPER_MARKET: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318' as `0x${string}`
+  PLAYER_NFT: '0x202CCe504e04bEd6fC0521238dDf04Bc9E8E15aB' as `0x${string}`,
+  EQUIPMENT_NFT: '0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7' as `0x${string}`,
+  ITEM_NFT: '0x0355B7B8cb128fA5692729Ab3AAa199C1753f726' as `0x${string}`,
+  GOLD_TOKEN: '0x36b58F5C1969B7b6591D752ea6F5486D069010AB' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xf4B146FbA71F41E0592668ffbF264F1D186b2Ca8' as `0x${string}`,
+  BATTLE_SYSTEM: '0x172076E0166D1F9Cc711C77Adf8488051744980C' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x4EE6eCAD1c2Dae9f525404De8555724e3c35d07B' as `0x${string}`,
+  MARKET: '0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25' as `0x${string}`,
+  RANK: '0xD84379CEae14AA33C123Af12424A37803F885889' as `0x${string}`,
+  SUPER_MARKET: '0x2B0d36FACD61B71CC05ab8F3D2355ec3631C0dd5' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -4847,19 +4847,6 @@ export const RANK_ABI = [
   },
   {
     "inputs": [],
-    "name": "CHALLENGE_COOLDOWN",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "CHALLENGE_COST",
     "outputs": [
       {
@@ -4900,7 +4887,7 @@ export const RANK_ABI = [
         "type": "bool"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -4919,25 +4906,6 @@ export const RANK_ABI = [
     "name": "fight",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "playerId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getNextChallengeTime",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -5020,25 +4988,6 @@ export const RANK_ABI = [
         "internalType": "contract AdventureGold",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "lastChallengeTime",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
