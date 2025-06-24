@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { getItemImage } from '../utils/gameUtils';
 import { calculatePlayerStats } from '../utils/gameUtils';
 import { useToast } from './ToastManager';
+import SellModal from './SellModal';
 
 interface ItemModalProps {
   item: any;
@@ -14,6 +15,7 @@ const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player;
   const { showToast } = useToast();
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   
   if (!isOpen || !item) return null;
 
@@ -90,8 +92,23 @@ const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
               暂不可使用
             </button>
           )}
+          
+          <button 
+            className="sell-btn" 
+            onClick={() => setIsSellModalOpen(true)}
+          >
+            卖出
+          </button>
         </div>
       </div>
+      
+      {/* 卖出模态框 */}
+      <SellModal
+        item={item}
+        itemType="item"
+        isOpen={isSellModalOpen}
+        onClose={() => setIsSellModalOpen(false)}
+      />
     </div>
   );
 };

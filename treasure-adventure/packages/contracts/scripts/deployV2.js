@@ -40,7 +40,8 @@ function filterABI(abi, contractName) {
     TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount', 'getClaimableOfflineBoxes', 'getPlayerTreasureBoxes'],
     EquipmentSystem: ['upgradeStars', 'enhanceEquipment'],
     Equipment: ['getEquipment'],
-    Item: ['balanceOf', 'balanceOfBatch']
+    Item: ['balanceOf', 'balanceOfBatch'],
+    Market: ['listEquipment', 'listItem', 'purchaseEquipment', 'purchaseItem', 'cancelListing', 'getListing', 'getActiveListings', 'getPlayerListings']
   };
   
   const required = requiredFunctions[contractName] || [];
@@ -64,7 +65,7 @@ function filterABI(abi, contractName) {
  * 生成完整的前端contracts文件内容
  */
 function generateContractsFile(addresses) {
-  const contracts = ['Player', 'BattleSystemV2', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item'];
+  const contracts = ['Player', 'BattleSystemV2', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market'];
   
   let content = `// 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
@@ -75,7 +76,8 @@ export const CONTRACT_ADDRESSES = {
   GOLD_TOKEN: '${addresses.GOLD_TOKEN}' as \`0x\${string}\`,
   TREASURE_BOX_SYSTEM: '${addresses.TREASURE_BOX_SYSTEM}' as \`0x\${string}\`,
   BATTLE_SYSTEM: '${addresses.BATTLE_SYSTEM}' as \`0x\${string}\`,
-  EQUIPMENT_SYSTEM: '${addresses.EQUIPMENT_SYSTEM}' as \`0x\${string}\`
+  EQUIPMENT_SYSTEM: '${addresses.EQUIPMENT_SYSTEM}' as \`0x\${string}\`,
+  MARKET: '${addresses.MARKET}' as \`0x\${string}\`
 } as const;
 
 // =============================================================================
@@ -95,6 +97,7 @@ export const CONTRACT_ADDRESSES = {
                      contractName === 'EquipmentSystem' ? 'EQUIPMENT_SYSTEM_ABI' :
                      contractName === 'Equipment' ? 'EQUIPMENT_NFT_ABI' :
                      contractName === 'Item' ? 'ITEM_NFT_ABI' :
+                     contractName === 'Market' ? 'MARKET_ABI' :
                      'PLAYER_NFT_ABI';
       
       content += `// ${contractName} 合约 ABI\n`;
@@ -121,6 +124,7 @@ function syncContractsToFrontend(deploymentInfo) {
       TREASURE_BOX_SYSTEM: deploymentInfo.treasureBoxSystem,
       BATTLE_SYSTEM: deploymentInfo.battleSystem,
       EQUIPMENT_SYSTEM: deploymentInfo.equipmentSystem,
+      MARKET: deploymentInfo.market,
     };
 
     // 生成完整的contracts文件内容（包含地址和ABI）
@@ -203,6 +207,17 @@ async function main() {
   await equipmentSystem.waitForDeployment();
   console.log("EquipmentSystem deployed to:", await equipmentSystem.getAddress());
 
+  // 8. 部署 Market
+  const Market = await hre.ethers.getContractFactory("Market");
+  const market = await Market.deploy(
+    await playerNFT.getAddress(),
+    await equipmentNFT.getAddress(),
+    await itemNFT.getAddress(),
+    await goldToken.getAddress()
+  );
+  await market.waitForDeployment();
+  console.log("Market deployed to:", await market.getAddress());
+
   // 设置权限
   console.log("Setting up permissions...");
   
@@ -215,9 +230,12 @@ async function main() {
   await equipmentNFT.authorizeSystem(await treasureBoxSystem.getAddress());
   console.log("Equipment NFT ownership transferred to TreasureBoxSystem");
   
-  // 先授权EquipmentSystem调用AdventureGold的burn函数，然后再转移ownership
+  // 先授权EquipmentSystem和Market调用AdventureGold的burn函数，然后再转移ownership
   await goldToken.authorizeSystem(await equipmentSystem.getAddress());
   console.log("EquipmentSystem authorized to burn gold");
+  
+  await goldToken.authorizeSystem(await market.getAddress());
+  console.log("Market authorized to burn gold");
   
   // AdventureGold ownership给TreasureBoxSystem
   await goldToken.transferOwnership(await treasureBoxSystem.getAddress());
@@ -246,6 +264,10 @@ async function main() {
   // EquipmentSystem需要调用Player合约的金币和装备管理函数
   await playerNFT.authorizeSystem(await equipmentSystem.getAddress());
   console.log("EquipmentSystem authorized to call Player functions");
+  
+  // Market需要调用Player合约的金币和装备管理函数
+  await playerNFT.authorizeSystem(await market.getAddress());
+  console.log("Market authorized to call Player functions");
 
   // 保存部署信息
   const deploymentInfo = {
@@ -257,6 +279,7 @@ async function main() {
     treasureBoxSystem: await treasureBoxSystem.getAddress(),
     battleSystem: await battleSystem.getAddress(),
     equipmentSystem: await equipmentSystem.getAddress(),
+    market: await market.getAddress(),
     deployedAt: new Date().toISOString(),
   };
 

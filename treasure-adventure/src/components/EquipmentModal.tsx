@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHybridGameStore } from '../store/web3GameStore';
 import type { EquipmentItem } from '../types/game';
 import { getEquipmentImage, getRarityColor } from '../utils/gameUtils';
+import SellModal from './SellModal';
 
 interface EquipmentModalProps {
   equipment: EquipmentItem | null;
@@ -22,6 +23,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
   const player = hybridStore.player;
   const [upgradeResult, setUpgradeResult] = React.useState<{success: boolean; newStars: number; message: string} | null>(null);
   const [isUpgrading, setIsUpgrading] = React.useState(false);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
 
   if (!isOpen || !equipment) return null;
 
@@ -204,6 +206,15 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
             </button>
           )}
           
+          {!isEquipped && (
+            <button 
+              className="sell-btn" 
+              onClick={() => setIsSellModalOpen(true)}
+            >
+              卖出
+            </button>
+          )}
+          
           <button 
             className="upgrade-btn" 
             onClick={handleUpgrade}
@@ -247,6 +258,14 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
           </div>
         </div>
       )}
+      
+      {/* 卖出模态框 */}
+      <SellModal
+        item={currentEquipment}
+        itemType="equipment"
+        isOpen={isSellModalOpen}
+        onClose={() => setIsSellModalOpen(false)}
+      />
     </div>
   );
 };
