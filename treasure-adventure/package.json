@@ -11,7 +11,10 @@
     "contracts:compile": "cd packages/contracts && npx hardhat compile",
     "contracts:test": "cd packages/contracts && npx hardhat test",
     "contracts:deploy": "cd packages/contracts && npx hardhat run scripts/deployV2.js --network localhost",
-    "contracts:node": "cd packages/contracts && npx hardhat node"
+    "contracts:node": "cd packages/contracts && npx hardhat node",
+    "contracts:node-lan": "cd packages/contracts && node start-node.js",
+    "setup-lan": "node scripts/setup-lan.js",
+    "dev-lan": "vite --host 0.0.0.0 --port 5173"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.8",

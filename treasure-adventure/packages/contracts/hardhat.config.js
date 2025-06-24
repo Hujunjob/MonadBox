@@ -26,6 +26,7 @@ module.exports = {
       }
     }
   },
+  defaultNetwork: "hardhat",
   paths: {
     sources: "./contracts",
     tests: "./test",

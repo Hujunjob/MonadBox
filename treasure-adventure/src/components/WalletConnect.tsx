@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useConnect } from 'wagmi';
+import { WalletChoiceModal } from './WalletChoiceModal';
 
 const WalletConnect: React.FC = () => {
+  const { connector } = useAccount();
+  const [showWalletChoice, setShowWalletChoice] = useState(false);
+  const { connect, connectors } = useConnect();
+  
+  const handleWalletChoice = (type: 'external' | 'burner') => {
+    if (type === 'burner') {
+      // 找到 burner wallet connector 并连接
+      const burnerConnector = connectors.find(c => c.id === 'burnerWallet');
+      if (burnerConnector) {
+        connect({ connector: burnerConnector });
+      }
+    }
+    // 对于外部钱包，WalletChoiceModal 会处理 openConnectModal
+  };
+  
   return (
+    <>
     <ConnectButton.Custom>
       {({
         account,
@@ -14,6 +32,7 @@ const WalletConnect: React.FC = () => {
       }) => {
         const ready = mounted;
         const connected = ready && account && chain;
+        const isBurnerWallet = connector?.id === 'burnerWallet';
 
         return (
           <div
@@ -30,7 +49,7 @@ const WalletConnect: React.FC = () => {
               if (!connected) {
                 return (
                   <button 
-                    onClick={openConnectModal} 
+                    onClick={() => setShowWalletChoice(true)} 
                     type="button"
                     style={{
                       background: 'rgba(255, 255, 255, 0.2)',
@@ -54,7 +73,7 @@ const WalletConnect: React.FC = () => {
                 );
               }
 
-              if (chain.unsupported) {
+              if (chain && chain.unsupported) {
                 return (
                   <button 
                     onClick={openChainModal} 
@@ -76,50 +95,52 @@ const WalletConnect: React.FC = () => {
 
               return (
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <button
-                    onClick={openChainModal}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
-                      borderRadius: '8px',
-                      color: 'white',
-                      padding: '6px 12px',
-                      fontSize: '12px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                    }}
-                    type="button"
-                  >
-                    {chain.hasIcon && (
-                      <div
-                        style={{
-                          background: chain.iconBackground,
-                          width: 16,
-                          height: 16,
-                          borderRadius: 999,
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {chain.iconUrl && (
-                          <img
-                            alt={chain.name ?? 'Chain icon'}
-                            src={chain.iconUrl}
-                            style={{ width: 16, height: 16 }}
-                          />
-                        )}
-                      </div>
-                    )}
-                    {chain.name}
-                  </button>
+                  {!isBurnerWallet && chain && (
+                    <button
+                      onClick={openChainModal}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        borderRadius: '8px',
+                        color: 'white',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                      type="button"
+                    >
+                      {chain.hasIcon && (
+                        <div
+                          style={{
+                            background: chain.iconBackground,
+                            width: 16,
+                            height: 16,
+                            borderRadius: 999,
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {chain.iconUrl && (
+                            <img
+                              alt={chain.name ?? 'Chain icon'}
+                              src={chain.iconUrl}
+                              style={{ width: 16, height: 16 }}
+                            />
+                          )}
+                        </div>
+                      )}
+                      {chain.name}
+                    </button>
+                  )}
 
                   <button 
                     onClick={openAccountModal} 
                     type="button"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      background: isBurnerWallet ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.2)',
+                      border: isBurnerWallet ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.3)',
                       borderRadius: '8px',
                       color: 'white',
                       padding: '8px 12px',
@@ -127,7 +148,7 @@ const WalletConnect: React.FC = () => {
                       cursor: 'pointer',
                     }}
                   >
-                    {account.displayName}
+                    {isBurnerWallet ? '本地钱包 🔥' : account.displayName}
                   </button>
                 </div>
               );
@@ -136,6 +157,13 @@ const WalletConnect: React.FC = () => {
         );
       }}
     </ConnectButton.Custom>
+    
+    <WalletChoiceModal
+      isOpen={showWalletChoice}
+      onClose={() => setShowWalletChoice(false)}
+      onWalletConnected={handleWalletChoice}
+    />
+    </>
   );
 };
 

@@ -24,7 +24,18 @@ const CONTRACTS = {
 } as const;
 
 export function useWeb3GameV2() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, connector } = useAccount();
+  
+  // Check if using burner wallet
+  const isBurnerWallet = connector?.id === 'burnerWallet';
+  
+  // 调试日志
+  console.log('useWeb3GameV2 状态:', {
+    address,
+    isConnected,
+    connectorId: connector?.id,
+    isBurnerWallet
+  });
   const { showToast } = useToast();
   const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
   const publicClient = usePublicClient();
@@ -34,12 +45,21 @@ export function useWeb3GameV2() {
   const [playerItems, setPlayerItems] = useState<any[]>([]);
 
   // 获取用户的Player NFT数量
-  const { data: playerBalance, refetch: refetchPlayerBalance } = useReadContract({
+  const { data: playerBalance, refetch: refetchPlayerBalance, error: playerBalanceError } = useReadContract({
     address: CONTRACTS.PLAYER_NFT,
     abi: PLAYER_NFT_ABI,
     functionName: 'balanceOf',
     args: [address as `0x${string}`],
     query: { enabled: !!address && isConnected },
+  });
+
+  // 调试查询状态
+  console.log('playerBalance 查询:', {
+    enabled: !!address && isConnected,
+    address,
+    isConnected,
+    playerBalance,
+    error: playerBalanceError
   });
 
   // 获取用户的第一个Player NFT ID

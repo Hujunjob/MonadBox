@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { useToast } from '../components/ToastManager';
 
 /**
@@ -7,6 +7,8 @@ import { useToast } from '../components/ToastManager';
  * 强制要求模拟调用，确保交易不会失败
  */
 export function useSafeContractCall() {
+  const { connector } = useAccount();
+  const isBurnerWallet = connector?.id === 'burnerWallet';
   const { writeContract, data: hash, isPending, error } = useWriteContract();
   const { 
     isLoading: isConfirming, 
@@ -90,9 +92,10 @@ export function useSafeContractCall() {
       // 如果没有提供模拟调用，直接执行（跳过验证）
       if (!simulationHook) {
         console.log('⚠️ 跳过模拟验证，直接执行交易');
-        // showToast('正在发起交易...', 'info');
         console.log(contractConfig);
         
+        // 对于 burner wallet，直接执行交易（自动签名）
+        console.log('执行交易，钱包类型:', isBurnerWallet ? 'burner' : 'external');
         writeContract(contractConfig);
         return;
       }
@@ -119,7 +122,10 @@ export function useSafeContractCall() {
 
       // 发起真实交易
       showToast('验证通过，正在发起交易...', 'info');
-       console.log(contractConfig);
+      console.log(contractConfig);
+      
+      // 执行交易
+      console.log('执行交易，钱包类型:', isBurnerWallet ? 'burner' : 'external');
       writeContract(contractConfig);
 
     } catch (error: any) {
