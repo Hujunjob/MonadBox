@@ -29,13 +29,15 @@ export function useWeb3GameV2() {
   // Check if using burner wallet
   const isBurnerWallet = connector?.id === 'burnerWallet';
   
-  // 调试日志
-  console.log('useWeb3GameV2 状态:', {
-    address,
-    isConnected,
-    connectorId: connector?.id,
-    isBurnerWallet
-  });
+  // 调试日志（仅开发环境）
+  if (process.env.NODE_ENV === 'development') {
+    console.log('useWeb3GameV2 状态:', {
+      address,
+      isConnected,
+      connectorId: connector?.id,
+      isBurnerWallet
+    });
+  }
   const { showToast } = useToast();
   const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
   const publicClient = usePublicClient();
@@ -53,14 +55,16 @@ export function useWeb3GameV2() {
     query: { enabled: !!address && isConnected },
   });
 
-  // 调试查询状态
-  console.log('playerBalance 查询:', {
-    enabled: !!address && isConnected,
-    address,
-    isConnected,
-    playerBalance,
-    error: playerBalanceError
-  });
+  // 调试查询状态（仅开发环境）
+  if (process.env.NODE_ENV === 'development') {
+    console.log('playerBalance 查询:', {
+      enabled: !!address && isConnected,
+      address,
+      isConnected,
+      playerBalance,
+      error: playerBalanceError
+    });
+  }
 
   // 获取用户的第一个Player NFT ID
   const { data: firstPlayerTokenId, refetch: refetchPlayerTokenId } = useReadContract({

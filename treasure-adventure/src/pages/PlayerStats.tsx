@@ -5,11 +5,14 @@ import EquipmentModal from '../components/EquipmentModal';
 import Web3Toggle from '../components/Web3Toggle';
 import { useHybridGameStore } from '../store/web3GameStore';
 import BuyGoldModal from '../components/BuyGoldModal';
+import { Faucet } from '../components/Faucet';
+import { useAccount } from 'wagmi';
 
 const PlayerStats: React.FC = () => {
   // const { player, initializeGame, updatePlayer、, gainExperience, updateStamina } = useGameStore();
   const hybridStore = useHybridGameStore();
-  const player = hybridStore.player
+  const player = hybridStore.player;
+  const { chainId } = useAccount();
 
   useEffect(()=>{
     console.log("Player");
@@ -25,6 +28,7 @@ const PlayerStats: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const [isBuyGoldModalOpen, setIsBuyGoldModalOpen] = useState(false);
+  const [isFaucetOpen, setIsFaucetOpen] = useState(false);
   
   // 通知数据（示例）
   const notifications = [
@@ -292,7 +296,48 @@ const PlayerStats: React.FC = () => {
           })}
         </div>
         
-        
+        {/* Faucet 按钮 - 只在开发环境或本地网络显示 */}
+        {(process.env.NODE_ENV === 'development' || chainId === 31337) && (
+          <div style={{ 
+            marginTop: '20px', 
+            textAlign: 'center',
+            borderTop: '1px solid #eee',
+            paddingTop: '15px'
+          }}>
+            <button
+              onClick={() => setIsFaucetOpen(true)}
+              style={{
+                background: 'linear-gradient(45deg, #4CAF50, #45a049)',
+                border: 'none',
+                color: 'white',
+                padding: '12px 20px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              }}
+            >
+              💰 测试水龙头
+            </button>
+            <div style={{ 
+              fontSize: '12px', 
+              color: '#666', 
+              marginTop: '5px' 
+            }}>
+              获取测试 ETH
+            </div>
+          </div>
+        )}
       </div>
 
       <EquipmentModal
@@ -307,6 +352,11 @@ const PlayerStats: React.FC = () => {
         isOpen={isBuyGoldModalOpen}
         onClose={() => setIsBuyGoldModalOpen(false)}
         playerId={player.id}
+      />
+
+      <Faucet
+        isOpen={isFaucetOpen}
+        onClose={() => setIsFaucetOpen(false)}
       />
     </div>
   );

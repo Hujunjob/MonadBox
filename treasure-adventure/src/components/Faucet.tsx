@@ -5,7 +5,12 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { localhost } from '../config/wagmi';
 import { monad } from '../config/chains';
 
-export const Faucet: React.FC = () => {
+interface FaucetProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const Faucet: React.FC<FaucetProps> = ({ isOpen, onClose }) => {
   const { address, isConnected, chainId } = useAccount();
   const publicClient = usePublicClient();
   const [isLoading, setIsLoading] = useState(false);
@@ -97,81 +102,152 @@ export const Faucet: React.FC = () => {
   };
 
   // 只在开发环境或本地网络显示
-  if (process.env.NODE_ENV === 'production' && chainId !== 31337) {
+  if (!isOpen || (process.env.NODE_ENV === 'production' && chainId !== 31337)) {
     return null;
   }
 
   return (
     <div style={{
       position: 'fixed',
-      bottom: '10px',
-      left: '10px',
-      background: 'rgba(0, 0, 0, 0.9)',
-      color: 'white',
-      padding: '15px',
-      borderRadius: '8px',
-      border: '1px solid #333',
-      zIndex: 9999,
-      minWidth: '250px',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
     }}>
-      <h4 style={{ margin: '0 0 10px 0', color: '#4CAF50' }}>💰 Test Faucet</h4>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '24px',
+        maxWidth: '400px',
+        width: '90%',
+        maxHeight: '90vh',
+        overflow: 'auto',
+        position: 'relative',
+      }}>
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '15px',
+            background: 'none',
+            border: 'none',
+            fontSize: '20px',
+            cursor: 'pointer',
+            color: '#666',
+          }}
+        >
+          ×
+        </button>
+        
+        <h4 style={{ margin: '0 0 15px 0', color: '#4CAF50', textAlign: 'center' }}>💰 测试水龙头</h4>
       
-      <div style={{ marginBottom: '10px', fontSize: '12px' }}>
-        <div><strong>Faucet:</strong> {faucetAccount.address.slice(0, 8)}...{faucetAccount.address.slice(-6)}</div>
-        <div><strong>网络:</strong> {chainId === 41144 ? 'Monad' : 'Localhost'}</div>
-      </div>
+        <div style={{ marginBottom: '15px', fontSize: '14px', color: '#666' }}>
+          <div><strong>Faucet 地址:</strong> {faucetAccount.address.slice(0, 10)}...{faucetAccount.address.slice(-8)}</div>
+          <div><strong>当前网络:</strong> {chainId === 41144 ? 'Monad Testnet' : 'Localhost'}</div>
+        </div>
 
-      {isConnected ? (
-        <div>
-          <div style={{ marginBottom: '10px', fontSize: '12px' }}>
-            <div><strong>您的地址:</strong> {address?.slice(0, 8)}...{address?.slice(-6)}</div>
-            <div><strong>余额:</strong> {balance ? `${balance} ETH` : '点击查询'}</div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '5px', flexDirection: 'column' }}>
-            <button
-              onClick={checkBalance}
-              style={{
-                background: '#2196F3',
-                border: 'none',
-                color: 'white',
-                padding: '5px 10px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '12px',
-              }}
-            >
-              查询余额
-            </button>
-
-            <button
-              onClick={sendETH}
-              disabled={isLoading}
-              style={{
-                background: isLoading ? '#666' : '#4CAF50',
-                border: 'none',
-                color: 'white',
-                padding: '8px 10px',
-                borderRadius: '4px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                fontSize: '12px',
-              }}
-            >
-              {isLoading ? '发送中...' : '获取 1 ETH'}
-            </button>
-          </div>
-
-          {txHash && (
-            <div style={{ marginTop: '10px', fontSize: '10px', wordBreak: 'break-all' }}>
-              <strong>交易:</strong> {txHash.slice(0, 10)}...{txHash.slice(-8)}
+        {isConnected ? (
+          <div>
+            <div style={{ marginBottom: '15px', fontSize: '14px' }}>
+              <div><strong>您的地址:</strong> {address?.slice(0, 10)}...{address?.slice(-8)}</div>
+              <div><strong>当前余额:</strong> {balance ? `${parseFloat(balance).toFixed(4)} ETH` : '点击查询'}</div>
             </div>
-          )}
-        </div>
-      ) : (
-        <div style={{ fontSize: '12px', color: '#999' }}>
-          请先连接钱包
-        </div>
-      )}
+
+            <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+              <button
+                onClick={checkBalance}
+                style={{
+                  background: '#2196F3',
+                  border: 'none',
+                  color: 'white',
+                  padding: '12px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = '#1976D2';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = '#2196F3';
+                }}
+              >
+                🔍 查询余额
+              </button>
+
+              <button
+                onClick={sendETH}
+                disabled={isLoading}
+                style={{
+                  background: isLoading ? '#ccc' : '#4CAF50',
+                  border: 'none',
+                  color: 'white',
+                  padding: '12px 16px',
+                  borderRadius: '6px',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseOver={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.background = '#45a049';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.background = '#4CAF50';
+                  }
+                }}
+              >
+                {isLoading ? '⏳ 发送中...' : '💰 获取 1 ETH'}
+              </button>
+            </div>
+
+            {txHash && (
+              <div style={{ 
+                marginTop: '15px', 
+                fontSize: '12px', 
+                wordBreak: 'break-all',
+                padding: '10px',
+                backgroundColor: '#f5f5f5',
+                borderRadius: '4px',
+                color: '#666'
+              }}>
+                <strong>交易哈希:</strong><br />
+                {txHash}
+              </div>
+            )}
+
+            <div style={{
+              marginTop: '15px',
+              padding: '10px',
+              backgroundColor: '#fff3cd',
+              border: '1px solid #ffeaa7',
+              borderRadius: '4px',
+              fontSize: '12px',
+              color: '#856404'
+            }}>
+              ⚠️ 这是测试网络，仅用于开发和测试目的
+            </div>
+          </div>
+        ) : (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '20px', 
+            color: '#666',
+            fontSize: '14px'
+          }}>
+            请先连接钱包才能使用水龙头功能
+          </div>
+        )}
+      </div>
     </div>
   );
 };

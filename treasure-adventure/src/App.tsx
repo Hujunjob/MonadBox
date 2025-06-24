@@ -9,7 +9,6 @@ import WalletConnect from './components/WalletConnect';
 import Web3BattleHandler from './components/Web3BattleHandler';
 import { ToastProvider } from './components/ToastManager';
 import { WalletDebugInfo } from './components/WalletDebugInfo';
-import { Faucet } from './components/Faucet';
 import './App.css';
 
 function App() {
@@ -143,8 +142,7 @@ function App() {
           </div>
         )}
       </div>
-      <WalletDebugInfo />
-      <Faucet />
+      {/* {process.env.NODE_ENV === 'development' && <WalletDebugInfo />} */}
     </ToastProvider>
   );
 }
