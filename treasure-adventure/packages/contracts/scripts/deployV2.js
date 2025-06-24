@@ -41,7 +41,8 @@ function filterABI(abi, contractName) {
     EquipmentSystem: ['upgradeStars', 'enhanceEquipment'],
     Equipment: ['getEquipment'],
     Item: ['balanceOf', 'balanceOfBatch'],
-    Market: ['listEquipment', 'listItem', 'purchaseEquipment', 'purchaseItem', 'cancelListing', 'getListing', 'getActiveListings', 'getPlayerListings']
+    Market: ['listEquipment', 'listItem', 'purchaseEquipment', 'purchaseItem', 'cancelListing', 'getListing', 'getActiveListings', 'getPlayerListings'],
+    Rank: ['fight', 'getRankInfo', 'getPlayerRank', 'getTopRanks', 'getNextChallengeTime', 'canChallenge']
   };
   
   const required = requiredFunctions[contractName] || [];
@@ -65,7 +66,7 @@ function filterABI(abi, contractName) {
  * 生成完整的前端contracts文件内容
  */
 function generateContractsFile(addresses) {
-  const contracts = ['Player', 'BattleSystemV2', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market'];
+  const contracts = ['Player', 'BattleSystemV2', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market', 'Rank'];
   
   let content = `// 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
@@ -77,7 +78,8 @@ export const CONTRACT_ADDRESSES = {
   TREASURE_BOX_SYSTEM: '${addresses.TREASURE_BOX_SYSTEM}' as \`0x\${string}\`,
   BATTLE_SYSTEM: '${addresses.BATTLE_SYSTEM}' as \`0x\${string}\`,
   EQUIPMENT_SYSTEM: '${addresses.EQUIPMENT_SYSTEM}' as \`0x\${string}\`,
-  MARKET: '${addresses.MARKET}' as \`0x\${string}\`
+  MARKET: '${addresses.MARKET}' as \`0x\${string}\`,
+  RANK: '${addresses.RANK}' as \`0x\${string}\`
 } as const;
 
 // =============================================================================
@@ -98,6 +100,7 @@ export const CONTRACT_ADDRESSES = {
                      contractName === 'Equipment' ? 'EQUIPMENT_NFT_ABI' :
                      contractName === 'Item' ? 'ITEM_NFT_ABI' :
                      contractName === 'Market' ? 'MARKET_ABI' :
+                     contractName === 'Rank' ? 'RANK_ABI' :
                      'PLAYER_NFT_ABI';
       
       content += `// ${contractName} 合约 ABI\n`;
@@ -125,6 +128,7 @@ function syncContractsToFrontend(deploymentInfo) {
       BATTLE_SYSTEM: deploymentInfo.battleSystem,
       EQUIPMENT_SYSTEM: deploymentInfo.equipmentSystem,
       MARKET: deploymentInfo.market,
+      RANK: deploymentInfo.rank,
     };
 
     // 生成完整的contracts文件内容（包含地址和ABI）
@@ -218,6 +222,15 @@ async function main() {
   await market.waitForDeployment();
   console.log("Market deployed to:", await market.getAddress());
 
+  // 9. 部署 Rank
+  const Rank = await hre.ethers.getContractFactory("Rank");
+  const rank = await Rank.deploy(
+    await playerNFT.getAddress(),
+    await goldToken.getAddress()
+  );
+  await rank.waitForDeployment();
+  console.log("Rank deployed to:", await rank.getAddress());
+
   // 设置权限
   console.log("Setting up permissions...");
   
@@ -230,12 +243,15 @@ async function main() {
   await equipmentNFT.authorizeSystem(await treasureBoxSystem.getAddress());
   console.log("Equipment NFT ownership transferred to TreasureBoxSystem");
   
-  // 先授权EquipmentSystem和Market调用AdventureGold的burn函数，然后再转移ownership
+  // 先授权EquipmentSystem、Market和Rank调用AdventureGold的burn函数，然后再转移ownership
   await goldToken.authorizeSystem(await equipmentSystem.getAddress());
   console.log("EquipmentSystem authorized to burn gold");
   
   await goldToken.authorizeSystem(await market.getAddress());
   console.log("Market authorized to burn gold");
+  
+  await goldToken.authorizeSystem(await rank.getAddress());
+  console.log("Rank authorized to burn gold");
   
   // AdventureGold ownership给TreasureBoxSystem
   await goldToken.transferOwnership(await treasureBoxSystem.getAddress());
@@ -268,6 +284,10 @@ async function main() {
   // Market需要调用Player合约的金币和装备管理函数
   await playerNFT.authorizeSystem(await market.getAddress());
   console.log("Market authorized to call Player functions");
+  
+  // Rank需要调用Player合约的金币管理函数
+  await playerNFT.authorizeSystem(await rank.getAddress());
+  console.log("Rank authorized to call Player functions");
 
   // 保存部署信息
   const deploymentInfo = {
@@ -280,6 +300,7 @@ async function main() {
     battleSystem: await battleSystem.getAddress(),
     equipmentSystem: await equipmentSystem.getAddress(),
     market: await market.getAddress(),
+    rank: await rank.getAddress(),
     deployedAt: new Date().toISOString(),
   };
 
@@ -299,6 +320,8 @@ async function main() {
   console.log("✅ TreasureBoxSystem (Can mint gold, equipment and item rewards)");
   console.log("✅ BattleSystemV2 (No registration, no gold rewards, reads Player NFT)");
   console.log("✅ EquipmentSystem (Star upgrade, enhancement, decomposition)");
+  console.log("✅ Market (Buy/sell equipment and items with proper transfers)");
+  console.log("✅ Rank (Player ranking system with challenge mechanics)");
   console.log("✅ TreasureBoxSystem has minting permissions for all rewards");
   console.log("\n🎮 Architecture Features:");
   console.log("• Player registration = Mint Player NFT");

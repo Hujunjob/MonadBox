@@ -54,7 +54,7 @@ const Market: React.FC = () => {
         await buyItem(Number(listing.listingId), player.id, Number(listing.quantity));
       }
       
-      alert('购买成功！');
+      // alert('购买成功！');
       // 刷新列表
       refetchActiveListings();
       refetchPlayerListings();

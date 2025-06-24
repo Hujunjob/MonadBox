@@ -1,14 +1,15 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0xDC11f7E700A4c898AE5CAddB1082cFfa76512aDD' as `0x${string}`,
-  EQUIPMENT_NFT: '0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2' as `0x${string}`,
-  ITEM_NFT: '0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43' as `0x${string}`,
-  GOLD_TOKEN: '0x21dF544947ba3E8b3c32561399E88B52Dc8b2823' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x51A1ceB83B83F1985a81C295d1fF28Afef186E02' as `0x${string}`,
-  BATTLE_SYSTEM: '0x36b58F5C1969B7b6591D752ea6F5486D069010AB' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7' as `0x${string}`,
-  MARKET: '0x0355B7B8cb128fA5692729Ab3AAa199C1753f726' as `0x${string}`
+  PLAYER_NFT: '0xaca81583840B1bf2dDF6CDe824ada250C1936B4D' as `0x${string}`,
+  EQUIPMENT_NFT: '0x74Cf9087AD26D541930BaC724B7ab21bA8F00a27' as `0x${string}`,
+  ITEM_NFT: '0xefAB0Beb0A557E452b398035eA964948c750b2Fd' as `0x${string}`,
+  GOLD_TOKEN: '0x8bCe54ff8aB45CB075b044AE117b8fD91F9351aB' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x70bDA08DBe07363968e9EE53d899dFE48560605B' as `0x${string}`,
+  BATTLE_SYSTEM: '0x26B862f640357268Bd2d9E95bc81553a2Aa81D7E' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0xA56F946D6398Dd7d9D4D9B337Cf9E0F68982ca5B' as `0x${string}`,
+  MARKET: '0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F' as `0x${string}`,
+  RANK: '0xddE78e6202518FF4936b5302cC2891ec180E8bFf' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -4667,6 +4668,435 @@ export const MARKET_ABI = [
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  }
+] as const;
+
+// Rank 合约 ABI
+export const RANK_ABI = [
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "challengerPlayerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "targetRankIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "targetPlayerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "challengeCost",
+        "type": "uint256"
+      }
+    ],
+    "name": "ChallengeIssued",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "challengerPlayerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "targetPlayerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "challengerOldRank",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "targetOldRank",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "challengerNewRank",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "targetNewRank",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "challengerWon",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "reward",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "ChallengeResult",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "rankIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "burnedGold",
+        "type": "uint256"
+      }
+    ],
+    "name": "RankClaimed",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "BASIS_POINTS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "CHALLENGE_COOLDOWN",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "CHALLENGE_COST",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "FEE_RATE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
+    "name": "canChallenge",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "targetRankIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "fight",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getNextChallengeTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPlayerRank",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rankIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRankInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "playerName",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "limit",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTopRanks",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "rankIndexes",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "playerIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "playerNames",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "goldToken",
+    "outputs": [
+      {
+        "internalType": "contract AdventureGold",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "lastChallengeTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxRankIndex",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "playerNFT",
+    "outputs": [
+      {
+        "internalType": "contract Player",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "playerToRank",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "rankToPlayer",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ] as const;
