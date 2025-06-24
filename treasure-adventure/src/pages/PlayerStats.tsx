@@ -83,7 +83,7 @@ const PlayerStats: React.FC = () => {
   return (
     <div className="player-stats">
       {/* Web3 模式切换 */}
-      <Web3Toggle />
+      {/* <Web3Toggle /> */}
       
       {/* 网络调试器 */}
       {/* <NetworkDebugger /> */}
