@@ -289,6 +289,10 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
         itemType="equipment"
         isOpen={isSellModalOpen}
         onClose={() => setIsSellModalOpen(false)}
+        onSellSuccess={() => {
+          // 卖出成功后关闭装备弹窗
+          onClose();
+        }}
       />
     </div>
   );

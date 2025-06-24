@@ -108,6 +108,10 @@ const ItemModal: React.FC<ItemModalProps> = ({ item, isOpen, onClose }) => {
         itemType="item"
         isOpen={isSellModalOpen}
         onClose={() => setIsSellModalOpen(false)}
+        onSellSuccess={() => {
+          // 卖出成功后关闭物品弹窗
+          onClose();
+        }}
       />
     </div>
   );

@@ -138,7 +138,6 @@ const Market: React.FC = () => {
   return (
     <div className="market-panel">
       <h2>市场</h2>
-      
       {/* Tab Navigation */}
       <div className="market-tabs">
         <button 
@@ -161,9 +160,9 @@ const Market: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="market-stats">
+          {/* <div className="market-stats">
             <p>{activeTab === 'all' ? `共 ${totalCount} 个挂单` : `我的挂单: ${totalCount} 个`}</p>
-          </div>
+          </div> */}
           
           <div className="market-listings">
             {listings.length === 0 ? (
@@ -199,7 +198,7 @@ const Market: React.FC = () => {
                         <img 
                           src={itemInfo.image} 
                           alt={itemInfo.name}
-                          style={{ width: '48px', height: '48px' }}
+                          style={{ width: '24px', height: '24px' }}
                         />
                         <div className="item-info">
                           <h4>{itemInfo.name}</h4>
@@ -216,10 +215,6 @@ const Market: React.FC = () => {
                             (单价: {formatEther(listing.price)} 金币)
                           </span>
                         )}
-                      </div>
-                      
-                      <div className="listing-seller">
-                        <span>卖家: {listing.seller.slice(0, 6)}...{listing.seller.slice(-4)}</span>
                       </div>
                       
                       {activeTab === 'all' ? (

@@ -3,15 +3,17 @@ import { useMarket } from '../hooks/useMarket';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
 import { parseEther } from 'viem';
+import { useToast } from './ToastManager';
 
 interface SellModalProps {
   item: any;
   isOpen: boolean;
   onClose: () => void;
   itemType: 'equipment' | 'item';
+  onSellSuccess?: () => void;
 }
 
-const SellModal: React.FC<SellModalProps> = ({ item, isOpen, onClose, itemType }) => {
+const SellModal: React.FC<SellModalProps> = ({ item, isOpen, onClose, itemType, onSellSuccess }) => {
   const [price, setPrice] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,6 +21,7 @@ const SellModal: React.FC<SellModalProps> = ({ item, isOpen, onClose, itemType }
   const { listEquipmentForSale, listItemForSale, isListingEquipment, isListingItem } = useMarket();
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player;
+  const { showToast } = useToast();
 
   if (!isOpen || !item) return null;
 
@@ -26,12 +29,12 @@ const SellModal: React.FC<SellModalProps> = ({ item, isOpen, onClose, itemType }
     e.preventDefault();
     
     if (!player || !price || parseFloat(price) <= 0) {
-      alert('请输入有效的价格');
+      showToast('请输入有效的价格', 'error');
       return;
     }
 
     if (itemType === 'item' && quantity <= 0) {
-      alert('请输入有效的数量');
+      showToast('请输入有效的数量', 'error');
       return;
     }
 
@@ -46,11 +49,15 @@ const SellModal: React.FC<SellModalProps> = ({ item, isOpen, onClose, itemType }
         await listItemForSale(player.id, parseInt(item.id), quantity, priceInGold);
       }
       
-      // alert('物品已成功上架！');
+      showToast('物品已成功上架！', 'success');
+      // 刷新玩家数据
+      hybridStore.refetchPlayer();
+      // 通知父组件销售成功
+      onSellSuccess?.();
       onClose();
     } catch (error) {
       console.error('上架失败:', error);
-      alert('上架失败: ' + (error as Error).message);
+      showToast('上架失败: ' + (error as Error).message, 'error');
     } finally {
       setIsSubmitting(false);
     }
