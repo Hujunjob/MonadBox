@@ -542,6 +542,10 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
         require(playerItems[playerId][itemId] >= quantity, "Insufficient item quantity");
         
         playerItems[playerId][itemId] -= quantity;
+        
+        // 实际销毁 ERC1155 NFT
+        itemNFT.burn(address(this), itemId, quantity);
+        
         emit ItemUsed(playerId, itemId, quantity);
     }
 

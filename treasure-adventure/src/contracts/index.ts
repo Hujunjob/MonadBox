@@ -1,14 +1,14 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0x67d269191c92Caf3cD7723F116c85e6E9bf55933' as `0x${string}`,
-  EQUIPMENT_NFT: '0x09635F643e140090A9A8Dcd712eD6285858ceBef' as `0x${string}`,
-  ITEM_NFT: '0xc5a5C42992dECbae36851359345FE25997F5C42d' as `0x${string}`,
-  GOLD_TOKEN: '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E' as `0x${string}`,
-  BATTLE_SYSTEM: '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB' as `0x${string}`,
-  MARKET: '0x9E545E3C0baAB3E08CdfD552C960A1050f373042' as `0x${string}`
+  PLAYER_NFT: '0xDC11f7E700A4c898AE5CAddB1082cFfa76512aDD' as `0x${string}`,
+  EQUIPMENT_NFT: '0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2' as `0x${string}`,
+  ITEM_NFT: '0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43' as `0x${string}`,
+  GOLD_TOKEN: '0x21dF544947ba3E8b3c32561399E88B52Dc8b2823' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x51A1ceB83B83F1985a81C295d1fF28Afef186E02' as `0x${string}`,
+  BATTLE_SYSTEM: '0x36b58F5C1969B7b6591D752ea6F5486D069010AB' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7' as `0x${string}`,
+  MARKET: '0x0355B7B8cb128fA5692729Ab3AAa199C1753f726' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -1293,6 +1293,34 @@ export const PLAYER_NFT_ABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "itemId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "marketAddress",
+        "type": "address"
+      }
+    ],
+    "name": "transferItemToMarket",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -4444,6 +4472,118 @@ export const MARKET_ABI = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "values",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "onERC1155BatchReceived",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "onERC1155Received",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "onERC721Received",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -4508,6 +4648,25 @@ export const MARKET_ABI = [
     "name": "purchaseItem",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   }
 ] as const;

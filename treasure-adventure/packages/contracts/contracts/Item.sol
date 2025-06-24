@@ -26,6 +26,10 @@ contract Item is ERC1155, Ownable {
         _mint(to, id, value, '');
     }
 
+    function burn(address from, uint256 id, uint256 value) external onlyAuthorizedOrOwner() {
+        _burn(from, id, value);
+    }
+
     /**
      * @dev 授权系统合约
      */
