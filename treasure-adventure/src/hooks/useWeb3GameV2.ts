@@ -523,7 +523,7 @@ export function useWeb3GameV2() {
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'claimOfflineTreasureBoxes',
         args: [BigInt(currentPlayerId)],
-        gas: BigInt(3000000),
+        gas: BigInt(2000000),
       },
       undefined,
       {
@@ -1058,7 +1058,6 @@ export function useWeb3GameV2() {
     currentForestLevel: playerData ? Number(playerData.currentForestLevel) : 1,
     currentForestProgress: playerData ? Number(playerData.currentForestProgress) : 0,
     lastTreasureBoxTime: playerData ? Number(playerData.lastTreasureBoxTime) : 0,
-    initialized: playerData?.initialized || false,
     job: playerData ? Number(playerData.job) : 0,
     // 前端需要的额外字段
     gold: playerData ? Number(playerData.goldBalance)/10**18 : 0,
@@ -1073,7 +1072,7 @@ export function useWeb3GameV2() {
     treasureBoxCount: treasureBoxCount ? Number(treasureBoxCount) : 0,
     claimableBoxes: claimableBoxes ? Number(claimableBoxes) : 0,
     treasureBoxes:playerTreasureBoxes,
-    isPlayerRegistered: !!playerData?.initialized,
+    isPlayerRegistered: playerData && playerData.maxHealth>0,
     currentPlayerId,
     
     // 新战斗系统数据
