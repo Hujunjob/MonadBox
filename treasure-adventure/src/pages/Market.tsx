@@ -384,7 +384,7 @@ const Market: React.FC = () => {
           className={`tab-btn ${activeTab === 'my' ? 'active' : ''}`}
           onClick={() => setActiveTab('my')}
         >
-          我的物品
+          我的挂单
         </button>
       </div>
       

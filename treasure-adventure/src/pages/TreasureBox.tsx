@@ -109,13 +109,13 @@ const TreasureBox: React.FC = () => {
       </div>
 
       {/* 宝箱列表 */}
-      {Array.isArray(player.treasureBoxes) && player.treasureBoxes.length > 0 && (
+      {Array.isArray(hybridStore.treasureBoxes) && hybridStore.treasureBoxes.length > 0 && (
         <div className="treasure-box-list">
           <h3>宝箱列表</h3>
           <div className="boxes-grid">
             {(() => {
               // 按等级分组并统计数量
-              const groupedBoxes = player.treasureBoxes.reduce((acc: any, box: any) => {
+              const groupedBoxes = hybridStore.treasureBoxes.reduce((acc: any, box: any) => {
                 const level = box.level;
                 if (!acc[level]) {
                   acc[level] = 0;

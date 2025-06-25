@@ -245,7 +245,7 @@ const PlayerStats: React.FC = () => {
             📦
             {activeTooltip === 'treasureBox' && <span className="tooltip">宝箱数</span>}
           </span>
-          <span>{Array.isArray(player.treasureBoxes) ? player.treasureBoxes.length : 0}</span>
+          <span>{Array.isArray(hybridStore.treasureBoxes) ? hybridStore.treasureBoxes.length : 0}</span>
         </div>
       </div>
       

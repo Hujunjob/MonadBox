@@ -183,7 +183,7 @@ export function useWeb3GameV2() {
         
         return {
           id,
-          name: data.name || `装备${id}`,
+          name: `装备${id}`,
           equipmentType: Number(data.equipmentType),
           level: Number(data.level || 1),
           stars: Number(data.stars || 0),
@@ -1064,7 +1064,6 @@ export function useWeb3GameV2() {
     gold: playerData ? Number(playerData.goldBalance)/10**18 : 0,
     equipment: getEquippedItemsMap,
     inventory: getInventoryItems, // 使用处理后的装备和物品数据
-    treasureBoxes: [], // Web3模式下宝箱数据由单独的状态管理
     equippedItemIds: equippedItems || [],
   }), [currentPlayerId, playerData, getInventoryItems, getEquippedItemsMap, equippedItems]);
 
@@ -1073,6 +1072,7 @@ export function useWeb3GameV2() {
     playerData: convertedPlayerData,
     treasureBoxCount: treasureBoxCount ? Number(treasureBoxCount) : 0,
     claimableBoxes: claimableBoxes ? Number(claimableBoxes) : 0,
+    treasureBoxes:playerTreasureBoxes,
     isPlayerRegistered: !!playerData?.initialized,
     currentPlayerId,
     

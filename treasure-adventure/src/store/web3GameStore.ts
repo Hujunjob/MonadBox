@@ -93,6 +93,7 @@ export function useHybridGameStore() {
     // Web3 宝箱数据
     treasureBoxCount: web3Game.treasureBoxCount,
     claimableBoxes:  web3Game.claimableBoxes ,
+    treasureBoxes:web3Game.treasureBoxes,
     
     // MonsterForest 所需属性
     maxAdventureLevel: web3Game.maxAdventureLevel,
