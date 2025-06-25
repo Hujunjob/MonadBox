@@ -1,5 +1,5 @@
-import {EquipmentType, ItemRarity, JobType, ItemType } from '../types/game';
-import type { ForestLevel, Monster, EquipmentItem, InventoryItem} from '../types/game';
+import { EquipmentType, ItemRarity, JobType, ItemType } from '../types/game';
+import type { ForestLevel, Monster, EquipmentItem, InventoryItem } from '../types/game';
 import { GAME_CONFIG } from '../config/gameConfig';
 
 // 根据等级计算职业
@@ -19,7 +19,7 @@ export const getCanGainExperience = (level: number, experience: number): boolean
   if (level % 4 !== 0) {
     return true;
   }
-  
+
   // 转职等级，检查经验是否达到上限
   const maxExpForJobLevel = level * 100;
   return experience < maxExpForJobLevel;
@@ -27,14 +27,14 @@ export const getCanGainExperience = (level: number, experience: number): boolean
 
 export const generateForestLevels = (): ForestLevel[] => {
   const levels: ForestLevel[] = [];
-  
+
   for (let i = 1; i <= 10; i++) {
     const monsters: Monster[] = [];
-    
+
     for (let j = 1; j <= 10; j++) {
       monsters.push(generateMonster(i, j));
     }
-    
+
     levels.push({
       level: i,
       name: `第${i}层森林`,
@@ -44,7 +44,7 @@ export const generateForestLevels = (): ForestLevel[] => {
       requiredKills: 10
     });
   }
-  
+
   return levels;
 };
 
@@ -57,12 +57,12 @@ export const generateMonster = (forestLevel: number, monsterIndex: number): Mons
     criticalRate: Math.max(1, 3 + forestLevel * 1),
     criticalDamage: Math.max(120, 130 + forestLevel * 5)
   };
-  
+
   const monsterNames = [
     '野狼', '熊', '蜘蛛', '骷髅', '哥布林',
     '兽王', '恶魔', '巨龙', '幽灵', '魔王'
   ];
-  
+
   return {
     id: `monster_${forestLevel}_${monsterIndex}`,
     name: `${monsterNames[forestLevel - 1]} ${monsterIndex}`,
@@ -83,7 +83,7 @@ export const generateMonster = (forestLevel: number, monsterIndex: number): Mons
 const generateRarityByProbability = (): ItemRarity => {
   const random = Math.random() * 100;
   const probabilities = GAME_CONFIG.RARITY_PROBABILITIES;
-  
+
   if (random < probabilities.COMMON) {
     return ItemRarity.COMMON;
   } else if (random < probabilities.COMMON + probabilities.UNCOMMON) {
@@ -99,13 +99,13 @@ const generateRarityByProbability = (): ItemRarity => {
 
 export const generateRandomEquipment = (level: number, targetLevel?: number): EquipmentItem => {
   const types = Object.values(EquipmentType);
-  
+
   const type = types[Math.floor(Math.random() * types.length)];
   const rarity = generateRarityByProbability();
-  
+
   // 确定装备等级，如果指定了目标等级则使用，否则使用传入的level
   const equipmentLevel = targetLevel || level;
-  
+
   const rarityMultiplier = {
     [ItemRarity.COMMON]: 1,
     [ItemRarity.UNCOMMON]: 1.5,
@@ -113,7 +113,7 @@ export const generateRandomEquipment = (level: number, targetLevel?: number): Eq
     [ItemRarity.EPIC]: 3,
     [ItemRarity.LEGENDARY]: 5
   };
-  
+
   const baseStats = {
     attack: type === EquipmentType.WEAPON ? 5 + equipmentLevel * 2 : 0,
     defense: type === EquipmentType.ARMOR || type === EquipmentType.HELMET || type === EquipmentType.SHIELD ? 3 + equipmentLevel : 0,
@@ -122,9 +122,9 @@ export const generateRandomEquipment = (level: number, targetLevel?: number): Eq
     criticalRate: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY || type === EquipmentType.RING ? 1 + Math.floor(equipmentLevel / 2) : 0,
     criticalDamage: type === EquipmentType.WEAPON || type === EquipmentType.ACCESSORY || type === EquipmentType.RING ? 5 + equipmentLevel * 2 : 0
   };
-  
+
   const multiplier = rarityMultiplier[rarity];
-  
+
   const finalStats = {
     attack: Math.floor(baseStats.attack * multiplier),
     defense: Math.floor(baseStats.defense * multiplier),
@@ -133,7 +133,7 @@ export const generateRandomEquipment = (level: number, targetLevel?: number): Eq
     criticalRate: Math.floor(baseStats.criticalRate * multiplier),
     criticalDamage: Math.floor(baseStats.criticalDamage * multiplier)
   };
-  
+
   return {
     id: `equipment_${Date.now()}_${Math.random()}`,
     name: `${type}`,
@@ -148,9 +148,9 @@ export const generateRandomEquipment = (level: number, targetLevel?: number): Eq
 
 // 生成不同等级的血瓶
 export const generateHealthPotion = (level: number) => {
-  const healValue = GAME_CONFIG.HEALTH_POTION.BASE_HEAL_AMOUNT + 
-                   (level - 1) * GAME_CONFIG.HEALTH_POTION.HEAL_AMOUNT_PER_LEVEL;
-  
+  const healValue = GAME_CONFIG.HEALTH_POTION.BASE_HEAL_AMOUNT +
+    (level - 1) * GAME_CONFIG.HEALTH_POTION.HEAL_AMOUNT_PER_LEVEL;
+
   return {
     id: `health_potion_${Date.now()}_${Math.random()}`,
     name: `${level}级血瓶`,
@@ -186,9 +186,9 @@ export const generatePetEgg = (level: number) => {
 export const generateJobAdvancementBook = (boxLevel: number): InventoryItem => {
   // 根据宝箱等级确定转职书类型
   const { JOB_BOOK_LEVELS, BOOK_NAMES } = GAME_CONFIG.JOB_ADVANCEMENT;
-  
+
   let targetJob: JobType | null = null;
-  
+
   // 寻找匹配的转职书
   for (const [job, levelRange] of Object.entries(JOB_BOOK_LEVELS)) {
     if (boxLevel >= levelRange[0] && boxLevel <= levelRange[1]) {
@@ -196,14 +196,14 @@ export const generateJobAdvancementBook = (boxLevel: number): InventoryItem => {
       break;
     }
   }
-  
+
   // 如果没有找到匹配的，默认给大剑士转职书
   if (!targetJob) {
     targetJob = JobType.GREAT_SWORDSMAN;
   }
-  
+
   const bookName = BOOK_NAMES[targetJob] || '大剑士转职书';
-  
+
   return {
     id: `job_book_${targetJob}_${Date.now()}_${Math.random()}`,
     name: bookName,
@@ -221,9 +221,9 @@ export const calculateEquipmentBonus = (player: any) => {
   let agilityBonus = 0;
   let criticalRateBonus = 0;
   let criticalDamageBonus = 0;
-  
+
   const equipment = player.equipment || {};
-  
+
   Object.values(equipment).forEach((item: any) => {
     if (item && item.stats) {
       attackBonus += item.stats.attack || 0;
@@ -234,7 +234,7 @@ export const calculateEquipmentBonus = (player: any) => {
       criticalDamageBonus += item.stats.criticalDamage || 0;
     }
   });
-  
+
   return {
     attack: attackBonus,
     defense: defenseBonus,
@@ -260,7 +260,7 @@ export const getBaseStats = (player: any) => {
 export const calculatePlayerStats = (player: any) => {
   const baseStats = getBaseStats(player);
   const equipmentBonus = calculateEquipmentBonus(player);
-  
+
   return {
     attack: baseStats.attack + equipmentBonus.attack,
     defense: baseStats.defense + equipmentBonus.defense,
@@ -275,7 +275,7 @@ export const formatTime = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  
+
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
@@ -293,11 +293,11 @@ export const getEquipmentTypeString = (equipmentType: number | string): string =
   if (typeof equipmentType === 'string') {
     return equipmentType;
   }
-  
+
   // 数字到字符串的映射 (0-7 对应不同装备类型)
   const typeMap: { [key: number]: string } = {
     0: 'helmet',
-    1: 'armor', 
+    1: 'armor',
     2: 'shoes',
     3: 'weapon',
     4: 'shield',
@@ -305,14 +305,14 @@ export const getEquipmentTypeString = (equipmentType: number | string): string =
     6: 'ring',
     7: 'pet'
   };
-  
+
   return typeMap[equipmentType] || 'weapon';
 };
 
 export const getEquipmentImage = (type: string | number): string => {
   // 首先转换为字符串类型
   const typeString = getEquipmentTypeString(type);
-  
+
   // 映射装备类型到对应的图片文件名
   const imageMap: { [key: string]: string } = {
     'helmet': '/assets/helmet.png',
@@ -325,7 +325,7 @@ export const getEquipmentImage = (type: string | number): string => {
     'pet': '/assets/weapon.png' // 暂时使用武器图片作为宠物图片
   };
   // console.log("getEquipmentImage type:%s,ts:%s,image:%s",type,typeString,imageMap[typeString]);
-  
+
   return imageMap[typeString] || '/assets/weapon.png';
 };
 
@@ -337,7 +337,7 @@ export const getItemImage = (type: string): string => {
     'job_advancement_book': '/assets/scroll1.png', // 默认转职书图片
     'gold': '/assets/gold.png' // 金币图片
   };
-  
+
   return imageMap[type] || '/assets/blood.png';
 };
 
@@ -357,12 +357,28 @@ export const getJobAdvancementBookImage = (targetJob: JobType): string => {
     'sword_god': '/assets/scroll6.png',
     'plane_lord': '/assets/scroll7.png'
   };
-  
+
   return jobImageMap[targetJob] || '/assets/scroll1.png';
 };
+// 将数字稀有度转换为字符串
+export const getRarityString = (rarity: number | string): string => {
+  if (typeof rarity === 'string') {
+    return rarity;
+  }
 
+  const rarityMap: { [key: number]: string } = {
+    0: 'common',
+    1: 'uncommon',
+    2: 'rare',
+    3: 'epic',
+    4: 'legendary'
+  };
+
+  return rarityMap[rarity] || 'common';
+};
 export const getRarityColor = (rarity: string): string => {
-  switch (rarity) {
+  const rarityString = getRarityString(rarity);
+  switch (rarityString) {
     case 'common': return '#9ca3af';
     case 'uncommon': return '#10b981';
     case 'rare': return '#3b82f6';
@@ -377,18 +393,18 @@ export const getJobLevelDisplay = (level: number, experience: number): string =>
   const { JOB_NAMES, LEVEL_PREFIXES } = GAME_CONFIG.JOB_ADVANCEMENT;
   const job = getJobFromLevel(level);
   const canGainExperience = getCanGainExperience(level, experience);
-  
+
   // 检查是否为转职等级且不能继续获得经验（满级状态）
   if (level % 4 === 0 && canGainExperience === false) {
     const jobName = JOB_NAMES[job] || '剑士';
     return `满级${jobName}`;
   }
-  
+
   // 计算当前职业内的等级（1-4）
   const jobInternalLevel = ((level - 1) % 4) + 1;
   const levelPrefix = LEVEL_PREFIXES[jobInternalLevel as keyof typeof LEVEL_PREFIXES] || '初级';
   const jobName = JOB_NAMES[job] || '剑士';
-  
+
   return `${levelPrefix}${jobName}`;
 };
 
@@ -410,12 +426,12 @@ export const getNextJob = (level: number): JobType | null => {
     JobType.SWORD_GOD,
     JobType.PLANE_LORD
   ];
-  
+
   const currentIndex = jobOrder.indexOf(currentJob);
   if (currentIndex >= 0 && currentIndex < jobOrder.length - 1) {
     return jobOrder[currentIndex + 1];
   }
-  
+
   return null;
 };
 

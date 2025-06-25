@@ -13,7 +13,7 @@ contract Equipment is ERC721, ERC721Enumerable, Ownable {
     uint256 private _tokenIds;
 
     struct EquipmentData {
-        uint8 equipmentType; // 0=helmet, 1=armor, 2=shoes, 3=weapon, 4=shield, 5=accessory, 6=ring, 7=pet
+        uint8 equipmentType; // 0=helmet, 1=armor, 2=shoes, 3=weapon, 4=shield, 5=accessory, 6=ring
         uint8 level;
         uint8 stars;
         uint8 rarity; // 0=common, 1=uncommon, 2=rare, 3=epic, 4=legendary
