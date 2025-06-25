@@ -523,7 +523,7 @@ export function useWeb3GameV2() {
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'claimOfflineTreasureBoxes',
         args: [BigInt(currentPlayerId)],
-        gas: BigInt(800000),
+        gas: BigInt(3000000),
       },
       undefined,
       {
@@ -627,7 +627,7 @@ export function useWeb3GameV2() {
 
     await safeCall(
       {
-        gas: BigInt(1200000), // 调整 gasLimit 为合理值
+        gas: BigInt(1600000), // 调整 gasLimit 为合理值
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'openTreasureBox',
