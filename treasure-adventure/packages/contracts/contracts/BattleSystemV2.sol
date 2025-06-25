@@ -19,16 +19,18 @@ contract BattleSystemV2 is Ownable {
     mapping(uint256 => uint32) public totalBattles;      // playerId => 总战斗次数
     mapping(uint256 => uint32) public totalVictories;    // playerId => 总胜利次数
     mapping(uint256 => uint32) public lastBattleTime;    // playerId => 最后战斗时间
-    mapping(uint256 => uint8) public maxAdventureLevel;  // playerId => 最大冒险层数记录
+    mapping(uint256 => uint16) public maxAdventureLevel;  // playerId => 最大冒险层数记录
     
     // 每层怪物击杀记录 playerId => adventureLevel => monsterLevel => 击杀次数
-    mapping(uint256 => mapping(uint8 => mapping(uint8 => uint16))) public monsterKillCount;
+    mapping(uint256 => mapping(uint16 => mapping(uint8 => uint16))) public monsterKillCount;
     // 每层总击杀数 playerId => adventureLevel => 总击杀数
-    mapping(uint256 => mapping(uint8 => uint16)) public levelKillCount;
+    mapping(uint256 => mapping(uint16 => uint16)) public levelKillCount;
+    // 记录玩家当前层级的最高怪物等级
+    mapping(uint256 => mapping(uint16 => uint8)) public maxMonsterLevel;
     
     // 事件
-    event BattleCompleted(uint256 indexed playerId, uint16 experienceGained, bool victory, uint8 adventureLevel, uint8 monsterLevel);
-    event AdventureLevelUnlocked(uint256 indexed playerId, uint8 newMaxLevel);
+    event BattleCompleted(uint256 indexed playerId, uint16 experienceGained, bool victory, uint16 adventureLevel, uint8 monsterLevel);
+    event AdventureLevelUnlocked(uint256 indexed playerId, uint16 newMaxLevel);
     
     constructor(address _playerNFT, address _treasureBoxSystem) Ownable(msg.sender) {
         playerNFT = Player(_playerNFT);
@@ -42,11 +44,20 @@ contract BattleSystemV2 is Ownable {
      * @param monsterLevel 在adventureLevel层数时，选择怪物的等级。每1层，有10个怪物
      * 必须杀死10个怪物，才能通往下一层。杀死过的怪物，用户还可以继续杀
      */
-    function startAdventure(uint256 playerId, uint8 adventureLevel,uint8 monsterLevel) external {
+    function startAdventure(uint256 playerId, uint16 adventureLevel,uint8 monsterLevel) external {
         require(playerNFT.ownerOf(playerId) == msg.sender, "Not your player");
-        require(adventureLevel >= 1 && adventureLevel <= 10, "Invalid adventure level");
+        require(adventureLevel >= 1 && adventureLevel <= 1000, "Invalid adventure level");
         require(monsterLevel >= 1 && monsterLevel <= 10, "Invalid monster level");
-        require(adventureLevel <= maxAdventureLevel[playerId] + 1, "Adventure level not unlocked");
+        
+        // 检查层级解锁逻辑：第1层总是解锁的，其他层需要前一层通关
+        if (adventureLevel > 1) {
+            require(adventureLevel <= maxAdventureLevel[playerId] + 1, "Adventure level not unlocked");
+        }
+        
+        // 检查怪物等级解锁逻辑：必须按顺序击败怪物
+        if (monsterLevel > 1) {
+            require(monsterKillCount[playerId][adventureLevel][monsterLevel - 1] > 0, "Previous monster not defeated");
+        }
         
         // 消耗体力 (每层消耗1点体力)
         uint8 staminaCost = 1;
@@ -69,8 +80,13 @@ contract BattleSystemV2 is Ownable {
             monsterKillCount[playerId][adventureLevel][monsterLevel]++;
             levelKillCount[playerId][adventureLevel]++;
             
-            // 经验获得 (基于怪物等级)
-            uint16 experienceGained = uint16(monsterLevel * 10 + 20);
+            // 更新该层级的最高怪物等级
+            if (monsterLevel > maxMonsterLevel[playerId][adventureLevel]) {
+                maxMonsterLevel[playerId][adventureLevel] = monsterLevel;
+            }
+            
+            // 经验获得 (基于怪物等级和层级)
+            uint16 experienceGained = uint16(monsterLevel * 10 + adventureLevel * 5 + 20);
             playerNFT.addExperience(playerId, experienceGained);
             
             // 检查是否解锁下一层 (需要在当前层杀死10个不同等级的怪物)
@@ -101,7 +117,7 @@ contract BattleSystemV2 is Ownable {
      * @param adventureLevel 当前冒险层数
      * @return 是否可以解锁下一层
      */
-    function _checkLevelUnlock(uint256 playerId, uint8 adventureLevel) internal view returns (bool) {
+    function _checkLevelUnlock(uint256 playerId, uint16 adventureLevel) internal view returns (bool) {
         // 检查是否已经杀死了10个不同等级的怪物
         uint8 killedMonsterTypes = 0;
         for (uint8 i = 1; i <= 10; i++) {
@@ -122,8 +138,13 @@ contract BattleSystemV2 is Ownable {
         // 获取玩家总属性（包含装备加成）
         (uint16 playerAttack, uint16 playerDefense, , , ) = playerNFT.getPlayerTotalStats(playerId);
         
-        // 计算怪物属性 (基于等级) - 减弱一倍
-        uint16 monsterDefense = uint16((monsterLevel * 5 + 10) / 2); // 基础防御 + 等级加成，减弱一倍
+        // 获取当前冒险层级
+        uint16 currentAdventure = maxAdventureLevel[playerId] == 0 ? 1 : maxAdventureLevel[playerId];
+        
+        // 计算怪物属性 (基于层级和怪物等级)
+        uint16 baseDefense = uint16(monsterLevel * 5 + 10);
+        uint16 levelBonus = uint16(currentAdventure > 1000 ? ((currentAdventure - 1) / 1000 + 1) * 20 : 0);
+        uint16 monsterDefense = (baseDefense + levelBonus) / 2; // 减弱一倍
         
         // 战斗判定：随机值(0到玩家攻击力) vs 怪物防御力
         uint256 randomAttack = _generateRandom(playerId, monsterLevel) % (playerAttack + 1);
@@ -228,7 +249,7 @@ contract BattleSystemV2 is Ownable {
     /**
      * @dev 获取玩家最大冒险层数
      */
-    function getMaxAdventureLevel(uint256 playerId) external view returns (uint8) {
+    function getMaxAdventureLevel(uint256 playerId) external view returns (uint16) {
         return maxAdventureLevel[playerId] == 0 ? 1 : maxAdventureLevel[playerId];
     }
     
@@ -237,8 +258,10 @@ contract BattleSystemV2 is Ownable {
      * @param monsterLevel 怪物等级
      * @return defense 怪物防御力
      */
-    function getMonsterStats(uint8 monsterLevel) external pure returns (uint16 defense) {
-        defense = uint16((monsterLevel * 5 + 10) / 2); // 减弱一倍
+    function getMonsterStats(uint16 adventureLevel, uint8 monsterLevel) external pure returns (uint16 defense) {
+        uint16 baseDefense = uint16(monsterLevel * 5 + 10);
+        uint16 levelBonus = uint16(adventureLevel > 1000 ? ((adventureLevel - 1) / 1000 + 1) * 20 : 0);
+        defense = (baseDefense + levelBonus) / 2; // 减弱一倍
     }
     
     /**
@@ -247,9 +270,11 @@ contract BattleSystemV2 is Ownable {
      * @param monsterLevel 怪物等级
      * @return 胜率百分比 (0-100)
      */
-    function estimateWinRate(uint256 playerId, uint8 monsterLevel) external view returns (uint8) {
+    function estimateWinRate(uint256 playerId, uint16 adventureLevel, uint8 monsterLevel) external view returns (uint8) {
         (uint16 playerAttack, , , , ) = playerNFT.getPlayerTotalStats(playerId);
-        uint16 monsterDefense = uint16((monsterLevel * 5 + 10) / 2); // 减弱一倍
+        uint16 baseDefense = uint16(monsterLevel * 5 + 10);
+        uint16 levelBonus = uint16(adventureLevel > 1000 ? ((adventureLevel - 1) / 1000 + 1) * 20 : 0);
+        uint16 monsterDefense = (baseDefense + levelBonus) / 2; // 减弱一倍
         
         if (playerAttack <= monsterDefense) {
             return 0;
@@ -280,21 +305,21 @@ contract BattleSystemV2 is Ownable {
     /**
      * @dev 获取特定怪物的击杀次数
      */
-    function getMonsterKillCount(uint256 playerId, uint8 adventureLevel, uint8 monsterLevel) external view returns (uint16) {
+    function getMonsterKillCount(uint256 playerId, uint16 adventureLevel, uint8 monsterLevel) external view returns (uint16) {
         return monsterKillCount[playerId][adventureLevel][monsterLevel];
     }
     
     /**
      * @dev 获取某层的总击杀数
      */
-    function getLevelKillCount(uint256 playerId, uint8 adventureLevel) external view returns (uint16) {
+    function getLevelKillCount(uint256 playerId, uint16 adventureLevel) external view returns (uint16) {
         return levelKillCount[playerId][adventureLevel];
     }
     
     /**
      * @dev 获取某层已击杀的不同怪物类型数量
      */
-    function getKilledMonsterTypes(uint256 playerId, uint8 adventureLevel) external view returns (uint8) {
+    function getKilledMonsterTypes(uint256 playerId, uint16 adventureLevel) external view returns (uint8) {
         uint8 killedTypes = 0;
         for (uint8 i = 1; i <= 10; i++) {
             if (monsterKillCount[playerId][adventureLevel][i] > 0) {
@@ -307,18 +332,26 @@ contract BattleSystemV2 is Ownable {
     /**
      * @dev 检查某层是否已解锁下一层
      */
-    function isNextLevelUnlocked(uint256 playerId, uint8 adventureLevel) external view returns (bool) {
+    function isNextLevelUnlocked(uint256 playerId, uint16 adventureLevel) external view returns (bool) {
         return _checkLevelUnlock(playerId, adventureLevel);
     }
     
     /**
      * @dev 获取某层的怪物击杀详情
      */
-    function getLevelMonsterKills(uint256 playerId, uint8 adventureLevel) external view returns (uint16[10] memory) {
+    function getLevelMonsterKills(uint256 playerId, uint16 adventureLevel) external view returns (uint16[10] memory) {
         uint16[10] memory kills;
         for (uint8 i = 0; i < 10; i++) {
             kills[i] = monsterKillCount[playerId][adventureLevel][i + 1];
         }
         return kills;
+    }
+    
+    /**
+     * @dev 获取玩家当前层级和最高怪物等级
+     */
+    function getPlayerProgress(uint256 playerId) external view returns (uint16 currentLevel, uint8 maxMonster) {
+        currentLevel = maxAdventureLevel[playerId] == 0 ? 1 : maxAdventureLevel[playerId];
+        maxMonster = maxMonsterLevel[playerId][currentLevel];
     }
 }

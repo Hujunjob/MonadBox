@@ -1,16 +1,16 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0x202CCe504e04bEd6fC0521238dDf04Bc9E8E15aB' as `0x${string}`,
-  EQUIPMENT_NFT: '0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7' as `0x${string}`,
-  ITEM_NFT: '0x0355B7B8cb128fA5692729Ab3AAa199C1753f726' as `0x${string}`,
-  GOLD_TOKEN: '0x36b58F5C1969B7b6591D752ea6F5486D069010AB' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xf4B146FbA71F41E0592668ffbF264F1D186b2Ca8' as `0x${string}`,
-  BATTLE_SYSTEM: '0x172076E0166D1F9Cc711C77Adf8488051744980C' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x4EE6eCAD1c2Dae9f525404De8555724e3c35d07B' as `0x${string}`,
-  MARKET: '0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25' as `0x${string}`,
-  RANK: '0xD84379CEae14AA33C123Af12424A37803F885889' as `0x${string}`,
-  SUPER_MARKET: '0x2B0d36FACD61B71CC05ab8F3D2355ec3631C0dd5' as `0x${string}`
+  PLAYER_NFT: '0x4b6aB5F819A515382B0dEB6935D793817bB4af28' as `0x${string}`,
+  EQUIPMENT_NFT: '0x5067457698Fd6Fa1C6964e416b3f42713513B3dD' as `0x${string}`,
+  ITEM_NFT: '0x18E317A7D70d8fBf8e6E893616b52390EbBdb629' as `0x${string}`,
+  GOLD_TOKEN: '0xe8D2A1E88c91DCd5433208d4152Cc4F399a7e91d' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xCace1b78160AE76398F486c8a18044da0d66d86D' as `0x${string}`,
+  BATTLE_SYSTEM: '0xD5ac451B0c50B9476107823Af206eD814a2e2580' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397' as `0x${string}`,
+  MARKET: '0xc0F115A19107322cFBf1cDBC7ea011C19EbDB4F8' as `0x${string}`,
+  RANK: '0xc96304e3c037f81dA488ed9dEa1D8F2a48278a75' as `0x${string}`,
+  SUPER_MARKET: '0x34B40BA116d5Dec75548a9e9A8f15411461E8c70' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -1425,9 +1425,9 @@ export const BATTLE_SYSTEM_ABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "newMaxLevel",
-        "type": "uint8"
+        "type": "uint16"
       }
     ],
     "name": "AdventureLevelUnlocked",
@@ -1456,9 +1456,9 @@ export const BATTLE_SYSTEM_ABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "adventureLevel",
-        "type": "uint8"
+        "type": "uint16"
       },
       {
         "indexed": false,
@@ -1521,6 +1521,11 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint256"
       },
       {
+        "internalType": "uint16",
+        "name": "adventureLevel",
+        "type": "uint16"
+      },
+      {
         "internalType": "uint8",
         "name": "monsterLevel",
         "type": "uint8"
@@ -1579,9 +1584,9 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "adventureLevel",
-        "type": "uint8"
+        "type": "uint16"
       }
     ],
     "name": "getKilledMonsterTypes",
@@ -1603,9 +1608,9 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "adventureLevel",
-        "type": "uint8"
+        "type": "uint16"
       }
     ],
     "name": "getLevelKillCount",
@@ -1627,9 +1632,9 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "adventureLevel",
-        "type": "uint8"
+        "type": "uint16"
       }
     ],
     "name": "getLevelMonsterKills",
@@ -1654,9 +1659,9 @@ export const BATTLE_SYSTEM_ABI = [
     "name": "getMaxAdventureLevel",
     "outputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "",
-        "type": "uint8"
+        "type": "uint16"
       }
     ],
     "stateMutability": "view",
@@ -1670,9 +1675,9 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "adventureLevel",
-        "type": "uint8"
+        "type": "uint16"
       },
       {
         "internalType": "uint8",
@@ -1693,6 +1698,11 @@ export const BATTLE_SYSTEM_ABI = [
   },
   {
     "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "adventureLevel",
+        "type": "uint16"
+      },
       {
         "internalType": "uint8",
         "name": "monsterLevel",
@@ -1716,11 +1726,35 @@ export const BATTLE_SYSTEM_ABI = [
         "internalType": "uint256",
         "name": "playerId",
         "type": "uint256"
+      }
+    ],
+    "name": "getPlayerProgress",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "currentLevel",
+        "type": "uint16"
       },
       {
         "internalType": "uint8",
-        "name": "adventureLevel",
+        "name": "maxMonster",
         "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "playerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "adventureLevel",
+        "type": "uint16"
       }
     ],
     "name": "isNextLevelUnlocked",
@@ -1761,9 +1795,9 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "",
-        "type": "uint8"
+        "type": "uint16"
       }
     ],
     "name": "levelKillCount",
@@ -1788,6 +1822,30 @@ export const BATTLE_SYSTEM_ABI = [
     "name": "maxAdventureLevel",
     "outputs": [
       {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "name": "maxMonsterLevel",
+    "outputs": [
+      {
         "internalType": "uint8",
         "name": "",
         "type": "uint8"
@@ -1804,9 +1862,9 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "",
-        "type": "uint8"
+        "type": "uint16"
       },
       {
         "internalType": "uint8",
@@ -1859,9 +1917,9 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "adventureLevel",
-        "type": "uint8"
+        "type": "uint16"
       },
       {
         "internalType": "uint8",

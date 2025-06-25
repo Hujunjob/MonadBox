@@ -7,8 +7,6 @@ const MonsterForest: React.FC = () => {
   const player = hybridStore.player;
   const [selectedAdventureLevel, setSelectedAdventureLevel] = useState(1);
   const [isLevelExpanded, setIsLevelExpanded] = useState(false);
-  const [monsterStats, setMonsterStats] = useState<{[key: number]: any}>({});
-  const [winRates, setWinRates] = useState<{[key: number]: number}>({});
   
   // 战斗结果弹窗状态
   const [battleResult, setBattleResult] = useState<{
@@ -25,12 +23,12 @@ const MonsterForest: React.FC = () => {
     adventureLevel: 1
   });
   
-  // 获取玩家最大解锁层数
+  // 获取玩家最大解锁层数和最高怪物等级
   const maxUnlockedLevel = hybridStore.maxAdventureLevel || 1;
-  const battleStats = hybridStore.battleStats || { totalBattles: 0, totalVictories: 0, winRate: 0, lastBattle: 0 };
+  const playerProgress = hybridStore.playerProgress || { currentLevel: 1, maxMonster: 0 };
   
-  // 生成冒险层数列表 (1-10)
-  const adventureLevels = Array.from({ length: 10 }, (_, i) => {
+  // 生成冒险层数列表 (1-1000)
+  const adventureLevels = Array.from({ length: 1000 }, (_, i) => {
     const level = i + 1;
     return {
       level,
@@ -54,20 +52,19 @@ const MonsterForest: React.FC = () => {
         return;
       }
 
-      for (let level = 1; level <= 10; level++) {
-        try {
-          // 获取怪物属性
-          const stats = await hybridStore.getMonsterStats(level);
-          if (stats) {
-            setMonsterStats(prev => ({ ...prev, [level]: stats }));
-          }
-          
-          // 获取胜率
-          const winRate = await hybridStore.estimateWinRate(level);
-          setWinRates(prev => ({ ...prev, [level]: winRate }));
-        } catch (error) {
-          console.error(`Failed to fetch data for level ${level}:`, error);
+      // 只获取当前选中层级的数据以提升性能
+      try {
+        // 获取怪物属性
+        const stats = await hybridStore.getMonsterStats(selectedAdventureLevel, 1);
+        if (stats) {
+          setMonsterStats(prev => ({ ...prev, [selectedAdventureLevel]: stats }));
         }
+        
+        // 获取胜率
+        const winRate = await hybridStore.estimateWinRate(selectedAdventureLevel, 1);
+        setWinRates(prev => ({ ...prev, [selectedAdventureLevel]: winRate }));
+      } catch (error) {
+        console.error(`Failed to fetch data for level ${selectedAdventureLevel}:`, error);
       }
     };
     
@@ -154,11 +151,6 @@ const MonsterForest: React.FC = () => {
                     {adventure.isUnlocked ? '可挑战' : '未解锁'}
                   </span>
                 </div>
-                <div className="level-details">
-                  <span>怪物防御: {monsterStats[adventure.level] || '...'}</span>
-                  <span>胜率: {winRates[adventure.level] || 0}%</span>
-                  <span>经验: {adventure.baseExp}</span>
-                </div>
               </div>
             ))}
           </div>
@@ -167,65 +159,33 @@ const MonsterForest: React.FC = () => {
         {!isLevelExpanded && (
           <div className="current-adventure-summary">
             <span>{currentAdventure?.name || `第${selectedAdventureLevel}层冒险`}</span>
-            <span>胜率: {winRates[selectedAdventureLevel] || 0}%</span>
           </div>
         )}
       </div>
       
-      {/* 战斗统计 */}
-      <div className="battle-stats">
-        <h3>战斗统计</h3>
-        <div className="stats-grid">
-          <div className="stat-item">
-            <span className="stat-label">总战斗次数</span>
-            <span className="stat-value">{battleStats.totalBattles}</span>
+      {/* 玩家进度 */}
+      {/* <div className="player-progress">
+        <h3>冒险进度</h3>
+        <div className="progress-grid">
+          <div className="progress-item">
+            <span className="progress-label">最高到达层级</span>
+            <span className="progress-value">{playerProgress.currentLevel}</span>
           </div>
-          <div className="stat-item">
-            <span className="stat-label">胜利次数</span>
-            <span className="stat-value">{battleStats.totalVictories}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">胜率</span>
-            <span className="stat-value">{battleStats.winRate}%</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">最大解锁层数</span>
-            <span className="stat-value">{maxUnlockedLevel}</span>
+          <div className="progress-item">
+            <span className="progress-label">该层最高怪物</span>
+            <span className="progress-value">{playerProgress.maxMonster || '未挑战'}</span>
           </div>
         </div>
-      </div>
+      </div> */}
       
       {currentAdventure && (
         <div className="current-adventure">
           <div className="adventure-card">
             <div className="adventure-header">
-              <h2>{currentAdventure.name}</h2>
-              <div className="adventure-level">等级 {currentAdventure.level}</div>
+              {/* <h2>{currentAdventure.name}</h2> */}
+              <div className="adventure-level">怪物等级 {currentAdventure.level}</div>
             </div>
             
-            <div className="monster-info">
-              <h3>怪物信息</h3>
-              <div className="monster-stats">
-                <div className="stat-row">
-                  <span>怪物等级:</span>
-                  <span>{currentAdventure.monsterLevel}</span>
-                </div>
-                <div className="stat-row">
-                  <span>怪物防御:</span>
-                  <span>{monsterStats[currentAdventure.level] || '加载中...'}</span>
-                </div>
-                <div className="stat-row">
-                  <span>预估胜率:</span>
-                  <span className={`win-rate ${winRates[currentAdventure.level] > 70 ? 'high' : winRates[currentAdventure.level] > 40 ? 'medium' : 'low'}`}>
-                    {winRates[currentAdventure.level] || 0}%
-                  </span>
-                </div>
-                <div className="stat-row">
-                  <span>经验奖励:</span>
-                  <span>{currentAdventure.baseExp}</span>
-                </div>
-              </div>
-            </div>
             
             <div className="player-status">
               <h3>玩家状态</h3>
@@ -253,9 +213,7 @@ const MonsterForest: React.FC = () => {
               <button 
                 onClick={() => handleStartAdventure(currentAdventure.level)}
                 className={`adventure-btn ${
-                  !currentAdventure.isUnlocked || player.stamina < 1 ? 'disabled' : 
-                  winRates[currentAdventure.level] > 70 ? 'high-chance' :
-                  winRates[currentAdventure.level] > 40 ? 'medium-chance' : 'low-chance'
+                  !currentAdventure.isUnlocked || player.stamina < 1 ? 'disabled' : 'ready'
                 }`}
                 disabled={!currentAdventure.isUnlocked || player.stamina < 1 || hybridStore.isPending}
               >
@@ -276,15 +234,14 @@ const MonsterForest: React.FC = () => {
       )}
       
       <div className="adventure-info">
-        <h3>新战斗系统说明</h3>
+        <h3>冒险系统说明</h3>
         <ul>
-          <li>选择冒险层数1-10，挑战对应等级的怪物</li>
-          <li>胜利后自动解锁下一层冒险</li>
+          <li>选择冒险层数1-1000，每层有10只逐渐变强的怪物</li>
+          <li>必须按顺序击败怪物，击败10只怪物后解锁下一层</li>
           <li>战斗胜负基于你的攻击力与怪物防御力的随机对决</li>
           <li>胜利获得经验奖励和战斗宝箱</li>
           <li>每次冒险消耗1点体力</li>
-          <li>怪物防御力 = 等级 × 5 + 10</li>
-          <li>胜率基于你的总攻击力（包含装备加成）</li>
+          <li>怪物随层级增强，每1000层显著提升难度</li>
         </ul>
       </div>
 
