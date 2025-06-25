@@ -199,10 +199,7 @@ const MonsterForest: React.FC = () => {
     
     try {
       await hybridStore.startAdventure(adventureLevel, monsterLevel);
-      // 战斗完成后重新获取数据
-      setTimeout(() => {
-        window.location.reload(); // 简单的刷新来更新数据
-      }, 2000);
+      // 数据刷新已在 useWeb3GameV2 的 onSuccess 回调中处理
     } catch (error) {
       console.error('Adventure failed:', error);
     }
