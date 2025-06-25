@@ -67,7 +67,7 @@ function App() {
             <WalletConnect />
           </header>
           
-          <main className="game-content">
+          <main className={`game-content ${activeTab === 'stats' ? 'character-bg' : 'other-bg'}`}>
             {activeTab === 'stats' && <PlayerStats />}
             {activeTab === 'inventory' && <Inventory />}
             {activeTab === 'treasure' && <TreasureBox />}
