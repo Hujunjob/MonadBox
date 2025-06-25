@@ -2919,55 +2919,6 @@ body {
   justify-content: center;
 }
 
-.challenge-btn {
-  width: 100%;
-  padding: 8px 10px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: none;
-}
-
-.challenge-btn.defeated {
-  background: #28a745;
-  color: white;
-}
-
-.challenge-btn.defeated:hover:not(:disabled) {
-  background: #218838;
-  transform: translateY(-1px);
-}
-
-.challenge-btn.available {
-  background: #007bff;
-  color: white;
-}
-
-.challenge-btn.available:hover:not(:disabled) {
-  background: #0056b3;
-  transform: translateY(-1px);
-}
-
-.challenge-btn.locked {
-  background: #6c757d;
-  color: white;
-  cursor: not-allowed;
-}
-
-.challenge-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.challenge-btn.no-stamina {
-  background: #dc3545;
-  color: white;
-}
-
 /* 响应式调整 */
 @media (max-width: 480px) {
   .monsters-grid {

@@ -1,5 +1,5 @@
 import { useWriteContract, useReadContract } from 'wagmi';
-import { CONTRACT_ADDRESSES, RANK_ABI } from '../contracts';
+import { CONTRACT_ADDRESSES, RANK_ABI, PLAYER_NFT_ABI } from '../contracts';
 import { usePublicClient } from 'wagmi';
 
 export function useRank() {
@@ -68,12 +68,26 @@ export function useRank() {
     return data as boolean;
   };
 
+  // 获取玩家详细信息
+  const getPlayerData = async (playerId: number) => {
+    if (!publicClient) throw new Error('Public client not available');
+    
+    const data = await publicClient.readContract({
+      address: CONTRACT_ADDRESSES.PLAYER_NFT,
+      abi: PLAYER_NFT_ABI,
+      functionName: 'getPlayer',
+      args: [BigInt(playerId)]
+    });
+    return data as any;
+  };
+
   return {
     fight,
     getRankInfo,
     getPlayerRank,
     getTopRanks,
     canChallenge,
+    getPlayerData,
     isPending
   };
 }

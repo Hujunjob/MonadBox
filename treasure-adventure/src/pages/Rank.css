@@ -7,7 +7,7 @@
 .rank-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 20px;
+  padding: 13px;
   border-radius: 15px;
   margin-bottom: 20px;
   text-align: center;
@@ -15,7 +15,7 @@
 
 .rank-header h1 {
   margin: 0 0 15px 0;
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   font-weight: bold;
 }
 
@@ -87,9 +87,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 20px;
+  padding: 5px 5px;
   border-bottom: 1px solid #f0f0f0;
   transition: background 0.2s;
+  min-height: 28px;
 }
 
 .rank-item:last-child {
@@ -113,23 +114,22 @@
 .rank-left {
   display: flex;
   align-items: center;
-  gap: 12px;
   flex: 1;
 }
 
 .rank-badge {
   background: #667eea;
   color: white;
-  padding: 6px 12px;
+  padding: 6px 8px;
   border-radius: 20px;
   font-weight: bold;
-  font-size: 14px;
-  min-width: 45px;
+  font-size: 12px;
+  width: 46px;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  flex-shrink: 0;
 }
 
 .rank-badge.top-1 {
@@ -152,15 +152,17 @@
 
 .player-info {
   flex: 1;
+  margin-left: 12px;
 }
 
 .player-name {
   font-weight: 600;
   color: #333;
   font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .you-tag {
@@ -172,6 +174,16 @@
   font-weight: bold;
 }
 
+.job-separator {
+  color: #ccc;
+  margin: 0 8px;
+}
+
+.player-job {
+  color: #666;
+  font-weight: 500;
+}
+
 .empty-slot {
   color: #999;
   font-style: italic;
@@ -181,12 +193,15 @@
   background: #28a745;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 6px 8px;
   border-radius: 20px;
   font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
-  min-width: 70px;
+  font-size: 12px;
+  width: 66px !important;
+  max-width: 66px !important;
+  min-width: 66px !important;
+  text-align: center;
   transition: all 0.2s;
 }
 
@@ -232,7 +247,7 @@
   }
   
   .rank-header {
-    padding: 15px;
+    padding: 10px;
   }
   
   .rank-header h1 {
@@ -240,11 +255,11 @@
   }
   
   .rank-item {
-    padding: 12px 15px;
+    padding: 10px 10px;
   }
   
   .rank-badge {
-    min-width: 40px;
+    min-width: 30px;
     font-size: 12px;
     padding: 4px 8px;
   }
@@ -259,10 +274,15 @@
     font-size: 14px;
   }
   
+  .player-job {
+    font-size: 12px;
+  }
+  
   .challenge-btn {
     font-size: 12px;
-    padding: 6px 12px;
-    min-width: 60px;
+    width: 66px !important;
+    max-width: 66px !important;
+    min-width: 66px !important;
   }
   
   .rules-simple {

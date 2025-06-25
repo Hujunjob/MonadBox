@@ -4,11 +4,15 @@ import { useRank } from '../hooks/useRank';
 import './Rank.css';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { useToast } from '../components/ToastManager';
+import { getJobFromLevel, getJobLevelDisplay } from '../utils/gameUtils';
 
 interface RankData {
   rankIndex: number;
   playerId: number;
   playerName: string;
+  level?: number;
+  experience?: number;
+  jobTitle?: string;
 }
 
 const Rank: React.FC = () => {
@@ -24,6 +28,7 @@ const Rank: React.FC = () => {
     getPlayerRank, 
     canChallenge, 
     fight,
+    getPlayerData,
     isPending 
   } = useRank();
   
@@ -44,10 +49,31 @@ const Rank: React.FC = () => {
       const rankData: RankData[] = [];
       
       for (let i = 0; i < rankIndexes.length; i++) {
+        const playerId = Number(playerIds[i]);
+        let jobTitle = '';
+        let level = 0;
+        let experience = 0;
+        
+        // 如果有有效的玩家ID，获取玩家数据计算职位
+        if (playerId > 0) {
+          try {
+            const playerData = await getPlayerData(playerId);
+            level = Number(playerData.level);
+            experience = Number(playerData.experience);
+            jobTitle = getJobLevelDisplay(level, experience);
+          } catch (error) {
+            console.error(`Error fetching player ${playerId} data:`, error);
+            jobTitle = '未知职位';
+          }
+        }
+        
         rankData.push({
           rankIndex: Number(rankIndexes[i]),
-          playerId: Number(playerIds[i]),
-          playerName: playerNames[i] || 'Empty'
+          playerId: playerId,
+          playerName: playerNames[i] || 'Empty',
+          level: level,
+          experience: experience,
+          jobTitle: jobTitle
         });
       }
       
@@ -176,6 +202,8 @@ const Rank: React.FC = () => {
                               <div className="player-name">
                                 {rank.playerName}
                                 {rank.playerId === currentPlayerId && <span className="you-tag">我</span>}
+                                <span className="job-separator">|</span>
+                                <span className="player-job">{rank.jobTitle || '未知职位'}</span>
                               </div>
                             </>
                           ) : (

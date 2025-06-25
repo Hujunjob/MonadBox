@@ -95,7 +95,7 @@ button:focus-visible {
 }
 
 .market-listing-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 6px;
   padding: 6px;
   border: 1px solid rgba(255, 255, 255, 0.2);
