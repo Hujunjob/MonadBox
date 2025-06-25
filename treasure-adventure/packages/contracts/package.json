@@ -7,8 +7,11 @@
     "compile": "hardhat compile",
     "deploy:localhost": "hardhat run scripts/deployV2.js --network localhost",
     "deploy:hardhat": "hardhat run scripts/deployV2.js --network hardhat",
+    "deploy:monad": "hardhat run scripts/deployMonadTestnetUpgradeable.js --network monadTestnet",
+    "deploy:monad:basic": "hardhat run scripts/deployMonadTestnet.js --network monadTestnet",
     "deploy:upgradeable:localhost": "hardhat run scripts/deployUpgradeable.js --network localhost",
     "deploy:upgradeable:hardhat": "hardhat run scripts/deployUpgradeable.js --network hardhat",
+    "deploy:upgradeable:monad": "hardhat run scripts/deployMonadTestnetUpgradeable.js --network monadTestnet",
     "node": "hardhat node --show-stack-traces",
     "test": "hardhat test"
   },
@@ -22,6 +25,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "^5.3.0",
-    "@openzeppelin/hardhat-upgrades": "^3.9.0"
+    "@openzeppelin/hardhat-upgrades": "^3.9.0",
+    "dotenv": "^16.0.0"
   }
 }

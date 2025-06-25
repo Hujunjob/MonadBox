@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@openzeppelin/hardhat-upgrades");
+require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -25,6 +26,11 @@ module.exports = {
         auto: true,
         interval: 1000 // 每1秒自动出一个块
       }
+    },
+    monadTestnet: {
+      url: "https://testnet-rpc.monad.xyz",
+      chainId: 10143,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     }
   },
   defaultNetwork: "hardhat",

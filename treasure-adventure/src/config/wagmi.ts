@@ -1,6 +1,6 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { createConfig, http } from 'wagmi';
-import { monad } from './chains';
+import { monad, monadTestnet } from './chains';
 import { defineChain } from 'viem';
 import { burnerWallet } from '../connectors/BurnerConnector';
 import { metaMask, walletConnect, injected } from 'wagmi/connectors';
@@ -24,7 +24,7 @@ export const localhost = defineChain({
 const projectId = 'YOUR_PROJECT_ID'; // Get from https://cloud.walletconnect.com
 
 export const config = createConfig({
-  chains: [localhost, monad],
+  chains: [localhost, monad, monadTestnet],
   connectors: [
     // 标准连接器放在前面，让用户有选择
     injected(),
@@ -40,6 +40,7 @@ export const config = createConfig({
   transports: {
     [localhost.id]: http(),
     [monad.id]: http(),
+    [monadTestnet.id]: http(),
   },
   ssr: false,
 });
