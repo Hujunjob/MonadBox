@@ -145,15 +145,15 @@ const SellModal: React.FC<SellModalProps> = ({ item, isOpen, onClose, itemType, 
               </div>
             )}
             
-            <div className="form-group">
+             {/* <div className="form-group">
               <div className="price-info">
                 <div>总售价: {price ? (parseFloat(price) * (itemType === 'item' ? quantity : 1)).toFixed(2) : '0'} 金币</div>
                 <div>市场手续费 (10%): {price ? ((parseFloat(price) * (itemType === 'item' ? quantity : 1)) * 0.1).toFixed(2) : '0'} 金币</div>
                 <div className="net-income">
                   净收入: {price ? ((parseFloat(price) * (itemType === 'item' ? quantity : 1)) * 0.9).toFixed(2) : '0'} 金币
                 </div>
-              </div>
-            </div>
+              </div> 
+            </div> */}
           </form>
         </div>
         
