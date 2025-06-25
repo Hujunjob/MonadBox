@@ -84,7 +84,7 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
     if (isEquipped && slot) {
       try {
         // 将槽位名称转换为索引
-        const slotNames = ['helmet', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'pet'];
+        const slotNames = ['', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'helmet'];
         const slotIndex = slotNames.indexOf(slot);
         
         if (slotIndex >= 0) {

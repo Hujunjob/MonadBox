@@ -296,14 +296,14 @@ export const getEquipmentTypeString = (equipmentType: number | string): string =
 
   // 数字到字符串的映射 (0-7 对应不同装备类型)
   const typeMap: { [key: number]: string } = {
-    0: 'helmet',
+
     1: 'armor',
     2: 'shoes',
     3: 'weapon',
     4: 'shield',
     5: 'accessory',
     6: 'ring',
-    7: 'pet'
+    7: 'helmet'
   };
 
   return typeMap[equipmentType] || 'weapon';

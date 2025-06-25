@@ -96,6 +96,7 @@ export function useSafeContractCall() {
         
         // 对于 burner wallet，直接执行交易（自动签名）
         console.log('执行交易，钱包类型:', isBurnerWallet ? 'burner' : 'external');
+        console.log(contractConfig);
         writeContract(contractConfig);
         return;
       }

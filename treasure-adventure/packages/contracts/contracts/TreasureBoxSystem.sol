@@ -173,7 +173,6 @@ contract TreasureBoxSystem is Ownable {
         }
 
         return boxesToClaim;
-        // return claimOfflineTreasureBoxesForPlayer(playerId);
     }
 
     /**
@@ -223,9 +222,7 @@ contract TreasureBoxSystem is Ownable {
         }
 
         // 发放物品奖励（血瓶、转职书、宠物蛋）
-        if (
-            reward.itemId > 0
-        ) {
+        if (reward.itemId > 0) {
             // mint Item NFT 给 Player NFT 合约
             itemNFT.mint(address(playerNFT), reward.itemId, 1);
             // 添加到玩家的物品库存
@@ -604,7 +601,7 @@ contract TreasureBoxSystem is Ownable {
      * @dev 生成装备类型（第三步随机 - 装备子步骤1）
      * @param playerId 玩家ID
      * @param level 装备等级
-     * @return 装备类型 (0-7)
+     * @return 装备类型 (1-7)
      */
     function _generateEquipmentType(
         uint256 playerId,
@@ -619,7 +616,7 @@ contract TreasureBoxSystem is Ownable {
                     "equipType"
                 )
             )
-        ) % 8;
+        ) % 7+1;
         
         return uint8(random);
     }
@@ -662,7 +659,7 @@ contract TreasureBoxSystem is Ownable {
             critRate = uint8(1 + level / 2);
             critDamage = uint16(5 + level * 2);
         } else if (
-            equipmentType == 1 || equipmentType == 0 || equipmentType == 4
+            equipmentType == 1 || equipmentType == 7 || equipmentType == 4
         ) {
             // armor, helmet, shield
             defense = uint16(((3 + level) * rarityMultiplier) / 100);

@@ -627,7 +627,7 @@ export function useWeb3GameV2() {
 
     await safeCall(
       {
-        gas: BigInt(1600000), // 调整 gasLimit 为合理值
+        gas: BigInt(2800000), // 调整 gasLimit 为合理值
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'openTreasureBox',
@@ -910,25 +910,25 @@ export function useWeb3GameV2() {
 
   // 将装备类型数字转换为名称
   const getEquipmentTypeName = (type: number) => {
-    const typeNames = ['helmet', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'pet'];
+    const typeNames = ['', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'helmet'];
     return typeNames[type] || 'weapon';
   };
 
   // 处理装备槽位映射
   const getEquippedItemsMap = useMemo(() => {
     const equippedMap: any = {
-      helmet: undefined,
+      // helmet: undefined,
       armor: undefined,
       shoes: undefined,
       weapon: undefined,
       shield: undefined,
       accessory: undefined,
       ring: undefined,
-      pet: undefined,
+      helmet: undefined,
     };
 
     if (equippedItems && Array.isArray(equippedItems)) {
-      const slotNames = ['helmet', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'pet'];
+      const slotNames = ['', 'armor', 'shoes', 'weapon', 'shield', 'accessory', 'ring', 'helmet'];
       equippedItems.forEach((equipmentId, index) => {
         if (equipmentId && Number(equipmentId) > 0 && index < slotNames.length) {
           // 从inventoryEquipments中找到对应的装备详细信息

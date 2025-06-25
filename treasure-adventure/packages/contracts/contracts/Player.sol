@@ -67,7 +67,7 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
         _nextTokenId = 1;
         
         // 设置装备类型到槽位的映射
-        equipmentTypeToSlot[0] = 0; // helmet
+
         equipmentTypeToSlot[1] = 1; // armor  
         equipmentTypeToSlot[2] = 2; // shoes
         equipmentTypeToSlot[3] = 3; // weapon
@@ -75,6 +75,7 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
         equipmentTypeToSlot[5] = 5; // accessory
         equipmentTypeToSlot[6] = 6; // ring
         equipmentTypeToSlot[7] = 7; // pet
+        // equipmentTypeToSlot[0] = 0; // helmet
     }
     
     /**
