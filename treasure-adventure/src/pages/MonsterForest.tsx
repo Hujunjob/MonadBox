@@ -137,6 +137,46 @@ const MonsterForest: React.FC = () => {
 
   const handleCloseBattleResult = () => {
     setBattleResult(prev => ({ ...prev, isOpen: false }));
+    
+    // 战斗结果弹窗关闭后重新获取怪物数据，以更新挑战状态
+    const refetchMonsterData = async () => {
+      if (!hybridStore.currentPlayerId) return;
+      
+      try {
+        // 重新获取当前层级的怪物击杀数据
+        const killCounts: {[key: number]: number} = {};
+        
+        for (let monsterLevel = 1; monsterLevel <= 10; monsterLevel++) {
+          if (typeof hybridStore.getMonsterKillCount === 'function') {
+            const killCount = await hybridStore.getMonsterKillCount(selectedAdventureLevel, monsterLevel);
+            killCounts[monsterLevel] = killCount || 0;
+          }
+        }
+        
+        setMonsterKillCounts(killCounts);
+        
+        // 重新获取玩家进度
+        if (typeof hybridStore.getPlayerProgress === 'function') {
+          const progress = await hybridStore.getPlayerProgress();
+          if (progress && progress.currentLevel === selectedAdventureLevel) {
+            setMaxMonsterLevel(progress.maxMonster || 0);
+          }
+        }
+        
+        // 刷新玩家数据
+        if (typeof hybridStore.refreshPlayerData === 'function') {
+          await hybridStore.refreshPlayerData();
+        }
+        
+      } catch (error) {
+        console.error('Failed to refresh monster data:', error);
+      }
+    };
+    
+    // 延迟一点执行，确保链上数据已更新
+    setTimeout(() => {
+      refetchMonsterData();
+    }, 1000);
   };
   
   // 获取怪物挑战状态

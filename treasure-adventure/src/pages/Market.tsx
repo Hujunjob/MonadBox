@@ -3,8 +3,9 @@ import { useHybridGameStore } from '../store/web3GameStore';
 import { useMarket } from '../hooks/useMarket';
 import { getEquipmentImage, getItemImage, getRarityColor, getEquipmentTypeString } from '../utils/gameUtils';
 import { formatEther } from 'viem';
-import { usePublicClient } from 'wagmi';
+import { useAccount, usePublicClient } from 'wagmi';
 import { CONTRACT_ADDRESSES, EQUIPMENT_NFT_ABI } from '../contracts';
+import { useToast } from '../components/ToastManager';
 
 interface MarketListing {
   listingId: bigint;
@@ -38,6 +39,8 @@ const Market: React.FC = () => {
   const [equipmentCache, setEquipmentCache] = useState<Map<string, EquipmentDetails>>(new Map());
   const itemsPerPage = 20;
   const publicClient = usePublicClient();
+  const { showToast } = useToast();
+  const {address} = useAccount();
   
   const player = hybridStore.player;
   const { 
@@ -60,42 +63,87 @@ const Market: React.FC = () => {
 
   const handlePurchase = async (listing: MarketListing) => {
     if (!player) {
-      alert('请先连接钱包并创建角色');
+      showToast('请先连接钱包并创建角色', 'error');
+      return;
+    }
+
+    // 检查是否购买自己的商品
+    if (listing.seller.toLowerCase() === address?.toLowerCase()) {
+      showToast('不能购买自己的商品', 'error');
+      return;
+    }
+
+    // 检查金币是否足够
+    if (Number(formatEther(listing.price)) > player.gold) {
+      showToast('金币不足', 'error');
       return;
     }
 
     try {
       if (listing.listingType === 0) { // EQUIPMENT
         await buyEquipment(Number(listing.listingId), player.id);
+        showToast('🎉 装备购买成功！', 'success');
       } else { // ITEM
         await buyItem(Number(listing.listingId), player.id, Number(listing.quantity));
+        showToast('🎉 物品购买成功！', 'success');
       }
       
-      // alert('购买成功！');
       // 刷新列表
       refetchActiveListings();
       refetchPlayerListings();
     } catch (error) {
       console.error('Purchase failed:', error);
-      alert('购买失败：' + (error as Error).message);
+      
+      // 将合约错误转换为用户友好的提示
+      let errorMessage = '购买失败';
+      const errorStr = (error as Error).message;
+      
+      if (errorStr.includes('Cannot buy your own item')) {
+        errorMessage = '不能购买自己的商品';
+      } else if (errorStr.includes('Insufficient gold')) {
+        errorMessage = '金币不足';
+      } else if (errorStr.includes('Listing not active')) {
+        errorMessage = '商品已下架或已售出';
+      } else if (errorStr.includes('rejected')) {
+        errorMessage = '交易被用户取消';
+      } else if (errorStr.includes('insufficient funds')) {
+        errorMessage = 'Gas 费不足';
+      }
+      
+      showToast(errorMessage, 'error');
     }
   };
 
   const handleCancelListing = async (listing: MarketListing) => {
     if (!player) {
-      alert('请先连接钱包并创建角色');
+      showToast('请先连接钱包并创建角色', 'error');
       return;
     }
 
     try {
       await cancelListingById(Number(listing.listingId));
-      alert('取消挂单成功！');
+      showToast('✅ 取消挂单成功！', 'success');
       // 刷新列表
       refetchActiveListings();
       refetchPlayerListings();
     } catch (error) {
       console.error('Cancel listing failed:', error);
-      alert('取消挂单失败：' + (error as Error).message);
+      
+      // 将合约错误转换为用户友好的提示
+      let errorMessage = '取消挂单失败';
+      const errorStr = (error as Error).message;
+      
+      if (errorStr.includes('Not the seller')) {
+        errorMessage = '只能取消自己的挂单';
+      } else if (errorStr.includes('Listing not active')) {
+        errorMessage = '挂单已取消或已售出';
+      } else if (errorStr.includes('rejected')) {
+        errorMessage = '交易被用户取消';
+      } else if (errorStr.includes('insufficient funds')) {
+        errorMessage = 'Gas 费不足';
+      }
+      
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -339,11 +387,24 @@ const Market: React.FC = () => {
                       {activeTab === 'all' ? (
                         <button 
                           className="purchase-btn"
-                          onClick={() => handlePurchase(listing)}
-                          disabled={!player || isPurchasingEquipment || isPurchasingItem || Number(formatEther(listing.price)) > player.gold}
+                          onClick={() => {
+                            // 即使按钮禁用，点击自己的商品时也要显示提示
+                            if (listing.seller.toLowerCase() === address?.toLowerCase()) {
+                              showToast('不能购买自己的商品', 'error');
+                              return;
+                            }
+                            handlePurchase(listing);
+                          }}
+                          disabled={
+                            !player || 
+                            isPurchasingEquipment || 
+                            isPurchasingItem || 
+                            Number(formatEther(listing.price)) > player.gold
+                          }
                         >
                           {!player ? '请先连接钱包' : 
                            (isPurchasingEquipment || isPurchasingItem) ? '购买中...' :
+                           listing.seller.toLowerCase() === address?.toLowerCase() ? '自己的挂单' :
                            Number(formatEther(listing.price)) > player.gold ? '金币不足' : '购买'}
                         </button>
                       ) : (
