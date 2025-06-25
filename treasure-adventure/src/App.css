@@ -1218,6 +1218,7 @@ body {
 /* 宝箱计时器 */
 .treasure-box-timer {
   text-align: center;
+  margin-bottom: 10px;
 }
 
 .treasure-box-timer h3 {
@@ -1242,11 +1243,16 @@ body {
 }
 
 .inventory-section {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
+}
+
+.adventure-levels-header h3{
+  margin-top: 0px;
 }
 
 .inventory-section h3 {
   color: #333;
+  margin-top: 0px;
   margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 2px solid #eee;

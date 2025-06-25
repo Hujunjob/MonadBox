@@ -417,7 +417,7 @@ const TreasureBox: React.FC = () => {
         <ul>
           <li>每{GAME_CONFIG.TREASURE_BOX.AUTO_GAIN_INTERVAL}秒自动获得 1 个</li>
           <li>击杀怪物获得 1 个 (等级与森林层级对应)</li>
-          <li>宝箱是金币、装备、血瓶等的唯一来源</li>
+          <li>宝箱是金币、装备、血瓶等的来源</li>
         </ul>
       </div>
     </div>
