@@ -6,7 +6,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./Player.sol";
 import "./TreasureBoxSystem.sol";
-import "./GameConfig.sol";
 import "./GameStructs.sol";
 
 /**
@@ -16,6 +15,9 @@ import "./GameStructs.sol";
 contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     Player public playerNFT;
     TreasureBoxSystem public treasureBoxSystem;
+    
+    // 体力配置
+    uint32 public constant STAMINA_RECOVERY_INTERVAL = 30; // 30 seconds
     
     // 战斗统计
     mapping(uint256 => uint32) public totalBattles;      // playerId => 总战斗次数
@@ -174,7 +176,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         
         // 计算当前体力
         uint32 timeSinceLastUpdate = uint32(block.timestamp) - player.lastStaminaTime;
-        uint8 staminaToRecover = uint8(timeSinceLastUpdate / GameConfig.STAMINA_RECOVERY_INTERVAL);
+        uint8 staminaToRecover = uint8(timeSinceLastUpdate / STAMINA_RECOVERY_INTERVAL);
         uint8 currentStamina = player.stamina;
         
         if (staminaToRecover > 0 && currentStamina < player.maxStamina) {

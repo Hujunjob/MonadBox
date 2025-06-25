@@ -1,16 +1,16 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0xB468647B04bF657C9ee2de65252037d781eABafD' as `0x${string}`,
-  EQUIPMENT_NFT: '0x0b27a79cb9C0B38eE06Ca3d94DAA68e0Ed17F953' as `0x${string}`,
-  ITEM_NFT: '0x7bdd3b028C4796eF0EAf07d11394d0d9d8c24139' as `0x${string}`,
-  GOLD_TOKEN: '0xF85895D097B2C25946BB95C4d11E2F3c035F8f0C' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x47c05BCCA7d57c87083EB4e586007530eE4539e9' as `0x${string}`,
-  BATTLE_SYSTEM: '0x773330693cb7d5D233348E25809770A32483A940' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x52173b6ac069619c206b9A0e75609fC92860AB2A' as `0x${string}`,
-  MARKET: '0x40A633EeF249F21D95C8803b7144f19AAfeEF7ae' as `0x${string}`,
-  RANK: '0x532802f2F9E0e3EE9d5Ba70C35E1F43C0498772D' as `0x${string}`,
-  SUPER_MARKET: '0xdB012DD3E3345e2f8D23c0F3cbCb2D94f430Be8C' as `0x${string}`
+  PLAYER_NFT: '0x5c932424AcBfab036969b3B9D94bA9eCbae7565D' as `0x${string}`,
+  EQUIPMENT_NFT: '0x696358bBb1a743052E0E87BeD78AAd9d18f0e1F4' as `0x${string}`,
+  ITEM_NFT: '0x7036124464A2d2447516309169322c8498ac51e3' as `0x${string}`,
+  GOLD_TOKEN: '0x5A569Ad19272Afa97103fD4DbadF33B2FcbaA175' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x9e7F7d0E8b8F38e3CF2b3F7dd362ba2e9E82baa4' as `0x${string}`,
+  BATTLE_SYSTEM: '0xE7FF84Df24A9a252B6E8A5BB093aC52B1d8bEEdf' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x6D712CB50297b97b79dE784d10F487C00d7f8c2C' as `0x${string}`,
+  MARKET: '0x04F339eC4D75Cf2833069e6e61b60eF56461CD7C' as `0x${string}`,
+  RANK: '0x3de00f44ce68FC56DB0e0E33aD4015C6e78eCB39' as `0x${string}`,
+  SUPER_MARKET: '0x89372b32b8AF3F1272e2efb3088616318D2834cA' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -364,6 +364,188 @@ export const PLAYER_NFT_ABI = [
     ],
     "name": "Upgraded",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "AGILITY_PER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ATTACK_PER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "BASE_EXP_PER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DEFENSE_PER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "HEALTH_PER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "INITIAL_AGILITY",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "INITIAL_ATTACK",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "INITIAL_CRIT_DAMAGE",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "INITIAL_CRIT_RATE",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "INITIAL_DEFENSE",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "INITIAL_HEALTH",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_STAMINA",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "STAMINA_RECOVERY_INTERVAL",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -1549,6 +1731,19 @@ export const BATTLE_SYSTEM_ABI = [
   },
   {
     "inputs": [],
+    "name": "STAMINA_RECOVERY_INTERVAL",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "UPGRADE_INTERFACE_VERSION",
     "outputs": [
       {
@@ -2548,6 +2743,19 @@ export const TREASURE_BOX_SYSTEM_ABI = [
   },
   {
     "inputs": [],
+    "name": "MAX_OFFLINE_BOXES",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "NEXT_LEVEL_PROBABILITY",
     "outputs": [
       {
@@ -2580,6 +2788,19 @@ export const TREASURE_BOX_SYSTEM_ABI = [
         "internalType": "uint8",
         "name": "",
         "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "TREASURE_BOX_INTERVAL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

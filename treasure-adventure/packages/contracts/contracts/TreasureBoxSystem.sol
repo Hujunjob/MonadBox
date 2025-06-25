@@ -8,7 +8,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./AdventureGold.sol";
 import "./Equipment.sol";
 import "./GameStructs.sol";
-import "./GameConfig.sol";
 import "./Player.sol";
 import "./Item.sol";
 
@@ -21,6 +20,10 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     Equipment public equipmentNFT;
     Player public playerNFT;
     Item public itemNFT;
+    
+    // 宝箱配置
+    uint256 public constant TREASURE_BOX_INTERVAL = 10; // 10 seconds
+    uint256 public constant MAX_OFFLINE_BOXES = 100;
 
     struct TreasureBox {
         uint32 level; // 宝箱等级 (1-10)
@@ -149,10 +152,10 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
 
         uint256 timeSinceLastBox = block.timestamp - player.lastTreasureBoxTime;
         uint256 boxesToClaim = timeSinceLastBox /
-            GameConfig.TREASURE_BOX_INTERVAL;
+            TREASURE_BOX_INTERVAL;
 
-        if (boxesToClaim > GameConfig.MAX_OFFLINE_BOXES) {
-            boxesToClaim = GameConfig.MAX_OFFLINE_BOXES;
+        if (boxesToClaim > MAX_OFFLINE_BOXES) {
+            boxesToClaim = MAX_OFFLINE_BOXES;
         }
 
         if (boxesToClaim > 0) {
@@ -713,10 +716,10 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
 
         uint256 timeSinceLastBox = block.timestamp - player.lastTreasureBoxTime;
         uint256 boxesToClaim = timeSinceLastBox /
-            GameConfig.TREASURE_BOX_INTERVAL;
+            TREASURE_BOX_INTERVAL;
 
-        if (boxesToClaim > GameConfig.MAX_OFFLINE_BOXES) {
-            return GameConfig.MAX_OFFLINE_BOXES;
+        if (boxesToClaim > MAX_OFFLINE_BOXES) {
+            return MAX_OFFLINE_BOXES;
         }
 
         return boxesToClaim;

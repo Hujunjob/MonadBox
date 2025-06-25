@@ -11,7 +11,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "./GameStructs.sol";
-import "./GameConfig.sol";
 import "./Equipment.sol";
 import "./AdventureGold.sol";
 import "./Item.sol";
@@ -40,6 +39,28 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     Equipment public equipmentNFT;
     AdventureGold public goldToken;
     Item public itemNFT;
+    
+    // 体力配置
+    uint8 public constant MAX_STAMINA = 24;
+    uint32 public constant STAMINA_RECOVERY_INTERVAL = 30; // 30 seconds
+    
+    // 经验和等级配置
+    uint16 public constant BASE_EXP_PER_LEVEL = 100;
+    uint16 public constant MAX_LEVEL = 100;
+    
+    // 初始玩家属性
+    uint16 public constant INITIAL_HEALTH = 100;
+    uint16 public constant INITIAL_ATTACK = 15;
+    uint16 public constant INITIAL_DEFENSE = 5;
+    uint16 public constant INITIAL_AGILITY = 10;
+    uint8 public constant INITIAL_CRIT_RATE = 5;
+    uint16 public constant INITIAL_CRIT_DAMAGE = 150;
+    
+    // 升级属性提升
+    uint16 public constant HEALTH_PER_LEVEL = 10;
+    uint16 public constant ATTACK_PER_LEVEL = 2;
+    uint16 public constant DEFENSE_PER_LEVEL = 1;
+    uint16 public constant AGILITY_PER_LEVEL = 1;
     
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
@@ -107,15 +128,15 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
             name: name,
             level: 1,
             experience: 0,
-            health: GameConfig.INITIAL_HEALTH,
-            maxHealth: GameConfig.INITIAL_HEALTH,
-            attack: GameConfig.INITIAL_ATTACK,
-            defense: GameConfig.INITIAL_DEFENSE,
-            agility: GameConfig.INITIAL_AGILITY,
-            criticalRate: GameConfig.INITIAL_CRIT_RATE,
-            criticalDamage: GameConfig.INITIAL_CRIT_DAMAGE,
-            stamina: GameConfig.MAX_STAMINA,
-            maxStamina: GameConfig.MAX_STAMINA,
+            health: INITIAL_HEALTH,
+            maxHealth: INITIAL_HEALTH,
+            attack: INITIAL_ATTACK,
+            defense: INITIAL_DEFENSE,
+            agility: INITIAL_AGILITY,
+            criticalRate: INITIAL_CRIT_RATE,
+            criticalDamage: INITIAL_CRIT_DAMAGE,
+            stamina: MAX_STAMINA,
+            maxStamina: MAX_STAMINA,
             lastStaminaTime: uint32(block.timestamp),
             currentForestLevel: 1,
             currentForestProgress: 0,
@@ -188,7 +209,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         require(player.maxHealth>0, "Player not exists");
         
         uint32 timeSinceLastUpdate = uint32(block.timestamp) - player.lastStaminaTime;
-        uint8 staminaToRecover = uint8(timeSinceLastUpdate / GameConfig.STAMINA_RECOVERY_INTERVAL);
+        uint8 staminaToRecover = uint8(timeSinceLastUpdate / STAMINA_RECOVERY_INTERVAL);
         
         if (staminaToRecover > 0 && player.stamina < player.maxStamina) {
             uint8 actualRecovery = staminaToRecover;
@@ -197,7 +218,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
             }
             
             player.stamina += actualRecovery;
-            player.lastStaminaTime += actualRecovery * GameConfig.STAMINA_RECOVERY_INTERVAL;
+            player.lastStaminaTime += actualRecovery * STAMINA_RECOVERY_INTERVAL;
             
             emit StaminaUpdated(playerId, player.stamina);
         }
@@ -211,18 +232,18 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         require(player.maxHealth>0, "Player not exists");
         
         uint16 oldLevel = player.level;
-        uint32 expNeeded = player.level * GameConfig.BASE_EXP_PER_LEVEL;
+        uint32 expNeeded = player.level * BASE_EXP_PER_LEVEL;
         
-        while (player.experience >= expNeeded && player.level < GameConfig.MAX_LEVEL) {
+        while (player.experience >= expNeeded && player.level < MAX_LEVEL) {
             player.experience -= expNeeded;
             player.level++;
             
             // 属性提升
-            player.maxHealth += GameConfig.HEALTH_PER_LEVEL;
-            player.health += GameConfig.HEALTH_PER_LEVEL;
-            player.attack += GameConfig.ATTACK_PER_LEVEL;
-            player.defense += GameConfig.DEFENSE_PER_LEVEL;
-            player.agility += GameConfig.AGILITY_PER_LEVEL;
+            player.maxHealth += HEALTH_PER_LEVEL;
+            player.health += HEALTH_PER_LEVEL;
+            player.attack += ATTACK_PER_LEVEL;
+            player.defense += DEFENSE_PER_LEVEL;
+            player.agility += AGILITY_PER_LEVEL;
             
             // 每10级增加最大体力
             if (player.level % 10 == 0 && player.maxStamina < 50) {
@@ -230,7 +251,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
                 player.stamina += 2;
             }
             
-            expNeeded = player.level * GameConfig.BASE_EXP_PER_LEVEL;
+            expNeeded = player.level * BASE_EXP_PER_LEVEL;
         }
         
         if (player.level > oldLevel) {
