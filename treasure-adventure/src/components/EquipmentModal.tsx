@@ -198,15 +198,9 @@ const EquipmentModal: React.FC<EquipmentModalProps> = ({
           <div className="equipment-upgrade">
             <h4>升星</h4>
             <div className="upgrade-info">
-              <div>升星费用: {upgradeCost} 金币</div>
-              <div>成功率: {successRate}%</div>
-              <div>当前金币: {Math.floor(player.gold)}</div>
-              <div>需要材料: {availableMaterials.materialsNeeded} 个同类装备</div>
-              <div>可用材料: {availableMaterials.materialIds.length} 个</div>
-              <div>已选择: {selectedMaterials.length} 个</div>
+              <div>费用: {upgradeCost} 金币  成功率: {successRate}%</div>
+              <div>需要材料: {availableMaterials.materialIds.length}/{availableMaterials.materialsNeeded} 个相同装备</div>
               {!canUpgradeStars && <div style={{ color: '#dc3545' }}>已达到最大星级</div>}
-              {!canAffordUpgrade && canUpgradeStars && <div style={{ color: '#dc3545' }}>金币不足</div>}
-              {!hasSufficientMaterials && canUpgradeStars && <div style={{ color: '#dc3545' }}>材料装备不足</div>}
             </div>
           </div>
         </div>
