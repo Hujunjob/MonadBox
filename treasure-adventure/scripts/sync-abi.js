@@ -11,7 +11,7 @@ const contracts = {
   'EQUIPMENT_NFT': 'Equipment', 
   'GOLD_TOKEN': 'AdventureGold',
   'TREASURE_BOX_SYSTEM': 'TreasureBoxSystem',
-  'BATTLE_SYSTEM': 'BattleSystemV2',
+  'BATTLE_SYSTEM': 'BattleSystem',
   'EQUIPMENT_SYSTEM': 'EquipmentSystem'
 };
 
@@ -66,7 +66,7 @@ function getContractFile(contractName) {
     'Equipment': 'Equipment',
     'AdventureGold': 'AdventureGold',
     'TreasureBoxSystem': 'TreasureBoxSystem',
-    'BattleSystemV2': 'BattleSystemV2',
+    'BattleSystem': 'BattleSystem',
     'EquipmentSystem': 'EquipmentSystem'
   };
   return fileMap[contractName] || contractName;

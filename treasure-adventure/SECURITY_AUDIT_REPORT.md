@@ -25,7 +25,7 @@
 ### 🛡️ 其他合约安全状况：
 
 - **TreasureBoxSystem.sol**: ✅ 安全 - 所有函数都有正确的权限控制
-- **BattleSystemV2.sol**: ✅ 安全 - 所有函数都验证玩家所有权
+- **BattleSystem.sol**: ✅ 安全 - 所有函数都验证玩家所有权
 - **Equipment.sol**: ✅ 安全 - 只有 `onlyOwner` 可以修改状态
 - **EquipmentSystem.sol**: ✅ 安全 - 所有函数都验证装备所有权
 - **AdventureGold.sol**: ✅ 安全 - 只有 `onlyOwner` 可以铸造/销毁

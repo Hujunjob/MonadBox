@@ -10,10 +10,10 @@ import "./GameConfig.sol";
 import "./GameStructs.sol";
 
 /**
- * @title BattleSystemV2
+ * @title BattleSystem
  * @dev 战斗系统合约 - 处理战斗逻辑，经验获得，不再产生金币
  */
-contract BattleSystemV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable {
+contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     Player public playerNFT;
     TreasureBoxSystem public treasureBoxSystem;
     
@@ -170,7 +170,7 @@ contract BattleSystemV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function _canBattle(uint256 playerId, uint8 staminaCost) internal view returns (bool) {
         GameStructs.Player memory player = playerNFT.getPlayer(playerId);
-        if (!player.maxHealth) return false;
+        if (player.maxHealth==0) return false;
         
         // 计算当前体力
         uint32 timeSinceLastUpdate = uint32(block.timestamp) - player.lastStaminaTime;

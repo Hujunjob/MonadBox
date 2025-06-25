@@ -36,7 +36,7 @@ function filterABI(abi, contractName) {
       'getPlayerTotalStats', 'updateLastTreasureBoxTime',
       'getPlayerItemQuantity', 'getPlayerItems', 'useHealthPotion', 'useItem', 'transferItemToMarket'
     ],
-    BattleSystemV2: ['completeBattle', 'startAdventure', 'getBattleStats', 'canBattle', 'getMaxAdventureLevel', 'getMonsterStats', 'estimateWinRate'],
+    BattleSystem: ['completeBattle', 'startAdventure', 'getBattleStats', 'canBattle', 'getMaxAdventureLevel', 'getMonsterStats', 'estimateWinRate'],
     AdventureGold: ['balanceOf'],
     TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount', 'getClaimableOfflineBoxes', 'getPlayerTreasureBoxes'],
     EquipmentSystem: ['upgradeStars', 'enhanceEquipment'],
@@ -68,7 +68,7 @@ function filterABI(abi, contractName) {
  * 生成完整的前端contracts文件内容
  */
 function generateContractsFile(addresses) {
-  const contracts = ['Player', 'BattleSystemV2', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market', 'Rank', 'SuperMarket'];
+  const contracts = ['Player', 'BattleSystem', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market', 'Rank', 'SuperMarket'];
   
   let content = `// 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
@@ -96,7 +96,7 @@ export const CONTRACT_ADDRESSES = {
     const filteredABI = filterABI(abi, contractName);
     
     if (filteredABI.length > 0) {
-      const abiName = contractName === 'BattleSystemV2' ? 'BATTLE_SYSTEM_ABI' :
+      const abiName = contractName === 'BattleSystem' ? 'BATTLE_SYSTEM_ABI' :
                      contractName === 'AdventureGold' ? 'GOLD_TOKEN_ABI' :
                      contractName === 'TreasureBoxSystem' ? 'TREASURE_BOX_SYSTEM_ABI' :
                      contractName === 'EquipmentSystem' ? 'EQUIPMENT_SYSTEM_ABI' :
@@ -228,10 +228,10 @@ async function main() {
   const treasureBoxSystemAddress = await treasureBoxSystem.getAddress();
   console.log("✅ TreasureBoxSystem deployed to:", treasureBoxSystemAddress);
 
-  // 6. 部署 BattleSystemV2 (upgradeable)
-  console.log("\n6️⃣ Deploying BattleSystemV2...");
-  const BattleSystemV2 = await hre.ethers.getContractFactory("BattleSystemV2");
-  const battleSystem = await upgrades.deployProxy(BattleSystemV2, [
+  // 6. 部署 BattleSystem (upgradeable)
+  console.log("\n6️⃣ Deploying BattleSystem...");
+  const BattleSystem = await hre.ethers.getContractFactory("BattleSystem");
+  const battleSystem = await upgrades.deployProxy(BattleSystem, [
     playerNFTAddress,
     treasureBoxSystemAddress,
     deployer.address
@@ -241,7 +241,7 @@ async function main() {
   });
   await battleSystem.waitForDeployment();
   const battleSystemAddress = await battleSystem.getAddress();
-  console.log("✅ BattleSystemV2 deployed to:", battleSystemAddress);
+  console.log("✅ BattleSystem deployed to:", battleSystemAddress);
 
   // 7. 部署 EquipmentSystem (upgradeable)
   console.log("\n7️⃣ Deploying EquipmentSystem...");
@@ -335,13 +335,13 @@ async function main() {
   await goldToken.authorizeSystem(treasureBoxSystemAddress);
   console.log("✅ TreasureBoxSystem authorized to mint gold");
   
-  // BattleSystemV2需要调用Player合约的函数
+  // BattleSystem需要调用Player合约的函数
   await playerNFT.authorizeSystem(battleSystemAddress);
-  console.log("✅ BattleSystemV2 authorized to call Player functions");
+  console.log("✅ BattleSystem authorized to call Player functions");
   
-  // BattleSystemV2需要调用TreasureBoxSystem的函数
+  // BattleSystem需要调用TreasureBoxSystem的函数
   await treasureBoxSystem.authorizeSystem(battleSystemAddress);
-  console.log("✅ BattleSystemV2 authorized to call TreasureBoxSystem functions");
+  console.log("✅ BattleSystem authorized to call TreasureBoxSystem functions");
   
   // TreasureBoxSystem需要调用Player合约的金币和装备管理函数
   await playerNFT.authorizeSystem(treasureBoxSystemAddress);
@@ -402,7 +402,7 @@ async function main() {
   console.log("✅ Item NFT (Upgradeable ERC1155 for potions, job books, pet eggs)");
   console.log("✅ Player NFT (Upgradeable, non-transferable, holds all player data and items)");
   console.log("✅ TreasureBoxSystem (Upgradeable, can mint gold, equipment and item rewards)");
-  console.log("✅ BattleSystemV2 (Upgradeable, no registration, no gold rewards, reads Player NFT)");
+  console.log("✅ BattleSystem (Upgradeable, no registration, no gold rewards, reads Player NFT)");
   console.log("✅ EquipmentSystem (Upgradeable, star upgrade, enhancement, decomposition)");
   console.log("✅ Market (Upgradeable, buy/sell equipment and items with proper transfers)");
   console.log("✅ Rank (Upgradeable, player ranking system with challenge mechanics)");

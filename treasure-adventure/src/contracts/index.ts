@@ -1,16 +1,16 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0x5322471a7E37Ac2B8902cFcba84d266b37D811A0' as `0x${string}`,
-  EQUIPMENT_NFT: '0x313F922BE1649cEc058EC0f076664500c78bdc0b' as `0x${string}`,
-  ITEM_NFT: '0xc0Bb1650A8eA5dDF81998f17B5319afD656f4c11' as `0x${string}`,
-  GOLD_TOKEN: '0xA3307BF348ACC4bEDdd67CCA2f7F0c4349d347Db' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x90c84237fDdf091b1E63f369AF122EB46000bc70' as `0x${string}`,
-  BATTLE_SYSTEM: '0x3D63c50AD04DD5aE394CAB562b7691DD5de7CF6f' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x103A3b128991781EE2c8db0454cA99d67b257923' as `0x${string}`,
-  MARKET: '0xBbc18b580256A82dC0F9A86152b8B22E7C1C8005' as `0x${string}`,
-  RANK: '0xB9d9e972100a1dD01cd441774b45b5821e136043' as `0x${string}`,
-  SUPER_MARKET: '0x707531c9999AaeF9232C8FEfBA31FBa4cB78d84a' as `0x${string}`
+  PLAYER_NFT: '0xB468647B04bF657C9ee2de65252037d781eABafD' as `0x${string}`,
+  EQUIPMENT_NFT: '0x0b27a79cb9C0B38eE06Ca3d94DAA68e0Ed17F953' as `0x${string}`,
+  ITEM_NFT: '0x7bdd3b028C4796eF0EAf07d11394d0d9d8c24139' as `0x${string}`,
+  GOLD_TOKEN: '0xF85895D097B2C25946BB95C4d11E2F3c035F8f0C' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x47c05BCCA7d57c87083EB4e586007530eE4539e9' as `0x${string}`,
+  BATTLE_SYSTEM: '0x773330693cb7d5D233348E25809770A32483A940' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x52173b6ac069619c206b9A0e75609fC92860AB2A' as `0x${string}`,
+  MARKET: '0x40A633EeF249F21D95C8803b7144f19AAfeEF7ae' as `0x${string}`,
+  RANK: '0x532802f2F9E0e3EE9d5Ba70C35E1F43C0498772D' as `0x${string}`,
+  SUPER_MARKET: '0xdB012DD3E3345e2f8D23c0F3cbCb2D94f430Be8C' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -639,16 +639,6 @@ export const PLAYER_NFT_ABI = [
             "type": "uint256"
           },
           {
-            "internalType": "bool",
-            "name": "initialized",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint8",
-            "name": "job",
-            "type": "uint8"
-          },
-          {
             "internalType": "uint256",
             "name": "goldBalance",
             "type": "uint256"
@@ -1169,16 +1159,6 @@ export const PLAYER_NFT_ABI = [
         "type": "uint256"
       },
       {
-        "internalType": "bool",
-        "name": "initialized",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint8",
-        "name": "job",
-        "type": "uint8"
-      },
-      {
         "internalType": "uint256",
         "name": "goldBalance",
         "type": "uint256"
@@ -1464,7 +1444,7 @@ export const PLAYER_NFT_ABI = [
   }
 ] as const;
 
-// BattleSystemV2 合约 ABI
+// BattleSystem 合约 ABI
 export const BATTLE_SYSTEM_ABI = [
   {
     "anonymous": false,
