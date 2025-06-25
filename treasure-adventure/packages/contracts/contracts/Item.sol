@@ -26,7 +26,22 @@ contract Item is ERC1155, Ownable {
         _mint(to, id, value, '');
     }
 
-    function burn(address from, uint256 id, uint256 value) external onlyAuthorizedOrOwner() {
+    /**
+     * @dev 销毁自己的物品
+     * @param id 物品ID
+     * @param value 销毁数量
+     */
+    function burn(uint256 id, uint256 value) external {
+        _burn(msg.sender, id, value);
+    }
+
+    /**
+     * @dev 系统销毁物品 - 只有授权系统可以调用
+     * @param from 销毁地址
+     * @param id 物品ID
+     * @param value 销毁数量
+     */
+    function systemBurn(address from, uint256 id, uint256 value) external onlyAuthorizedOrOwner() {
         _burn(from, id, value);
     }
 

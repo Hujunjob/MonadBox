@@ -25,7 +25,8 @@
       "Bash(sed:*)",
       "Bash(chmod:*)",
       "Bash(jq:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(python3:*)"
     ],
     "deny": []
   }

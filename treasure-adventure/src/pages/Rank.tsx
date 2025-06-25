@@ -18,6 +18,7 @@ const Rank: React.FC = () => {
   const player = hybridStore.player;
   const currentPlayerId = player.id;
   const playerGold = player.gold;
+
   const { 
     getTopRanks, 
     getPlayerRank, 

@@ -3,13 +3,14 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 /**
  * @title Equipment
  * @dev 宝物冒险游戏的装备 NFT (ERC721)
  */
-contract Equipment is ERC721, ERC721Enumerable, Ownable {
+contract Equipment is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
     uint256 private _tokenIds;
 
     struct EquipmentData {
@@ -115,16 +116,6 @@ contract Equipment is ERC721, ERC721Enumerable, Ownable {
         return equipmentData[tokenId];
     }
 
-    /**
-     * @dev 更新装备属性（用于升星和强化）
-     * @param tokenId 装备ID
-     * @param stars 新星级
-     * @param attack 新攻击力
-     * @param defense 新防御力
-     * @param agility 新敏捷
-     * @param criticalRate 新暴击率
-     * @param criticalDamage 新暴击伤害
-     */
     function updateEquipment(
         uint256 tokenId,
         uint8 stars,
@@ -147,15 +138,17 @@ contract Equipment is ERC721, ERC721Enumerable, Ownable {
         emit EquipmentUpdated(tokenId, stars, attack, defense, agility);
     }
 
+
     /**
-     * @dev 销毁装备NFT
+     * @dev 销毁装备NFT - 只有拥有者可以销毁自己的装备
      * @param tokenId 装备ID
      */
-    function burn(uint256 tokenId) external onlyAuthorizedOrOwner {
-        require(_ownerOf(tokenId) != address(0), "Equipment does not exist");
+    function burn(uint256 tokenId) public override {
+        // ERC721Burnable 已经检查了调用者是否是 owner 或 approved
         delete equipmentData[tokenId];
-        _burn(tokenId);
+        super.burn(tokenId);
     }
+
 
     /**
      * @dev 重写_update函数以支持ERC721Enumerable

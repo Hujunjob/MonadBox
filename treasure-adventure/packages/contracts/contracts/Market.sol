@@ -211,7 +211,7 @@ contract Market is Ownable, ReentrancyGuard, IERC1155Receiver, IERC721Receiver {
         playerNFT.addGold(listing.playerId, sellerAmount);
         
         // 销毁手续费金币
-        goldToken.burn(address(this), fee);
+        goldToken.burn(fee);
         
         // 转移装备：市场 -> 买家
         equipmentNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId);
@@ -267,7 +267,7 @@ contract Market is Ownable, ReentrancyGuard, IERC1155Receiver, IERC721Receiver {
         playerNFT.addGold(listing.playerId, sellerAmount);
         
         // 销毁手续费金币
-        goldToken.burn(address(this), fee);
+        goldToken.burn(fee);
         
         // 转移物品：市场 -> 买家的Player NFT
         itemNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId, quantity, "");

@@ -113,7 +113,7 @@ contract Rank is Ownable, ReentrancyGuard {
     function _claimEmptyRank(uint256 playerId, uint256 rankIndex) internal {
         // 支付挑战费用 - 全部销毁
         playerNFT.spendGold(playerId, CHALLENGE_COST, address(this));
-        goldToken.burn(address(this), CHALLENGE_COST);
+        goldToken.burn(CHALLENGE_COST);
 
         // 如果玩家已有排名，清除旧排名
         uint256 oldRank = playerToRank[playerId];
@@ -213,7 +213,7 @@ contract Rank is Ownable, ReentrancyGuard {
         }
 
         // 销毁手续费
-        goldToken.burn(address(this), fee);
+        goldToken.burn(fee);
 
         emit ChallengeResult(
             challengerPlayerId,

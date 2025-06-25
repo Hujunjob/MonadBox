@@ -2,13 +2,14 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title AdventureGold
  * @dev 宝物冒险游戏的金币代币 (ERC20)
  */
-contract AdventureGold is ERC20, Ownable {
+contract AdventureGold is ERC20, ERC20Burnable, Ownable {
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
     
@@ -29,14 +30,6 @@ contract AdventureGold is ERC20, Ownable {
         _mint(to, amount);
     }
     
-    /**
-     * @dev 销毁金币，只能由授权系统或合约所有者调用
-     * @param from 销毁地址
-     * @param amount 销毁数量 (wei 单位)
-     */
-    function burn(address from, uint256 amount) external onlyAuthorizedOrOwner {
-        _burn(from, amount);
-    }
     
     /**
      * @dev 授权系统合约

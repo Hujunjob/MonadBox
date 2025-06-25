@@ -1,16 +1,16 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0xe1Fd27F4390DcBE165f4D60DBF821e4B9Bb02dEd' as `0x${string}`,
-  EQUIPMENT_NFT: '0x870526b7973b56163a6997bB7C886F5E4EA53638' as `0x${string}`,
-  ITEM_NFT: '0xD49a0e9A4CD5979aE36840f542D2d7f02C4817Be' as `0x${string}`,
-  GOLD_TOKEN: '0xefc1aB2475ACb7E60499Efb171D173be19928a05' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xc582Bc0317dbb0908203541971a358c44b1F3766' as `0x${string}`,
-  BATTLE_SYSTEM: '0xB2b580ce436E6F77A5713D80887e14788Ef49c9A' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0xB377a2EeD7566Ac9fCb0BA673604F9BF875e2Bab' as `0x${string}`,
-  MARKET: '0x66F625B8c4c635af8b74ECe2d7eD0D58b4af3C3d' as `0x${string}`,
-  RANK: '0x8bCe54ff8aB45CB075b044AE117b8fD91F9351aB' as `0x${string}`,
-  SUPER_MARKET: '0x74Cf9087AD26D541930BaC724B7ab21bA8F00a27' as `0x${string}`
+  PLAYER_NFT: '0xcC4c41415fc68B2fBf70102742A83cDe435e0Ca7' as `0x${string}`,
+  EQUIPMENT_NFT: '0x942ED2fa862887Dc698682cc6a86355324F0f01e' as `0x${string}`,
+  ITEM_NFT: '0x8D81A3DCd17030cD5F23Ac7370e4Efb10D2b3cA4' as `0x${string}`,
+  GOLD_TOKEN: '0x8bEe2037448F096900Fd9affc427d38aE6CC0350' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xa722bdA6968F50778B973Ae2701e90200C564B49' as `0x${string}`,
+  BATTLE_SYSTEM: '0xc7cDb7A2E5dDa1B7A0E792Fe1ef08ED20A6F56D4' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x967AB65ef14c58bD4DcfFeaAA1ADb40a022140E5' as `0x${string}`,
+  MARKET: '0xe1708FA6bb2844D5384613ef0846F9Bc1e8eC55E' as `0x${string}`,
+  RANK: '0x0aec7c174554AF8aEc3680BB58431F6618311510' as `0x${string}`,
+  SUPER_MARKET: '0x8e264821AFa98DD104eEcfcfa7FD9f8D8B320adA' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -2769,31 +2769,6 @@ export const EQUIPMENT_SYSTEM_ABI = [
       {
         "indexed": false,
         "internalType": "uint8",
-        "name": "oldLevel",
-        "type": "uint8"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "newLevel",
-        "type": "uint8"
-      }
-    ],
-    "name": "EquipmentEnhanced",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
         "name": "oldStars",
         "type": "uint8"
       },
@@ -2844,54 +2819,6 @@ export const EQUIPMENT_SYSTEM_ABI = [
     ],
     "name": "OwnershipTransferred",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "name": "enhanceConfigs",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "goldCost",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "successRate",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint16",
-        "name": "statBonus",
-        "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "equipmentEnhanceLevel",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [],
@@ -2996,16 +2923,6 @@ export const EQUIPMENT_SYSTEM_ABI = [
         "internalType": "struct Equipment.EquipmentData",
         "name": "equipmentData",
         "type": "tuple"
-      },
-      {
-        "internalType": "uint8",
-        "name": "enhanceLevel",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "nextEnhanceCost",
-        "type": "uint256"
       },
       {
         "internalType": "uint256",
