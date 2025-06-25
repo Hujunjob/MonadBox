@@ -37,6 +37,11 @@ const Market: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [activeTab, setActiveTab] = useState<'all' | 'my'>('all');
   const [equipmentCache, setEquipmentCache] = useState<Map<string, EquipmentDetails>>(new Map());
+  const [selectedItemType, setSelectedItemType] = useState<string>('all');
+  const [selectedEquipmentType, setSelectedEquipmentType] = useState<string>('all');
+  const [selectedLevel, setSelectedLevel] = useState<string>('all');
+  const [selectedRarity, setSelectedRarity] = useState<string>('all');
+  const [sortByPrice, setSortByPrice] = useState<boolean>(false);
   const itemsPerPage = 20;
   const publicClient = usePublicClient();
   const { showToast } = useToast();
@@ -58,8 +63,73 @@ const Market: React.FC = () => {
   } = useMarket();
 
   const loading = false; // Market hook handles loading states
-  const listings = activeTab === 'all' ? (activeListings || []) : (playerListings || []);
-  const totalCount = activeTab === 'all' ? Number(totalActiveListings || 0n) : listings.length;
+  const rawListings = activeTab === 'all' ? (activeListings || []) : (playerListings || []);
+  
+  // 过滤和排序逻辑
+  const filteredListings = rawListings.filter(listing => {
+    // 物品类型过滤
+    if (selectedItemType !== 'all') {
+      if (selectedItemType === 'equipment' && listing.listingType !== 0) return false;
+      if (selectedItemType === 'item' && listing.listingType !== 1) return false;
+      if (selectedItemType === 'health_potion') {
+        if (listing.listingType !== 1) return false;
+        const tokenId = Number(listing.tokenId);
+        if (tokenId < 1000 || tokenId >= 2000) return false;
+      }
+      if (selectedItemType === 'job_advancement_book') {
+        if (listing.listingType !== 1) return false;
+        const tokenId = Number(listing.tokenId);
+        if (tokenId < 2000 || tokenId >= 3000) return false;
+      }
+      if (selectedItemType === 'pet_egg') {
+        if (listing.listingType !== 1) return false;
+        const tokenId = Number(listing.tokenId);
+        if (tokenId < 3000 || tokenId >= 4000) return false;
+      }
+    }
+    
+    // 装备子类型过滤（仅对装备有效）
+    if (selectedEquipmentType !== 'all' && listing.listingType === 0) {
+      const cacheKey = listing.tokenId.toString();
+      const cachedEquipment = equipmentCache.get(cacheKey);
+      if (cachedEquipment) {
+        const equipmentTypeStr = getEquipmentTypeString(cachedEquipment.equipmentType);
+        if (selectedEquipmentType !== equipmentTypeStr) return false;
+      }
+    }
+    
+    // 等级过滤（仅对装备有效）
+    if (selectedLevel !== 'all' && listing.listingType === 0) {
+      const cacheKey = listing.tokenId.toString();
+      const cachedEquipment = equipmentCache.get(cacheKey);
+      if (cachedEquipment) {
+        const level = cachedEquipment.level;
+        const targetLevel = parseInt(selectedLevel);
+        if (!isNaN(targetLevel) && level !== targetLevel) return false;
+      }
+    }
+    
+    // 稀有度过滤（仅对装备有效）
+    if (selectedRarity !== 'all' && listing.listingType === 0) {
+      const cacheKey = listing.tokenId.toString();
+      const cachedEquipment = equipmentCache.get(cacheKey);
+      if (cachedEquipment) {
+        const rarityNames = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+        const rarityName = rarityNames[cachedEquipment.rarity] || 'common';
+        if (selectedRarity !== rarityName) return false;
+      }
+    }
+    
+    return true;
+  });
+  
+  // 价格排序
+  const sortedListings = sortByPrice 
+    ? [...filteredListings].sort((a, b) => Number(a.price - b.price))
+    : filteredListings;
+  
+  const listings = sortedListings;
+  const totalCount = listings.length;
 
   const handlePurchase = async (listing: MarketListing) => {
     if (!player) {
@@ -316,6 +386,89 @@ const Market: React.FC = () => {
         >
           我的物品
         </button>
+      </div>
+      
+      {/* 过滤器 */}
+      <div className="market-filters">
+        <div className="filter-group">
+          <label>物品类型:</label>
+          <select 
+            value={selectedItemType} 
+            onChange={(e) => {
+              setSelectedItemType(e.target.value);
+              // 如果不是装备类型，重置装备子类型
+              if (e.target.value !== 'all' && e.target.value !== 'equipment') {
+                setSelectedEquipmentType('all');
+              }
+            }}
+          >
+            <option value="all">全部</option>
+            <option value="equipment">装备</option>
+            <option value="health_potion">血瓶</option>
+            <option value="job_advancement_book">转职书</option>
+            <option value="pet_egg">宠物蛋</option>
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>装备类型:</label>
+          <select 
+            value={selectedEquipmentType} 
+            onChange={(e) => setSelectedEquipmentType(e.target.value)}
+            disabled={selectedItemType !== 'all' && selectedItemType !== 'equipment'}
+          >
+            <option value="all">全部</option>
+            <option value="weapon">武器</option>
+            <option value="armor">护甲</option>
+            <option value="helmet">头盔</option>
+            <option value="shield">盾牌</option>
+            <option value="shoes">鞋子</option>
+            <option value="accessory">饰品</option>
+            <option value="ring">戒指</option>
+            <option value="pet">宠物</option>
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>等级:</label>
+          <select 
+            value={selectedLevel} 
+            onChange={(e) => setSelectedLevel(e.target.value)}
+            disabled={selectedItemType !== 'all' && selectedItemType !== 'equipment'}
+          >
+            <option value="all">全部</option>
+            {Array.from({length: 50}, (_, i) => i + 1).map(level => (
+              <option key={level} value={level.toString()}>{level}级</option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>稀有度:</label>
+          <select 
+            value={selectedRarity} 
+            onChange={(e) => setSelectedRarity(e.target.value)}
+            disabled={selectedItemType !== 'all' && selectedItemType !== 'equipment'}
+          >
+            <option value="all">全部</option>
+            <option value="common">普通</option>
+            <option value="uncommon">优秀</option>
+            <option value="rare">稀有</option>
+            <option value="epic">史诗</option>
+            <option value="legendary">传说</option>
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={sortByPrice} 
+              onChange={(e) => setSortByPrice(e.target.checked)}
+            />
+            价格从低到高
+          </label>
+        </div>
       </div>
       
       {loading ? (

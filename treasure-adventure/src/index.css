@@ -340,6 +340,51 @@ button:focus-visible {
   border-bottom-color: #007bff;
 }
 
+/* Market Filters */
+.market-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  color: #000;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-group select {
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  font-size: 0.9rem;
+  min-width: 120px;
+}
+
+.filter-group select:disabled {
+  background: rgba(255, 255, 255, 0.5);
+  color: #666;
+  cursor: not-allowed;
+}
+
+.filter-group input[type="checkbox"] {
+  margin-right: 5px;
+  transform: scale(1.2);
+}
+
 /* My Listings */
 .my-listing-actions {
   display: flex;
