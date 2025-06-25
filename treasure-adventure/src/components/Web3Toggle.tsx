@@ -1,41 +1,13 @@
 import React, { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useWeb3GameStore, useHybridGameStore } from '../store/web3GameStore';
-import { useToast } from './ToastManager';
+import RegisterPlayerModal from './RegisterPlayerModal';
 
 const Web3Toggle: React.FC = () => {
   const { isConnected, address } = useAccount();
-  const { showToast } = useToast();
   const hybridStore = useHybridGameStore();
   const web3Store = useWeb3GameStore();
-  const [showRegisterForm, setShowRegisterForm] = useState(false);
-  const [playerName, setPlayerName] = useState('');
-
-  const handleRegister = async () => {
-    if (!playerName.trim()) {
-      showToast('请输入玩家名称', 'error');
-      return;
-    }
-
-    if (playerName.length < 2 || playerName.length > 20) {
-      showToast('玩家名称长度应为2-20字符', 'error');
-      return;
-    }
-
-    if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(playerName)) {
-      showToast('玩家名称只能包含中文、英文、数字、下划线', 'error');
-      return;
-    }
-
-    try {
-      await hybridStore.registerPlayer(playerName);
-      setShowRegisterForm(false);
-      setPlayerName('');
-      showToast('正在注册玩家...', 'info');
-    } catch (error) {
-      showToast('注册失败，请重试', 'error');
-    }
-  };
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   return (
     <>
@@ -69,11 +41,11 @@ const Web3Toggle: React.FC = () => {
           {/* 注册按钮 */}
           {isConnected && !hybridStore.isPlayerRegistered && (
             <button
-              onClick={() => setShowRegisterForm(!showRegisterForm)}
+              onClick={() => setShowRegisterModal(true)}
               className="register-btn"
               disabled={hybridStore.isPending || hybridStore.isConfirming}
             >
-              {showRegisterForm ? '取消注册' : '注册玩家'}
+              注册玩家
             </button>
           )}
         </div>
@@ -101,45 +73,13 @@ const Web3Toggle: React.FC = () => {
           </div>
         )}
 
-        {/* 注册表单 */}
-        {showRegisterForm && isConnected && !hybridStore.isPlayerRegistered && (
-          <div className="register-form">
-            <h4>注册链上玩家</h4>
-            <div className="form-group">
-              <label>玩家名称:</label>
-              <input
-                type="text"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                placeholder="输入玩家名称 (2-20字符)"
-                maxLength={20}
-                className="register-input"
-              />
-            </div>
-            <div className="register-rules">
-              只允许中文、英文、数字、下划线
-            </div>
-            <div className="form-actions">
-              <button
-                onClick={handleRegister}
-                className="confirm-register-btn"
-                disabled={hybridStore.isPending || hybridStore.isConfirming || !playerName.trim()}
-              >
-                {hybridStore.isPending ? '注册中...' : '确认注册'}
-              </button>
-              <button
-                onClick={() => setShowRegisterForm(false)}
-                className="cancel-register-btn"
-              >
-                取消
-              </button>
-            </div>
-          </div>
-        )}
       </div>}
 
+      <RegisterPlayerModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+      />
     </>
-
   );
 };
 

@@ -148,7 +148,10 @@ const WalletConnect: React.FC = () => {
                       cursor: 'pointer',
                     }}
                   >
-                    {isBurnerWallet ? '本地钱包 🔥' : account.displayName}
+                    {isBurnerWallet ? 
+                      `🔥 ${account.address.slice(0, 6)}...${account.address.slice(-4)}` : 
+                      account.displayName
+                    }
                   </button>
                 </div>
               );
