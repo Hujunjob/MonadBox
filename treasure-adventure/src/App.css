@@ -183,7 +183,7 @@ body {
 /* 游戏内容 */
 .game-content {
   background: white;
-  padding: 20px;
+  padding: 10px;
   padding-top: 60px;
   padding-bottom: 80px;
   border-radius: 10px;
@@ -2797,11 +2797,10 @@ body {
 
 /* 怪物显示区域样式 */
 .monsters-section {
-  margin: 15px;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  /* background-color: rgba(255, 255, 255, 0.95); */
+  /* border-radius: 12px; */
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
 }
 
 .section-header {
@@ -2830,7 +2829,7 @@ body {
 .monsters-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 2px;
   margin-top: 20px;
 }
 

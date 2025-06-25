@@ -365,6 +365,7 @@ export function useWeb3GameV2() {
         abi: BATTLE_SYSTEM_ABI,
         functionName: 'startAdventure',
         args: [BigInt(currentPlayerId), adventureLevel, finalMonsterLevel],
+        gas: BigInt(1500000),
       },
       undefined,
       {
@@ -516,6 +517,7 @@ export function useWeb3GameV2() {
         abi: BATTLE_SYSTEM_ABI,
         functionName: 'completeBattle',
         args: [BigInt(currentPlayerId), experienceGained, staminaCost, victory, monsterLevel],
+        gas: BigInt(1000000),
       },
       undefined,
       {
@@ -544,6 +546,7 @@ export function useWeb3GameV2() {
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'claimOfflineTreasureBoxes',
         args: [BigInt(currentPlayerId)],
+        gas: BigInt(800000),
       },
       undefined,
       {
@@ -658,7 +661,7 @@ export function useWeb3GameV2() {
 
     await safeCall(
       {
-        gas: BigInt(10000000), // 手动设置 gasLimit 为 300,000
+        gas: BigInt(1200000), // 调整 gasLimit 为合理值
         gasPrice: BigInt(10000000),
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
@@ -785,6 +788,7 @@ export function useWeb3GameV2() {
         abi: PLAYER_NFT_ABI,
         functionName: 'equipItem',
         args: [BigInt(currentPlayerId), BigInt(equipmentId)],
+        gas: BigInt(300000),
       },
       undefined,
       {
@@ -813,6 +817,7 @@ export function useWeb3GameV2() {
         abi: PLAYER_NFT_ABI,
         functionName: 'unequipItem',
         args: [BigInt(currentPlayerId), slot],
+        gas: BigInt(250000),
       },
       undefined,
       {
@@ -843,6 +848,7 @@ export function useWeb3GameV2() {
         abi: EQUIPMENT_SYSTEM_ABI,
         functionName: 'upgradeStars',
         args: [BigInt(currentPlayerId), BigInt(equipmentId), materialIdsBigInt],
+        gas: BigInt(500000),
       },
       undefined,
       {
@@ -893,6 +899,7 @@ export function useWeb3GameV2() {
         abi: EQUIPMENT_SYSTEM_ABI,
         functionName: 'enhanceEquipment',
         args: [BigInt(equipmentId)],
+        gas: BigInt(400000),
       },
       undefined,
       {

@@ -266,19 +266,11 @@ const MonsterForest: React.FC = () => {
       
       {/* 当前层级的10只怪物 */}
       {currentAdventure && (
-        <div className="monsters-section">
-          <div className="section-header">
-            <h3>第{selectedAdventureLevel}层怪物</h3>
-            <div className="player-info">
-              <span>体力: {player.stamina}/{player.maxStamina}</span>
-            </div>
-          </div>
-          
+        <div className="monsters-section">          
           <div className="monsters-grid">
             {Array.from({ length: 10 }, (_, index) => {
               const monsterLevel = index + 1;
               const status = getMonsterChallengeStatus(monsterLevel);
-              const killCount = monsterKillCounts[monsterLevel] || 0;
               const defense = monsterStats[monsterLevel] || 0;
               
               return (
@@ -296,10 +288,10 @@ const MonsterForest: React.FC = () => {
                       <span className="stat-label">防御:</span>
                       <span className="stat-value">{defense}</span>
                     </div>
-                    <div className="stat-item">
+                    {/* <div className="stat-item">
                       <span className="stat-label">击败:</span>
                       <span className="stat-value">{killCount}次</span>
-                    </div>
+                    </div> */}
                   </div>
                   
                   <div className="monster-actions">
