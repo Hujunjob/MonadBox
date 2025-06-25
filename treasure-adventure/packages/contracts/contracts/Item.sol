@@ -1,16 +1,26 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "hardhat/console.sol";
 /**
  * @title Item
  * @dev 宝物冒险游戏的NFT，用于血瓶，转职书，宠物蛋等，id 1000-1999是保留给血瓶的，2000-2999是保留给转职书的，3000-3999保留给宠物蛋的
  */
-contract Item is ERC1155, Ownable {
-    constructor() ERC1155("Item URL") Ownable(msg.sender) {}
+contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(address initialOwner) public initializer {
+        __ERC1155_init("Item URL");
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+    }
 
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
@@ -58,4 +68,6 @@ contract Item is ERC1155, Ownable {
     function revokeSystemAuthorization(address systemContract) external onlyOwner {
         authorizedSystems[systemContract] = false;
     }
+    
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

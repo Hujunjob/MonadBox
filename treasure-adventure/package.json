@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "contracts:compile": "cd packages/contracts && npx hardhat compile",
     "contracts:test": "cd packages/contracts && npx hardhat test",
-    "contracts:deploy": "cd packages/contracts && npx hardhat run scripts/deployV2.js --network localhost",
+    "contracts:deploy": "cd packages/contracts && npx hardhat run scripts/deployUpgradeable.js --network localhost",
     "contracts:node": "cd packages/contracts && npx hardhat node",
     "contracts:node-lan": "cd packages/contracts && node start-node.js",
     "setup-lan": "node scripts/setup-lan.js",

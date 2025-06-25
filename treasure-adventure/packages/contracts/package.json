@@ -7,6 +7,8 @@
     "compile": "hardhat compile",
     "deploy:localhost": "hardhat run scripts/deployV2.js --network localhost",
     "deploy:hardhat": "hardhat run scripts/deployV2.js --network hardhat",
+    "deploy:upgradeable:localhost": "hardhat run scripts/deployUpgradeable.js --network localhost",
+    "deploy:upgradeable:hardhat": "hardhat run scripts/deployUpgradeable.js --network hardhat",
     "node": "hardhat node --show-stack-traces",
     "test": "hardhat test"
   },
@@ -17,5 +19,9 @@
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "^5.3.0",
     "hardhat": "^2.24.3"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts-upgradeable": "^5.3.0",
+    "@openzeppelin/hardhat-upgrades": "^3.9.0"
   }
 }

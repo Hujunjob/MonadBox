@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./AdventureGold.sol";
 import "./Equipment.sol";
 import "./GameStructs.sol";
@@ -14,7 +16,7 @@ import "./Item.sol";
  * @title TreasureBoxSystem
  * @dev 宝箱系统合约 - 处理宝箱生成、存储和开启
  */
-contract TreasureBoxSystem is Ownable {
+contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     AdventureGold public goldToken;
     Equipment public equipmentNFT;
     Player public playerNFT;
@@ -80,12 +82,21 @@ contract TreasureBoxSystem is Ownable {
     );
     event OfflineBoxesClaimed(uint256 indexed playerId, uint256 boxCount);
 
-    constructor(
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address _goldToken,
         address _equipmentNFT,
         address _playerNFT,
-        address _itemNFT
-    ) Ownable(msg.sender) {
+        address _itemNFT,
+        address initialOwner
+    ) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+        
         goldToken = AdventureGold(_goldToken);
         equipmentNFT = Equipment(_equipmentNFT);
         playerNFT = Player(_playerNFT);
@@ -749,4 +760,9 @@ contract TreasureBoxSystem is Ownable {
     ) external onlyOwner {
         authorizedSystems[systemContract] = false;
     }
+
+    /**
+     * @dev 授权升级函数 - 只有owner可以升级合约
+     */
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

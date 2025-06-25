@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "hardhat/console.sol";
 /**
  * @title Equipment
  * @dev 宝物冒险游戏的装备 NFT (ERC721)
  */
-contract Equipment is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
+contract Equipment is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
     uint256 private _tokenIds;
 
     struct EquipmentData {
@@ -50,7 +52,18 @@ contract Equipment is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
         uint16 agility
     );
 
-    constructor() ERC721("Adventure Equipment", "EQUIP") Ownable(msg.sender) {}
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(address initialOwner) public initializer {
+        __ERC721_init("Adventure Equipment", "EQUIP");
+        __ERC721Enumerable_init();
+        __ERC721Burnable_init();
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+    }
 
     /**
      * @dev 铸造装备 NFT
@@ -157,7 +170,7 @@ contract Equipment is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
         address to,
         uint256 tokenId,
         address auth
-    ) internal override(ERC721, ERC721Enumerable) returns (address) {
+    ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) returns (address) {
         return super._update(to, tokenId, auth);
     }
 
@@ -167,7 +180,7 @@ contract Equipment is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
     function _increaseBalance(
         address account,
         uint128 value
-    ) internal override(ERC721, ERC721Enumerable) {
+    ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
         super._increaseBalance(account, value);
     }
 
@@ -176,9 +189,11 @@ contract Equipment is ERC721, ERC721Enumerable, ERC721Burnable, Ownable {
      */
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(ERC721, ERC721Enumerable) returns (bool) {
+    ) public view override(ERC721Upgradeable, ERC721EnumerableUpgradeable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
+    
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     /**
      * @dev 获取当前总 tokenId 数量（保留原有函数，但ERC721Enumerable.totalSupply()也可用）

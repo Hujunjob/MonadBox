@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./Player.sol";
@@ -14,7 +16,7 @@ import "./AdventureGold.sol";
  * @title Market
  * @dev 市场合约 - 玩家可以在这里买卖物品和装备
  */
-contract Market is Ownable, ReentrancyGuard, IERC1155Receiver, IERC721Receiver {
+contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IERC1155Receiver, IERC721Receiver {
     Player public playerNFT;
     Equipment public equipmentNFT;
     Item public itemNFT;
@@ -40,7 +42,7 @@ contract Market is Ownable, ReentrancyGuard, IERC1155Receiver, IERC721Receiver {
     
     // 挂单存储
     mapping(uint256 => Listing) public listings;
-    uint256 public nextListingId = 1;
+    uint256 public nextListingId;
     
     // 市场费率（10% = 1000 basis points）
     uint256 public constant MARKET_FEE_RATE = 1000; // 10%
@@ -75,16 +77,27 @@ contract Market is Ownable, ReentrancyGuard, IERC1155Receiver, IERC721Receiver {
         uint256 indexed playerId
     );
     
-    constructor(
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(
         address _playerNFT,
         address _equipmentNFT,
         address _itemNFT,
-        address _goldToken
-    ) Ownable(msg.sender) {
+        address _goldToken,
+        address initialOwner
+    ) public initializer {
+        __Ownable_init(initialOwner);
+        __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
+        
         playerNFT = Player(_playerNFT);
         equipmentNFT = Equipment(_equipmentNFT);
         itemNFT = Item(_itemNFT);
         goldToken = AdventureGold(_goldToken);
+        nextListingId = 1;
     }
     
     /**
@@ -446,4 +459,6 @@ contract Market is Ownable, ReentrancyGuard, IERC1155Receiver, IERC721Receiver {
         return interfaceId == type(IERC1155Receiver).interfaceId ||
                interfaceId == type(IERC721Receiver).interfaceId;
     }
+    
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

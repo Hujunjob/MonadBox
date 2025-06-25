@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./Player.sol";
 import "./AdventureGold.sol";
 
@@ -10,7 +12,7 @@ import "./AdventureGold.sol";
  * @title SuperMarket
  * @dev 超级市场合约 - 用户可以用ETH购买金币
  */
-contract SuperMarket is Ownable, ReentrancyGuard {
+contract SuperMarket is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     Player public playerNFT;
     AdventureGold public goldToken;
     
@@ -25,7 +27,16 @@ contract SuperMarket is Ownable, ReentrancyGuard {
     event GoldPurchased(address indexed buyer, uint256 playerId, uint256 ethAmount, uint256 goldAmount);
     event ExchangeRateUpdated(uint256 oldRate, uint256 newRate);
     
-    constructor(address _playerNFT, address _goldToken) Ownable(msg.sender) {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _playerNFT, address _goldToken, address initialOwner) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+        __ReentrancyGuard_init();
+        
         playerNFT = Player(_playerNFT);
         goldToken = AdventureGold(_goldToken);
     }
@@ -104,4 +115,9 @@ contract SuperMarket is Ownable, ReentrancyGuard {
     function getContractBalance() external view returns (uint256) {
         return address(this).balance;
     }
+
+    /**
+     * @dev 授权升级函数 - 只有owner可以升级合约
+     */
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

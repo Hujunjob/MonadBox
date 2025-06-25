@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title AdventureGold
  * @dev 宝物冒险游戏的金币代币 (ERC20)
  */
-contract AdventureGold is ERC20, ERC20Burnable, Ownable {
+contract AdventureGold is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
     
@@ -19,7 +21,17 @@ contract AdventureGold is ERC20, ERC20Burnable, Ownable {
         _;
     }
     
-    constructor() ERC20("Adventure Gold", "GOLD") Ownable(msg.sender) {}
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(address initialOwner) public initializer {
+        __ERC20_init("Adventure Gold", "GOLD");
+        __ERC20Burnable_init();
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+    }
     
     /**
      * @dev 铸造金币，只能由授权系统或合约所有者调用
@@ -44,4 +56,6 @@ contract AdventureGold is ERC20, ERC20Burnable, Ownable {
     function revokeSystemAuthorization(address systemContract) external onlyOwner {
         authorizedSystems[systemContract] = false;
     }
+    
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

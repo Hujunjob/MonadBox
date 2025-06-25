@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./Player.sol";
 import "./AdventureGold.sol";
 
@@ -10,7 +12,7 @@ import "./AdventureGold.sol";
  * @title Rank
  * @dev 排名系统合约 - 玩家可以挑战其他玩家争夺排名位置
  */
-contract Rank is Ownable, ReentrancyGuard {
+contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     Player public playerNFT;
     AdventureGold public goldToken;
 
@@ -52,7 +54,16 @@ contract Rank is Ownable, ReentrancyGuard {
         uint256 burnedGold
     );
 
-    constructor(address _playerNFT, address _goldToken) Ownable(msg.sender) {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _playerNFT, address _goldToken, address initialOwner) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+        __ReentrancyGuard_init();
+        
         playerNFT = Player(_playerNFT);
         goldToken = AdventureGold(_goldToken);
         maxRankIndex = 0;
@@ -337,4 +348,9 @@ contract Rank is Ownable, ReentrancyGuard {
     function canChallenge(uint256 playerId) external pure returns (bool) {
         return true;
     }
+
+    /**
+     * @dev 授权升级函数 - 只有owner可以升级合约
+     */
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

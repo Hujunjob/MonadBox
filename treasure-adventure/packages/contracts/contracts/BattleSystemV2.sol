@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./Player.sol";
 import "./TreasureBoxSystem.sol";
 import "./GameConfig.sol";
@@ -11,7 +13,7 @@ import "./GameStructs.sol";
  * @title BattleSystemV2
  * @dev 战斗系统合约 - 处理战斗逻辑，经验获得，不再产生金币
  */
-contract BattleSystemV2 is Ownable {
+contract BattleSystemV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     Player public playerNFT;
     TreasureBoxSystem public treasureBoxSystem;
     
@@ -32,7 +34,15 @@ contract BattleSystemV2 is Ownable {
     event BattleCompleted(uint256 indexed playerId, uint16 experienceGained, bool victory, uint16 adventureLevel, uint8 monsterLevel);
     event AdventureLevelUnlocked(uint256 indexed playerId, uint16 newMaxLevel);
     
-    constructor(address _playerNFT, address _treasureBoxSystem) Ownable(msg.sender) {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(address _playerNFT, address _treasureBoxSystem, address initialOwner) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+        
         playerNFT = Player(_playerNFT);
         treasureBoxSystem = TreasureBoxSystem(_treasureBoxSystem);
     }
@@ -354,4 +364,6 @@ contract BattleSystemV2 is Ownable {
         currentLevel = maxAdventureLevel[playerId] == 0 ? 1 : maxAdventureLevel[playerId];
         maxMonster = maxMonsterLevel[playerId][currentLevel];
     }
+    
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "./GameStructs.sol";
 import "./GameConfig.sol";
@@ -19,7 +21,7 @@ import "hardhat/console.sol";
  * @title Player
  * @dev 玩家NFT合约 - 玩家就是一个NFT，包含所有玩家属性和装备槽
  */
-contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, Ownable {
+contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, IERC721Receiver, IERC1155Receiver, OwnableUpgradeable, UUPSUpgradeable {
     using GameStructs for GameStructs.Player;
     
     // 玩家数据存储
@@ -60,14 +62,23 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
     event ItemAdded(uint256 indexed playerId, uint256 itemId, uint256 quantity);
     event ItemUsed(uint256 indexed playerId, uint256 itemId, uint256 quantity);
     
-    constructor(address _equipmentNFT, address _goldToken, address _itemNFT) ERC721("Adventure Player", "PLAYER") Ownable(msg.sender) {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(address _equipmentNFT, address _goldToken, address _itemNFT, address initialOwner) public initializer {
+        __ERC721_init("Adventure Player", "PLAYER");
+        __ERC721Enumerable_init();
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+        
         equipmentNFT = Equipment(_equipmentNFT);
         goldToken = AdventureGold(_goldToken);
         itemNFT = Item(_itemNFT);
         _nextTokenId = 1;
         
         // 设置装备类型到槽位的映射
-
         equipmentTypeToSlot[1] = 1; // armor  
         equipmentTypeToSlot[2] = 2; // shoes
         equipmentTypeToSlot[3] = 3; // weapon
@@ -392,7 +403,7 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
     /**
      * @dev 重写_update函数以支持ERC721Enumerable和禁用转移
      */
-    function _update(address to, uint256 tokenId, address auth) internal override(ERC721, ERC721Enumerable) returns (address) {
+    function _update(address to, uint256 tokenId, address auth) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) returns (address) {
         address from = _ownerOf(tokenId);
         if (from != address(0) && to != address(0)) {
             revert("Player NFT is non-transferable");
@@ -403,7 +414,7 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
     /**
      * @dev 重写_increaseBalance函数以支持ERC721Enumerable
      */
-    function _increaseBalance(address account, uint128 value) internal override(ERC721, ERC721Enumerable) {
+    function _increaseBalance(address account, uint128 value) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
         super._increaseBalance(account, value);
     }
     
@@ -641,9 +652,11 @@ contract Player is ERC721, ERC721Enumerable, IERC721Receiver, IERC1155Receiver, 
     /**
      * @dev 重写supportsInterface函数
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, IERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721Upgradeable, ERC721EnumerableUpgradeable, IERC165) returns (bool) {
         return 
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
     }
+    
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./Equipment.sol";
 import "./AdventureGold.sol";
@@ -11,7 +13,7 @@ import "hardhat/console.sol";
  * @title EquipmentSystem
  * @dev 装备系统合约 - 管理装备升星、强化、消耗等功能
  */
-contract EquipmentSystem is Ownable, IERC721Receiver {
+contract EquipmentSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC721Receiver {
     Equipment public equipmentNFT;
     AdventureGold public goldToken;
     Player public playerNFT;
@@ -37,11 +39,20 @@ contract EquipmentSystem is Ownable, IERC721Receiver {
     // event EquipmentEnhanced(uint256 indexed tokenId, uint8 oldLevel, uint8 newLevel);
     event EquipmentUpgradeFailed(uint256 indexed tokenId, string reason);
 
-    constructor(
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address _equipmentNFT,
         address _goldToken,
-        address _playerNFT
-    ) Ownable(msg.sender) {
+        address _playerNFT,
+        address initialOwner
+    ) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+        
         equipmentNFT = Equipment(_equipmentNFT);
         goldToken = AdventureGold(_goldToken);
         playerNFT = Player(_playerNFT);
@@ -346,4 +357,9 @@ contract EquipmentSystem is Ownable, IERC721Receiver {
     ) external pure override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
+
+    /**
+     * @dev 授权升级函数 - 只有owner可以升级合约
+     */
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }
