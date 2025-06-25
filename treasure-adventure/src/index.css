@@ -321,7 +321,7 @@ button:focus-visible {
 
 .tab-btn {
   background: transparent;
-  color: #ccc;
+  color: black;
   border: none;
   padding: 12px 20px;
   cursor: pointer;
