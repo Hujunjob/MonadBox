@@ -340,11 +340,11 @@ const Market: React.FC = () => {
                         <button 
                           className="purchase-btn"
                           onClick={() => handlePurchase(listing)}
-                          disabled={!player || isPurchasingEquipment || isPurchasingItem || Number(formatEther(listing.price)) > player.goldBalance}
+                          disabled={!player || isPurchasingEquipment || isPurchasingItem || Number(formatEther(listing.price)) > player.gold}
                         >
                           {!player ? '请先连接钱包' : 
                            (isPurchasingEquipment || isPurchasingItem) ? '购买中...' :
-                           Number(formatEther(listing.price)) > player.goldBalance ? '金币不足' : '购买'}
+                           Number(formatEther(listing.price)) > player.gold ? '金币不足' : '购买'}
                         </button>
                       ) : (
                         <div className="my-listing-actions">

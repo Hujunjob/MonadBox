@@ -424,7 +424,7 @@ export function useWeb3GameV2() {
   };
 
   // 获取怪物属性
-  const getMonsterStats = async (monsterLevel: number) => {
+  const getMonsterStats = async (adventureLevel: number, monsterLevel: number) => {
     if (!publicClient) return null;
     
     try {
@@ -432,7 +432,7 @@ export function useWeb3GameV2() {
         address: CONTRACTS.BATTLE_SYSTEM,
         abi: BATTLE_SYSTEM_ABI,
         functionName: 'getMonsterStats',
-        args: [monsterLevel]
+        args: [adventureLevel, monsterLevel]
       });
       return stats;
     } catch (error) {
@@ -442,7 +442,7 @@ export function useWeb3GameV2() {
   };
 
   // 估算胜率
-  const estimateWinRate = async (monsterLevel: number) => {
+  const estimateWinRate = async (adventureLevel: number, monsterLevel: number) => {
     if (!publicClient || !currentPlayerId) return 0;
     
     try {
@@ -450,12 +450,51 @@ export function useWeb3GameV2() {
         address: CONTRACTS.BATTLE_SYSTEM,
         abi: BATTLE_SYSTEM_ABI,
         functionName: 'estimateWinRate',
-        args: [BigInt(currentPlayerId), monsterLevel]
+        args: [BigInt(currentPlayerId), adventureLevel, monsterLevel]
       });
       return Number(winRate);
     } catch (error) {
       console.error('Failed to estimate win rate:', error);
       return 0;
+    }
+  };
+
+  // 获取怪物击杀次数
+  const getMonsterKillCount = async (adventureLevel: number, monsterLevel: number) => {
+    if (!publicClient || !currentPlayerId) return 0;
+    
+    try {
+      const killCount = await publicClient.readContract({
+        address: CONTRACTS.BATTLE_SYSTEM,
+        abi: BATTLE_SYSTEM_ABI,
+        functionName: 'getMonsterKillCount',
+        args: [BigInt(currentPlayerId), adventureLevel, monsterLevel]
+      });
+      return Number(killCount);
+    } catch (error) {
+      console.error('Failed to get monster kill count:', error);
+      return 0;
+    }
+  };
+
+  // 获取玩家进度
+  const getPlayerProgress = async () => {
+    if (!publicClient || !currentPlayerId) return { currentLevel: 1, maxMonster: 0 };
+    
+    try {
+      const progress = await publicClient.readContract({
+        address: CONTRACTS.BATTLE_SYSTEM,
+        abi: BATTLE_SYSTEM_ABI,
+        functionName: 'getPlayerProgress',
+        args: [BigInt(currentPlayerId)]
+      });
+      return {
+        currentLevel: Number(progress[0]),
+        maxMonster: Number(progress[1])
+      };
+    } catch (error) {
+      console.error('Failed to get player progress:', error);
+      return { currentLevel: 1, maxMonster: 0 };
     }
   };
 
@@ -1085,6 +1124,8 @@ export function useWeb3GameV2() {
     startAdventure,
     getMonsterStats,
     estimateWinRate,
+    getMonsterKillCount,
+    getPlayerProgress,
     claimTreasureBoxes,
     openTreasureBox,
     equipItem,

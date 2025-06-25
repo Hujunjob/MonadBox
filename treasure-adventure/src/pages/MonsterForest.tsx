@@ -7,6 +7,9 @@ const MonsterForest: React.FC = () => {
   const player = hybridStore.player;
   const [selectedAdventureLevel, setSelectedAdventureLevel] = useState(1);
   const [isLevelExpanded, setIsLevelExpanded] = useState(false);
+  const [monsterKillCounts, setMonsterKillCounts] = useState<{[key: number]: number}>({});
+  const [monsterStats, setMonsterStats] = useState<{[key: number]: number}>({});
+  const [maxMonsterLevel, setMaxMonsterLevel] = useState(0);
   
   // 战斗结果弹窗状态
   const [battleResult, setBattleResult] = useState<{
@@ -25,53 +28,92 @@ const MonsterForest: React.FC = () => {
   
   // 获取玩家最大解锁层数和最高怪物等级
   const maxUnlockedLevel = hybridStore.maxAdventureLevel || 1;
-  const playerProgress = hybridStore.playerProgress || { currentLevel: 1, maxMonster: 0 };
   
-  // 生成冒险层数列表 (1-1000)
-  const adventureLevels = Array.from({ length: 1000 }, (_, i) => {
-    const level = i + 1;
-    return {
-      level,
-      name: `第${level}层冒险`,
-      isUnlocked: level <= maxUnlockedLevel,
-      monsterLevel: level,
-      baseExp: level * 10 + 20,
-      description: `挑战等级${level}的怪物`
-    };
-  });
+  // 生成冒险层数列表 (当前层级前后5层)
+  const getAvailableLevels = () => {
+    const currentLevel = selectedAdventureLevel;
+    const startLevel = Math.max(1, currentLevel - 5);
+    const endLevel = Math.min(1000, currentLevel + 5);
+    
+    return Array.from({ length: endLevel - startLevel + 1 }, (_, i) => {
+      const level = startLevel + i;
+      return {
+        level,
+        name: `第${level}层冒险`,
+        isUnlocked: level <= maxUnlockedLevel,
+        monsterLevel: level,
+        baseExp: level * 10 + 20,
+        description: `挑战等级${level}的怪物`
+      };
+    });
+  };
+  
+  const adventureLevels = getAvailableLevels();
   
   const currentAdventure = adventureLevels.find(adv => adv.level === selectedAdventureLevel);
   
-  // 获取怪物属性和胜率
+  // 获取怪物数据和玩家进度
   useEffect(() => {
-    const fetchBattleData = async () => {
-      // 检查必要的方法是否存在
-      if (typeof hybridStore.getMonsterStats !== 'function' || 
-          typeof hybridStore.estimateWinRate !== 'function') {
-        console.error('Required game methods not available');
-        return;
-      }
-
-      // 只获取当前选中层级的数据以提升性能
+    const fetchMonsterData = async () => {
+      if (!hybridStore.currentPlayerId) return;
+      
       try {
-        // 获取怪物属性
-        const stats = await hybridStore.getMonsterStats(selectedAdventureLevel, 1);
-        if (stats) {
-          setMonsterStats(prev => ({ ...prev, [selectedAdventureLevel]: stats }));
+        // 获取当前层级的怪物击杀数据
+        const killCounts: {[key: number]: number} = {};
+        const stats: {[key: number]: number} = {};
+        
+        for (let monsterLevel = 1; monsterLevel <= 10; monsterLevel++) {
+          // 获取怪物击杀次数
+          if (typeof hybridStore.getMonsterKillCount === 'function') {
+            const killCount = await hybridStore.getMonsterKillCount(selectedAdventureLevel, monsterLevel);
+            killCounts[monsterLevel] = killCount || 0;
+          }
+          
+          // 获取怪物属性
+          if (typeof hybridStore.getMonsterStats === 'function') {
+            try {
+              const defense = await hybridStore.getMonsterStats(selectedAdventureLevel, monsterLevel);
+              stats[monsterLevel] = defense || 0;
+              console.log(`Monster ${monsterLevel} defense:`, defense); // 调试日志
+            } catch (error) {
+              console.error(`Failed to get monster ${monsterLevel} stats:`, error);
+              stats[monsterLevel] = 0;
+            }
+          } else {
+            // 如果方法不存在，使用合约中的计算逻辑
+            const baseDefense = monsterLevel * 5 + 10;
+            const levelBonus = selectedAdventureLevel > 1000 ? Math.floor((selectedAdventureLevel - 1) / 1000 + 1) * 20 : 0;
+            stats[monsterLevel] = Math.floor((baseDefense + levelBonus) / 2);
+          }
         }
         
-        // 获取胜率
-        const winRate = await hybridStore.estimateWinRate(selectedAdventureLevel, 1);
-        setWinRates(prev => ({ ...prev, [selectedAdventureLevel]: winRate }));
+        setMonsterKillCounts(killCounts);
+        setMonsterStats(stats);
+        
+        // 获取玩家在该层级的最高怪物等级
+        if (typeof hybridStore.getPlayerProgress === 'function') {
+          const progress = await hybridStore.getPlayerProgress();
+          if (progress && progress.currentLevel === selectedAdventureLevel) {
+            setMaxMonsterLevel(progress.maxMonster || 0);
+          } else {
+            // 如果不是当前层级，根据击杀数据计算最高怪物等级
+            let maxLevel = 0;
+            for (let i = 10; i >= 1; i--) {
+              if (killCounts[i] > 0) {
+                maxLevel = i;
+                break;
+              }
+            }
+            setMaxMonsterLevel(maxLevel);
+          }
+        }
       } catch (error) {
-        console.error(`Failed to fetch data for level ${selectedAdventureLevel}:`, error);
+        console.error('Failed to fetch monster data:', error);
       }
     };
     
-    if (hybridStore.currentPlayerId) {
-      fetchBattleData();
-    }
-  }, [hybridStore.currentPlayerId, player]);
+    fetchMonsterData();
+  }, [hybridStore.currentPlayerId, selectedAdventureLevel]);
 
   // 监听战斗结果事件
   useEffect(() => {
@@ -97,7 +139,41 @@ const MonsterForest: React.FC = () => {
     setBattleResult(prev => ({ ...prev, isOpen: false }));
   };
   
-  const handleStartAdventure = async (adventureLevel: number) => {
+  // 获取怪物挑战状态
+  const getMonsterChallengeStatus = (monsterLevel: number) => {
+    const killCount = monsterKillCounts[monsterLevel] || 0;
+    
+    if (killCount > 0) {
+      return 'defeated'; // 已击败，可以再次攻击
+    } else if (monsterLevel === 1 || monsterKillCounts[monsterLevel - 1] > 0) {
+      return 'available'; // 可以挑战
+    } else {
+      return 'locked'; // 未解锁
+    }
+  };
+  
+  // 获取挑战按钮文本
+  const getChallengeButtonText = (monsterLevel: number) => {
+    const status = getMonsterChallengeStatus(monsterLevel);
+    switch (status) {
+      case 'defeated':
+        return '再次攻击';
+      case 'available':
+        return '挑战';
+      case 'locked':
+        return '未解锁';
+      default:
+        return '挑战';
+    }
+  };
+  
+  // 获取挑战按钮是否可用
+  const isChallengeButtonEnabled = (monsterLevel: number) => {
+    const status = getMonsterChallengeStatus(monsterLevel);
+    return status === 'defeated' || status === 'available';
+  };
+  
+  const handleStartAdventure = async (adventureLevel: number, monsterLevel: number) => {
     if (player.stamina < 1) {
       alert('体力不足，无法战斗！请等待体力恢复。');
       return;
@@ -105,6 +181,12 @@ const MonsterForest: React.FC = () => {
     
     if (adventureLevel > maxUnlockedLevel) {
       alert(`第${adventureLevel}层尚未解锁！请先完成第${maxUnlockedLevel}层冒险。`);
+      return;
+    }
+    
+    // 检查是否可以挑战该怪物（必须按顺序挑战）
+    if (monsterLevel > 1 && monsterKillCounts[monsterLevel - 1] === 0) {
+      alert(`必须先击败第${monsterLevel - 1}号怪物才能挑战第${monsterLevel}号怪物！`);
       return;
     }
     
@@ -116,7 +198,11 @@ const MonsterForest: React.FC = () => {
     }
     
     try {
-      await hybridStore.startAdventure(adventureLevel);
+      await hybridStore.startAdventure(adventureLevel, monsterLevel);
+      // 战斗完成后重新获取数据
+      setTimeout(() => {
+        window.location.reload(); // 简单的刷新来更新数据
+      }, 2000);
     } catch (error) {
       console.error('Adventure failed:', error);
     }
@@ -178,57 +264,66 @@ const MonsterForest: React.FC = () => {
         </div>
       </div> */}
       
+      {/* 当前层级的10只怪物 */}
       {currentAdventure && (
-        <div className="current-adventure">
-          <div className="adventure-card">
-            <div className="adventure-header">
-              {/* <h2>{currentAdventure.name}</h2> */}
-              <div className="adventure-level">怪物等级 {currentAdventure.level}</div>
+        <div className="monsters-section">
+          <div className="section-header">
+            <h3>第{selectedAdventureLevel}层怪物</h3>
+            <div className="player-info">
+              <span>体力: {player.stamina}/{player.maxStamina}</span>
             </div>
-            
-            
-            <div className="player-status">
-              <h3>玩家状态</h3>
-              <div className="status-grid">
-                <div className="status-item">
-                  <span>体力:</span>
-                  <span className={player.stamina < 1 ? 'low' : ''}>{player.stamina}/{player.maxStamina}</span>
-                </div>
-                <div className="status-item">
-                  <span>攻击力:</span>
-                  <span>{player.attack}</span>
-                </div>
-                <div className="status-item">
-                  <span>防御力:</span>
-                  <span>{player.defense}</span>
-                </div>
-                <div className="status-item">
-                  <span>敏捷:</span>
-                  <span>{player.agility}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="adventure-actions">
-              <button 
-                onClick={() => handleStartAdventure(currentAdventure.level)}
-                className={`adventure-btn ${
-                  !currentAdventure.isUnlocked || player.stamina < 1 ? 'disabled' : 'ready'
-                }`}
-                disabled={!currentAdventure.isUnlocked || player.stamina < 1 || hybridStore.isPending}
-              >
-                {hybridStore.isPending ? '冒险中...' : 
-                 !currentAdventure.isUnlocked ? '未解锁' :
-                 player.stamina < 1 ? '体力不足' :
-                 `开始第${currentAdventure.level}层冒险`}
-              </button>
+          </div>
+          
+          <div className="monsters-grid">
+            {Array.from({ length: 10 }, (_, index) => {
+              const monsterLevel = index + 1;
+              const status = getMonsterChallengeStatus(monsterLevel);
+              const killCount = monsterKillCounts[monsterLevel] || 0;
+              const defense = monsterStats[monsterLevel] || 0;
               
-              {currentAdventure.level > maxUnlockedLevel && (
-                <div className="unlock-hint">
-                  需要先完成第{maxUnlockedLevel}层冒险才能解锁
+              return (
+                <div 
+                  key={monsterLevel} 
+                  className={`monster-card ${status}`}
+                >
+                  <div className="monster-header">
+                    {/* <div className="monster-number">#{monsterLevel}</div> */}
+                    <div className="monster-name">怪物 {monsterLevel}</div>
+                  </div>
+                  
+                  <div className="monster-stats">
+                    <div className="stat-item">
+                      <span className="stat-label">防御:</span>
+                      <span className="stat-value">{defense}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">击败:</span>
+                      <span className="stat-value">{killCount}次</span>
+                    </div>
+                  </div>
+                  
+                  <div className="monster-actions">
+                    <button
+                      className={`challenge-btn ${status} ${
+                        player.stamina < 1 ? 'no-stamina' : ''
+                      }`}
+                      disabled={
+                        !isChallengeButtonEnabled(monsterLevel) || 
+                        player.stamina < 1 || 
+                        hybridStore.isPending ||
+                        selectedAdventureLevel > maxUnlockedLevel
+                      }
+                      onClick={() => handleStartAdventure(selectedAdventureLevel, monsterLevel)}
+                    >
+                      {hybridStore.isPending ? '战斗中...' :
+                       player.stamina < 1 ? '体力不足' :
+                       selectedAdventureLevel > maxUnlockedLevel ? '层级未解锁' :
+                       getChallengeButtonText(monsterLevel)}
+                    </button>
+                  </div>
                 </div>
-              )}
-            </div>
+              );
+            })}
           </div>
         </div>
       )}

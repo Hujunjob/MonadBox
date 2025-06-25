@@ -112,6 +112,8 @@ export function useHybridGameStore() {
     // MonsterForest 所需方法
     getMonsterStats: web3Game.getMonsterStats,
     estimateWinRate: web3Game.estimateWinRate,
+    getMonsterKillCount: web3Game.getMonsterKillCount,
+    getPlayerProgress: web3Game.getPlayerProgress,
     startAdventure: web3Game.startAdventure,
     
     // 数据刷新
