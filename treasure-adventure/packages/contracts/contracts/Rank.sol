@@ -294,7 +294,7 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
     ) external view returns (uint256 playerId, string memory playerName) {
         playerId = rankToPlayer[rankIndex];
         if (playerId != 0) {
-            GameStructs.Player memory player = playerNFT.getPlayer(playerId);
+            Player.PlayerData memory player = playerNFT.getPlayer(playerId);
             playerName = player.name;
         }
     }
@@ -334,7 +334,7 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
             playerIds[i] = playerId;
 
             if (playerId != 0) {
-                GameStructs.Player memory player = playerNFT.getPlayer(
+                Player.PlayerData memory player = playerNFT.getPlayer(
                     playerId
                 );
                 playerNames[i] = player.name;

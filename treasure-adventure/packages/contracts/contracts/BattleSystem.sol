@@ -6,7 +6,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./Player.sol";
 import "./TreasureBoxSystem.sol";
-import "./GameStructs.sol";
 
 /**
  * @title BattleSystem
@@ -110,7 +109,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             }
             
             // 更新森林进度
-            GameStructs.Player memory player = playerNFT.getPlayer(playerId);
+            Player.PlayerData memory player = playerNFT.getPlayer(playerId);
             _updateForestProgress(playerId, player);
             
             // 生成战斗宝箱 (胜利才给宝箱)
@@ -171,7 +170,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      * @return 是否可以战斗
      */
     function _canBattle(uint256 playerId, uint8 staminaCost) internal view returns (bool) {
-        GameStructs.Player memory player = playerNFT.getPlayer(playerId);
+        Player.PlayerData memory player = playerNFT.getPlayer(playerId);
         if (player.maxHealth==0) return false;
         
         // 计算当前体力
@@ -200,7 +199,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     /**
      * @dev 更新森林进度
      */
-    function _updateForestProgress(uint256 playerId, GameStructs.Player memory player) internal {
+    function _updateForestProgress(uint256 playerId, Player.PlayerData memory player) internal {
         // 简化的森林进度逻辑 - 每10次胜利进入下一层
         uint16 newProgress = player.currentForestProgress + 1;
         

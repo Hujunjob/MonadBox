@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./AdventureGold.sol";
 import "./Equipment.sol";
-import "./GameStructs.sol";
 import "./Player.sol";
 import "./Item.sol";
 
@@ -148,7 +147,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
             "Not owner of player NFT"
         );
         // 获取Player NFT中的lastTreasureBoxTime
-        GameStructs.Player memory player = playerNFT.getPlayer(playerId);
+        Player.PlayerData memory player = playerNFT.getPlayer(playerId);
 
         uint256 timeSinceLastBox = block.timestamp - player.lastTreasureBoxTime;
         uint256 boxesToClaim = timeSinceLastBox /
@@ -712,7 +711,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         uint256 playerId
     ) external view returns (uint256) {
         // 获取Player NFT中的lastTreasureBoxTime
-        GameStructs.Player memory player = playerNFT.getPlayer(playerId);
+        Player.PlayerData memory player = playerNFT.getPlayer(playerId);
 
         uint256 timeSinceLastBox = block.timestamp - player.lastTreasureBoxTime;
         uint256 boxesToClaim = timeSinceLastBox /

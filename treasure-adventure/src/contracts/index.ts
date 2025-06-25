@@ -1,16 +1,16 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0x5c932424AcBfab036969b3B9D94bA9eCbae7565D' as `0x${string}`,
-  EQUIPMENT_NFT: '0x696358bBb1a743052E0E87BeD78AAd9d18f0e1F4' as `0x${string}`,
-  ITEM_NFT: '0x7036124464A2d2447516309169322c8498ac51e3' as `0x${string}`,
-  GOLD_TOKEN: '0x5A569Ad19272Afa97103fD4DbadF33B2FcbaA175' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x9e7F7d0E8b8F38e3CF2b3F7dd362ba2e9E82baa4' as `0x${string}`,
-  BATTLE_SYSTEM: '0xE7FF84Df24A9a252B6E8A5BB093aC52B1d8bEEdf' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x6D712CB50297b97b79dE784d10F487C00d7f8c2C' as `0x${string}`,
-  MARKET: '0x04F339eC4D75Cf2833069e6e61b60eF56461CD7C' as `0x${string}`,
-  RANK: '0x3de00f44ce68FC56DB0e0E33aD4015C6e78eCB39' as `0x${string}`,
-  SUPER_MARKET: '0x89372b32b8AF3F1272e2efb3088616318D2834cA' as `0x${string}`
+  PLAYER_NFT: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853' as `0x${string}`,
+  EQUIPMENT_NFT: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' as `0x${string}`,
+  ITEM_NFT: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707' as `0x${string}`,
+  GOLD_TOKEN: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318' as `0x${string}`,
+  BATTLE_SYSTEM: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82' as `0x${string}`,
+  MARKET: '0x0B306BF915C4d645ff596e518fAf3F9669b97016' as `0x${string}`,
+  RANK: '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE' as `0x${string}`,
+  SUPER_MARKET: '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -831,7 +831,7 @@ export const PLAYER_NFT_ABI = [
             "type": "uint256[]"
           }
         ],
-        "internalType": "struct GameStructs.Player",
+        "internalType": "struct Player.PlayerData",
         "name": "",
         "type": "tuple"
       }

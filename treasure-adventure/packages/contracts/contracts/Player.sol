@@ -10,7 +10,6 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "./GameStructs.sol";
 import "./Equipment.sol";
 import "./AdventureGold.sol";
 import "./Item.sol";
@@ -21,10 +20,30 @@ import "hardhat/console.sol";
  * @dev 玩家NFT合约 - 玩家就是一个NFT，包含所有玩家属性和装备槽
  */
 contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, IERC721Receiver, IERC1155Receiver, OwnableUpgradeable, UUPSUpgradeable {
-    using GameStructs for GameStructs.Player;
+    
+    struct PlayerData {
+        string name;
+        uint16 level;
+        uint32 experience;
+        uint16 health;
+        uint16 maxHealth;
+        uint16 attack;
+        uint16 defense;
+        uint16 agility;
+        uint8 criticalRate;
+        uint16 criticalDamage;
+        uint8 stamina;
+        uint8 maxStamina;
+        uint32 lastStaminaTime;
+        uint16 currentForestLevel;
+        uint16 currentForestProgress;
+        uint256 lastTreasureBoxTime;
+        uint256 goldBalance; // Player NFT owns gold directly
+        uint256[] inventory; // Equipment IDs owned by Player NFT
+    }
     
     // 玩家数据存储
-    mapping(uint256 => GameStructs.Player) public players;
+    mapping(uint256 => PlayerData) public players;
     
     // 装备槽存储 (Player NFT ID => Equipment ID)
     mapping(uint256 => mapping(uint8 => uint256)) public equippedItems; // slot => equipmentId
@@ -124,7 +143,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         _safeMint(to, playerId);
         
         // 初始化玩家数据
-        players[playerId] = GameStructs.Player({
+        players[playerId] = PlayerData({
             name: name,
             level: 1,
             experience: 0,
@@ -205,7 +224,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 更新体力（内部函数）
      */
     function _updateStamina(uint256 playerId) internal {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         uint32 timeSinceLastUpdate = uint32(block.timestamp) - player.lastStaminaTime;
@@ -228,7 +247,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 升级玩家（内部函数）
      */
     function _levelUp(uint256 playerId) internal {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         uint16 oldLevel = player.level;
@@ -279,7 +298,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 增加经验
      */
     function addExperience(uint256 playerId, uint16 experience) external onlyAuthorizedOrOwner {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         player.experience += experience;
@@ -290,7 +309,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 消耗体力
      */
     function consumeStamina(uint256 playerId, uint8 amount) external onlyAuthorizedOrOwner {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         require(player.stamina >= amount, "Not enough stamina");
         
@@ -304,7 +323,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      */
     function heal(uint256 playerId, uint16 amount) external {
         require(ownerOf(playerId) == msg.sender || authorizedSystems[msg.sender] || msg.sender == owner(), "Not authorized");
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         uint16 newHealth = player.health + amount;
@@ -317,7 +336,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     /**
      * @dev 获取玩家数据
      */
-    function getPlayer(uint256 playerId) external view returns (GameStructs.Player memory) {
+    function getPlayer(uint256 playerId) external view returns (PlayerData memory) {
         require(players[playerId].maxHealth>0, "Player not exists");
         return players[playerId];
     }
@@ -343,7 +362,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         uint8 totalCritRate,
         uint16 totalCritDamage
     ) {
-        GameStructs.Player memory player = players[playerId];
+        PlayerData memory player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         totalAttack = player.attack;
@@ -441,7 +460,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 添加金币到玩家NFT（记录余额，实际金币由Player NFT合约持有）
      */
     function addGold(uint256 playerId, uint256 amount) external onlyAuthorizedOrOwner {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         player.goldBalance += amount;
@@ -452,7 +471,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 消耗玩家金币（从余额和Player NFT合约中转移金币）
      */
     function spendGold(uint256 playerId, uint256 amount, address to) external onlyAuthorizedOrOwner {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         require(player.goldBalance >= amount, "Insufficient gold");
         
@@ -466,7 +485,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      */
     function addEquipmentToInventory(uint256 playerId, uint256 equipmentId) external onlyAuthorizedOrOwner {
         console.log("addEquipmentToInventory",playerId,equipmentId);
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         require(equipmentNFT.ownerOf(equipmentId) == address(this), "Equipment not owned by Player NFT");
         
@@ -478,7 +497,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 从玩家NFT背包移除装备并转移给玩家
      */
     function removeEquipmentFromInventory(uint256 playerId, uint256 equipmentId, address to) external onlyAuthorizedOrOwner {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         // 查找并移除装备
@@ -540,7 +559,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 更新宝箱时间
      */
     function updateLastTreasureBoxTime(uint256 playerId) external onlyAuthorizedOrOwner {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         player.lastTreasureBoxTime = block.timestamp;
@@ -550,7 +569,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 添加物品到玩家NFT
      */
     function addItem(uint256 playerId, uint256 itemId, uint256 quantity) external onlyAuthorizedOrOwner {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         
         playerItems[playerId][itemId] += quantity;
@@ -576,7 +595,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      * @dev 将物品从玩家转移到市场
      */
     function transferItemToMarket(uint256 playerId, uint256 itemId, uint256 quantity, address marketAddress) external onlyAuthorizedOrOwner {
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         require(playerItems[playerId][itemId] >= quantity, "Insufficient item quantity");
         
@@ -637,7 +656,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         require(playerItems[playerId][itemId] > 0, "No health potion");
         require(itemId >= 1000 && itemId < 2000, "Not a health potion");
         
-        GameStructs.Player storage player = players[playerId];
+        PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
         require(player.health < player.maxHealth, "Health already full");
         
