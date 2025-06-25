@@ -224,7 +224,9 @@ const TreasureBox: React.FC = () => {
                               ⚔️
                             </div>
                           )}
-                          <span className="equipment-level">Lv.{selectedReward.rewardData.itemLevel}</span>
+                          {selectedReward.rewardData.equipmentDetails && (
+                            <span className="equipment-level">Lv.{selectedReward.rewardData.equipmentDetails.level}</span>
+                          )}
                         </div>
                       )}
                       {/* 血瓶奖励 */}
@@ -235,7 +237,6 @@ const TreasureBox: React.FC = () => {
                             alt="血瓶"
                             style={{ width: '48px', height: '48px' }}
                           />
-                          <span className="item-level">Lv.{selectedReward.rewardData.itemLevel}</span>
                         </div>
                       )}
                       {/* 宠物蛋奖励 */}
@@ -246,7 +247,6 @@ const TreasureBox: React.FC = () => {
                             alt="宠物蛋"
                             style={{ width: '48px', height: '48px' }}
                           />
-                          <span className="item-level">Lv.{selectedReward.rewardData.itemLevel}</span>
                         </div>
                       )}
                       {/* 转职书奖励 */}
@@ -367,18 +367,16 @@ const TreasureBox: React.FC = () => {
                           )}
                           {selectedReward.rewardData.rewardType === 2 && (
                             <div className="potion-reward-details">
-                              <p>治疗量: {selectedReward.rewardData.healAmount} HP</p>
+                              <p>血瓶可用于战斗中恢复生命值</p>
                             </div>
                           )}
                           {selectedReward.rewardData.rewardType === 3 && (
                             <div className="pet-egg-reward-details">
-                              {/* <p>名称: {selectedReward.rewardData.itemName}</p>
-                              <p>等级: Lv.{selectedReward.rewardData.itemLevel}</p> */}
+                              <p>宠物蛋可以孵化出宠物</p>
                             </div>
                           )}
                           {selectedReward.rewardData.rewardType === 4 && (
                             <div className="job-book-reward-details">
-                              {/* <p>名称: {selectedReward.rewardData.itemName}</p> */}
                               <p>使用后可进行职业转职</p>
                             </div>
                           )}

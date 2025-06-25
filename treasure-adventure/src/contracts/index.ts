@@ -1,16 +1,16 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsV2.json 自动更新）
-  PLAYER_NFT: '0x4b6aB5F819A515382B0dEB6935D793817bB4af28' as `0x${string}`,
-  EQUIPMENT_NFT: '0x5067457698Fd6Fa1C6964e416b3f42713513B3dD' as `0x${string}`,
-  ITEM_NFT: '0x18E317A7D70d8fBf8e6E893616b52390EbBdb629' as `0x${string}`,
-  GOLD_TOKEN: '0xe8D2A1E88c91DCd5433208d4152Cc4F399a7e91d' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xCace1b78160AE76398F486c8a18044da0d66d86D' as `0x${string}`,
-  BATTLE_SYSTEM: '0xD5ac451B0c50B9476107823Af206eD814a2e2580' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397' as `0x${string}`,
-  MARKET: '0xc0F115A19107322cFBf1cDBC7ea011C19EbDB4F8' as `0x${string}`,
-  RANK: '0xc96304e3c037f81dA488ed9dEa1D8F2a48278a75' as `0x${string}`,
-  SUPER_MARKET: '0x34B40BA116d5Dec75548a9e9A8f15411461E8c70' as `0x${string}`
+  PLAYER_NFT: '0xCA8c8688914e0F7096c920146cd0Ad85cD7Ae8b9' as `0x${string}`,
+  EQUIPMENT_NFT: '0x99dBE4AEa58E518C50a1c04aE9b48C9F6354612f' as `0x${string}`,
+  ITEM_NFT: '0x6F6f570F45833E249e27022648a26F4076F48f78' as `0x${string}`,
+  GOLD_TOKEN: '0xd6e1afe5cA8D00A2EFC01B89997abE2De47fdfAf' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xB0f05d25e41FbC2b52013099ED9616f1206Ae21B' as `0x${string}`,
+  BATTLE_SYSTEM: '0x5FeaeBfB4439F3516c74939A9D04e95AFE82C4ae' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x976fcd02f7C4773dd89C309fBF55D5923B4c98a1' as `0x${string}`,
+  MARKET: '0x19cEcCd6942ad38562Ee10bAfd44776ceB67e923' as `0x${string}`,
+  RANK: '0xD42912755319665397FF090fBB63B1a31aE87Cee' as `0x${string}`,
+  SUPER_MARKET: '0xfcDB4564c18A9134002b9771816092C9693622e3' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -2279,32 +2279,14 @@ export const TREASURE_BOX_SYSTEM_ABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint256[]",
-        "name": "equipmentIds",
-        "type": "uint256[]"
+        "internalType": "uint256",
+        "name": "equipmentId",
+        "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
         "name": "itemId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "itemName",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "itemLevel",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "healAmount",
         "type": "uint256"
       }
     ],
@@ -2674,28 +2656,13 @@ export const TREASURE_BOX_SYSTEM_ABI = [
             "type": "uint256"
           },
           {
-            "internalType": "uint256[]",
-            "name": "equipmentIds",
-            "type": "uint256[]"
+            "internalType": "uint256",
+            "name": "equipmentId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
             "name": "itemId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "itemName",
-            "type": "string"
-          },
-          {
-            "internalType": "uint8",
-            "name": "itemLevel",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "healAmount",
             "type": "uint256"
           }
         ],
@@ -3024,11 +2991,6 @@ export const EQUIPMENT_SYSTEM_ABI = [
             "internalType": "uint16",
             "name": "criticalDamage",
             "type": "uint16"
-          },
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
           }
         ],
         "internalType": "struct Equipment.EquipmentData",
@@ -3413,11 +3375,6 @@ export const EQUIPMENT_NFT_ABI = [
         "internalType": "uint16",
         "name": "criticalDamage",
         "type": "uint16"
-      },
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -3498,11 +3455,6 @@ export const EQUIPMENT_NFT_ABI = [
             "internalType": "uint16",
             "name": "criticalDamage",
             "type": "uint16"
-          },
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
           }
         ],
         "internalType": "struct Equipment.EquipmentData",

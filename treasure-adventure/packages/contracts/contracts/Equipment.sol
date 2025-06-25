@@ -22,7 +22,6 @@ contract Equipment is ERC721, ERC721Enumerable, Ownable {
         uint16 agility;
         uint8 criticalRate;
         uint16 criticalDamage;
-        string name;
     }
 
     // 授权的系统合约
@@ -64,7 +63,6 @@ contract Equipment is ERC721, ERC721Enumerable, Ownable {
      * @param agility 敏捷
      * @param criticalRate 暴击率
      * @param criticalDamage 暴击伤害
-     * @param name 装备名称
      * @return 新装备的 tokenId
      */
     function mintEquipment(
@@ -77,8 +75,7 @@ contract Equipment is ERC721, ERC721Enumerable, Ownable {
         uint16 defense,
         uint16 agility,
         uint8 criticalRate,
-        uint16 criticalDamage,
-        string memory name
+        uint16 criticalDamage
     ) external onlyAuthorizedOrOwner returns (uint256) {
         console.log("mintEquipment");
         require(equipmentType < 8, "Invalid equipment type");
@@ -99,8 +96,7 @@ contract Equipment is ERC721, ERC721Enumerable, Ownable {
             defense: defense,
             agility: agility,
             criticalRate: criticalRate,
-            criticalDamage: criticalDamage,
-            name: name
+            criticalDamage: criticalDamage
         });
         console.log("mintEquipment 3");
         emit EquipmentMinted(to, newTokenId, equipmentType, rarity);

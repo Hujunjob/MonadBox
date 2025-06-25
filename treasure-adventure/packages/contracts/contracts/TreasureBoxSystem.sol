@@ -29,11 +29,8 @@ contract TreasureBoxSystem is Ownable {
     struct BoxReward {
         uint8 rewardType; // 0=gold, 1=equipment, 2=health_potion, 3=pet_egg, 4=job_book
         uint256 goldAmount; // 金币数量
-        uint256[] equipmentIds; // 装备ID数组
+        uint256 equipmentId; // 装备ID
         uint256 itemId; // 其他物品ID（血瓶、宠物蛋、转职书）
-        string itemName; // 物品名称
-        uint8 itemLevel; // 物品等级
-        uint256 healAmount; // 血瓶治疗量
     }
 
     // 玩家宝箱存储（改为基于playerId）
@@ -78,11 +75,8 @@ contract TreasureBoxSystem is Ownable {
         uint256 boxIndex,
         uint8 rewardType,
         uint256 goldAmount,
-        uint256[] equipmentIds,
-        uint256 itemId,
-        string itemName,
-        uint256 itemLevel,
-        uint256 healAmount
+        uint256 equipmentId,
+        uint256 itemId
     );
     event OfflineBoxesClaimed(uint256 indexed playerId, uint256 boxCount);
 
@@ -219,21 +213,17 @@ contract TreasureBoxSystem is Ownable {
         }
         console.log("openTreasureBox 2", reward.rewardType);
         // 发放装备奖励到Player NFT合约
-        if (reward.equipmentIds.length > 0) {
-            for (uint256 i = 0; i < reward.equipmentIds.length; i++) {
-                // 铸造装备NFT到Player NFT合约并添加到背包
-                reward.equipmentIds[i] = _mintEquipmentToPlayerNFT(
-                    playerId,
-                    reward.itemLevel,
-                    box.rarity
-                );
-            }
+        if (reward.rewardType == 1) {
+            // 铸造装备NFT到Player NFT合约并添加到背包
+            reward.equipmentId = _mintEquipmentToPlayerNFT(
+                playerId,
+                uint8(box.level),
+                box.rarity
+            );
         }
 
         // 发放物品奖励（血瓶、转职书、宠物蛋）
         if (
-            reward.rewardType >= 2 &&
-            reward.rewardType <= 4 &&
             reward.itemId > 0
         ) {
             // mint Item NFT 给 Player NFT 合约
@@ -247,25 +237,12 @@ contract TreasureBoxSystem is Ownable {
             boxIndex,
             reward.rewardType,
             reward.goldAmount,
-            reward.equipmentIds,
-            reward.itemId,
-            reward.itemName,
-            reward.itemLevel,
-            reward.healAmount
+            reward.equipmentId,
+            reward.itemId
         );
 
         return reward;
     }
-
-    /**
-     * @dev 生成装备名称
-     */
-    // function _generateEquipmentName(uint8 equipmentType, uint8 rarity) internal pure returns (string memory) {
-    //     string[8] memory typeNames = ["Helmet", "Armor", "Shoes", "Weapon", "Shield", "Accessory", "Ring", "Pet"];
-    //     string[5] memory rarityPrefixes = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
-
-    //     return string(abi.encodePacked(rarityPrefixes[rarity], " ", typeNames[equipmentType]));
-    // }
 
     /**
      * @dev 删除指定索引的宝箱
@@ -317,7 +294,7 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 生成宝箱奖励（完全按照前端游戏逻辑）
+     * @dev 生成宝箱奖励（按照正确的随机顺序）
      * @param level 宝箱等级
      * @param rarity 宝箱稀有度（未使用，保持兼容）
      * @return 奖励信息
@@ -326,64 +303,90 @@ contract TreasureBoxSystem is Ownable {
         uint8 level,
         uint8 rarity
     ) internal view returns (BoxReward memory) {
-        // 首先确定奖励等级（95%当前等级，5%下一级）
+        // 步骤1：先随机奖励等级（95%当前等级，5%下一级）
         uint8 rewardLevel = _generateRewardLevel(level);
 
-        // 生成0-99的随机数
-        uint256 random = uint256(
-            keccak256(
-                abi.encodePacked(block.timestamp, msg.sender, level, rarity)
-            )
-        ) % 100;
+        // 步骤2：再随机奖励类型
+        uint8 rewardType = _generateRewardType(level, rarity);
 
-        if (random < GOLD_PROBABILITY) {
-            // 金币奖励 1%
+        // 步骤3：根据奖励类型生成具体奖励
+        if (rewardType == 0) {
+            // 金币奖励
             uint256 goldAmount = _calculateGoldReward(rewardLevel);
             return
                 BoxReward({
                     rewardType: 0,
                     goldAmount: goldAmount,
-                    equipmentIds: new uint256[](0),
-                    itemId: 0,
-                    itemName: "",
-                    itemLevel: 0,
-                    healAmount: 0
+                    equipmentId: 0,
+                    itemId: 0
                 });
-        } else if (random < GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY) {
-            // 血瓶奖励 13%
-            (
-                uint256 itemId,
-                string memory itemName,
-                uint256 healAmount
-            ) = _generateHealthPotion(rewardLevel);
+        } else if (rewardType == 1) {
+            // 装备奖励
+            return
+                BoxReward({
+                    rewardType: 1,
+                    goldAmount: 0,
+                    equipmentId: 0, // 占位符，实际铸造在后面
+                    itemId: 0
+                });
+        } else if (rewardType == 2) {
+            // 血瓶奖励
+            uint256 itemId = _generateHealthPotion(rewardLevel);
             return
                 BoxReward({
                     rewardType: 2,
                     goldAmount: 0,
-                    equipmentIds: new uint256[](0),
-                    itemId: itemId,
-                    itemName: itemName,
-                    itemLevel: rewardLevel,
-                    healAmount: healAmount
+                    equipmentId: 0,
+                    itemId: itemId
                 });
-        } else if (
-            random <
-            GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY + PET_EGG_PROBABILITY
-        ) {
-            // 宠物蛋奖励 8%
-            (uint256 itemId, string memory itemName) = _generatePetEgg(
-                rewardLevel
-            );
+        } else if (rewardType == 3) {
+            // 宠物蛋奖励
+            uint256 itemId = _generatePetEgg(rewardLevel);
             return
                 BoxReward({
                     rewardType: 3,
                     goldAmount: 0,
-                    equipmentIds: new uint256[](0),
-                    itemId: itemId,
-                    itemName: itemName,
-                    itemLevel: rewardLevel,
-                    healAmount: 0
+                    equipmentId: 0,
+                    itemId: itemId
                 });
+        } else {
+            // 转职书奖励 (rewardType == 4)
+            uint256 itemId = _generateJobAdvancementBook(level); // 转职书使用原始等级
+            return
+                BoxReward({
+                    rewardType: 4,
+                    goldAmount: 0,
+                    equipmentId: 0,
+                    itemId: itemId
+                });
+        }
+    }
+
+    /**
+     * @dev 生成奖励类型（第二步随机）
+     * @param level 宝箱等级
+     * @param rarity 宝箱稀有度
+     * @return 奖励类型 (0=金币, 1=装备, 2=血瓶, 3=宠物蛋, 4=转职书)
+     */
+    function _generateRewardType(
+        uint8 level,
+        uint8 rarity
+    ) internal view returns (uint8) {
+        uint256 random = uint256(
+            keccak256(
+                abi.encodePacked(block.timestamp, msg.sender, level, rarity, "rewardType")
+            )
+        ) % 100;
+
+        if (random < GOLD_PROBABILITY) {
+            return 0; // 金币 10%
+        } else if (random < GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY) {
+            return 2; // 血瓶 4%  
+        } else if (
+            random <
+            GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY + PET_EGG_PROBABILITY
+        ) {
+            return 3; // 宠物蛋 8%
         } else if (
             random <
             GOLD_PROBABILITY +
@@ -391,35 +394,9 @@ contract TreasureBoxSystem is Ownable {
                 PET_EGG_PROBABILITY +
                 JOB_BOOK_PROBABILITY
         ) {
-            // 转职书奖励 7%
-            (
-                uint256 itemId,
-                string memory itemName
-            ) = _generateJobAdvancementBook(level); // 注意这里用原始level
-            return
-                BoxReward({
-                    rewardType: 4,
-                    goldAmount: 0,
-                    equipmentIds: new uint256[](0),
-                    itemId: itemId,
-                    itemName: itemName,
-                    itemLevel: level,
-                    healAmount: 0
-                });
+            return 4; // 转职书 8%
         } else {
-            // 装备奖励 71% (剩余概率)
-            uint256[] memory equipmentIds = new uint256[](1);
-            equipmentIds[0] = 0; // 占位符，实际铸造在后面
-            return
-                BoxReward({
-                    rewardType: 1,
-                    goldAmount: 0,
-                    equipmentIds: equipmentIds,
-                    itemId: 0,
-                    itemName: "",
-                    itemLevel: rewardLevel,
-                    healAmount: 0
-                });
+            return 1; // 装备 70% (剩余概率)
         }
     }
 
@@ -448,105 +425,91 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 计算金币奖励（按照前端逻辑：50 + level*25 + random(0-49)）
+     * @dev 计算金币奖励（第三步随机 - 根据等级随机金币数量）
+     * @param rewardLevel 奖励等级
+     * @return 金币数量 (wei)
      */
     function _calculateGoldReward(
         uint8 rewardLevel
     ) internal view returns (uint256) {
         uint256 baseAmount = 50; // 基础50金币
         uint256 levelBonus = uint256(rewardLevel) * 25; // 每级25金币
+        
+        // 根据等级随机金币数量 (0-49)
         uint256 randomBonus = uint256(
             keccak256(
                 abi.encodePacked(
                     block.timestamp,
                     msg.sender,
                     rewardLevel,
-                    "gold"
+                    "goldAmount"
                 )
             )
-        ) % 50; // 0-49随机金币
+        ) % 50;
 
         return (baseAmount + levelBonus + randomBonus) * 10 ** 18; // 转换为wei
     }
 
     /**
-     * @dev 生成血瓶（按照前端逻辑：50 + (level-1)*25治疗量）
+     * @dev 生成血瓶ID
+     * @param level 血瓶等级
+     * @return 血瓶ID
      */
     function _generateHealthPotion(
         uint8 level
-    ) internal pure returns (uint256, string memory, uint256) {
-        uint256 healAmount = 50 + (uint256(level - 1)) * 25; // 基础50 + (level-1)*25
-        string memory name = string(
-            abi.encodePacked("Lv", _toString(level), " Health Potion")
-        );
+    ) internal pure returns (uint256) {
         // 血瓶ID范围：1000-1999，根据等级生成ID
         uint256 itemId = 1000 + (level - 1);
-
-        return (itemId, name, healAmount);
+        return itemId;
     }
 
     /**
-     * @dev 生成宠物蛋
+     * @dev 生成宠物蛋ID
+     * @param level 宠物蛋等级
+     * @return 宠物蛋ID
      */
     function _generatePetEgg(
         uint8 level
-    ) internal pure returns (uint256, string memory) {
-        string memory name = string(
-            abi.encodePacked("Lv", _toString(level), " Pet Egg")
-        );
+    ) internal pure returns (uint256) {
         // 宠物蛋ID范围：3000-3999，根据等级生成ID
         uint256 itemId = 3000 + (level - 1);
-
-        return (itemId, name);
+        return itemId;
     }
 
     /**
-     * @dev 生成转职书（按照前端等级范围逻辑）
+     * @dev 生成转职书ID
+     * @param boxLevel 宝箱等级
+     * @return 转职书ID
      */
     function _generateJobAdvancementBook(
         uint8 boxLevel
-    ) internal pure returns (uint256, string memory) {
-        string memory bookName;
+    ) internal pure returns (uint256) {
         uint256 jobType;
 
         if (boxLevel <= 2) {
-            bookName = "Great Swordsman Job Book";
-            jobType = 1;
+            jobType = 1; // Great Swordsman
         } else if (boxLevel <= 4) {
-            bookName = "Temple Knight Job Book";
-            jobType = 2;
+            jobType = 2; // Temple Knight
         } else if (boxLevel <= 6) {
-            bookName = "Dragon Knight Job Book";
-            jobType = 3;
+            jobType = 3; // Dragon Knight
         } else if (boxLevel <= 8) {
-            bookName = "Sword Master Job Book";
-            jobType = 4;
+            jobType = 4; // Sword Master
         } else if (boxLevel <= 10) {
-            bookName = "Sword God Job Book";
-            jobType = 5;
+            jobType = 5; // Sword God
         } else {
-            bookName = "Plane Lord Job Book";
-            jobType = 6;
+            jobType = 6; // Plane Lord
         }
 
         // 转职书ID范围：2000-2999，根据职业类型生成ID
         uint256 itemId = 2000 + jobType;
-        return (itemId, bookName);
+        return itemId;
     }
 
     /**
-     * @dev 生成装备ID (占位符，实际铸造在_mintEquipmentReward中进行)
-     */
-    function _generateEquipmentId(
-        uint8 level,
-        uint8 rarity
-    ) internal pure returns (uint256) {
-        // 返回占位符ID，实际装备在开箱时铸造
-        return 0;
-    }
-
-    /**
-     * @dev 生成装备稀有度（按照前端概率）
+     * @dev 生成装备稀有度（第三步随机 - 装备子步骤2）
+     * @param playerId 玩家ID  
+     * @param level 装备等级
+     * @return 装备稀有度 (0-4)
      */
     function _generateEquipmentRarity(
         uint256 playerId,
@@ -559,7 +522,7 @@ contract TreasureBoxSystem is Ownable {
                     msg.sender,
                     playerId,
                     level,
-                    "rarity"
+                    "equipRarity"
                 )
             )
         ) % 100;
@@ -580,7 +543,7 @@ contract TreasureBoxSystem is Ownable {
     }
 
     /**
-     * @dev 铸造装备NFT到Player NFT合约（按照前端逻辑）
+     * @dev 铸造装备NFT到Player NFT合约（按照正确的随机顺序）
      */
     function _mintEquipmentToPlayerNFT(
         uint256 playerId,
@@ -588,21 +551,11 @@ contract TreasureBoxSystem is Ownable {
         uint8 boxRarity
     ) internal returns (uint256) {
         console.log("_mintEquipmentToPlayerNFT level", level);
-        // 随机装备类型 (0-7: helmet, armor, shoes, weapon, shield, accessory, ring, pet)
-        uint8 equipmentType = uint8(
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        block.timestamp,
-                        playerId,
-                        level,
-                        "equipType"
-                    )
-                )
-            ) % 8
-        );
+        
+        // 步骤3.1：随机装备类型 (0-7: helmet, armor, shoes, weapon, shield, accessory, ring, pet)
+        uint8 equipmentType = _generateEquipmentType(playerId, level);
 
-        // 生成装备稀有度（独立于宝箱稀有度）
+        // 步骤3.2：随机装备稀有度（独立于宝箱稀有度）
         uint8 equipmentRarity = _generateEquipmentRarity(playerId, level);
 
         // 根据装备等级和稀有度计算装备属性
@@ -615,17 +568,13 @@ contract TreasureBoxSystem is Ownable {
             uint16 critDamage
         ) = _calculateEquipmentStats(level, equipmentType, equipmentRarity);
         console.log("_mintEquipmentToPlayerNFT 2", equipmentType);
-        // 生成装备名称
-        string memory name = _generateEquipmentName(
-            equipmentType,
-            equipmentRarity
-        );
+        
         console.log(
             "_mintEquipmentToPlayerNFT 2.5",
             address(playerNFT),
-            equipmentType,
-            name
+            equipmentType
         );
+        
         // 铸造装备NFT到Player NFT合约
         uint256 equipmentId = equipmentNFT.mintEquipment(
             address(playerNFT),
@@ -637,18 +586,42 @@ contract TreasureBoxSystem is Ownable {
             defense,
             agility,
             critRate,
-            critDamage,
-            name
+            critDamage
         );
         console.log(
             "_mintEquipmentToPlayerNFT 3 type,id",
             equipmentType,
             equipmentId
         );
+        
         // 添加到Player的背包
         playerNFT.addEquipmentToInventory(playerId, equipmentId);
         console.log("_mintEquipmentToPlayerNFT 4");
         return equipmentId;
+    }
+
+    /**
+     * @dev 生成装备类型（第三步随机 - 装备子步骤1）
+     * @param playerId 玩家ID
+     * @param level 装备等级
+     * @return 装备类型 (0-7)
+     */
+    function _generateEquipmentType(
+        uint256 playerId,
+        uint8 level
+    ) internal view returns (uint8) {
+        uint256 random = uint256(
+            keccak256(
+                abi.encodePacked(
+                    block.timestamp,
+                    playerId,
+                    level,
+                    "equipType"
+                )
+            )
+        ) % 8;
+        
+        return uint8(random);
     }
 
     /**
@@ -708,62 +681,7 @@ contract TreasureBoxSystem is Ownable {
         // pet (equipmentType == 7) 暂时不设置属性
     }
 
-    /**
-     * @dev 数字转字符串辅助函数
-     */
-    function _toString(uint256 value) internal pure returns (string memory) {
-        if (value == 0) {
-            return "0";
-        }
-        uint256 temp = value;
-        uint256 digits;
-        while (temp != 0) {
-            digits++;
-            temp /= 10;
-        }
-        bytes memory buffer = new bytes(digits);
-        while (value != 0) {
-            digits -= 1;
-            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
-            value /= 10;
-        }
-        return string(buffer);
-    }
 
-    /**
-     * @dev 生成装备名称
-     */
-    function _generateEquipmentName(
-        uint8 equipmentType,
-        uint8 rarity
-    ) internal pure returns (string memory) {
-        string[8] memory typeNames = [
-            "Helmet",
-            "Armor",
-            "Shoes",
-            "Weapon",
-            "Shield",
-            "Accessory",
-            "Ring",
-            "Pet"
-        ];
-        string[5] memory rarityPrefixes = [
-            "Common",
-            "Uncommon",
-            "Rare",
-            "Epic",
-            "Legendary"
-        ];
-
-        return
-            string(
-                abi.encodePacked(
-                    rarityPrefixes[rarity],
-                    " ",
-                    typeNames[equipmentType]
-                )
-            );
-    }
 
     // ========== 查询函数 ==========
 

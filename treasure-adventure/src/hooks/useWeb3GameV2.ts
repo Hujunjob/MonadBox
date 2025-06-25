@@ -577,11 +577,8 @@ export function useWeb3GameV2() {
               boxIndex,
               rewardType,
               goldAmount,
-              equipmentIds,
-              itemId,
-              itemName,
-              itemLevel,
-              healAmount
+              equipmentId,
+              itemId
             } = decodedLog.args as any;
             
             console.log('解析到宝箱开启事件:', {
@@ -589,23 +586,15 @@ export function useWeb3GameV2() {
               boxIndex: boxIndex.toString(),
               rewardType: rewardType.toString(),
               goldAmount: goldAmount.toString(),
-              equipmentIds: equipmentIds.map((id: any) => id.toString()),
-              itemId: itemId.toString(),
-              itemName,
-              itemLevel: itemLevel.toString(),
-              healAmount: healAmount.toString()
+              equipmentId: equipmentId.toString(),
+              itemId: itemId.toString()
             });
             
             return {
               rewardType: Number(rewardType),
               goldAmount: goldAmount.toString(),
-              equipmentIds: equipmentIds.map((id: any) => id.toString()),
-              itemId: itemId.toString(),
-              itemName: itemName,
-              itemLevel: Number(itemLevel),
-              healAmount: healAmount.toString(),
-              // 如果是装备奖励，添加equipmentType (稍后会从合约中获取)
-              equipmentType: Number(rewardType) === 1 && equipmentIds.length > 0 ? null : undefined
+              equipmentId: equipmentId.toString(),
+              itemId: itemId.toString()
             };
           }
         } catch (parseError) {
@@ -682,10 +671,10 @@ export function useWeb3GameV2() {
                 rewardDescription = `获得 ${Number(rewardData.goldAmount) / 1e18} 金币！`;
                 break;
               case 1: // 装备
-                rewardDescription = `获得 Lv.${rewardData.itemLevel} 装备！`;
+                rewardDescription = `获得装备！`;
                 // 如果是装备奖励且有装备ID，尝试获取装备详细信息
-                if (rewardData.equipmentIds && rewardData.equipmentIds.length > 0 && publicClient) {
-                  const equipmentId = BigInt(rewardData.equipmentIds[0]);
+                if (rewardData.equipmentId && rewardData.equipmentId !== '0' && publicClient) {
+                  const equipmentId = BigInt(rewardData.equipmentId);
                   publicClient.readContract({
                     address: CONTRACTS.EQUIPMENT_NFT,
                     abi: EQUIPMENT_NFT_ABI,
@@ -700,9 +689,9 @@ export function useWeb3GameV2() {
                       equipmentDetails: {
                         equipmentType: Number(equipmentData.equipmentType || 3),
                         rarity: Number(equipmentData.rarity || 0),
+                        level: Number(equipmentData.level || 1),
                         attack: Number(equipmentData.attack || 0),
                         defense: Number(equipmentData.defense || 0),
-                        health: Number(equipmentData.health || 0),
                         agility: Number(equipmentData.agility || 0),
                         criticalRate: Number(equipmentData.criticalRate || 0),
                         criticalDamage: Number(equipmentData.criticalDamage || 0),
@@ -722,13 +711,13 @@ export function useWeb3GameV2() {
                 }
                 break;
               case 2: // 血瓶
-                rewardDescription = `获得 ${rewardData.itemName}！`;
+                rewardDescription = `获得血瓶！`;
                 break;
               case 3: // 宠物蛋
-                rewardDescription = `获得 ${rewardData.itemName}！`;
+                rewardDescription = `获得宠物蛋！`;
                 break;
               case 4: // 转职书
-                rewardDescription = `获得 ${rewardData.itemName}！`;
+                rewardDescription = `获得转职书！`;
                 break;
               default:
                 rewardDescription = '获得神秘奖励！';
