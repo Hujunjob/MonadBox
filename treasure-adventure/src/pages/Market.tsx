@@ -371,7 +371,7 @@ const Market: React.FC = () => {
 
   return (
     <div className="market-panel">
-      <h2>市场</h2>
+      <h3>市场</h3>
       {/* Tab Navigation */}
       <div className="market-tabs">
         <button 
@@ -391,7 +391,7 @@ const Market: React.FC = () => {
       {/* 过滤器 */}
       <div className="market-filters">
         <div className="filter-group">
-          <label>物品类型:</label>
+          <label>物品:</label>
           <select 
             value={selectedItemType} 
             onChange={(e) => {
@@ -411,7 +411,7 @@ const Market: React.FC = () => {
         </div>
         
         <div className="filter-group">
-          <label>装备类型:</label>
+          <label>装备:</label>
           <select 
             value={selectedEquipmentType} 
             onChange={(e) => setSelectedEquipmentType(e.target.value)}

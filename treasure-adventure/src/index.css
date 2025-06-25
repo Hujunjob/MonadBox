@@ -75,8 +75,8 @@ button:focus-visible {
   margin: 0 auto;
 }
 
-.market-panel h2{
-  margin: 10px 10px;
+.market-panel h3{
+  margin: 2px 2px;
 }
 
 .market-stats {
@@ -315,7 +315,7 @@ button:focus-visible {
 .market-tabs {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 1px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -344,9 +344,9 @@ button:focus-visible {
 .market-filters {
   display: flex;
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   background: rgba(255, 255, 255, 0.1);
-  padding: 15px;
+  padding: 5px;
   border-radius: 8px;
   flex-wrap: wrap;
 }
@@ -371,7 +371,7 @@ button:focus-visible {
   background: rgba(255, 255, 255, 0.9);
   color: #000;
   font-size: 0.9rem;
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .filter-group select:disabled {

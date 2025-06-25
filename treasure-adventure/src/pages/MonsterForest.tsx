@@ -164,9 +164,9 @@ const MonsterForest: React.FC = () => {
         }
         
         // 刷新玩家数据
-        if (typeof hybridStore.refreshPlayerData === 'function') {
-          await hybridStore.refreshPlayerData();
-        }
+        // if (typeof hybridStore.refreshPlayerData === 'function') {
+        //   await hybridStore.refreshPlayerData();
+        // }
         
       } catch (error) {
         console.error('Failed to refresh monster data:', error);
@@ -253,7 +253,7 @@ const MonsterForest: React.FC = () => {
           onClick={() => setIsLevelExpanded(!isLevelExpanded)}
           style={{ cursor: 'pointer' }}
         >
-          <h3>冒险层数选择</h3>
+          <h3>冒险模式</h3>
           <span className="expand-icon">{isLevelExpanded ? '▼' : '▶'}</span>
         </div>
         

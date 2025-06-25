@@ -3,6 +3,7 @@ import { useHybridGameStore } from '../store/web3GameStore';
 import { getNextJob, canAdvanceJob, getJobLevelDisplay, getJobAdvancementBookImage } from '../utils/gameUtils';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { JobType } from '../types/game';
+import SellModal from './SellModal';
 
 interface JobAdvancementModalProps {
   item: any;
@@ -15,6 +16,7 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
   const player = hybridStore.player;
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
 
   if (!isOpen || !item || item.type !== 'job_advancement_book') {
     return null;
@@ -136,6 +138,21 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
                   {isAdvancing ? '转职中...' : '转职'}
                 </button>
                 <button 
+                  onClick={() => setIsSellModalOpen(true)}
+                  className="sell-btn"
+                  style={{ 
+                    backgroundColor: '#ffc107',
+                    color: '#212529',
+                    padding: '8px 16px',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    marginLeft: '10px'
+                  }}
+                >
+                  卖出
+                </button>
+                <button 
                   onClick={handleClose}
                   className="cancel-btn"
                   style={{ 
@@ -155,6 +172,18 @@ const JobAdvancementModal: React.FC<JobAdvancementModalProps> = ({ item, isOpen,
           )}
         </div>
       </div>
+      
+      {/* 卖出模态框 */}
+      <SellModal
+        item={item}
+        itemType="item"
+        isOpen={isSellModalOpen}
+        onClose={() => setIsSellModalOpen(false)}
+        onSellSuccess={() => {
+          // 卖出成功后关闭转职书弹窗
+          onClose();
+        }}
+      />
     </div>
   );
 };
