@@ -26,18 +26,6 @@ const CONTRACTS = {
 export function useWeb3GameV2() {
   const { address, isConnected, connector } = useAccount();
   
-  // Check if using burner wallet
-  const isBurnerWallet = connector?.id === 'burnerWallet';
-  
-  // 调试日志（仅开发环境）
-  if (process.env.NODE_ENV === 'development') {
-    console.log('useWeb3GameV2 状态:', {
-      address,
-      isConnected,
-      connectorId: connector?.id,
-      isBurnerWallet
-    });
-  }
   const { showToast } = useToast();
   const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
   const publicClient = usePublicClient();
@@ -54,17 +42,6 @@ export function useWeb3GameV2() {
     args: [address as `0x${string}`],
     query: { enabled: !!address && isConnected },
   });
-
-  // 调试查询状态（仅开发环境）
-  if (process.env.NODE_ENV === 'development') {
-    console.log('playerBalance 查询:', {
-      enabled: !!address && isConnected,
-      address,
-      isConnected,
-      playerBalance,
-      error: playerBalanceError
-    });
-  }
 
   // 获取用户的第一个Player NFT ID
   const { data: firstPlayerTokenId, refetch: refetchPlayerTokenId } = useReadContract({
@@ -365,7 +342,7 @@ export function useWeb3GameV2() {
         abi: BATTLE_SYSTEM_ABI,
         functionName: 'startAdventure',
         args: [BigInt(currentPlayerId), adventureLevel, finalMonsterLevel],
-        gas: BigInt(1500000),
+        gas: BigInt(2500000),
       },
       undefined,
       {
@@ -662,7 +639,6 @@ export function useWeb3GameV2() {
     await safeCall(
       {
         gas: BigInt(1200000), // 调整 gasLimit 为合理值
-        gasPrice: BigInt(10000000),
         address: CONTRACTS.TREASURE_BOX_SYSTEM,
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'openTreasureBox',
