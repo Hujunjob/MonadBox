@@ -12,6 +12,7 @@
     "deploy:upgradeable:hardhat": "hardhat run scripts/deployUpgradeable.js --network hardhat",
     "deploy:upgradeable:monad": "hardhat run scripts/deployMonadTestnetUpgradeable.js --network monadTestnet",
     "node": "hardhat node --show-stack-traces",
+    "node:lan": "hardhat node --hostname 0.0.0.0 --port 8545 --show-stack-traces",
     "test": "hardhat test"
   },
   "keywords": [],

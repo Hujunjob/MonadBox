@@ -27,6 +27,11 @@ module.exports = {
         interval: 1000 // 每1秒自动出一个块
       }
     },
+    // 局域网访问配置
+    lan: {
+      url: "http://0.0.0.0:8545",
+      chainId: 31337,
+    },
     monadTestnet: {
       url: "https://testnet-rpc.monad.xyz",
       chainId: 10143,

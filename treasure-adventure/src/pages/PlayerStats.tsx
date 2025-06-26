@@ -25,7 +25,7 @@ const PlayerStats: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const [isBuyGoldModalOpen, setIsBuyGoldModalOpen] = useState(false);
-  const [isFaucetOpen, setIsFaucetOpen] = useState(false);
+  const [isFaucetOpen, setIsFaucetOpen] = useState(true);
   
   // 通知数据（示例）
   const notifications = [
