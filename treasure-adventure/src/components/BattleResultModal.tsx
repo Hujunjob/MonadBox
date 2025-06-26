@@ -59,7 +59,7 @@ const BattleResultModal: React.FC<BattleResultModalProps> = ({
   return (
     <div className="battle-result-modal-overlay" onClick={handleOverlayClick} onKeyDown={handleKeyDown}>
       <div className="battle-result-modal">
-        <div className="modal-header">
+        <div className="battle-modal-header">
           <div className={`result-icon ${isVictory ? 'victory' : 'defeat'} ${escaped ? 'escape' : ''}`}>
             {getResultIcon()}
           </div>
@@ -68,7 +68,7 @@ const BattleResultModal: React.FC<BattleResultModalProps> = ({
           </h2>
         </div>
 
-        <div className="modal-content">
+        <div className="battle-modal-content">
           <div className="battle-summary">
             <h3>战斗统计</h3>
             <div className="stats-grid">
@@ -132,7 +132,7 @@ const BattleResultModal: React.FC<BattleResultModalProps> = ({
           )}
         </div>
 
-        <div className="modal-footer">
+        <div className="battle-modal-footer">
           <button 
             className="confirm-btn"
             onClick={onClose}

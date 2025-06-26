@@ -41,7 +41,6 @@ const BattleArena: React.FC<BattleArenaProps> = ({
   fighter1Id,
   fighter2Id
 }) => {
-  const hybridStore = useHybridGameStore();
   const [currentActionIndex, setCurrentActionIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [battleComplete, setBattleComplete] = useState(false);
@@ -69,17 +68,29 @@ const BattleArena: React.FC<BattleArenaProps> = ({
   // 初始化战斗状态并自动开始
   useEffect(() => {
     if (result?.battleLog && result.battleLog.length > 0 && !isPlaying && !battleComplete) {
-      // 从第一个行动中获取初始血量
-      const firstActions = result.battleLog.filter((_, index) => index < 2);
-      firstActions.forEach((action) => {
-        if (action.actorId === fighter1Id) {
-          setFighter1HP(action.remainingHealth);
-          setFighter1MaxHP(action.remainingHealth);
-        } else if (action.actorId === fighter2Id) {
-          setFighter2HP(action.remainingHealth);
-          setFighter2MaxHP(action.remainingHealth);
-        }
-      });
+      // 从战斗日志中找到初始血量（第一回合前的血量）
+      let fighter1InitialHP = 100;
+      let fighter2InitialHP = 100;
+      
+      // 查找每个战斗者的第一个动作来获取初始血量
+      const fighter1FirstAction = result.battleLog.find(action => action.actorId === fighter1Id);
+      const fighter2FirstAction = result.battleLog.find(action => action.actorId === fighter2Id);
+      
+      if (fighter1FirstAction) {
+        // 如果第一个动作有治疗，说明这是初始血量；如果有伤害，需要加回去
+        fighter1InitialHP = fighter1FirstAction.remainingHealth + (fighter1FirstAction.damage || 0);
+      }
+      
+      if (fighter2FirstAction) {
+        fighter2InitialHP = fighter2FirstAction.remainingHealth + (fighter2FirstAction.damage || 0);
+      }
+      
+      console.log('Setting initial HP:', { fighter1InitialHP, fighter2InitialHP });
+      
+      setFighter1HP(fighter1InitialHP);
+      setFighter1MaxHP(fighter1InitialHP);
+      setFighter2HP(fighter2InitialHP);
+      setFighter2MaxHP(fighter2InitialHP);
       
       // 自动开始战斗
       setTimeout(() => {
@@ -130,22 +141,25 @@ const BattleArena: React.FC<BattleArenaProps> = ({
       return;
     }
 
-    // 倒计时逻辑
+    console.log('Starting action', currentActionIndex);
+    
+    // 重置倒计时
     setCountdown(3);
+    
+    // 倒计时逻辑
+    let currentCount = 3;
     const countdownInterval = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          return 0;
-        }
-        return prev - 1;
-      });
+      currentCount--;
+      setCountdown(currentCount);
+      
+      if (currentCount <= 0) {
+        clearInterval(countdownInterval);
+      }
     }, 1000);
 
     const timer = setTimeout(() => {
       const action = result.battleLog[currentActionIndex];
-      const prevFighter1HP = fighter1HP;
-      const prevFighter2HP = fighter2HP;
+      console.log('Executing action:', action);
       
       // 更新血量并显示动画
       if (action.actorId === fighter1Id) {
@@ -175,14 +189,13 @@ const BattleArena: React.FC<BattleArenaProps> = ({
       }
 
       setCurrentActionIndex(prev => prev + 1);
-      clearInterval(countdownInterval);
     }, 3000); // 3秒间隔
 
     return () => {
       clearTimeout(timer);
       clearInterval(countdownInterval);
     };
-  }, [isPlaying, currentActionIndex, result, fighter1Id, fighter2Id, onBattleComplete, fighter1HP, fighter2HP]);
+  }, [isPlaying, currentActionIndex, result, fighter1Id, fighter2Id, onBattleComplete]);
 
   const getActionText = (action: BattleAction): string => {
     const actorName = action.actorId === fighter1Id ? fighter1Name : fighter2Name;
@@ -333,6 +346,10 @@ const BattleArena: React.FC<BattleArenaProps> = ({
         onClose={() => {
           setShowResultModal(false);
           onBattleComplete?.();
+          // // 立即调用回调关闭战斗页面
+          // setTimeout(() => {
+           
+          // }, 100);
         }}
         isVictory={result ? result.winnerId === fighter1Id && !result.escaped : false}
         escaped={result ? result.escaped : false}

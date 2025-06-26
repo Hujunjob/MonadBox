@@ -53,7 +53,7 @@ const BattlePage: React.FC = () => {
       } else {
         navigate('/');
       }
-    }, 3000); // 3秒后自动返回
+    }, 300); // 3秒后自动返回
   };
 
   const handleBackClick = () => {
@@ -80,9 +80,9 @@ const BattlePage: React.FC = () => {
   return (
     <div className="battle-page">
       <div className="battle-header">
-        <button className="back-button" onClick={handleBackClick}>
+        {/* <button className="back-button" onClick={handleBackClick}>
           ← 返回
-        </button>
+        </button> */}
         <h1>
           {battleParams.type === 'adventure' ? '冒险战斗' : '排行榜挑战'}
         </h1>

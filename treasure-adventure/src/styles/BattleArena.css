@@ -1,7 +1,7 @@
 .battle-arena {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 16px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
