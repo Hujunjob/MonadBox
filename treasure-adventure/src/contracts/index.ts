@@ -1,16 +1,16 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853' as `0x${string}`,
-  EQUIPMENT_NFT: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' as `0x${string}`,
-  ITEM_NFT: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707' as `0x${string}`,
-  GOLD_TOKEN: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318' as `0x${string}`,
-  BATTLE_SYSTEM: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82' as `0x${string}`,
-  MARKET: '0x0B306BF915C4d645ff596e518fAf3F9669b97016' as `0x${string}`,
-  RANK: '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE' as `0x${string}`,
-  SUPER_MARKET: '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c' as `0x${string}`
+  PLAYER_NFT: '0x998abeb3E57409262aE5b751f60747921B33613E' as `0x${string}`,
+  EQUIPMENT_NFT: '0x851356ae760d987E095750cCeb3bC6014560891C' as `0x${string}`,
+  ITEM_NFT: '0x95401dc811bb5740090279Ba06cfA8fcF6113778' as `0x${string}`,
+  GOLD_TOKEN: '0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x4826533B4897376654Bb4d4AD88B7faFD0C98528' as `0x${string}`,
+  BATTLE_SYSTEM: '0x0E801D84Fa97b50751Dbf25036d067dCf18858bF' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf' as `0x${string}`,
+  MARKET: '0x9d4454B023096f34B160D6B654540c56A1F81688' as `0x${string}`,
+  RANK: '0x5eb3Bc0a489C5A8288765d2336659EbCA68FCd00' as `0x${string}`,
+  SUPER_MARKET: '0x809d550fca64d94Bd9F66E60752A544199cfAC3D' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -2121,19 +2121,6 @@ export const BATTLE_SYSTEM_ABI = [
   },
   {
     "inputs": [],
-    "name": "FOREST_PROGRESS_REQUIREMENT",
-    "outputs": [
-      {
-        "internalType": "uint16",
-        "name": "",
-        "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "MAX_ADVENTURE_LEVEL",
     "outputs": [
       {
@@ -2270,19 +2257,6 @@ export const BATTLE_SYSTEM_ABI = [
         "internalType": "uint8",
         "name": "",
         "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "STAMINA_RECOVERY_INTERVAL",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
       }
     ],
     "stateMutability": "view",

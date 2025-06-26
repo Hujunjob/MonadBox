@@ -4,6 +4,7 @@ import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { CONTRACT_ADDRESSES, SUPER_MARKET_ABI } from '../contracts';
 import { useHybridGameStore } from '../store/web3GameStore';
 import './BuyGoldModal.css';
+import { useToast } from './ToastManager';
 
 interface BuyGoldModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
   const [ethRequired, setEthRequired] = useState<string>('0');
   const [isLoading, setIsLoading] = useState(false);
   const hybridStore = useHybridGameStore();
-
+  const { showToast } = useToast();
   // 购买限制常量 (从合约同步)
   const MIN_GOLD = 100;
   const MAX_GOLD = 1000000;
@@ -57,7 +58,8 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
       setIsLoading(false);
       // 刷新玩家数据
       hybridStore.refetchPlayer();
-      onClose();
+      // onClose();
+      console.log("onClose");
     }
   }, [isConfirmed, hybridStore, onClose]);
 
@@ -82,12 +84,12 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
     
     // 验证输入
     if (!goldValue || goldValue < MIN_GOLD || goldValue > MAX_GOLD) {
-      alert(`请输入有效的金币数量 (${MIN_GOLD} - ${MAX_GOLD})`);
+      showToast(`请输入有效的金币数量 (${MIN_GOLD} - ${MAX_GOLD})`);
       return;
     }
 
     if (!playerId) {
-      alert('玩家ID无效');
+      showToast('玩家ID无效');
       return;
     }
 
@@ -170,11 +172,11 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
               </button>
             </div>
 
-            {(writeError || confirmError) && (
+            {/* {(writeError || confirmError) && (
               <div className="error-message">
                 交易失败: {(writeError || confirmError)?.message}
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </div>

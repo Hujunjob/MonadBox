@@ -989,6 +989,10 @@ export function useWeb3GameV2() {
     return 0;
   };
 
+  const getJobName = (level:number,exp:number)=>{
+    return "初级剑士"
+  }
+
   // 处理背包物品数据
   const getInventoryItems = useMemo(() => {
     console.log("getInventoryItems - memoized");
@@ -1058,7 +1062,7 @@ export function useWeb3GameV2() {
     currentForestLevel: playerData ? Number(playerData.currentForestLevel) : 1,
     currentForestProgress: playerData ? Number(playerData.currentForestProgress) : 0,
     lastTreasureBoxTime: playerData ? Number(playerData.lastTreasureBoxTime) : 0,
-    job: playerData ? Number(playerData.job) : 0,
+    job: playerData ? getJobName(playerData.level,playerData.experience) : "初级剑士",
     // 前端需要的额外字段
     gold: playerData ? Number(playerData.goldBalance)/10**18 : 0,
     equipment: getEquippedItemsMap,
