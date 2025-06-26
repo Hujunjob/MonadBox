@@ -177,7 +177,7 @@ button:focus-visible {
   font-size: 0.7rem;
 }
 
-.purchase-btn {
+.main-purchase-btn {
   width: 100%;
   background: #28a745;
   color: white;
@@ -226,11 +226,11 @@ button:focus-visible {
   margin-top: 20px;
 }
 
-.form-group {
+.main-form-group {
   margin-bottom: 16px;
 }
 
-.form-group label {
+.main-form-group label {
   display: block;
   margin-bottom: 4px;
   color: #fff;
@@ -281,22 +281,22 @@ button:focus-visible {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.cancel-btn {
+.main-cancel-btn {
   background: #6c757d;
   color: white;
   margin-right: 10px;
 }
 
-.cancel-btn:hover:not(:disabled) {
+.main-cancel-btn:hover:not(:disabled) {
   background: #5a6268;
 }
 
-.confirm-btn {
+.main-confirm-btn {
   background: #28a745;
   color: white;
 }
 
-.confirm-btn:hover:not(:disabled) {
+.main-confirm-btn:hover:not(:disabled) {
   background: #218838;
 }
 
@@ -408,7 +408,7 @@ button:focus-visible {
   color: white;
 }
 
-.listing-action-btn.cancel-btn:hover:not(:disabled) {
+.listing-action-btn.main-cancel-btn:hover:not(:disabled) {
   background: #c82333;
 }
 

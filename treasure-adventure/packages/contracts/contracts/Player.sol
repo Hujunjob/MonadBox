@@ -202,7 +202,7 @@ contract Player is
         // 初始玩家属性
         INITIAL_HEALTH = 100;
         INITIAL_ATTACK = 15;
-        INITIAL_DEFENSE = 5;
+        INITIAL_DEFENSE = 10;
         INITIAL_AGILITY = 10;
         INITIAL_CRIT_RATE = 5;
         INITIAL_CRIT_DAMAGE = 150;

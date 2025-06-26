@@ -1,4 +1,4 @@
-.modal-overlay {
+.buy-gold-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,7 +11,7 @@
   z-index: 1000;
 }
 
-.modal-content {
+.buy-gold-modal-content {
   background: #f8f9fa;
   border-radius: 8px;
   width: 90%;
@@ -21,7 +21,7 @@
   border: 1px solid #ddd;
 }
 
-.modal-header {
+.buy-gold-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -31,13 +31,13 @@
   border-radius: 8px 8px 0 0;
 }
 
-.modal-header h2 {
+.buy-gold-modal-header h2 {
   margin: 0;
   color: #333;
   font-size: 18px;
 }
 
-.close-btn {
+.buy-gold-close-btn {
   background: none;
   border: none;
   color: #666;
@@ -48,11 +48,11 @@
   height: 25px;
 }
 
-.close-btn:hover {
+.buy-gold-close-btn:hover {
   color: #333;
 }
 
-.modal-body {
+.buy-gold-modal-body {
   padding: 15px 20px 20px;
 }
 
@@ -62,13 +62,13 @@
   gap: 15px;
 }
 
-.form-group {
+.buy-gold-form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.form-group label {
+.buy-gold-form-group label {
   font-weight: 600;
   color: #555;
   font-size: 14px;
@@ -115,7 +115,7 @@
   margin-top: 15px;
 }
 
-.purchase-btn {
+.buy-gold-purchase-btn {
   flex: 1;
   padding: 10px 20px;
   background: #4CAF50;
@@ -128,17 +128,17 @@
   transition: background 0.3s;
 }
 
-.purchase-btn:hover:not(.disabled) {
+.buy-gold-purchase-btn:hover:not(.disabled) {
   background: #45a049;
 }
 
-.purchase-btn.disabled {
+.buy-gold-purchase-btn.disabled {
   background: #ccc;
   cursor: not-allowed;
   opacity: 0.7;
 }
 
-.cancel-btn {
+.buy-gold-cancel-btn {
   flex: 1;
   padding: 10px 20px;
   background: #6c757d;
@@ -151,7 +151,7 @@
   transition: background 0.3s;
 }
 
-.cancel-btn:hover {
+.buy-gold-cancel-btn:hover {
   background: #5a6268;
 }
 

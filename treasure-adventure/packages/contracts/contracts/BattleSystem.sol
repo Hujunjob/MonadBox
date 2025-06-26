@@ -112,7 +112,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
         // 怪物配置
         MONSTER_BASE_DEFENSE = 10;
-        MONSTER_DEFENSE_PER_LEVEL = 5;
+        MONSTER_DEFENSE_PER_LEVEL = 3;
         MONSTER_DEFENSE_PER_ADVENTURE_LEVEL = 5;
 
         MONSTER_BASE_HEALTH = 50;
@@ -120,14 +120,14 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         MONSTER_HEALTH_PER_ADVENTURE_LEVEL = 10;
 
         MONSTER_BASE_ATTACK = 10;
-        MONSTER_ATTACK_PER_LEVEL = 1;
-        MONSTER_ATTACK_PER_ADVENTURE_LEVEL = 1;
+        MONSTER_ATTACK_PER_LEVEL = 3;
+        MONSTER_ATTACK_PER_ADVENTURE_LEVEL = 3;
 
         MONSTER_BASE_AGILITY = 10;
         MONSTER_AGILITY_PER_LEVEL = 1;
         MONSTER_AGILITY_PER_ADVENTURE_LEVEL = 1;
 
-        MONSTER_BASE_CRITI_RATE = 10;
+        MONSTER_BASE_CRITI_RATE = 5;
         MONSTER_BASE_CRITI_DAMAGE = 200;
 
         // 宝箱等级配置

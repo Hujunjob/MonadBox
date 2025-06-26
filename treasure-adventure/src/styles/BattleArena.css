@@ -9,7 +9,7 @@
   font-family: 'Arial', sans-serif;
 }
 
-.battle-arena.loading,
+.battle-arena.arena-loading,
 .battle-arena.error {
   display: flex;
   align-items: center;
@@ -27,14 +27,14 @@
   color: #ff6b6b;
 }
 
-.battle-header {
+.battle-arena-header {
   text-align: center;
   margin-bottom: 30px;
   border-bottom: 2px solid #0f4c75;
   padding-bottom: 15px;
 }
 
-.battle-header h2 {
+.battle-arena-header h2 {
   margin: 0;
   font-size: 28px;
   color: #f39c12;

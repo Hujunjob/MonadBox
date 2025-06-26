@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./Player.sol";
 import "./Item.sol";
+import "hardhat/console.sol";
 /**
  * @title FightSystem
  * @dev 回合制战斗系统合约 - 处理玩家与NPC/玩家之间的回合制战斗
@@ -157,7 +158,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
                 _getPotionCount(fighter2Id) : new uint256[](0),
             potionsUsed: 0
         });
-        
+        console.log("startBattle ",fighter1.health,fighter2.health);
         // 执行战斗
         BattleResult memory result = _executeBattle(battleId, fighter1, fighter2, config);
         
@@ -190,6 +191,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         bool fighter1First = fighter1.agility >= fighter2.agility;
         
         while (fighter1.health > 0 && fighter2.health > 0 && rounds < 100) {
+            console.log("_executeBattle round,health 1,2",rounds,fighter1.health,fighter2.health);
             rounds++;
             
             // 回合开始

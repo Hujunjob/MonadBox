@@ -31,7 +31,7 @@
   100% { transform: rotate(360deg); }
 }
 
-.battle-header {
+.battle-page-header {
   display: flex;
   align-items: center;
   margin-bottom: 30px;
@@ -103,7 +103,7 @@
     padding: 10px;
   }
   
-  .battle-header {
+  .battle-page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
