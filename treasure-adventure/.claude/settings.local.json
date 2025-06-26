@@ -27,7 +27,8 @@
       "Bash(jq:*)",
       "Bash(find:*)",
       "Bash(python3:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }

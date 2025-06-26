@@ -198,9 +198,9 @@
   font-weight: 600;
   cursor: pointer;
   font-size: 12px;
-  width: 66px !important;
-  max-width: 66px !important;
-  min-width: 66px !important;
+  width: 86px !important;
+  max-width: 86px !important;
+  min-width: 86px !important;
   text-align: center;
   transition: all 0.2s;
 }

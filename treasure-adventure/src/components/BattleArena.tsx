@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useReadContract } from 'wagmi';
 import { CONTRACT_ADDRESSES, FIGHT_SYSTEM_ABI } from '../contracts';
 import { useHybridGameStore } from '../store/web3GameStore';
+import BattleResultModal from './BattleResultModal';
 import '../styles/BattleArena.css';
 
 interface BattleAction {
@@ -51,6 +52,7 @@ const BattleArena: React.FC<BattleArenaProps> = ({
   const [countdown, setCountdown] = useState(3);
   const [showDamage, setShowDamage] = useState<{fighter1?: number, fighter2?: number}>({});
   const [showHealing, setShowHealing] = useState<{fighter1?: number, fighter2?: number}>({});
+  const [showResultModal, setShowResultModal] = useState(false);
   
   const actionLogRef = useRef<HTMLDivElement>(null);
 
@@ -120,7 +122,10 @@ const BattleArena: React.FC<BattleArenaProps> = ({
       if (isPlaying && currentActionIndex >= (result?.battleLog?.length || 0)) {
         setIsPlaying(false);
         setBattleComplete(true);
-        onBattleComplete?.();
+        // 显示结果弹框而不是立即调用回调
+        setTimeout(() => {
+          setShowResultModal(true);
+        }, 1000);
       }
       return;
     }
@@ -316,66 +321,38 @@ const BattleArena: React.FC<BattleArenaProps> = ({
           </div>
         )}
         
-        {battleComplete && (
-          <div className="battle-result">
-            <div className="result-header">
-              <h3 className={`result-text ${result.winnerId === fighter1Id ? 'victory' : 'defeat'}`}>
-                {getBattleResultText()}
-              </h3>
-            </div>
-            
-            <div className="battle-stats">
-              <div className="stat-item">
-                <span className="stat-label">总回合数:</span>
-                <span className="stat-value">{Number(result.totalRounds)}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">战斗动作:</span>
-                <span className="stat-value">{result.battleLog.length}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">最终血量:</span>
-                <span className="stat-value">{fighter1Name}: {fighter1HP}/{fighter1MaxHP}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label"></span>
-                <span className="stat-value">{fighter2Name}: {fighter2HP}/{fighter2MaxHP}</span>
-              </div>
-            </div>
-
-            {result.winnerId === fighter1Id && !result.escaped && (
-              <div className="battle-rewards">
-                <h4>战斗奖励</h4>
-                <div className="rewards-list">
-                  <div className="reward-item">
-                    <span className="reward-icon">⭐</span>
-                    <span className="reward-text">经验值 +{Math.floor(Math.random() * 50) + 20}</span>
-                  </div>
-                  <div className="reward-item">
-                    <span className="reward-icon">📦</span>
-                    <span className="reward-text">获得战斗宝箱</span>
-                  </div>
-                  {Math.random() > 0.7 && (
-                    <div className="reward-item rare">
-                      <span className="reward-icon">⚔️</span>
-                      <span className="reward-text">发现稀有装备！</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="battle-actions-summary">
-              <button 
-                className="continue-btn"
-                onClick={onBattleComplete}
-              >
-                继续冒险
-              </button>
-            </div>
+        {battleComplete && !showResultModal && (
+          <div className="battle-complete-waiting">
+            <div className="completion-text">战斗结束，正在计算结果...</div>
           </div>
         )}
       </div>
+      
+      <BattleResultModal
+        isOpen={showResultModal}
+        onClose={() => {
+          setShowResultModal(false);
+          onBattleComplete?.();
+        }}
+        isVictory={result ? result.winnerId === fighter1Id && !result.escaped : false}
+        escaped={result ? result.escaped : false}
+        battleStats={{
+          totalRounds: result ? Number(result.totalRounds) : 0,
+          totalActions: result ? result.battleLog.length : 0,
+          fighter1Name,
+          fighter2Name,
+          fighter1FinalHP: fighter1HP,
+          fighter1MaxHP,
+          fighter2FinalHP: fighter2HP,
+          fighter2MaxHP
+        }}
+        rewards={result && result.winnerId === fighter1Id && !result.escaped ? {
+          experience: Math.floor(Math.random() * 50) + 20,
+          hasBox: true,
+          hasRareItem: Math.random() > 0.7,
+          rareItemName: Math.random() > 0.7 ? '传说武器' : undefined
+        } : undefined}
+      />
     </div>
   );
 };

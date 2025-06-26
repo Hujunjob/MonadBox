@@ -53,6 +53,41 @@ const MonsterForest: React.FC = () => {
   
   const currentAdventure = adventureLevels.find(adv => adv.level === selectedAdventureLevel);
   
+  // 获取怪物图标
+  const getMonsterIcon = (monsterLevel: number, status: string) => {
+    const icons = ['👹', '👺', '🧌', '🧟', '👻', '🦇', '🐺', '🐉', '🦅', '👑'];
+    const icon = icons[monsterLevel - 1] || '👹';
+    
+    // 根据状态调整图标
+    if (status === 'locked') {
+      return '🔒';
+    }
+    return icon;
+  };
+
+  // 计算怪物的完整属性
+  const calculateMonsterStats = (adventureLevel: number, monsterLevel: number) => {
+    // 基础属性（参考合约逻辑）
+    const baseHealth = 100 + monsterLevel * 20 + adventureLevel * 10;
+    const baseAttack = 10 + monsterLevel * 5 + adventureLevel * 2;
+    const baseDefense = monsterLevel * 5 + 10;
+    const baseAgility = 5 + monsterLevel * 2;
+    
+    // 层级加成
+    const levelBonus = adventureLevel > 1000 ? Math.floor((adventureLevel - 1) / 1000 + 1) * 20 : 0;
+    
+    return {
+      health: baseHealth,
+      attack: baseAttack,
+      defense: Math.floor((baseDefense + levelBonus) / 2),
+      agility: baseAgility,
+      critRate: 5 + Math.floor(monsterLevel / 2), // 暴击率随等级提升
+      critDamage: 150 + monsterLevel * 5, // 暴击伤害随等级提升
+      level: monsterLevel,
+      experience: monsterLevel * 10 + adventureLevel * 5 + 20
+    };
+  };
+
   // 获取怪物数据和玩家进度
   useEffect(() => {
     const fetchMonsterData = async () => {
@@ -61,7 +96,7 @@ const MonsterForest: React.FC = () => {
       try {
         // 获取当前层级的怪物击杀数据
         const killCounts: {[key: number]: number} = {};
-        const stats: {[key: number]: number} = {};
+        const stats: {[key: number]: any} = {};
         
         for (let monsterLevel = 1; monsterLevel <= 10; monsterLevel++) {
           // 获取怪物击杀次数
@@ -70,22 +105,8 @@ const MonsterForest: React.FC = () => {
             killCounts[monsterLevel] = killCount || 0;
           }
           
-          // 获取怪物属性
-          if (typeof hybridStore.getMonsterStats === 'function') {
-            try {
-              const defense = await hybridStore.getMonsterStats(selectedAdventureLevel, monsterLevel);
-              stats[monsterLevel] = defense || 0;
-              console.log(`Monster ${monsterLevel} defense:`, defense); // 调试日志
-            } catch (error) {
-              console.error(`Failed to get monster ${monsterLevel} stats:`, error);
-              stats[monsterLevel] = 0;
-            }
-          } else {
-            // 如果方法不存在，使用合约中的计算逻辑
-            const baseDefense = monsterLevel * 5 + 10;
-            const levelBonus = selectedAdventureLevel > 1000 ? Math.floor((selectedAdventureLevel - 1) / 1000 + 1) * 20 : 0;
-            stats[monsterLevel] = Math.floor((baseDefense + levelBonus) / 2);
-          }
+          // 计算怪物完整属性
+          stats[monsterLevel] = calculateMonsterStats(selectedAdventureLevel, monsterLevel);
         }
         
         setMonsterKillCounts(killCounts);
@@ -297,7 +318,8 @@ const MonsterForest: React.FC = () => {
             {Array.from({ length: 10 }, (_, index) => {
               const monsterLevel = index + 1;
               const status = getMonsterChallengeStatus(monsterLevel);
-              const defense = monsterStats[monsterLevel] || 0;
+              const monsterData = monsterStats[monsterLevel] || {};
+              const killCount = monsterKillCounts[monsterLevel] || 0;
               
               return (
                 <div 
@@ -305,19 +327,44 @@ const MonsterForest: React.FC = () => {
                   className={`monster-card ${status}`}
                 >
                   <div className="monster-header">
-                    {/* <div className="monster-number">#{monsterLevel}</div> */}
+                    <div className="monster-level-badge">Lv.{monsterLevel}</div>
                     <div className="monster-name">怪物 {monsterLevel}</div>
+                    {killCount > 0 && (
+                      <div className="kill-count-badge">已击败 {killCount}次</div>
+                    )}
+                  </div>
+                  
+                  <div className="monster-avatar">
+                    <div className="monster-icon">{getMonsterIcon(monsterLevel, status)}</div>
                   </div>
                   
                   <div className="monster-stats">
-                    <div className="stat-item">
-                      <span className="stat-label">防御:</span>
-                      <span className="stat-value">{defense}</span>
+                    <div className="stats-grid">
+                      <div className="stat-item">
+                        <span className="stat-icon">❤️</span>
+                        <span className="stat-value">{monsterData.health || 0}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-icon">⚔️</span>
+                        <span className="stat-value">{monsterData.attack || 0}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-icon">🛡️</span>
+                        <span className="stat-value">{monsterData.defense || 0}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-icon">💨</span>
+                        <span className="stat-value">{monsterData.agility || 0}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-icon">💥</span>
+                        <span className="stat-value">{monsterData.critRate || 0}%</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-icon">⭐</span>
+                        <span className="stat-value">+{monsterData.experience || 0}</span>
+                      </div>
                     </div>
-                    {/* <div className="stat-item">
-                      <span className="stat-label">击败:</span>
-                      <span className="stat-value">{killCount}次</span>
-                    </div> */}
                   </div>
                   
                   <div className="monster-actions">
@@ -333,10 +380,12 @@ const MonsterForest: React.FC = () => {
                       }
                       onClick={() => handleStartAdventure(selectedAdventureLevel, monsterLevel)}
                     >
-                      {hybridStore.isPending ? '战斗中...' :
-                       player.stamina < 1 ? '体力不足' :
-                       selectedAdventureLevel > maxUnlockedLevel ? '层级未解锁' :
-                       getChallengeButtonText(monsterLevel)}
+                      {hybridStore.isPending ? '⚔️ 战斗中...' :
+                       player.stamina < 1 ? '😴 体力不足' :
+                       selectedAdventureLevel > maxUnlockedLevel ? '🔒 层级未解锁' :
+                       status === 'defeated' ? '🔄 再次挑战' :
+                       status === 'available' ? '⚡ 挑战' :
+                       '🔒 未解锁'}
                     </button>
                   </div>
                 </div>
@@ -347,7 +396,27 @@ const MonsterForest: React.FC = () => {
       )}
       
       <div className="adventure-info">
-        <h3>冒险系统说明</h3>
+        <h3>📊 属性图标说明</h3>
+        <div className="icon-legend">
+          <div className="legend-row">
+            <span className="legend-icon">❤️</span>
+            <span className="legend-text">生命值</span>
+            <span className="legend-icon">⚔️</span>
+            <span className="legend-text">攻击力</span>
+            <span className="legend-icon">🛡️</span>
+            <span className="legend-text">防御力</span>
+          </div>
+          <div className="legend-row">
+            <span className="legend-icon">💨</span>
+            <span className="legend-text">敏捷度</span>
+            <span className="legend-icon">💥</span>
+            <span className="legend-text">暴击率</span>
+            <span className="legend-icon">⭐</span>
+            <span className="legend-text">经验奖励</span>
+          </div>
+        </div>
+        
+        <h3>🎮 冒险系统说明</h3>
         <ul>
           <li>选择冒险层数1-1000，每层有10只逐渐变强的怪物</li>
           <li>必须按顺序击败怪物，击败10只怪物后解锁下一层</li>

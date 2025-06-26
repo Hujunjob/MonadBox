@@ -1112,11 +1112,11 @@ body {
 }
 
 .monster-actions {
-  height: 60px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60px;
+  min-height: 30px;
 }
 
 .monster-cooldown {
@@ -2868,56 +2868,109 @@ body {
 
 .monster-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  gap: 4px;
 }
 
-.monster-number {
-  background: #007bff;
+.monster-level-badge {
+  background: linear-gradient(45deg, #007bff, #0056b3);
   color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
   font-weight: bold;
-  font-size: 12px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
-.monster-card.defeated .monster-number {
-  background: #28a745;
+.monster-card.defeated .monster-level-badge {
+  background: linear-gradient(45deg, #28a745, #1e7e34);
 }
 
-.monster-card.locked .monster-number {
-  background: #6c757d;
+.monster-card.locked .monster-level-badge {
+  background: linear-gradient(45deg, #6c757d, #5a6268);
 }
 
 .monster-name {
   font-weight: bold;
   color: #333;
-  font-size: 13px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.kill-count-badge {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: bold;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.monster-avatar {
+  text-align: center;
+  margin: 1px 0;
+}
+
+.monster-icon {
+  font-size: 20px;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+  display: inline-block;
+  animation: monsterFloat 3s ease-in-out infinite;
+}
+
+@keyframes monsterFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.monster-card.defeated .monster-icon {
+  filter: grayscale(50%) drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+}
+
+.monster-card.locked .monster-icon {
+  filter: grayscale(100%) drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+  opacity: 0.6;
 }
 
 .monster-stats {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
 }
 
 .monster-stats .stat-item {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-  font-size: 12px;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 2px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 6px;
+  font-size: 10px;
+  transition: all 0.2s ease;
 }
 
-.monster-stats .stat-label {
-  color: #666;
+.monster-stats .stat-item:hover {
+  background: rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+.stat-icon {
+  font-size: 12px;
+  margin-bottom: 2px;
+  display: block;
 }
 
 .monster-stats .stat-value {
   font-weight: bold;
   color: #333;
+  font-size: 9px;
 }
 
 .monster-actions {
@@ -2928,19 +2981,78 @@ body {
 /* 响应式调整 */
 @media (max-width: 480px) {
   .monsters-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
   
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .monster-card {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  .monster-icon {
+    font-size: 20px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+  }
+  
+  .monster-stats .stat-item {
+    padding: 3px 1px;
+    font-size: 9px;
+  }
+  
+  .stat-icon {
+    font-size: 10px;
+  }
+}
+
+/* 图标说明样式 */
+.icon-legend {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 8px;
+}
+
+.legend-row:last-child {
+  margin-bottom: 0;
+}
+
+.legend-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.legend-text {
+  font-size: 13px;
+  color: #666;
+  min-width: 50px;
+}
+
+@media (max-width: 480px) {
+  .legend-row {
     gap: 10px;
   }
   
-  .monster-card {
-    padding: 5px;
-    font-size: 13px;
+  .legend-icon {
+    font-size: 14px;
+    width: 18px;
+  }
+  
+  .legend-text {
+    font-size: 11px;
+    min-width: 40px;
   }
 }
 

@@ -525,3 +525,28 @@
     width: 80px;
   }
 }
+
+.battle-complete-waiting {
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.completion-text {
+  font-size: 18px;
+  color: #f39c12;
+  font-weight: bold;
+  animation: waitingPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes waitingPulse {
+  from { 
+    opacity: 0.7; 
+    transform: scale(1);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1.05);
+  }
+}
