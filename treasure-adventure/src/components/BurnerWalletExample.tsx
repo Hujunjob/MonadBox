@@ -7,8 +7,7 @@ import { formatEther } from 'viem';
 export const BurnerWalletExample: React.FC = () => {
   const [showFunding, setShowFunding] = useState(false);
   const [balance, setBalance] = useState<bigint | null>(null);
-  const [lastTxHash, setLastTxHash] = useState<string>('');
-  const { writeContract, getBalance, isLoading, isBurnerWallet, burnerAddress } = useBurnerWalletContract();
+  const { getBalance, isLoading, isBurnerWallet, burnerAddress } = useBurnerWalletContract();
   const { walletType } = useWalletContext();
 
   const handleGetBalance = async () => {
@@ -101,12 +100,6 @@ export const BurnerWalletExample: React.FC = () => {
           </button>
         </div>
 
-        {lastTxHash && (
-          <div>
-            <p className="text-sm text-gray-600">Last Transaction:</p>
-            <p className="font-mono text-xs break-all">{lastTxHash}</p>
-          </div>
-        )}
 
         <div className="bg-white p-3 rounded border">
           <p className="text-sm">

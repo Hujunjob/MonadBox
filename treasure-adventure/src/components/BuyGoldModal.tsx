@@ -10,7 +10,7 @@ interface BuyGoldModalProps {
   playerId: number;
 }
 
-const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }) => {
+const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose }) => {
   const [goldAmount, setGoldAmount] = useState<string>('1000');
   const [ethRequired, setEthRequired] = useState<string>('0');
   const { buyGold, isPending, isConfirming } = useWeb3GameV2();

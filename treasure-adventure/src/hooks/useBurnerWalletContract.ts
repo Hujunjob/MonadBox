@@ -1,16 +1,8 @@
 import { useState, useCallback } from 'react';
-import { usePublicClient, useChainId } from 'wagmi';
+import { usePublicClient } from 'wagmi';
 import { burnerWalletService } from '../services/burnerWallet';
 import { useWalletContext } from '../contexts/WalletContext';
 import type { Abi, ContractFunctionArgs, ContractFunctionName } from 'viem';
-
-interface ContractCallOptions {
-  address: `0x${string}`;
-  abi: Abi;
-  functionName: string;
-  args?: any[];
-  value?: bigint;
-}
 
 interface ContractCallResult {
   hash?: `0x${string}`;
@@ -21,7 +13,6 @@ interface ContractCallResult {
 export const useBurnerWalletContract = () => {
   const [isLoading, setIsLoading] = useState(false);
   const publicClient = usePublicClient();
-  const chainId = useChainId();
   const { isBurnerWallet } = useWalletContext();
 
   const writeContract = useCallback(async <
@@ -58,7 +49,7 @@ export const useBurnerWalletContract = () => {
             args: options.args || [],
             account: walletClient.account,
             value: options.value,
-          });
+          } as any);
         } catch (simulationError) {
           console.error('Transaction simulation failed:', simulationError);
           return { 

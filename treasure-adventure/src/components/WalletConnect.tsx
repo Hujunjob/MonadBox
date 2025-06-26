@@ -27,7 +27,6 @@ const WalletConnect: React.FC = () => {
         chain,
         openAccountModal,
         openChainModal,
-        openConnectModal,
         mounted,
       }) => {
         const ready = mounted;

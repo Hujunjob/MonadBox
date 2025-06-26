@@ -8,7 +8,6 @@ import Market from './pages/Market';
 import Rank from './pages/Rank';
 import WalletConnect from './components/WalletConnect';
 import Web3BattleHandler from './components/Web3BattleHandler';
-import { ToastProvider } from './components/ToastManager';
 import './styles/App.css';
 
 function App() {

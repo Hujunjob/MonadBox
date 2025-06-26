@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 interface WalletChoiceModalProps {
   isOpen: boolean;
@@ -15,8 +15,7 @@ export const WalletChoiceModal: React.FC<WalletChoiceModalProps> = ({
 }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const { openConnectModal } = useConnectModal();
-  const chainId = useChainId();
-  const { isConnected } = useAccount();
+  const { } = useAccount();
 
   const handleExternalWallet = () => {
     onWalletConnected('external');

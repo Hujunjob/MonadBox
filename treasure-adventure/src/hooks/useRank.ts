@@ -1,13 +1,11 @@
-import { useWriteContract, useReadContract } from 'wagmi';
 import { CONTRACT_ADDRESSES, RANK_ABI, PLAYER_NFT_ABI, FIGHT_SYSTEM_ABI } from '../contracts';
 import { usePublicClient } from 'wagmi';
 import { useSafeContractCall } from './useSafeContractCall';
 import { decodeEventLog } from 'viem';
 
 export function useRank() {
-  const { writeContract, isPending: writePending } = useWriteContract();
   const publicClient = usePublicClient();
-  const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
+  const { safeCall, isPending } = useSafeContractCall();
 
   // 解析battle信息（包括battleId和双方stats）
   const parseBattleInfo = (receipt: any): { battleId: string; fighter1Stats: any; fighter2Stats: any } | null => {

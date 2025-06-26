@@ -12,8 +12,6 @@ import {
   http,
   type Chain,
   type WalletClient,
-  type Transport,
-  getAddress,
   custom,
 } from 'viem';
 
@@ -170,7 +168,7 @@ export function burnerWallet(options: BurnerConnectorOptions = {}) {
       if (!walletClient) {
         return config.chains[0]?.id || 1;
       }
-      return walletClient.chain.id;
+      return walletClient.chain?.id ?? 698;
     },
 
     async getProvider({ chainId }: { chainId?: number } = {}) {

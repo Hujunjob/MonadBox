@@ -27,7 +27,7 @@ const CONTRACTS = {
 } as const;
 
 export function useWeb3GameV2() {
-  const { address, isConnected, connector } = useAccount();
+  const { address, isConnected } = useAccount();
 
   const { showToast } = useToast();
   const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
@@ -38,7 +38,7 @@ export function useWeb3GameV2() {
   const [playerItems, setPlayerItems] = useState<any[]>([]);
 
   // 获取用户的Player NFT数量
-  const { data: playerBalance, refetch: refetchPlayerBalance, error: playerBalanceError } = useReadContract({
+  const { data: playerBalance, refetch: refetchPlayerBalance } = useReadContract({
     address: CONTRACTS.PLAYER_NFT,
     abi: PLAYER_NFT_ABI,
     functionName: 'balanceOf',
@@ -558,40 +558,6 @@ export function useWeb3GameV2() {
     }
   };
 
-  // 解析战斗结果事件
-  const parseBattleResult = (receipt: any) => {
-    try {
-      if (!receipt?.logs) return null;
-
-      for (const log of receipt.logs) {
-        try {
-          const decodedLog = decodeEventLog({
-            abi: BATTLE_SYSTEM_ABI,
-            data: log.data,
-            topics: log.topics,
-          });
-
-          if (decodedLog.eventName === 'BattleCompleted') {
-            const { playerId, experienceGained, victory, adventureLevel, monsterLevel } = decodedLog.args as any;
-            return {
-              isVictory: victory,
-              experienceGained: Number(experienceGained),
-              adventureLevel: Number(adventureLevel),
-              monsterLevel: Number(monsterLevel),
-              monsterName: `第${adventureLevel}层怪物 (等级${monsterLevel})`
-            };
-          }
-        } catch (error) {
-          // 忽略无法解析的日志
-          continue;
-        }
-      }
-      return null;
-    } catch (error) {
-      console.error('解析战斗结果失败:', error);
-      return null;
-    }
-  };
 
   // 获取怪物属性
   const getMonsterStats = async (adventureLevel: number, monsterLevel: number) => {
@@ -1223,9 +1189,6 @@ export function useWeb3GameV2() {
     return 0;
   };
 
-  const getJobName = (level: number, exp: number) => {
-    return "初级剑士"
-  }
 
   // 处理背包物品数据
   const getInventoryItems = useMemo(() => {
@@ -1296,7 +1259,7 @@ export function useWeb3GameV2() {
     currentForestLevel: playerData ? Number(playerData.currentForestLevel) : 1,
     currentForestProgress: playerData ? Number(playerData.currentForestProgress) : 0,
     lastTreasureBoxTime: playerData ? Number(playerData.lastTreasureBoxTime) : 0,
-    job: playerData ? getJobName(playerData.level, playerData.experience) : "初级剑士",
+    job: "初级剑士",
     // 前端需要的额外字段
     gold: playerData ? Number(playerData.goldBalance) / 10 ** 18 : 0,
     equipment: getEquippedItemsMap,

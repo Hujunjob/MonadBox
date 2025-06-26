@@ -50,7 +50,6 @@ const Market: React.FC = () => {
   const player = hybridStore.player;
   const { 
     activeListings, 
-    totalActiveListings, 
     playerListings,
     buyEquipment, 
     buyItem, 

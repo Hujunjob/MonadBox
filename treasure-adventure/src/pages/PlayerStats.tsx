@@ -6,7 +6,7 @@ import Web3Toggle from '../components/Web3Toggle';
 import { useHybridGameStore } from '../store/web3GameStore';
 import BuyGoldModal from '../components/BuyGoldModal';
 import { Faucet } from '../components/Faucet';
-import { ReactTogether, Chat } from 'react-together'
+import { Chat } from 'react-together'
 
 const PlayerStats: React.FC = () => {
   const hybridStore = useHybridGameStore();

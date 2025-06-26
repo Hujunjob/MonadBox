@@ -154,20 +154,6 @@ const MonsterForest: React.FC = () => {
     }
   };
   
-  // 获取挑战按钮文本
-  const getChallengeButtonText = (monsterLevel: number) => {
-    const status = getMonsterChallengeStatus(monsterLevel);
-    switch (status) {
-      case 'defeated':
-        return '再次攻击';
-      case 'available':
-        return '挑战';
-      case 'locked':
-        return '未解锁';
-      default:
-        return '挑战';
-    }
-  };
   
   // 获取挑战按钮是否可用
   const isChallengeButtonEnabled = (monsterLevel: number) => {

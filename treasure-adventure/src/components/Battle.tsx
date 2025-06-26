@@ -3,7 +3,6 @@ import { useHybridGameStore } from '../store/web3GameStore';
 
 const Battle: React.FC = () => {
   const hybridStore = useHybridGameStore();
-  const player = hybridStore.player;
   const [playerProgress, setPlayerProgress] = useState({ currentLevel: 1, maxMonster: 0 });
   
   // 获取玩家进度

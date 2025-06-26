@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useMarket } from '../hooks/useMarket';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { getEquipmentImage, getItemImage, getRarityColor } from '../utils/gameUtils';
-import { parseEther } from 'viem';
 import { useToast } from './ToastManager';
 
 interface SellModalProps {

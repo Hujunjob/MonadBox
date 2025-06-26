@@ -1,6 +1,6 @@
 import { useWriteContract, useReadContract, useAccount } from 'wagmi'
 import { CONTRACT_ADDRESSES, MARKET_ABI } from '../contracts'
-import { parseEther, formatEther } from 'viem'
+import { parseEther } from 'viem'
 
 export interface MarketListing {
   listingId: bigint

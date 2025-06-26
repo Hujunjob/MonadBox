@@ -4,7 +4,7 @@ import { useWeb3GameStore, useHybridGameStore } from '../store/web3GameStore';
 import RegisterPlayerModal from './RegisterPlayerModal';
 
 const Web3Toggle: React.FC = () => {
-  const { isConnected, address } = useAccount();
+  const { isConnected } = useAccount();
   const hybridStore = useHybridGameStore();
   const web3Store = useWeb3GameStore();
   const [showRegisterModal, setShowRegisterModal] = useState(false);

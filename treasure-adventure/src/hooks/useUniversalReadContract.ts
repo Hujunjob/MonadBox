@@ -14,7 +14,7 @@ interface ReadContractConfig {
 }
 
 export function useUniversalReadContract(config: ReadContractConfig) {
-  const { isBurnerWallet, address, isConnected } = useWalletContext();
+  const { isBurnerWallet, isConnected } = useWalletContext();
   const { readContract } = useBurnerWalletContract();
   const [burnerData, setBurnerData] = useState<any>(null);
   const [burnerError, setBurnerError] = useState<Error | null>(null);

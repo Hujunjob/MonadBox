@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useReadContract } from 'wagmi';
 import { CONTRACT_ADDRESSES, FIGHT_SYSTEM_ABI } from '../contracts';
-import { useHybridGameStore } from '../store/web3GameStore';
 import BattleResultModal from './BattleResultModal';
 import '../styles/BattleArena.css';
 
@@ -270,16 +269,6 @@ const BattleArena: React.FC<BattleArenaProps> = ({
     }
   };
 
-  const getBattleResultText = (): string => {
-    if (!result) return '';
-    
-    if (result.escaped) {
-      return '战斗以逃跑结束';
-    }
-    
-    const winnerName = result.winnerId === fighter1Id ? fighter1Name : fighter2Name;
-    return `${winnerName} 获得胜利！`;
-  };
 
   if (isLoading) {
     return (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { formatEther, parseEther } from 'viem';
+import { formatEther } from 'viem';
 import { useBurnerWalletContract } from '../hooks/useBurnerWalletContract';
 import { useWalletContext } from '../contexts/WalletContext';
 

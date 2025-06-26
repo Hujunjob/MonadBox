@@ -10,7 +10,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import App from './App.tsx';
 import BattlePage from './pages/BattlePage.tsx';
 import { ToastProvider } from './components/ToastManager';
-import { ReactTogether, Chat } from 'react-together'
+import { ReactTogether } from 'react-together'
 
 const queryClient = new QueryClient();
 

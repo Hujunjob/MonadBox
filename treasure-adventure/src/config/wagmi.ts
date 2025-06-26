@@ -1,4 +1,3 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { createConfig, http } from 'wagmi';
 import { monad, monadTestnet } from './chains';
 import { defineChain } from 'viem';

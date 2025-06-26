@@ -6,7 +6,6 @@ import { GAME_CONFIG } from '../config/gameConfig';
 
 const TreasureBox: React.FC = () => {
   const hybridStore = useHybridGameStore();
-  const player = hybridStore.player;
   // const { showToast } = useToast();
 
   // 处理领取宝箱

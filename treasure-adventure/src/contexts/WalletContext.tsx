@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { burnerWalletService } from '../services/burnerWallet';
 
@@ -29,7 +29,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const isBurnerActive = burnerWalletService.isBurnerWalletActive();
 
   const isConnected = isExternalConnected || isBurnerActive;
-  const address = isExternalConnected ? externalAddress : burnerAddress;
+  const address = isExternalConnected ? externalAddress : (burnerAddress ?? undefined);
   const isBurnerWallet = walletType === 'burner' && isBurnerActive;
 
   useEffect(() => {

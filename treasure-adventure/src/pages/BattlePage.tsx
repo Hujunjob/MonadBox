@@ -92,15 +92,6 @@ const BattlePage: React.FC = () => {
     }, 300); // 3秒后自动返回
   };
 
-  const handleBackClick = () => {
-    if (battleParams?.type === 'adventure') {
-      navigate('/monster-forest');
-    } else if (battleParams?.type === 'rank') {
-      navigate('/rank');
-    } else {
-      navigate('/');
-    }
-  };
 
   if (!battleParams || !battleId) {
     return (
