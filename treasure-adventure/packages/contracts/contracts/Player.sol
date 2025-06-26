@@ -96,15 +96,6 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     uint16 public constant INITIAL_FOREST_PROGRESS = 0;
     uint256 public constant INITIAL_GOLD_BALANCE = 0;
     
-    // 装备类型常量
-    uint8 public constant EQUIPMENT_TYPE_ARMOR = 1;
-    uint8 public constant EQUIPMENT_TYPE_SHOES = 2;
-    uint8 public constant EQUIPMENT_TYPE_WEAPON = 3;
-    uint8 public constant EQUIPMENT_TYPE_SHIELD = 4;
-    uint8 public constant EQUIPMENT_TYPE_ACCESSORY = 5;
-    uint8 public constant EQUIPMENT_TYPE_RING = 6;
-    uint8 public constant EQUIPMENT_TYPE_PET = 7;
-    
     // 装备槽位常量
     uint8 public constant SLOT_ARMOR = 1;
     uint8 public constant SLOT_SHOES = 2;
@@ -112,21 +103,12 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     uint8 public constant SLOT_SHIELD = 4;
     uint8 public constant SLOT_ACCESSORY = 5;
     uint8 public constant SLOT_RING = 6;
-    uint8 public constant SLOT_PET = 7;
+    uint8 public constant SLOT_HELMET = 7;
     
     // 体力相关
     uint8 public constant STAMINA_GAIN_PER_10_LEVELS = 2;
     uint8 public constant STAMINA_LEVEL_INTERVAL = 10;
     uint8 public constant MAX_POSSIBLE_STAMINA = 50;
-    
-    // 物品ID范围
-    uint256 public constant HEALTH_POTION_START_ID = 1000;
-    uint256 public constant HEALTH_POTION_END_ID = 2000;
-    uint256 public constant JOB_BOOK_START_ID = 2000;
-    uint256 public constant JOB_BOOK_END_ID = 3000;
-    uint256 public constant PET_EGG_START_ID = 3000;
-    uint256 public constant PET_EGG_END_ID = 4000;
-    uint256 public constant ITEM_SEARCH_END_ID = 4000;
     
     // 血瓶治疗相关
     uint256 public constant BASE_HEAL_AMOUNT = 50;
@@ -172,13 +154,13 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         _nextTokenId = INITIAL_TOKEN_ID;
         
         // 设置装备类型到槽位的映射
-        equipmentTypeToSlot[EQUIPMENT_TYPE_ARMOR] = SLOT_ARMOR; // armor  
-        equipmentTypeToSlot[EQUIPMENT_TYPE_SHOES] = SLOT_SHOES; // shoes
-        equipmentTypeToSlot[EQUIPMENT_TYPE_WEAPON] = SLOT_WEAPON; // weapon
-        equipmentTypeToSlot[EQUIPMENT_TYPE_SHIELD] = SLOT_SHIELD; // shield
-        equipmentTypeToSlot[EQUIPMENT_TYPE_ACCESSORY] = SLOT_ACCESSORY; // accessory
-        equipmentTypeToSlot[EQUIPMENT_TYPE_RING] = SLOT_RING; // ring
-        equipmentTypeToSlot[EQUIPMENT_TYPE_PET] = SLOT_PET; // pet
+        equipmentTypeToSlot[equipmentNFT.EQUIPMENT_TYPE_ARMOR()] = SLOT_ARMOR; // armor  
+        equipmentTypeToSlot[equipmentNFT.EQUIPMENT_TYPE_SHOES()] = SLOT_SHOES; // shoes
+        equipmentTypeToSlot[equipmentNFT.EQUIPMENT_TYPE_WEAPON()] = SLOT_WEAPON; // weapon
+        equipmentTypeToSlot[equipmentNFT.EQUIPMENT_TYPE_SHIELD()] = SLOT_SHIELD; // shield
+        equipmentTypeToSlot[equipmentNFT.EQUIPMENT_TYPE_ACCESSORY()] = SLOT_ACCESSORY; // accessory
+        equipmentTypeToSlot[equipmentNFT.EQUIPMENT_TYPE_RING()] = SLOT_RING; // ring
+        equipmentTypeToSlot[equipmentNFT.EQUIPMENT_TYPE_HELMET()] = SLOT_HELMET; // helmet
         // equipmentTypeToSlot[0] = 0; // helmet
     }
     
@@ -639,7 +621,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         playerItems[playerId][itemId] -= quantity;
         
         // 实际销毁 ERC1155 NFT
-        itemNFT.systemBurn(address(this), itemId, quantity);
+        itemNFT.burn(itemId, quantity);
         
         emit ItemUsed(playerId, itemId, quantity);
     }
@@ -680,7 +662,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         
         // 检查所有可能的item ID范围
         // 血瓶: 1000-1999, 转职书: 2000-2999, 宠物蛋: 3000-3999
-        for (uint256 i = HEALTH_POTION_START_ID; i < ITEM_SEARCH_END_ID; i++) {
+        for (uint256 i = itemNFT.HEALTH_POTION_START_ID(); i < itemNFT.ITEM_SEARCH_END_ID(); i++) {
             if (playerItems[playerId][i] > 0) {
                 count++;
             }
@@ -692,7 +674,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         
         // 填充结果数组
         uint256 index = 0;
-        for (uint256 i = HEALTH_POTION_START_ID; i < ITEM_SEARCH_END_ID; i++) {
+        for (uint256 i = itemNFT.HEALTH_POTION_START_ID(); i < itemNFT.ITEM_SEARCH_END_ID(); i++) {
             if (playerItems[playerId][i] > 0) {
                 itemIds[index] = i;
                 quantities[index] = playerItems[playerId][i];
@@ -707,7 +689,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     function useHealthPotion(uint256 playerId, uint256 itemId) external {
         require(ownerOf(playerId) == msg.sender, "Not your player");
         require(playerItems[playerId][itemId] > 0, "No health potion");
-        require(itemId >= HEALTH_POTION_START_ID && itemId < HEALTH_POTION_END_ID, "Not a health potion");
+        require(itemId >= itemNFT.HEALTH_POTION_START_ID() && itemId < itemNFT.HEALTH_POTION_END_ID(), "Not a health potion");
         
         PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
@@ -731,10 +713,10 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     /**
      * @dev 计算血瓶治疗量（内部函数）
      */
-    function _calculateHealAmount(uint256 itemId) internal pure returns (uint256) {
+    function _calculateHealAmount(uint256 itemId) internal view returns (uint256) {
         // 根据itemId计算等级，然后计算治疗量
         // 假设itemId为1000+level的格式
-        uint256 level = (itemId - HEALTH_POTION_START_ID) + 1;
+        uint256 level = (itemId - itemNFT.HEALTH_POTION_START_ID()) + 1;
         if (level > MAX_POTION_LEVEL) level = MAX_POTION_LEVEL; // 最大等级10
         
         return BASE_HEAL_AMOUNT + (level - 1) * HEAL_AMOUNT_PER_LEVEL; // 基础50 + (level-1)*25

@@ -14,7 +14,15 @@ import "hardhat/console.sol";
  */
 contract Equipment is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
     uint256 private _tokenIds;
-
+    // 装备类型常量
+    uint8 public constant EQUIPMENT_TYPE_ARMOR = 1;
+    uint8 public constant EQUIPMENT_TYPE_SHOES = 2;
+    uint8 public constant EQUIPMENT_TYPE_WEAPON = 3;
+    uint8 public constant EQUIPMENT_TYPE_SHIELD = 4;
+    uint8 public constant EQUIPMENT_TYPE_ACCESSORY = 5;
+    uint8 public constant EQUIPMENT_TYPE_RING = 6;
+    uint8 public constant EQUIPMENT_TYPE_HELMET = 7;
+    
     struct EquipmentData {
         uint8 equipmentType; //1=armor, 2=shoes, 3=weapon, 4=shield, 5=accessory, 6=ring， 7=helmet
         uint8 level;

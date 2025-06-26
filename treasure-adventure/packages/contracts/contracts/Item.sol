@@ -11,6 +11,15 @@ import "hardhat/console.sol";
  * @dev 宝物冒险游戏的NFT，用于血瓶，转职书，宠物蛋等，id 1000-1999是保留给血瓶的，2000-2999是保留给转职书的，3000-3999保留给宠物蛋的
  */
 contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
+    // 物品ID范围
+    uint256 public constant HEALTH_POTION_START_ID = 1000;
+    uint256 public constant HEALTH_POTION_END_ID = 2000;
+    uint256 public constant JOB_BOOK_START_ID = 2000;
+    uint256 public constant JOB_BOOK_END_ID = 3000;
+    uint256 public constant PET_EGG_START_ID = 3000;
+    uint256 public constant PET_EGG_END_ID = 4000;
+    uint256 public constant ITEM_SEARCH_END_ID = 4000;
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -43,16 +52,6 @@ contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgr
      */
     function burn(uint256 id, uint256 value) external {
         _burn(msg.sender, id, value);
-    }
-
-    /**
-     * @dev 系统销毁物品 - 只有授权系统可以调用
-     * @param from 销毁地址
-     * @param id 物品ID
-     * @param value 销毁数量
-     */
-    function systemBurn(address from, uint256 id, uint256 value) external onlyAuthorizedOrOwner() {
-        _burn(from, id, value);
     }
 
     /**

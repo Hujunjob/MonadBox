@@ -24,10 +24,6 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     uint256 public constant TREASURE_BOX_INTERVAL = 10; // 10 seconds
     uint256 public constant MAX_OFFLINE_BOXES = 100;
     
-    // 宝箱等级配置
-    uint8 public constant MIN_BOX_LEVEL = 1;
-    uint8 public constant MAX_BOX_LEVEL = 10;
-    
     // 奖励类型配置
     uint8 public constant REWARD_TYPE_GOLD = 0;
     uint8 public constant REWARD_TYPE_EQUIPMENT = 1;
@@ -52,19 +48,6 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     uint8 public constant EQUIPMENT_TYPE_RING_T = 6;
     uint8 public constant EQUIPMENT_TYPE_PET_T = 7;
     uint8 public constant MAX_EQUIPMENT_TYPES = 7;
-    
-    // 物品ID范围配置
-    uint256 public constant HEALTH_POTION_BASE_ID = 1000;
-    uint256 public constant JOB_BOOK_BASE_ID = 2000;
-    uint256 public constant PET_EGG_BASE_ID = 3000;
-    
-    // 职业类型配置
-    uint8 public constant JOB_GREAT_SWORDSMAN = 1;
-    uint8 public constant JOB_TEMPLE_KNIGHT = 2;
-    uint8 public constant JOB_DRAGON_KNIGHT = 3;
-    uint8 public constant JOB_SWORD_MASTER = 4;
-    uint8 public constant JOB_SWORD_GOD = 5;
-    uint8 public constant JOB_PLANE_LORD = 6;
     
     // 金币奖励配置
     uint256 public constant BASE_GOLD_AMOUNT = 50;
@@ -97,27 +80,9 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     // 概率计算相关
     uint16 public constant RANDOM_RANGE_1000 = 1000;
     uint16 public constant RANDOM_RANGE_100 = 100;
-    
-    // 宝箱稀有度概率配置 (低级宝箱)
-    uint16 public constant LOW_BOX_COMMON_RATE = 800; // 80%
-    uint16 public constant MID_BOX_COMMON_RATE = 500; // 50%
-    uint16 public constant MID_BOX_UNCOMMON_THRESHOLD = 850; // 85%
-    uint16 public constant HIGH_BOX_COMMON_RATE = 300; // 30%
-    uint16 public constant HIGH_BOX_UNCOMMON_THRESHOLD = 700; // 70%
-    uint16 public constant HIGH_BOX_RARE_THRESHOLD = 950; // 95%
-    uint16 public constant TOP_BOX_COMMON_RATE = 200; // 20%
-    uint16 public constant TOP_BOX_UNCOMMON_THRESHOLD = 500; // 50%
-    uint16 public constant TOP_BOX_RARE_THRESHOLD = 800; // 80%
-    uint16 public constant TOP_BOX_EPIC_THRESHOLD = 950; // 95%
-    
-    // 宝箱等级阈值
-    uint8 public constant LOW_BOX_MAX_LEVEL = 2;
-    uint8 public constant MID_BOX_MAX_LEVEL = 5;
-    uint8 public constant HIGH_BOX_MAX_LEVEL = 8;
 
     struct TreasureBox {
         uint32 level; // 宝箱等级 (1-10)
-        uint8 rarity; // 稀有度 (0-4)
         uint32 createdTime; // 创建时间
     }
 
@@ -164,7 +129,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     uint8 public constant NEXT_LEVEL_PROBABILITY = 5; // 5%
 
     // 事件（改为基于playerId）
-    event TreasureBoxAdded(uint256 indexed playerId, uint8 level, uint8 rarity);
+    event TreasureBoxAdded(uint256 indexed playerId, uint8 level);
     event TreasureBoxOpened(
         uint256 indexed playerId,
         uint256 boxIndex,
@@ -205,15 +170,11 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         uint256 playerId,
         uint32 level
     ) external onlyAuthorizedOrOwner {
-        require(level >= 1 && level <= 10, "Invalid box level");
-
-        // 根据等级确定稀有度
-        uint8 rarity = _calculateBoxRarity(level);
+        require(level >= 1 && level <= 100, "Invalid box level");
 
         playerTreasureBoxes[playerId].push(
             TreasureBox({
                 level: level,
-                rarity: rarity,
                 createdTime: uint32(block.timestamp)
             })
         );
@@ -221,7 +182,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
             playerBattleLevels[playerId] = level;
         }
 
-        emit TreasureBoxAdded(playerId, uint8(level), rarity);
+        emit TreasureBoxAdded(playerId, uint8(level));
     }
 
     /**
@@ -260,17 +221,15 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
             // 添加离线宝箱 (等级1-level的普通宝箱)
             for (uint32 i = 0; i < boxesToClaim; i++) {
                 uint32 boxLevel = (i % level) + 1;
-                uint8 rarity = _calculateBoxRarity(boxLevel);
 
                 playerTreasureBoxes[playerId].push(
                     TreasureBox({
                         level: boxLevel,
-                        rarity: rarity,
                         createdTime: uint32(block.timestamp)
                     })
                 );
 
-                emit TreasureBoxAdded(playerId, uint8(boxLevel), rarity);
+                emit TreasureBoxAdded(playerId, uint8(boxLevel));
             }
 
             emit OfflineBoxesClaimed(playerId, boxesToClaim);
@@ -304,7 +263,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
 
         console.log("openTreasureBox 1");
         // 生成奖励
-        BoxReward memory reward = _generateReward(uint8(box.level), box.rarity);
+        BoxReward memory reward = _generateReward(uint8(box.level));
 
         // 删除已开启的宝箱
         _removeBox(playerId, boxIndex);
@@ -320,8 +279,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
             // 铸造装备NFT到Player NFT合约并添加到背包
             reward.equipmentId = _mintEquipmentToPlayerNFT(
                 playerId,
-                uint8(box.level),
-                box.rarity
+                uint8(box.level)
             );
         }
 
@@ -361,54 +319,18 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     }
 
     /**
-     * @dev 计算宝箱稀有度
-     * @param level 宝箱等级
-     * @return 稀有度
-     */
-    function _calculateBoxRarity(uint32 level) internal view returns (uint8) {
-        uint256 random = uint256(
-            keccak256(abi.encodePacked(block.timestamp, msg.sender, level))
-        ) % 1000;
-
-        if (level <= 2) {
-            // 低级宝箱：80%普通，20%不普通
-            return random < 800 ? 0 : 1;
-        } else if (level <= 5) {
-            // 中级宝箱：50%普通，35%不普通，15%稀有
-            if (random < 500) return 0;
-            else if (random < 850) return 1;
-            else return 2;
-        } else if (level <= 8) {
-            // 高级宝箱：30%普通，40%不普通，25%稀有，5%史诗
-            if (random < 300) return 0;
-            else if (random < 700) return 1;
-            else if (random < 950) return 2;
-            else return 3;
-        } else {
-            // 顶级宝箱：20%普通，30%不普通，30%稀有，15%史诗，5%传说
-            if (random < 200) return 0;
-            else if (random < 500) return 1;
-            else if (random < 800) return 2;
-            else if (random < 950) return 3;
-            else return 4;
-        }
-    }
-
-    /**
      * @dev 生成宝箱奖励（按照正确的随机顺序）
      * @param level 宝箱等级
-     * @param rarity 宝箱稀有度（未使用，保持兼容）
      * @return 奖励信息
      */
     function _generateReward(
-        uint8 level,
-        uint8 rarity
+        uint8 level
     ) internal view returns (BoxReward memory) {
         // 步骤1：先随机奖励等级（95%当前等级，5%下一级）
         uint8 rewardLevel = _generateRewardLevel(level);
 
         // 步骤2：再随机奖励类型
-        uint8 rewardType = _generateRewardType(level, rarity);
+        uint8 rewardType = _generateRewardType(level);
 
         // 步骤3：根据奖励类型生成具体奖励
         if (rewardType == 0) {
@@ -466,16 +388,14 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     /**
      * @dev 生成奖励类型（第二步随机）
      * @param level 宝箱等级
-     * @param rarity 宝箱稀有度
      * @return 奖励类型 (0=金币, 1=装备, 2=血瓶, 3=宠物蛋, 4=转职书)
      */
     function _generateRewardType(
-        uint8 level,
-        uint8 rarity
+        uint8 level
     ) internal view returns (uint8) {
         uint256 random = uint256(
             keccak256(
-                abi.encodePacked(block.timestamp, msg.sender, level, rarity, "rewardType")
+                abi.encodePacked(block.timestamp, msg.sender, level, "rewardType")
             )
         ) % 100;
 
@@ -648,8 +568,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
      */
     function _mintEquipmentToPlayerNFT(
         uint256 playerId,
-        uint8 level,
-        uint8 boxRarity
+        uint8 level
     ) internal returns (uint256) {
         console.log("_mintEquipmentToPlayerNFT level", level);
         
