@@ -1,17 +1,17 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0x9852795dbb01913439f534b4984fBf74aC8AfA12' as `0x${string}`,
-  EQUIPMENT_NFT: '0x4458AcB1185aD869F982D51b5b0b87e23767A3A9' as `0x${string}`,
-  ITEM_NFT: '0x8d375dE3D5DDde8d8caAaD6a4c31bD291756180b' as `0x${string}`,
-  GOLD_TOKEN: '0x575D3d18666B28680255a202fB5d482D1949bB32' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x889D9A5AF83525a2275e41464FAECcCb3337fF60' as `0x${string}`,
-  FIGHT_SYSTEM: '0xf274De14171Ab928A5Ec19928cE35FaD91a42B64' as `0x${string}`,
-  BATTLE_SYSTEM: '0xFD296cCDB97C605bfdE514e9810eA05f421DEBc2' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x8b9d5A75328b5F3167b04B42AD00092E7d6c485c' as `0x${string}`,
-  MARKET: '0x9BcA065E19b6d630032b53A8757fB093CbEAfC1d' as `0x${string}`,
-  RANK: '0xd8A9159c111D0597AD1b475b8d7e5A217a1d1d05' as `0x${string}`,
-  SUPER_MARKET: '0xCdb63c58b907e76872474A0597C5252eDC97c883' as `0x${string}`
+  PLAYER_NFT: '0x90E75f390332356426B60FB440DF23f860F6A113' as `0x${string}`,
+  EQUIPMENT_NFT: '0x9Bb65b12162a51413272d10399282E730822Df44' as `0x${string}`,
+  ITEM_NFT: '0x7A5EC257391817ef241ef8451642cC6b222d4f8C' as `0x${string}`,
+  GOLD_TOKEN: '0xCA87833e830652C2ab07E1e03eBa4F2c246D3b58' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x59c7D03d2E9893FB7bAa89dA50a9452e1e9B8b90' as `0x${string}`,
+  FIGHT_SYSTEM: '0x8D75F9F7f4F4C4eFAB9402261bC864f21DF0c649' as `0x${string}`,
+  BATTLE_SYSTEM: '0xFcCa971FE9Ee20C1Cf22596E700aA993D8fD19c5' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0xCC5Bc84C3FDbcF262AaDD9F76652D6784293dD9e' as `0x${string}`,
+  MARKET: '0x04F75a27cE2FDC591C71a88f1EcaC7e5Ce44f5Fc' as `0x${string}`,
+  RANK: '0x93B800CD7ACdcA13754624D4B1A2760A86bE0D1f' as `0x${string}`,
+  SUPER_MARKET: '0x8Aed6FE10dF3d6d981B101496C9c7245AE65cAEc' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -1959,6 +1959,16 @@ export const FIGHT_SYSTEM_ABI = [
         "type": "uint8"
       },
       {
+        "internalType": "uint256",
+        "name": "loserId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "loserType",
+        "type": "uint8"
+      },
+      {
         "internalType": "bool",
         "name": "escaped",
         "type": "bool"
@@ -2053,6 +2063,16 @@ export const FIGHT_SYSTEM_ABI = [
           {
             "internalType": "uint8",
             "name": "winnerType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "loserId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "loserType",
             "type": "uint8"
           },
           {

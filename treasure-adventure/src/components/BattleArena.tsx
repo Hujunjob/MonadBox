@@ -65,6 +65,13 @@ const BattleArena: React.FC<BattleArenaProps> = ({
 
   const result = battleResult as BattleResult | undefined;
 
+  useEffect(()=>{
+    if(battleResult){
+      console.log("battleResult");
+      console.log(battleResult);
+    }
+  },[battleResult])
+
   // 初始化战斗状态并自动开始
   useEffect(() => {
     if (result?.battleLog && result.battleLog.length > 0 && !isPlaying && !battleComplete) {

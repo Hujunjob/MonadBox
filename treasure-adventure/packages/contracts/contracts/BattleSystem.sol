@@ -406,12 +406,13 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             canEscape: true
         });
 
+        uint256 monsterId = adventureLevel * 100 + monsterLevel;
         // 开始战斗
         battleId = fightSystem.startBattle(
             playerId,
             fightSystem.FIGHTER_TYPE_PLAYER(),
             playerStats,
-            0, // 怪物ID为0
+            monsterId, // 怪物ID
             fightSystem.FIGHTER_TYPE_NPC(),
             monsterStats,
             config

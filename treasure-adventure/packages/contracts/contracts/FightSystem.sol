@@ -60,6 +60,8 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     struct BattleResult {
         uint256 winnerId;
         uint8 winnerType;
+        uint256 loserId;
+        uint8 loserType;
         bool escaped;
         uint256 totalRounds;
         BattleAction[] battleLog;
@@ -71,6 +73,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     // 常量
     uint8 public constant FIGHTER_TYPE_PLAYER = 1;
     uint8 public constant FIGHTER_TYPE_NPC = 2;
+
     uint8 public constant LOW_HEALTH_THRESHOLD = 30; // 30%
     uint8 public constant MAX_POTIONS_PER_BATTLE = 4; // 每场战斗最多使用3瓶血
     
@@ -231,19 +234,27 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         // 确定胜利者
         uint256 winnerId;
         uint8 winnerType;
+        uint256 loserId;
+        uint8 loserType;
         bool escaped = false;
         
         if (fighter1.health == 0) {
             winnerId = fighter2.id;
             winnerType = fighter2.fighterType;
+            loserId = fighter1.id;
+            loserType = fighter1.fighterType;
         } else if (fighter2.health == 0) {
             winnerId = fighter1.id;
             winnerType = fighter1.fighterType;
+            loserId = fighter2.id;
+            loserType = fighter2.fighterType;
         } else {
             // 逃跑或达到最大回合数
             escaped = true;
-            winnerId = 0;
-            winnerType = 0;
+            winnerId = fighter2.id;
+            winnerType = fighter2.fighterType;
+            loserId = fighter1.id;
+            loserType = fighter1.fighterType;
         }
         
         // 复制战斗日志到结果
@@ -255,6 +266,8 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return BattleResult({
             winnerId: winnerId,
             winnerType: winnerType,
+            loserId:loserId,
+            loserType:loserType,
             escaped: escaped,
             totalRounds: rounds,
             battleLog: finalLog
