@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHybridGameStore } from '../store/web3GameStore';
-import BattleResultModal from '../components/BattleResultModal';
+import type { Monster } from '../types/game';
+import { useToast } from '../components/ToastManager';
 
 const MonsterForest: React.FC = () => {
   const navigate = useNavigate();
@@ -10,23 +11,8 @@ const MonsterForest: React.FC = () => {
   const [selectedAdventureLevel, setSelectedAdventureLevel] = useState(1);
   const [isLevelExpanded, setIsLevelExpanded] = useState(false);
   const [monsterKillCounts, setMonsterKillCounts] = useState<{[key: number]: number}>({});
-  const [monsterStats, setMonsterStats] = useState<{[key: number]: number}>({});
-  
-  // 战斗结果弹窗状态
-  const [battleResult, setBattleResult] = useState<{
-    isOpen: boolean;
-    isVictory: boolean;
-    monsterName: string;
-    expGained: number;
-    adventureLevel: number;
-  }>({
-    isOpen: false,
-    isVictory: false,
-    monsterName: '',
-    expGained: 0,
-    adventureLevel: 1
-  });
-  
+  const { showToast } = useToast();
+  const [monsterStats, setMonsterStats] = useState<{[key: number]: Monster}>({});
   // 获取玩家最大解锁层数和最高怪物等级
   const maxUnlockedLevel = hybridStore.maxAdventureLevel || 1;
   
@@ -65,29 +51,6 @@ const MonsterForest: React.FC = () => {
     return icon;
   };
 
-  // 计算怪物的完整属性
-  const calculateMonsterStats = (adventureLevel: number, monsterLevel: number) => {
-    // 基础属性（参考合约逻辑）
-    const baseHealth = 100 + monsterLevel * 20 + adventureLevel * 10;
-    const baseAttack = 10 + monsterLevel * 5 + adventureLevel * 2;
-    const baseDefense = monsterLevel * 5 + 10;
-    const baseAgility = 5 + monsterLevel * 2;
-    
-    // 层级加成
-    const levelBonus = adventureLevel > 1000 ? Math.floor((adventureLevel - 1) / 1000 + 1) * 20 : 0;
-    
-    return {
-      health: baseHealth,
-      attack: baseAttack,
-      defense: Math.floor((baseDefense + levelBonus) / 2),
-      agility: baseAgility,
-      critRate: 5 + Math.floor(monsterLevel / 2), // 暴击率随等级提升
-      critDamage: 150 + monsterLevel * 5, // 暴击伤害随等级提升
-      level: monsterLevel,
-      experience: monsterLevel * 10 + adventureLevel * 5 + 20
-    };
-  };
-
   // 获取怪物数据和玩家进度
   useEffect(() => {
     const fetchMonsterData = async () => {
@@ -106,7 +69,10 @@ const MonsterForest: React.FC = () => {
           }
           
           // 计算怪物完整属性
-          stats[monsterLevel] = calculateMonsterStats(selectedAdventureLevel, monsterLevel);
+          const stat= await hybridStore.getMonsterStats(selectedAdventureLevel,monsterLevel)
+          stats[monsterLevel] = stat
+          console.log("getMonsterStats",selectedAdventureLevel,monsterLevel, stat);
+          
         }
         
         setMonsterKillCounts(killCounts);
@@ -120,60 +86,60 @@ const MonsterForest: React.FC = () => {
   }, [hybridStore.currentPlayerId, selectedAdventureLevel]);
 
   // 监听战斗结果事件
-  useEffect(() => {
-    const handleBattleResult = (event: any) => {
-      const result = event.detail;
-      setBattleResult({
-        isOpen: true,
-        isVictory: result.isVictory,
-        monsterName: result.monsterName,
-        expGained: result.experienceGained,
-        adventureLevel: result.adventureLevel
-      });
-    };
+  // useEffect(() => {
+  //   const handleBattleResult = (event: any) => {
+  //     const result = event.detail;
+  //     setBattleResult({
+  //       isOpen: true,
+  //       isVictory: result.isVictory,
+  //       monsterName: result.monsterName,
+  //       expGained: result.experienceGained,
+  //       adventureLevel: result.adventureLevel
+  //     });
+  //   };
 
-    window.addEventListener('battleResult', handleBattleResult);
+  //   window.addEventListener('battleResult', handleBattleResult);
     
-    return () => {
-      window.removeEventListener('battleResult', handleBattleResult);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('battleResult', handleBattleResult);
+  //   };
+  // }, []);
 
-  const handleCloseBattleResult = () => {
-    setBattleResult(prev => ({ ...prev, isOpen: false }));
+  // const handleCloseBattleResult = () => {
+  //   setBattleResult(prev => ({ ...prev, isOpen: false }));
     
-    // 战斗结果弹窗关闭后重新获取怪物数据，以更新挑战状态
-    const refetchMonsterData = async () => {
-      if (!hybridStore.currentPlayerId) return;
+  //   // 战斗结果弹窗关闭后重新获取怪物数据，以更新挑战状态
+  //   const refetchMonsterData = async () => {
+  //     if (!hybridStore.currentPlayerId) return;
       
-      try {
-        // 重新获取当前层级的怪物击杀数据
-        const killCounts: {[key: number]: number} = {};
+  //     try {
+  //       // 重新获取当前层级的怪物击杀数据
+  //       const killCounts: {[key: number]: number} = {};
         
-        for (let monsterLevel = 1; monsterLevel <= 10; monsterLevel++) {
-          if (typeof hybridStore.getMonsterKillCount === 'function') {
-            const killCount = await hybridStore.getMonsterKillCount(selectedAdventureLevel, monsterLevel);
-            killCounts[monsterLevel] = killCount || 0;
-          }
-        }
+  //       for (let monsterLevel = 1; monsterLevel <= 10; monsterLevel++) {
+  //         if (typeof hybridStore.getMonsterKillCount === 'function') {
+  //           const killCount = await hybridStore.getMonsterKillCount(selectedAdventureLevel, monsterLevel);
+  //           killCounts[monsterLevel] = killCount || 0;
+  //         }
+  //       }
         
-        setMonsterKillCounts(killCounts);
+  //       setMonsterKillCounts(killCounts);
         
-        // 刷新玩家数据
-        // if (typeof hybridStore.refreshPlayerData === 'function') {
-        //   await hybridStore.refreshPlayerData();
-        // }
+  //       // 刷新玩家数据
+  //       // if (typeof hybridStore.refreshPlayerData === 'function') {
+  //       //   await hybridStore.refreshPlayerData();
+  //       // }
         
-      } catch (error) {
-        console.error('Failed to refresh monster data:', error);
-      }
-    };
+  //     } catch (error) {
+  //       console.error('Failed to refresh monster data:', error);
+  //     }
+  //   };
     
     // 延迟一点执行，确保链上数据已更新
-    setTimeout(() => {
-      refetchMonsterData();
-    }, 1000);
-  };
+  //   setTimeout(() => {
+  //     refetchMonsterData();
+  //   }, 1000);
+  // };
   
   // 获取怪物挑战状态
   const getMonsterChallengeStatus = (monsterLevel: number) => {
@@ -215,25 +181,25 @@ const MonsterForest: React.FC = () => {
     console.log('maxUnlockedLevel:', maxUnlockedLevel);
     
     if (player.stamina < 1) {
-      alert('体力不足，无法战斗！请等待体力恢复。');
+      showToast('体力不足，无法战斗！请等待体力恢复。');
       return;
     }
     
     if (adventureLevel > maxUnlockedLevel) {
-      alert(`第${adventureLevel}层尚未解锁！请先完成第${maxUnlockedLevel}层冒险。`);
+      showToast(`第${adventureLevel}层尚未解锁！请先完成第${maxUnlockedLevel}层冒险。`);
       return;
     }
     
     // 检查是否可以挑战该怪物（必须按顺序挑战）
     if (monsterLevel > 1 && monsterKillCounts[monsterLevel - 1] === 0) {
-      alert(`必须先击败第${monsterLevel - 1}号怪物才能挑战第${monsterLevel}号怪物！`);
+      showToast(`必须先击败第${monsterLevel - 1}号怪物才能挑战第${monsterLevel}号怪物！`);
       return;
     }
     
     // 检查startAdventure方法是否存在
     if (typeof hybridStore.startAdventure !== 'function') {
       console.error('startAdventure method not available');
-      alert('游戏方法不可用，请重新加载页面');
+      showToast('游戏方法不可用，请重新加载页面');
       return;
     }
     
@@ -318,7 +284,9 @@ const MonsterForest: React.FC = () => {
             {Array.from({ length: 10 }, (_, index) => {
               const monsterLevel = index + 1;
               const status = getMonsterChallengeStatus(monsterLevel);
-              const monsterData = monsterStats[monsterLevel] || {};
+              const monsterData = monsterStats[monsterLevel]?monsterStats[monsterLevel]:{criticalRate:5,health:100,attack:10,defense:10,agility:10,criticalDamage:150};
+              console.log("monsterData",monsterLevel,currentAdventure.level,monsterData);
+              
               const killCount = monsterKillCounts[monsterLevel] || 0;
               
               return (
@@ -358,11 +326,11 @@ const MonsterForest: React.FC = () => {
                       </div>
                       <div className="stat-item">
                         <span className="stat-icon">💥</span>
-                        <span className="stat-value">{monsterData.critRate || 0}%</span>
+                        <span className="stat-value">{monsterData.criticalRate || 0}%</span>
                       </div>
                       <div className="stat-item">
                         <span className="stat-icon">⭐</span>
-                        <span className="stat-value">+{monsterData.experience || 0}</span>
+                        <span className="stat-value">+{monsterData.criticalDamage || 0}%</span>
                       </div>
                     </div>
                   </div>
@@ -412,7 +380,7 @@ const MonsterForest: React.FC = () => {
             <span className="legend-icon">💥</span>
             <span className="legend-text">暴击率</span>
             <span className="legend-icon">⭐</span>
-            <span className="legend-text">经验奖励</span>
+            <span className="legend-text">暴击伤害</span>
           </div>
         </div>
         
@@ -426,16 +394,6 @@ const MonsterForest: React.FC = () => {
           <li>怪物随层级增强，每1000层显著提升难度</li>
         </ul>
       </div>
-
-      {/* 战斗结果弹窗 */}
-      <BattleResultModal
-        isOpen={battleResult.isOpen}
-        isVictory={battleResult.isVictory}
-        monsterName={battleResult.monsterName}
-        expGained={battleResult.expGained}
-        adventureLevel={battleResult.adventureLevel}
-        onClose={handleCloseBattleResult}
-      />
     </div>
   );
 };

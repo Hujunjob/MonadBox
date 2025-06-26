@@ -36,7 +36,7 @@ function filterABI(abi, contractName) {
       'getPlayerTotalStats', 'updateLastTreasureBoxTime',
       'getPlayerItemQuantity', 'getPlayerItems', 'useHealthPotion', 'useItem', 'transferItemToMarket'
     ],
-    BattleSystem: ['completeBattle', 'startAdventure', 'getBattleStats', 'canBattle', 'getMaxAdventureLevel', 'getMonsterStats', 'estimateWinRate'],
+    BattleSystem: ['completeBattle', 'startAdventure', 'getBattleStats', 'canBattle', 'getMaxAdventureLevel', 'getMonsterStats'],
     FightSystem: ['startBattle', 'getBattleResult', 'getBattleLog'],
     AdventureGold: ['balanceOf'],
     TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount', 'getClaimableOfflineBoxes', 'getPlayerTreasureBoxes'],

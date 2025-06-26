@@ -147,7 +147,7 @@
   padding-bottom: 10px;
 }
 
-.stats-grid {
+.stats-grid_battle {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;

@@ -34,9 +34,23 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     // 怪物配置
     uint16 public MONSTER_BASE_DEFENSE;
     uint16 public MONSTER_DEFENSE_PER_LEVEL;
-    uint16 public DEFENSE_LEVEL_BONUS_THRESHOLD;
-    uint16 public DEFENSE_LEVEL_BONUS_MULTIPLIER;
-    uint8 public DEFENSE_REDUCTION_DIVISOR; // 减弱一倍
+    uint16 public MONSTER_DEFENSE_PER_ADVENTURE_LEVEL;
+
+    uint16 public MONSTER_BASE_HEALTH;
+    uint16 public MONSTER_HEALTH_PER_LEVEL;
+    uint16 public MONSTER_HEALTH_PER_ADVENTURE_LEVEL;
+
+    uint16 public MONSTER_BASE_ATTACK;
+    uint16 public MONSTER_ATTACK_PER_LEVEL;
+    uint16 public MONSTER_ATTACK_PER_ADVENTURE_LEVEL;
+
+    uint16 public MONSTER_BASE_AGILITY;
+    uint16 public MONSTER_AGILITY_PER_LEVEL;
+    uint16 public MONSTER_AGILITY_PER_ADVENTURE_LEVEL;
+    // totalCritRate,
+    // totalCritDamage
+    uint16 public MONSTER_BASE_CRITI_RATE;
+    uint16 public MONSTER_BASE_CRITI_DAMAGE;
 
     // 宝箱等级配置
     uint8 public TREASURE_BOX_LEVEL_DIVISOR;
@@ -92,16 +106,29 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         MAX_MONSTER_LEVEL = 10;
 
         // 经验配置
-        BASE_EXPERIENCE_REWARD = 20;
+        BASE_EXPERIENCE_REWARD = 30;
         EXPERIENCE_PER_MONSTER_LEVEL = 10;
         EXPERIENCE_PER_ADVENTURE_LEVEL = 5;
 
         // 怪物配置
         MONSTER_BASE_DEFENSE = 10;
         MONSTER_DEFENSE_PER_LEVEL = 5;
-        DEFENSE_LEVEL_BONUS_THRESHOLD = 1000;
-        DEFENSE_LEVEL_BONUS_MULTIPLIER = 20;
-        DEFENSE_REDUCTION_DIVISOR = 2; // 减弱一倍
+        MONSTER_DEFENSE_PER_ADVENTURE_LEVEL = 5;
+
+        MONSTER_BASE_HEALTH = 50;
+        MONSTER_HEALTH_PER_LEVEL = 10;
+        MONSTER_HEALTH_PER_ADVENTURE_LEVEL = 10;
+
+        MONSTER_BASE_ATTACK = 10;
+        MONSTER_ATTACK_PER_LEVEL = 1;
+        MONSTER_ATTACK_PER_ADVENTURE_LEVEL = 1;
+
+        MONSTER_BASE_AGILITY = 10;
+        MONSTER_AGILITY_PER_LEVEL = 1;
+        MONSTER_AGILITY_PER_ADVENTURE_LEVEL = 1;
+
+        MONSTER_BASE_CRITI_RATE = 10;
+        MONSTER_BASE_CRITI_DAMAGE = 200;
 
         // 宝箱等级配置
         TREASURE_BOX_LEVEL_DIVISOR = 3;
@@ -132,6 +159,60 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         treasureBoxSystem = TreasureBoxSystem(_treasureBoxSystem);
         fightSystem = FightSystem(_fightSystem);
         initParams();
+    }
+
+    /**
+     * @dev 获取怪物属性预览
+     * @param monsterLevel 怪物等级
+     * @return defense 怪物防御力
+     */
+    function getMonsterStats(
+        uint16 adventureLevel,
+        uint8 monsterLevel
+    ) public view returns (uint16[7] memory) {
+        // 计算怪物属性
+        uint16 monsterDefense = uint16(
+            MONSTER_BASE_DEFENSE +
+                monsterLevel *
+                MONSTER_DEFENSE_PER_LEVEL +
+                adventureLevel *
+                MONSTER_DEFENSE_PER_ADVENTURE_LEVEL
+        );
+
+        // 怪物血量和攻击力基于等级计算
+        uint16 monsterHealth = uint16(
+            MONSTER_BASE_HEALTH +
+                monsterLevel *
+                MONSTER_HEALTH_PER_LEVEL +
+                adventureLevel *
+                MONSTER_HEALTH_PER_ADVENTURE_LEVEL
+        );
+        uint16 monsterAttack = uint16(
+            MONSTER_BASE_ATTACK +
+                monsterLevel *
+                MONSTER_ATTACK_PER_LEVEL +
+                adventureLevel *
+                MONSTER_ATTACK_PER_ADVENTURE_LEVEL
+        );
+        uint16 monsterAgility = uint16(
+            MONSTER_BASE_AGILITY +
+                monsterLevel *
+                MONSTER_AGILITY_PER_LEVEL +
+                adventureLevel *
+                MONSTER_AGILITY_PER_ADVENTURE_LEVEL
+        );
+
+        // 怪物属性数组
+        uint16[7] memory monsterStats = [
+            monsterHealth,
+            monsterHealth,
+            monsterAttack,
+            monsterDefense,
+            monsterAgility,
+            MONSTER_BASE_CRITI_RATE,
+            MONSTER_BASE_CRITI_DAMAGE
+        ];
+        return monsterStats;
     }
 
     /**
@@ -302,28 +383,6 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             uint16 totalCritDamage
         ) = playerNFT.getPlayerTotalStats(playerId);
 
-        // 计算怪物属性
-        uint16 baseDefense = uint16(
-            monsterLevel * MONSTER_DEFENSE_PER_LEVEL + MONSTER_BASE_DEFENSE
-        );
-        uint16 levelBonus = uint16(
-            adventureLevel > DEFENSE_LEVEL_BONUS_THRESHOLD
-                ? ((adventureLevel - 1) / DEFENSE_LEVEL_BONUS_THRESHOLD + 1) *
-                    DEFENSE_LEVEL_BONUS_MULTIPLIER
-                : 0
-        );
-        uint16 monsterDefense = (baseDefense + levelBonus) /
-            DEFENSE_REDUCTION_DIVISOR;
-
-        // 怪物血量和攻击力基于等级计算
-        uint16 monsterHealth = uint16(
-            100 + monsterLevel * 20 + adventureLevel * 10
-        );
-        uint16 monsterAttack = uint16(
-            10 + monsterLevel * 5 + adventureLevel * 2
-        );
-        uint16 monsterAgility = uint16(5 + monsterLevel * 2);
-
         // 玩家属性数组
         uint16[7] memory playerStats = [
             playerData.health,
@@ -335,16 +394,10 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             totalCritDamage
         ];
 
-        // 怪物属性数组
-        uint16[7] memory monsterStats = [
-            monsterHealth,
-            monsterHealth,
-            monsterAttack,
-            monsterDefense,
-            monsterAgility,
-            5,
-            150
-        ];
+        uint16[7] memory monsterStats = getMonsterStats(
+            adventureLevel,
+            monsterLevel
+        );
 
         // 战斗配置：可以使用血瓶，可以逃跑，战斗后改变血量
         FightSystem.BattleConfig memory config = FightSystem.BattleConfig({
@@ -527,65 +580,6 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             maxAdventureLevel[playerId] == 0
                 ? MIN_ADVENTURE_LEVEL
                 : maxAdventureLevel[playerId];
-    }
-
-    /**
-     * @dev 获取怪物属性预览
-     * @param monsterLevel 怪物等级
-     * @return defense 怪物防御力
-     */
-    function getMonsterStats(
-        uint16 adventureLevel,
-        uint8 monsterLevel
-    ) external view returns (uint16 defense) {
-        uint16 baseDefense = uint16(
-            monsterLevel * MONSTER_DEFENSE_PER_LEVEL + MONSTER_BASE_DEFENSE
-        );
-        uint16 levelBonus = uint16(
-            adventureLevel > DEFENSE_LEVEL_BONUS_THRESHOLD
-                ? ((adventureLevel - 1) / DEFENSE_LEVEL_BONUS_THRESHOLD + 1) *
-                    DEFENSE_LEVEL_BONUS_MULTIPLIER
-                : 0
-        );
-        defense = (baseDefense + levelBonus) / DEFENSE_REDUCTION_DIVISOR; // 减弱一倍
-    }
-
-    /**
-     * @dev 战斗胜率预估
-     * @param playerId 玩家ID
-     * @param monsterLevel 怪物等级
-     * @return 胜率百分比 (0-100)
-     */
-    function estimateWinRate(
-        uint256 playerId,
-        uint16 adventureLevel,
-        uint8 monsterLevel
-    ) external view returns (uint8) {
-        (uint16 playerAttack, , , , ) = playerNFT.getPlayerTotalStats(playerId);
-        uint16 baseDefense = uint16(
-            monsterLevel * MONSTER_DEFENSE_PER_LEVEL + MONSTER_BASE_DEFENSE
-        );
-        uint16 levelBonus = uint16(
-            adventureLevel > DEFENSE_LEVEL_BONUS_THRESHOLD
-                ? ((adventureLevel - 1) / DEFENSE_LEVEL_BONUS_THRESHOLD + 1) *
-                    DEFENSE_LEVEL_BONUS_MULTIPLIER
-                : 0
-        );
-        uint16 monsterDefense = (baseDefense + levelBonus) /
-            DEFENSE_REDUCTION_DIVISOR; // 减弱一倍
-
-        if (playerAttack <= monsterDefense) {
-            return MIN_WIN_RATE;
-        } else if (playerAttack >= monsterDefense * 2) {
-            return DOUBLE_ATTACK_WIN_RATE;
-        } else {
-            // 简化的胜率计算
-            return
-                uint8(
-                    ((playerAttack - monsterDefense) * WIN_RATE_MULTIPLIER) /
-                        playerAttack
-                );
-        }
     }
 
     /**

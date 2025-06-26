@@ -1,17 +1,17 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0x38628490c3043E5D0bbB26d5a0a62fC77342e9d5' as `0x${string}`,
-  EQUIPMENT_NFT: '0xD5bFeBDce5c91413E41cc7B24C8402c59A344f7c' as `0x${string}`,
-  ITEM_NFT: '0x77AD263Cd578045105FBFC88A477CAd808d39Cf6' as `0x${string}`,
-  GOLD_TOKEN: '0xce830DA8667097BB491A70da268b76a081211814' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x05bB67cB592C1753425192bF8f34b95ca8649f09' as `0x${string}`,
-  FIGHT_SYSTEM: '0xa85EffB2658CFd81e0B1AaD4f2364CdBCd89F3a1' as `0x${string}`,
-  BATTLE_SYSTEM: '0x8aAC5570d54306Bb395bf2385ad327b7b706016b' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x64f5219563e28EeBAAd91Ca8D31fa3b36621FD4f' as `0x${string}`,
-  MARKET: '0x6484EB0792c646A4827638Fc1B6F20461418eB00' as `0x${string}`,
-  RANK: '0xA75E74a5109Ed8221070142D15cEBfFe9642F489' as `0x${string}`,
-  SUPER_MARKET: '0x26291175Fa0Ea3C8583fEdEB56805eA68289b105' as `0x${string}`
+  PLAYER_NFT: '0x1Dbbf529D78d6507B0dd71F6c02f41138d828990' as `0x${string}`,
+  EQUIPMENT_NFT: '0x92b0d1Cc77b84973B7041CB9275d41F09840eaDd' as `0x${string}`,
+  ITEM_NFT: '0x996785Fe937d92EDBF420F3Bf70Acc62ecD6f655' as `0x${string}`,
+  GOLD_TOKEN: '0x9eb52339B52e71B1EFD5537947e75D23b3a7719B' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xf18774574148852771c2631d7d06E2A6c8b44fCA' as `0x${string}`,
+  FIGHT_SYSTEM: '0x9f62EE65a8395824Ee0821eF2Dc4C947a23F0f25' as `0x${string}`,
+  BATTLE_SYSTEM: '0x3AeEBbEe7CE00B11cB202d6D0F38D696A3f4Ff8e' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0xB2ff9d5e60d68A52cea3cd041b32f1390A880365' as `0x${string}`,
+  MARKET: '0xa68E430060f74F9821D2dC9A9E2CE3aF7d842EBe' as `0x${string}`,
+  RANK: '0x8B64968F69E669faCc86FA3484FD946f1bBE7c91' as `0x${string}`,
+  SUPER_MARKET: '0x9A86494Ba45eE1f9EEed9cFC0894f6C5d13a1F0b' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -2359,45 +2359,6 @@ export const BATTLE_SYSTEM_ABI = [
   },
   {
     "inputs": [],
-    "name": "DEFENSE_LEVEL_BONUS_MULTIPLIER",
-    "outputs": [
-      {
-        "internalType": "uint16",
-        "name": "",
-        "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "DEFENSE_LEVEL_BONUS_THRESHOLD",
-    "outputs": [
-      {
-        "internalType": "uint16",
-        "name": "",
-        "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "DEFENSE_REDUCTION_DIVISOR",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "DOUBLE_ATTACK_WIN_RATE",
     "outputs": [
       {
@@ -2515,6 +2476,110 @@ export const BATTLE_SYSTEM_ABI = [
   },
   {
     "inputs": [],
+    "name": "MONSTER_AGILITY_PER_ADVENTURE_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_AGILITY_PER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_ATTACK_PER_ADVENTURE_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_ATTACK_PER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_BASE_AGILITY",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_BASE_ATTACK",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_BASE_CRITI_DAMAGE",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_BASE_CRITI_RATE",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "MONSTER_BASE_DEFENSE",
     "outputs": [
       {
@@ -2528,7 +2593,59 @@ export const BATTLE_SYSTEM_ABI = [
   },
   {
     "inputs": [],
+    "name": "MONSTER_BASE_HEALTH",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_DEFENSE_PER_ADVENTURE_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "MONSTER_DEFENSE_PER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_HEALTH_PER_ADVENTURE_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MONSTER_HEALTH_PER_LEVEL",
     "outputs": [
       {
         "internalType": "uint16",
@@ -2662,35 +2779,6 @@ export const BATTLE_SYSTEM_ABI = [
         "internalType": "bool",
         "name": "",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "playerId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "adventureLevel",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "monsterLevel",
-        "type": "uint8"
-      }
-    ],
-    "name": "estimateWinRate",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -2879,9 +2967,9 @@ export const BATTLE_SYSTEM_ABI = [
     "name": "getMonsterStats",
     "outputs": [
       {
-        "internalType": "uint16",
-        "name": "defense",
-        "type": "uint16"
+        "internalType": "uint16[7]",
+        "name": "",
+        "type": "uint16[7]"
       }
     ],
     "stateMutability": "view",

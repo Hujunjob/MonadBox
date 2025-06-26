@@ -1523,7 +1523,7 @@ body {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   font-size: 14px;
   color: #666;
@@ -2670,7 +2670,7 @@ body {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   max-width: 350px;
   margin: 0 auto;
@@ -2995,7 +2995,7 @@ body {
   }
   
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 3px;
   }
   

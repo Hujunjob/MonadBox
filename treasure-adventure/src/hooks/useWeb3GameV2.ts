@@ -3,7 +3,7 @@ import { useToast } from '../components/ToastManager';
 import { useSafeContractCall } from './useSafeContractCall';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { decodeEventLog } from 'viem';
-import { 
+import {
   CONTRACT_ADDRESSES,
   PLAYER_NFT_ABI,
   BATTLE_SYSTEM_ABI,
@@ -28,11 +28,11 @@ const CONTRACTS = {
 
 export function useWeb3GameV2() {
   const { address, isConnected, connector } = useAccount();
-  
+
   const { showToast } = useToast();
   const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
   const publicClient = usePublicClient();
-  
+
   const [currentPlayerId, setCurrentPlayerId] = useState<number>(0);
   const [inventoryEquipments, setInventoryEquipments] = useState<any[]>([]);
   const [playerItems, setPlayerItems] = useState<any[]>([]);
@@ -117,7 +117,7 @@ export function useWeb3GameV2() {
     args: [firstPlayerTokenId || 1n],
     query: { enabled: !!firstPlayerTokenId },
   });
-  
+
 
   // 更新当前玩家ID
   useEffect(() => {
@@ -133,7 +133,7 @@ export function useWeb3GameV2() {
       return;
     }
     console.log("fetchEquipmentDetails - optimized");
-    
+
 
     if (!publicClient) {
       console.warn('Public client not available, using fallback data');
@@ -151,8 +151,8 @@ export function useWeb3GameV2() {
             functionName: 'getEquipment',
             args: [equipmentId]
           });
-          console.log("equipmentId",equipmentId,data);
-          
+          console.log("equipmentId", equipmentId, data);
+
           return {
             id: Number(equipmentId),
             data
@@ -182,8 +182,8 @@ export function useWeb3GameV2() {
 
       // 转换为前端格式
       const equipments = equipmentResults.map(({ id, data }) => {
-        console.log("equipments type",data.equipmentType);
-        
+        console.log("equipments type", data.equipmentType);
+
         return {
           id,
           name: `装备${id}`,
@@ -198,7 +198,7 @@ export function useWeb3GameV2() {
           criticalDamage: Number(data.criticalDamage || 0),
         };
       });
-      
+
       setInventoryEquipments(equipments);
     } catch (error) {
       console.error('Failed to fetch equipment details:', error);
@@ -215,25 +215,25 @@ export function useWeb3GameV2() {
 
     try {
       const [itemIds, quantities] = playerItemsData;
-      
+
       if (!itemIds || !quantities || itemIds.length !== quantities.length) {
         setPlayerItems([]);
         return;
       }
-      
+
       // 转换为前端格式
       const items = itemIds.map((id: bigint, index: number) => {
         const itemId = Number(id);
         const quantity = Number(quantities[index]);
         const type = getItemType(itemId);
-        
+
         return {
           id: itemId,
           type,
           quantity,
         };
       });
-      
+
       setPlayerItems(items);
     } catch (error) {
       console.error('Failed to process player items data:', error);
@@ -321,7 +321,7 @@ export function useWeb3GameV2() {
   const startAdventure = async (adventureLevel: number, monsterLevel?: number): Promise<string | null> => {
     console.log('startAdventure called with:', { adventureLevel, monsterLevel });
     console.log('Connection state:', { isConnected, currentPlayerId, maxAdventureLevel });
-    
+
     if (!isConnected || !currentPlayerId) {
       console.log('Connection check failed');
       showToast('请先连接钱包并注册玩家', 'error');
@@ -357,7 +357,7 @@ export function useWeb3GameV2() {
           gas: BigInt(2500000),
         };
         console.log('Contract call config:', contractCall);
-        
+
         safeCall(
           contractCall,
           undefined,
@@ -367,7 +367,7 @@ export function useWeb3GameV2() {
             errorMessage: '❌ 冒险失败',
             onSuccess: async (receipt: any) => {
               console.log('safeCall success, receipt:', receipt);
-              
+
               try {
                 // 从 FightSystem 的 BattleEnded 事件中解析 battleId
                 const battleId = parseBattleIdFromReceipt(receipt);
@@ -382,7 +382,7 @@ export function useWeb3GameV2() {
                 console.error('Error parsing battleId:', error);
                 resolve(null);
               }
-              
+
               setTimeout(() => {
                 refreshAllData();
               }, 500);
@@ -400,7 +400,7 @@ export function useWeb3GameV2() {
   const parseBattleIdFromReceipt = (receipt: any): string | null => {
     try {
       if (!receipt?.logs) return null;
-      
+
       for (const log of receipt.logs) {
         try {
           const decodedLog = decodeEventLog({
@@ -408,7 +408,7 @@ export function useWeb3GameV2() {
             data: log.data,
             topics: log.topics,
           });
-          
+
           if (decodedLog.eventName === 'BattleEnded') {
             const { battleId } = decodedLog.args as any;
             return battleId ? battleId.toString() : null;
@@ -425,40 +425,11 @@ export function useWeb3GameV2() {
     }
   };
 
-  // 解析battleId (保留旧函数以防其他地方使用)
-  const parseBattleId = (receipt: any): string | null => {
-    try {
-      if (!receipt?.logs) return null;
-      
-      for (const log of receipt.logs) {
-        try {
-          const decodedLog = decodeEventLog({
-            abi: BATTLE_SYSTEM_ABI,
-            data: log.data,
-            topics: log.topics,
-          });
-          
-          if (decodedLog.eventName === 'AdventureStarted' || decodedLog.eventName === 'BattleStarted') {
-            const { battleId } = decodedLog.args as any;
-            return battleId ? battleId.toString() : null;
-          }
-        } catch (error) {
-          // 忽略无法解析的日志
-          continue;
-        }
-      }
-      return null;
-    } catch (error) {
-      console.error('解析battleId失败:', error);
-      return null;
-    }
-  };
-
   // 解析战斗结果事件
   const parseBattleResult = (receipt: any) => {
     try {
       if (!receipt?.logs) return null;
-      
+
       for (const log of receipt.logs) {
         try {
           const decodedLog = decodeEventLog({
@@ -466,7 +437,7 @@ export function useWeb3GameV2() {
             data: log.data,
             topics: log.topics,
           });
-          
+
           if (decodedLog.eventName === 'BattleCompleted') {
             const { playerId, experienceGained, victory, adventureLevel, monsterLevel } = decodedLog.args as any;
             return {
@@ -492,7 +463,7 @@ export function useWeb3GameV2() {
   // 获取怪物属性
   const getMonsterStats = async (adventureLevel: number, monsterLevel: number) => {
     if (!publicClient) return null;
-    
+
     try {
       const stats = await publicClient.readContract({
         address: CONTRACTS.BATTLE_SYSTEM,
@@ -500,35 +471,21 @@ export function useWeb3GameV2() {
         functionName: 'getMonsterStats',
         args: [adventureLevel, monsterLevel]
       });
-      return stats;
+      console.log("getMonsterStats",stats);
+      
+      return {
+       criticalDamage:stats[6], criticalRate: stats[5], health: stats[0], attack: stats[2], defense: stats[3], agility: stats[4],
+      };
     } catch (error) {
       console.error('Failed to get monster stats:', error);
       return null;
     }
   };
 
-  // 估算胜率
-  const estimateWinRate = async (adventureLevel: number, monsterLevel: number) => {
-    if (!publicClient || !currentPlayerId) return 0;
-    
-    try {
-      const winRate = await publicClient.readContract({
-        address: CONTRACTS.BATTLE_SYSTEM,
-        abi: BATTLE_SYSTEM_ABI,
-        functionName: 'estimateWinRate',
-        args: [BigInt(currentPlayerId), adventureLevel, monsterLevel]
-      });
-      return Number(winRate);
-    } catch (error) {
-      console.error('Failed to estimate win rate:', error);
-      return 0;
-    }
-  };
-
   // 获取怪物击杀次数
   const getMonsterKillCount = async (adventureLevel: number, monsterLevel: number) => {
     if (!publicClient || !currentPlayerId) return 0;
-    
+
     try {
       const killCount = await publicClient.readContract({
         address: CONTRACTS.BATTLE_SYSTEM,
@@ -546,7 +503,7 @@ export function useWeb3GameV2() {
   // 获取玩家进度
   const getPlayerProgress = async () => {
     if (!publicClient || !currentPlayerId) return { currentLevel: 1, maxMonster: 0 };
-    
+
     try {
       const progress = await publicClient.readContract({
         address: CONTRACTS.BATTLE_SYSTEM,
@@ -566,9 +523,9 @@ export function useWeb3GameV2() {
 
   // 完成战斗 - 保留旧版本兼容性
   const completeBattle = async (
-    experienceGained: number, 
-    staminaCost: number = 1, 
-    victory: boolean = true, 
+    experienceGained: number,
+    staminaCost: number = 1,
+    victory: boolean = true,
     monsterLevel: number = 1
   ) => {
     if (!isConnected || !currentPlayerId) {
@@ -632,14 +589,14 @@ export function useWeb3GameV2() {
     if (!playerTreasureBoxes || !Array.isArray(playerTreasureBoxes)) {
       return 0;
     }
-    
+
     for (let i = 0; i < playerTreasureBoxes.length; i++) {
       const box = playerTreasureBoxes[i];
       if (!box.opened) {
         return i;
       }
     }
-    
+
     return 0; // 如果没有找到未开启的宝箱，返回0
   };
 
@@ -649,7 +606,7 @@ export function useWeb3GameV2() {
       console.error('收据为空或没有日志:', receipt);
       return null;
     }
-    
+
     try {
       for (const log of receipt.logs) {
         try {
@@ -658,7 +615,7 @@ export function useWeb3GameV2() {
             data: log.data,
             topics: log.topics,
           });
-          
+
           if (decodedLog.eventName === 'TreasureBoxOpened') {
             const {
               playerId,
@@ -668,7 +625,7 @@ export function useWeb3GameV2() {
               equipmentId,
               itemId
             } = decodedLog.args as any;
-            
+
             console.log('解析到宝箱开启事件:', {
               playerId: playerId.toString(),
               boxIndex: boxIndex.toString(),
@@ -677,7 +634,7 @@ export function useWeb3GameV2() {
               equipmentId: equipmentId.toString(),
               itemId: itemId.toString()
             });
-            
+
             return {
               rewardType: Number(rewardType),
               goldAmount: goldAmount.toString(),
@@ -728,12 +685,12 @@ export function useWeb3GameV2() {
         errorMessage: '❌ 开箱失败',
         onSuccess: (receipt: any) => {
           console.log('开箱onSuccess被调用，receipt:', receipt);
-          
+
           // 刷新数据
           setTimeout(() => {
             refreshAllData();
           }, 500);
-          
+
           // 确保收据存在且有效
           if (!receipt) {
             console.error('收据为空，无法解析奖励');
@@ -745,15 +702,15 @@ export function useWeb3GameV2() {
             }
             return;
           }
-          
+
           // 解析交易事件获取实际奖励
           const rewardData = parseTreasureBoxEvent(receipt);
-          
+
           if (onReward && rewardData) {
             // 根据奖励类型构造详细的奖励信息
             let rewardDescription = '';
             let rewardType = 'Web3';
-            
+
             switch (rewardData.rewardType) {
               case 0: // 金币
                 rewardDescription = `获得 ${Number(rewardData.goldAmount) / 1e18} 金币！`;
@@ -786,7 +743,7 @@ export function useWeb3GameV2() {
                         stars: Number(equipmentData.stars || 0)
                       }
                     };
-                    
+
                     // 重新调用回调函数更新UI
                     onReward({
                       type: rewardType,
@@ -810,7 +767,7 @@ export function useWeb3GameV2() {
               default:
                 rewardDescription = '获得神秘奖励！';
             }
-            
+
             onReward({
               type: rewardType,
               description: rewardDescription,
@@ -1133,22 +1090,22 @@ export function useWeb3GameV2() {
     return 0;
   };
 
-  const getJobName = (level:number,exp:number)=>{
+  const getJobName = (level: number, exp: number) => {
     return "初级剑士"
   }
 
   // 处理背包物品数据
   const getInventoryItems = useMemo(() => {
     console.log("getInventoryItems - memoized");
-    
+
     const items: any[] = [];
-    
+
     // 添加装备
     inventoryEquipments.forEach(equipment => {
       // 如果装备没有被装备，就加入背包
       const isEquipped = equippedItems && equippedItems.some(id => Number(id) === equipment.id);
       // console.log("getInventoryItems",equipment);
-      
+
       if (!isEquipped) {
         items.push({
           id: equipment.id.toString(),
@@ -1206,9 +1163,9 @@ export function useWeb3GameV2() {
     currentForestLevel: playerData ? Number(playerData.currentForestLevel) : 1,
     currentForestProgress: playerData ? Number(playerData.currentForestProgress) : 0,
     lastTreasureBoxTime: playerData ? Number(playerData.lastTreasureBoxTime) : 0,
-    job: playerData ? getJobName(playerData.level,playerData.experience) : "初级剑士",
+    job: playerData ? getJobName(playerData.level, playerData.experience) : "初级剑士",
     // 前端需要的额外字段
-    gold: playerData ? Number(playerData.goldBalance)/10**18 : 0,
+    gold: playerData ? Number(playerData.goldBalance) / 10 ** 18 : 0,
     equipment: getEquippedItemsMap,
     inventory: getInventoryItems, // 使用处理后的装备和物品数据
     equippedItemIds: equippedItems || [],
@@ -1219,10 +1176,10 @@ export function useWeb3GameV2() {
     playerData: convertedPlayerData,
     treasureBoxCount: treasureBoxCount ? Number(treasureBoxCount) : 0,
     claimableBoxes: claimableBoxes ? Number(claimableBoxes) : 0,
-    treasureBoxes:playerTreasureBoxes,
-    isPlayerRegistered: playerData && playerData.maxHealth>0,
+    treasureBoxes: playerTreasureBoxes,
+    isPlayerRegistered: playerData && playerData.maxHealth > 0,
     currentPlayerId,
-    
+
     // 新战斗系统数据
     maxAdventureLevel: maxAdventureLevel ? Number(maxAdventureLevel) : 1,
     battleStats: battleStats ? {
@@ -1231,18 +1188,17 @@ export function useWeb3GameV2() {
       winRate: Number(battleStats[2]),
       lastBattle: Number(battleStats[3])
     } : { totalBattles: 0, totalVictories: 0, winRate: 0, lastBattle: 0 },
-    
+
     // 状态
     isPending,
     isConfirming,
     isConfirmed,
-    
+
     // 函数
     registerPlayer,
     completeBattle,
     startAdventure,
     getMonsterStats,
-    estimateWinRate,
     getMonsterKillCount,
     getPlayerProgress,
     claimTreasureBoxes,
@@ -1253,7 +1209,7 @@ export function useWeb3GameV2() {
     getAvailableMaterials,
     enhanceEquipment,
     buyGold,
-    
+
     // 数据刷新
     refreshAllData,
     refetchPlayer,

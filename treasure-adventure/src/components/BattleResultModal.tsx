@@ -71,7 +71,7 @@ const BattleResultModal: React.FC<BattleResultModalProps> = ({
         <div className="battle-modal-content">
           <div className="battle-summary">
             <h3>战斗统计</h3>
-            <div className="stats-grid">
+            <div className="stats-grid_battle">
               <div className="stat-item">
                 <span className="stat-label">总回合数:</span>
                 <span className="stat-value">{battleStats.totalRounds}</span>
