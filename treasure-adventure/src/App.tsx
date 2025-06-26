@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import PlayerStats from './pages/PlayerStats';
 import TreasureBox from './pages/TreasureBox';
 import MonsterForest from './pages/MonsterForest';
@@ -8,23 +9,37 @@ import Rank from './pages/Rank';
 import WalletConnect from './components/WalletConnect';
 import Web3BattleHandler from './components/Web3BattleHandler';
 import { ToastProvider } from './components/ToastManager';
-import { WalletDebugInfo } from './components/WalletDebugInfo';
 import './App.css';
 
 function App() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('stats');
-  // const connectedUsers = useConnectedUsers()
-  // const [nickname, setNickname] = useNicknames()
-  // const [showNamingModal, setShowNamingModal] = useState(false);
   const [userNameInput, setUserNameInput] = useState('');
-  // const [hasCheckedNickname, setHasCheckedNickname] = useState(false);
+
+  // 根据路由设置活动标签
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/' || path === '/stats') setActiveTab('stats');
+    else if (path === '/inventory') setActiveTab('inventory');
+    else if (path === '/treasure') setActiveTab('treasure');
+    else if (path === '/monster-forest') setActiveTab('forest');
+    else if (path === '/market') setActiveTab('market');
+    else if (path === '/rank') setActiveTab('rank');
+  }, [location.pathname]);
 
   // 处理页面切换，在切换到特定页面时检查体力
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    // 切换到角色页面或森林页面时检查体力
-    if (tab === 'stats' || tab === 'forest') {
-      // updateStamina();
+    
+    // 导航到对应路由
+    switch (tab) {
+      case 'stats': navigate('/'); break;
+      case 'inventory': navigate('/inventory'); break;
+      case 'treasure': navigate('/treasure'); break;
+      case 'forest': navigate('/monster-forest'); break;
+      case 'market': navigate('/market'); break;
+      case 'rank': navigate('/rank'); break;
     }
   };
 
@@ -57,7 +72,7 @@ function App() {
   // }
   
   return (
-    <ToastProvider>
+    <>
       <Web3BattleHandler />
       <div className="app-wrapper">
         <div className="game-container">
@@ -68,12 +83,15 @@ function App() {
           </header>
           
           <main className={`game-content ${activeTab === 'stats' ? 'character-bg' : 'other-bg'}`}>
-            {activeTab === 'stats' && <PlayerStats />}
-            {activeTab === 'inventory' && <Inventory />}
-            {activeTab === 'treasure' && <TreasureBox />}
-            {activeTab === 'forest' && <MonsterForest />}
-            {activeTab === 'market' && <Market />}
-            {activeTab === 'rank' && <Rank />}
+            <Routes>
+              <Route path="/" element={<PlayerStats />} />
+              <Route path="/stats" element={<PlayerStats />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/treasure" element={<TreasureBox />} />
+              <Route path="/monster-forest" element={<MonsterForest />} />
+              <Route path="/market" element={<Market />} />
+              <Route path="/rank" element={<Rank />} />
+            </Routes>
           </main>
           
           <nav className="game-nav">
@@ -117,7 +135,7 @@ function App() {
         </div>
         
         {/* 命名弹窗 */}
-        {false && (
+        {false && userNameInput && (
           <div className="naming-modal-overlay">
             <div className="naming-modal">
               <h3>设置用户名</h3>
@@ -143,7 +161,7 @@ function App() {
         )}
       </div>
       {/* {process.env.NODE_ENV === 'development' && <WalletDebugInfo />} */}
-    </ToastProvider>
+    </>
   );
 }
 

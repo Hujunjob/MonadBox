@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useHybridGameStore } from '../store/web3GameStore';
 import BattleResultModal from '../components/BattleResultModal';
 
 const MonsterForest: React.FC = () => {
+  const navigate = useNavigate();
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player;
   const [selectedAdventureLevel, setSelectedAdventureLevel] = useState(1);
   const [isLevelExpanded, setIsLevelExpanded] = useState(false);
   const [monsterKillCounts, setMonsterKillCounts] = useState<{[key: number]: number}>({});
   const [monsterStats, setMonsterStats] = useState<{[key: number]: number}>({});
-  const [maxMonsterLevel, setMaxMonsterLevel] = useState(0);
   
   // 战斗结果弹窗状态
   const [battleResult, setBattleResult] = useState<{
@@ -89,24 +90,6 @@ const MonsterForest: React.FC = () => {
         
         setMonsterKillCounts(killCounts);
         setMonsterStats(stats);
-        
-        // 获取玩家在该层级的最高怪物等级
-        if (typeof hybridStore.getPlayerProgress === 'function') {
-          const progress = await hybridStore.getPlayerProgress();
-          if (progress && progress.currentLevel === selectedAdventureLevel) {
-            setMaxMonsterLevel(progress.maxMonster || 0);
-          } else {
-            // 如果不是当前层级，根据击杀数据计算最高怪物等级
-            let maxLevel = 0;
-            for (let i = 10; i >= 1; i--) {
-              if (killCounts[i] > 0) {
-                maxLevel = i;
-                break;
-              }
-            }
-            setMaxMonsterLevel(maxLevel);
-          }
-        }
       } catch (error) {
         console.error('Failed to fetch monster data:', error);
       }
@@ -154,14 +137,6 @@ const MonsterForest: React.FC = () => {
         }
         
         setMonsterKillCounts(killCounts);
-        
-        // 重新获取玩家进度
-        if (typeof hybridStore.getPlayerProgress === 'function') {
-          const progress = await hybridStore.getPlayerProgress();
-          if (progress && progress.currentLevel === selectedAdventureLevel) {
-            setMaxMonsterLevel(progress.maxMonster || 0);
-          }
-        }
         
         // 刷新玩家数据
         // if (typeof hybridStore.refreshPlayerData === 'function') {
@@ -214,6 +189,10 @@ const MonsterForest: React.FC = () => {
   };
   
   const handleStartAdventure = async (adventureLevel: number, monsterLevel: number) => {
+    console.log('handleStartAdventure called:', { adventureLevel, monsterLevel });
+    console.log('Player state:', { stamina: player.stamina, id: player.id, name: player.name });
+    console.log('maxUnlockedLevel:', maxUnlockedLevel);
+    
     if (player.stamina < 1) {
       alert('体力不足，无法战斗！请等待体力恢复。');
       return;
@@ -237,11 +216,21 @@ const MonsterForest: React.FC = () => {
       return;
     }
     
+    console.log('Calling startAdventure...');
     try {
-      await hybridStore.startAdventure(adventureLevel, monsterLevel);
-      // 数据刷新已在 useWeb3GameV2 的 onSuccess 回调中处理
+      const battleId = await hybridStore.startAdventure(adventureLevel, monsterLevel);
+      console.log('startAdventure returned:', battleId);
+      if (battleId) {
+        // 导航到战斗页面
+        const url = `/battle/${battleId}?type=adventure&fighter1Name=${encodeURIComponent(player.name)}&fighter2Name=${encodeURIComponent(`第${adventureLevel}层怪物${monsterLevel}`)}&fighter1Id=${player.id}&fighter2Id=0`;
+        console.log('Navigating to:', url);
+        navigate(url);
+      } else {
+        console.log('No battleId returned');
+      }
     } catch (error) {
       console.error('Adventure failed:', error);
+      alert('战斗发起失败: ' + (error as Error).message);
     }
   };
   

@@ -10,7 +10,8 @@ import {
   TREASURE_BOX_SYSTEM_ABI,
   EQUIPMENT_SYSTEM_ABI,
   EQUIPMENT_NFT_ABI,
-  SUPER_MARKET_ABI
+  SUPER_MARKET_ABI,
+  FIGHT_SYSTEM_ABI
 } from '../contracts';
 
 // 使用统一的合约地址配置
@@ -317,55 +318,140 @@ export function useWeb3GameV2() {
   });
 
   // 开始冒险 - 新的战斗系统
-  const startAdventure = async (adventureLevel: number, monsterLevel?: number) => {
+  const startAdventure = async (adventureLevel: number, monsterLevel?: number): Promise<string | null> => {
+    console.log('startAdventure called with:', { adventureLevel, monsterLevel });
+    console.log('Connection state:', { isConnected, currentPlayerId, maxAdventureLevel });
+    
     if (!isConnected || !currentPlayerId) {
+      console.log('Connection check failed');
       showToast('请先连接钱包并注册玩家', 'error');
-      return;
+      return null;
     }
 
-    if (adventureLevel < 1 || adventureLevel > 10) {
-      showToast('冒险层数必须在1-10之间', 'error');
-      return;
+    if (adventureLevel < 1 || adventureLevel > 1000) {
+      console.log('Adventure level check failed');
+      showToast('冒险层数必须在1-1000之间', 'error');
+      return null;
     }
 
     // 检查用户是否已通关该层级
     const currentMaxLevel = maxAdventureLevel || 1;
     if (adventureLevel > currentMaxLevel) {
+      console.log('Max level check failed');
       showToast(`第${adventureLevel}层尚未解锁！请先通关第${currentMaxLevel}层`, 'error');
-      return;
+      return null;
     }
 
     // 默认怪物等级等于冒险层级
     const finalMonsterLevel = monsterLevel || adventureLevel;
+    console.log('Final monster level:', finalMonsterLevel);
 
-    await safeCall(
-      {
-        address: CONTRACTS.BATTLE_SYSTEM,
-        abi: BATTLE_SYSTEM_ABI,
-        functionName: 'startAdventure',
-        args: [BigInt(currentPlayerId), adventureLevel, finalMonsterLevel],
-        gas: BigInt(2500000),
-      },
-      undefined,
-      {
-        loadingMessage: `⚔️ 正在挑战第${adventureLevel}层...`,
-        successMessage: '✅ 冒险结果已上链！',
-        errorMessage: '❌ 冒险失败',
-        onSuccess: (receipt: any) => {
-          // 解析战斗结果事件
-          const battleResult = parseBattleResult(receipt);
-          if (battleResult && typeof window !== 'undefined') {
-            // 触发自定义事件来显示战斗结果
-            window.dispatchEvent(new CustomEvent('battleResult', { 
-              detail: battleResult 
-            }));
+    console.log('Starting safeCall...');
+    return new Promise((resolve, reject) => {
+      try {
+        const contractCall = {
+          address: CONTRACTS.BATTLE_SYSTEM,
+          abi: BATTLE_SYSTEM_ABI,
+          functionName: 'startAdventure',
+          args: [BigInt(currentPlayerId), adventureLevel, finalMonsterLevel],
+          gas: BigInt(2500000),
+        };
+        console.log('Contract call config:', contractCall);
+        
+        safeCall(
+          contractCall,
+          undefined,
+          {
+            loadingMessage: `⚔️ 正在挑战第${adventureLevel}层...`,
+            successMessage: '✅ 冒险开始！',
+            errorMessage: '❌ 冒险失败',
+            onSuccess: async (receipt: any) => {
+              console.log('safeCall success, receipt:', receipt);
+              
+              try {
+                // 从 FightSystem 的 BattleEnded 事件中解析 battleId
+                const battleId = parseBattleIdFromReceipt(receipt);
+                console.log('Parsed battleId from BattleEnded event:', battleId);
+                if (battleId) {
+                  resolve(battleId);
+                } else {
+                  console.error('Failed to parse battleId from receipt');
+                  resolve(null);
+                }
+              } catch (error) {
+                console.error('Error parsing battleId:', error);
+                resolve(null);
+              }
+              
+              setTimeout(() => {
+                refreshAllData();
+              }, 500);
+            }
           }
-          setTimeout(() => {
-            refreshAllData();
-          }, 500);
+        );
+      } catch (error) {
+        console.error('Error in startAdventure:', error);
+        reject(error);
+      }
+    });
+  };
+
+  // 从FightSystem的BattleEnded事件中解析battleId
+  const parseBattleIdFromReceipt = (receipt: any): string | null => {
+    try {
+      if (!receipt?.logs) return null;
+      
+      for (const log of receipt.logs) {
+        try {
+          const decodedLog = decodeEventLog({
+            abi: FIGHT_SYSTEM_ABI,
+            data: log.data,
+            topics: log.topics,
+          });
+          
+          if (decodedLog.eventName === 'BattleEnded') {
+            const { battleId } = decodedLog.args as any;
+            return battleId ? battleId.toString() : null;
+          }
+        } catch (error) {
+          // 忽略无法解析的日志，继续尝试下一个
+          continue;
         }
       }
-    );
+      return null;
+    } catch (error) {
+      console.error('从receipt解析battleId失败:', error);
+      return null;
+    }
+  };
+
+  // 解析battleId (保留旧函数以防其他地方使用)
+  const parseBattleId = (receipt: any): string | null => {
+    try {
+      if (!receipt?.logs) return null;
+      
+      for (const log of receipt.logs) {
+        try {
+          const decodedLog = decodeEventLog({
+            abi: BATTLE_SYSTEM_ABI,
+            data: log.data,
+            topics: log.topics,
+          });
+          
+          if (decodedLog.eventName === 'AdventureStarted' || decodedLog.eventName === 'BattleStarted') {
+            const { battleId } = decodedLog.args as any;
+            return battleId ? battleId.toString() : null;
+          }
+        } catch (error) {
+          // 忽略无法解析的日志
+          continue;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('解析battleId失败:', error);
+      return null;
+    }
   };
 
   // 解析战斗结果事件

@@ -82,6 +82,7 @@ export function useSafeContractCall() {
     } = options || {};
 
     try {
+      console.log('safeCall called with config:', contractConfig);
       setIsSimulating(true);
       // showToast(loadingMessage, 'info');
       
@@ -92,12 +93,13 @@ export function useSafeContractCall() {
       // 如果没有提供模拟调用，直接执行（跳过验证）
       if (!simulationHook) {
         console.log('⚠️ 跳过模拟验证，直接执行交易');
-        console.log(contractConfig);
+        console.log('Contract config to execute:', contractConfig);
         
         // 对于 burner wallet，直接执行交易（自动签名）
         console.log('执行交易，钱包类型:', isBurnerWallet ? 'burner' : 'external');
-        console.log(contractConfig);
+        console.log('About to call writeContract with:', contractConfig);
         writeContract(contractConfig);
+        console.log('writeContract called');
         return;
       }
 

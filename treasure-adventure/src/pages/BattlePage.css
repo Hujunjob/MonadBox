@@ -1,0 +1,123 @@
+.battle-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  padding: 20px;
+  color: white;
+}
+
+.battle-page.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  text-align: center;
+  font-size: 18px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #34495e;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.battle-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #34495e;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 20px;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-2px);
+}
+
+.battle-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #f39c12;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.battle-content {
+  margin-bottom: 30px;
+}
+
+.battle-tips {
+  max-width: 800px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.tip-item {
+  color: #bdc3c7;
+}
+
+.tip-item strong {
+  color: #f39c12;
+  font-size: 16px;
+}
+
+.tip-item ul {
+  margin: 10px 0 0 20px;
+  padding: 0;
+}
+
+.tip-item li {
+  margin-bottom: 5px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .battle-page {
+    padding: 10px;
+  }
+  
+  .battle-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .back-button {
+    margin-right: 0;
+  }
+  
+  .battle-header h1 {
+    font-size: 24px;
+  }
+  
+  .battle-tips {
+    padding: 15px;
+  }
+}

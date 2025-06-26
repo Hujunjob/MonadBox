@@ -1,16 +1,17 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0x998abeb3E57409262aE5b751f60747921B33613E' as `0x${string}`,
-  EQUIPMENT_NFT: '0x851356ae760d987E095750cCeb3bC6014560891C' as `0x${string}`,
-  ITEM_NFT: '0x95401dc811bb5740090279Ba06cfA8fcF6113778' as `0x${string}`,
-  GOLD_TOKEN: '0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x4826533B4897376654Bb4d4AD88B7faFD0C98528' as `0x${string}`,
-  BATTLE_SYSTEM: '0x0E801D84Fa97b50751Dbf25036d067dCf18858bF' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf' as `0x${string}`,
-  MARKET: '0x9d4454B023096f34B160D6B654540c56A1F81688' as `0x${string}`,
-  RANK: '0x5eb3Bc0a489C5A8288765d2336659EbCA68FCd00' as `0x${string}`,
-  SUPER_MARKET: '0x809d550fca64d94Bd9F66E60752A544199cfAC3D' as `0x${string}`
+  PLAYER_NFT: '0xD49a0e9A4CD5979aE36840f542D2d7f02C4817Be' as `0x${string}`,
+  EQUIPMENT_NFT: '0xefc1aB2475ACb7E60499Efb171D173be19928a05' as `0x${string}`,
+  ITEM_NFT: '0x870526b7973b56163a6997bB7C886F5E4EA53638' as `0x${string}`,
+  GOLD_TOKEN: '0xde2Bd2ffEA002b8E84ADeA96e5976aF664115E2c' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xe1Fd27F4390DcBE165f4D60DBF821e4B9Bb02dEd' as `0x${string}`,
+  FIGHT_SYSTEM: '0xc582Bc0317dbb0908203541971a358c44b1F3766' as `0x${string}`,
+  BATTLE_SYSTEM: '0xB2b580ce436E6F77A5713D80887e14788Ef49c9A' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0xB377a2EeD7566Ac9fCb0BA673604F9BF875e2Bab' as `0x${string}`,
+  MARKET: '0x66F625B8c4c635af8b74ECe2d7eD0D58b4af3C3d' as `0x${string}`,
+  RANK: '0x8bCe54ff8aB45CB075b044AE117b8fD91F9351aB' as `0x${string}`,
+  SUPER_MARKET: '0x74Cf9087AD26D541930BaC724B7ab21bA8F00a27' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -406,19 +407,6 @@ export const PLAYER_NFT_ABI = [
   },
   {
     "inputs": [],
-    "name": "BASE_HEAL_AMOUNT",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "DEFENSE_PER_LEVEL",
     "outputs": [
       {
@@ -438,19 +426,6 @@ export const PLAYER_NFT_ABI = [
         "internalType": "uint16",
         "name": "",
         "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "HEAL_AMOUNT_PER_LEVEL",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -653,19 +628,6 @@ export const PLAYER_NFT_ABI = [
   },
   {
     "inputs": [],
-    "name": "MAX_POTION_LEVEL",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "MAX_STAMINA",
     "outputs": [
       {
@@ -685,19 +647,6 @@ export const PLAYER_NFT_ABI = [
         "internalType": "uint8",
         "name": "",
         "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "POTION_CONSUME_AMOUNT",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1925,6 +1874,477 @@ export const PLAYER_NFT_ABI = [
   }
 ] as const;
 
+// FightSystem 合约 ABI
+export const FIGHT_SYSTEM_ABI = [
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "battleId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "winnerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "winnerType",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "escaped",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalRounds",
+        "type": "uint256"
+      }
+    ],
+    "name": "BattleEnded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "version",
+        "type": "uint64"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "Upgraded",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "FIGHTER_TYPE_NPC",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "FIGHTER_TYPE_PLAYER",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "LOW_HEALTH_THRESHOLD",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_POTIONS_PER_BATTLE",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "UPGRADE_INTERFACE_VERSION",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "authorizedSystems",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "battleResults",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "winnerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "winnerType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bool",
+        "name": "escaped",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalRounds",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "battleId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getBattleLog",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "actorId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "actorType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum FightSystem.ActionType",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint16",
+            "name": "damage",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "healing",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "remainingHealth",
+            "type": "uint16"
+          },
+          {
+            "internalType": "bool",
+            "name": "isCritical",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "usedPotionId",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct FightSystem.BattleAction[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "battleId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getBattleResult",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "winnerId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "winnerType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "escaped",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalRounds",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "actorId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "actorType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "enum FightSystem.ActionType",
+                "name": "action",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint16",
+                "name": "damage",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint16",
+                "name": "healing",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint16",
+                "name": "remainingHealth",
+                "type": "uint16"
+              },
+              {
+                "internalType": "bool",
+                "name": "isCritical",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "usedPotionId",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct FightSystem.BattleAction[]",
+            "name": "battleLog",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct FightSystem.BattleResult",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "itemNFT",
+    "outputs": [
+      {
+        "internalType": "contract Item",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "playerNFT",
+    "outputs": [
+      {
+        "internalType": "contract Player",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "fighter1Id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "fighter1Type",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint16[7]",
+        "name": "fighter1Stats",
+        "type": "uint16[7]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fighter2Id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "fighter2Type",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint16[7]",
+        "name": "fighter2Stats",
+        "type": "uint16[7]"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "canUsePotion",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "changePlayerHealth",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "canEscape",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct FightSystem.BattleConfig",
+        "name": "config",
+        "type": "tuple"
+      }
+    ],
+    "name": "startBattle",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "battleId",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+] as const;
+
 // BattleSystem 合约 ABI
 export const BATTLE_SYSTEM_ABI = [
   {
@@ -2381,6 +2801,19 @@ export const BATTLE_SYSTEM_ABI = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "fightSystem",
+    "outputs": [
+      {
+        "internalType": "contract FightSystem",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -2779,7 +3212,13 @@ export const BATTLE_SYSTEM_ABI = [
       }
     ],
     "name": "startAdventure",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "battleId",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -5462,6 +5901,19 @@ export const ITEM_NFT_ABI = [
   },
   {
     "inputs": [],
+    "name": "BASE_HEAL_AMOUNT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "HEALTH_POTION_END_ID",
     "outputs": [
       {
@@ -5476,6 +5928,19 @@ export const ITEM_NFT_ABI = [
   {
     "inputs": [],
     "name": "HEALTH_POTION_START_ID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "HEAL_AMOUNT_PER_LEVEL",
     "outputs": [
       {
         "internalType": "uint256",
@@ -6787,8 +7252,27 @@ export const RANK_ABI = [
       }
     ],
     "name": "fight",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "battleId",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "fightSystem",
+    "outputs": [
+      {
+        "internalType": "contract FightSystem",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

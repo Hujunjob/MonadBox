@@ -83,9 +83,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     }
     
     // 事件
-    // event BattleStarted(bytes32 indexed battleId, uint256 fighter1Id, uint8 fighter1Type, uint256 fighter2Id, uint8 fighter2Type);
-    // event BattleEnded(bytes32 indexed battleId, uint256 winnerId, uint8 winnerType, bool escaped, uint256 totalRounds);
-    // event ActionPerformed(bytes32 indexed battleId, uint256 actorId, uint8 actorType, ActionType action, uint16 damage, uint16 healing);
+    event BattleEnded(bytes32 indexed battleId, uint256 winnerId, uint8 winnerType, bool escaped, uint256 totalRounds);
     
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -170,7 +168,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         // 血瓶消耗和血量改变由调用方（BattleSystem/Rank）处理
         
         // emit BattleStarted(battleId, fighter1Id, fighter1Type, fighter2Id, fighter2Type);
-        // emit BattleEnded(battleId, result.winnerId, result.winnerType, result.escaped, result.totalRounds);
+        emit BattleEnded(battleId, result.winnerId, result.winnerType, result.escaped, result.totalRounds);
         
         return battleId;
     }

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { useNavigate } from 'react-router-dom';
 import { useRank } from '../hooks/useRank';
 import './Rank.css';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { useToast } from '../components/ToastManager';
-import { getJobFromLevel, getJobLevelDisplay } from '../utils/gameUtils';
+import { getJobLevelDisplay } from '../utils/gameUtils';
 
 interface RankData {
   rankIndex: number;
@@ -18,6 +19,7 @@ interface RankData {
 const Rank: React.FC = () => {
   const { showToast } = useToast();
   const { address } = useAccount();
+  const navigate = useNavigate();
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player;
   const currentPlayerId = player.id;
@@ -26,7 +28,6 @@ const Rank: React.FC = () => {
   const { 
     getTopRanks, 
     getPlayerRank, 
-    canChallenge, 
     fight,
     getPlayerData,
     isPending 
@@ -99,11 +100,8 @@ const Rank: React.FC = () => {
 
   // 处理挑战
   const handleChallenge = async (targetRank: number) => {
-    
-
     if (playerGold < challengeCost) {
       showToast('金币不足！挑战需要200Gold', 'error');
-      // alert(`金币不足！挑战需要 ${challengeCost} 金币，你当前只有 ${playerGold} 金币。`);
       return;
     }
     
@@ -115,13 +113,18 @@ const Rank: React.FC = () => {
     
     try {
       setChallengeTarget(targetRank);
-      await fight(currentPlayerId, targetRank);
+      const battleId = await fight(currentPlayerId, targetRank);
       
-      // 挑战完成后重新加载数据
-      setTimeout(() => {
-        loadRankData();
-        setChallengeTarget(null);
-      }, 2000);
+      if (battleId) {
+        // 获取目标玩家信息
+        const targetPlayer = topRanks.find(rank => rank.rankIndex === targetRank);
+        const targetPlayerName = targetPlayer?.playerName || `排名${targetRank}`;
+        
+        // 导航到战斗页面
+        navigate(`/battle/${battleId}?type=rank&fighter1Name=${encodeURIComponent(player.name)}&fighter2Name=${encodeURIComponent(targetPlayerName)}&fighter1Id=${player.id}&fighter2Id=${targetPlayer?.playerId || 0}`);
+      }
+      
+      setChallengeTarget(null);
     } catch (error) {
       console.error('Challenge failed:', error);
       setChallengeTarget(null);
