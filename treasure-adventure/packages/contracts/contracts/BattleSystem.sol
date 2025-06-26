@@ -17,6 +17,43 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     
     // 体力配置
     uint32 public constant STAMINA_RECOVERY_INTERVAL = 30; // 30 seconds
+    uint8 public constant STAMINA_COST_PER_BATTLE = 1;
+    
+    // 冒险等级配置
+    uint16 public constant MIN_ADVENTURE_LEVEL = 1;
+    uint16 public constant MAX_ADVENTURE_LEVEL = 1000;
+    uint8 public constant MIN_MONSTER_LEVEL = 1;
+    uint8 public constant MAX_MONSTER_LEVEL = 10;
+    
+    // 经验配置
+    uint16 public constant BASE_EXPERIENCE_REWARD = 20;
+    uint16 public constant EXPERIENCE_PER_MONSTER_LEVEL = 10;
+    uint16 public constant EXPERIENCE_PER_ADVENTURE_LEVEL = 5;
+    
+    // 怪物配置
+    uint16 public constant MONSTER_BASE_DEFENSE = 10;
+    uint16 public constant MONSTER_DEFENSE_PER_LEVEL = 5;
+    uint16 public constant DEFENSE_LEVEL_BONUS_THRESHOLD = 1000;
+    uint16 public constant DEFENSE_LEVEL_BONUS_MULTIPLIER = 20;
+    uint8 public constant DEFENSE_REDUCTION_DIVISOR = 2; // 减弱一倍
+    
+    // 森林进度配置
+    uint16 public constant FOREST_PROGRESS_REQUIREMENT = 10;
+    
+    // 宝箱等级配置
+    uint8 public constant TREASURE_BOX_LEVEL_DIVISOR = 3;
+    uint8 public constant TREASURE_BOX_UPGRADE_CHANCE = 10; // 10%
+    uint8 public constant TREASURE_BOX_RANDOM_RANGE = 100;
+    uint8 public constant MAX_TREASURE_BOX_LEVEL = 10;
+    uint8 public constant PLAYER_LEVEL_ADVANTAGE_THRESHOLD = 5;
+    
+    // 胜率计算配置
+    uint8 public constant WIN_RATE_MULTIPLIER = 100;
+    uint8 public constant DOUBLE_ATTACK_WIN_RATE = 100;
+    uint8 public constant MIN_WIN_RATE = 0;
+    
+    // 阵列大小配置
+    uint8 public constant MONSTER_TYPES_COUNT = 10;
     
     // 战斗统计
     mapping(uint256 => uint32) public totalBattles;      // playerId => 总战斗次数
@@ -57,21 +94,21 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function startAdventure(uint256 playerId, uint16 adventureLevel,uint8 monsterLevel) external {
         require(playerNFT.ownerOf(playerId) == msg.sender, "Not your player");
-        require(adventureLevel >= 1 && adventureLevel <= 1000, "Invalid adventure level");
-        require(monsterLevel >= 1 && monsterLevel <= 10, "Invalid monster level");
+        require(adventureLevel >= MIN_ADVENTURE_LEVEL && adventureLevel <= MAX_ADVENTURE_LEVEL, "Invalid adventure level");
+        require(monsterLevel >= MIN_MONSTER_LEVEL && monsterLevel <= MAX_MONSTER_LEVEL, "Invalid monster level");
         
         // 检查层级解锁逻辑：第1层总是解锁的，其他层需要前一层通关
-        if (adventureLevel > 1) {
+        if (adventureLevel > MIN_ADVENTURE_LEVEL) {
             require(adventureLevel <= maxAdventureLevel[playerId] + 1, "Adventure level not unlocked");
         }
         
         // 检查怪物等级解锁逻辑：必须按顺序击败怪物
-        if (monsterLevel > 1) {
+        if (monsterLevel > MIN_MONSTER_LEVEL) {
             require(monsterKillCount[playerId][adventureLevel][monsterLevel - 1] > 0, "Previous monster not defeated");
         }
         
         // 消耗体力 (每层消耗1点体力)
-        uint8 staminaCost = 1;
+        uint8 staminaCost = STAMINA_COST_PER_BATTLE;
         require(_canBattle(playerId, staminaCost), "Cannot battle - insufficient stamina");
         
         // 消耗体力
@@ -97,7 +134,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             }
             
             // 经验获得 (基于怪物等级和层级)
-            uint16 experienceGained = uint16(monsterLevel * 10 + adventureLevel * 5 + 20);
+            uint16 experienceGained = uint16(monsterLevel * EXPERIENCE_PER_MONSTER_LEVEL + adventureLevel * EXPERIENCE_PER_ADVENTURE_LEVEL + BASE_EXPERIENCE_REWARD);
             playerNFT.addExperience(playerId, experienceGained);
             
             // 检查是否解锁下一层 (需要在当前层杀死10个不同等级的怪物)
@@ -131,12 +168,12 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     function _checkLevelUnlock(uint256 playerId, uint16 adventureLevel) internal view returns (bool) {
         // 检查是否已经杀死了10个不同等级的怪物
         uint8 killedMonsterTypes = 0;
-        for (uint8 i = 1; i <= 10; i++) {
+        for (uint8 i = MIN_MONSTER_LEVEL; i <= MAX_MONSTER_LEVEL; i++) {
             if (monsterKillCount[playerId][adventureLevel][i] > 0) {
                 killedMonsterTypes++;
             }
         }
-        return killedMonsterTypes >= 10;
+        return killedMonsterTypes >= MONSTER_TYPES_COUNT;
     }
     
     /**
@@ -150,12 +187,12 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         (uint16 playerAttack, uint16 playerDefense, , , ) = playerNFT.getPlayerTotalStats(playerId);
         
         // 获取当前冒险层级
-        uint16 currentAdventure = maxAdventureLevel[playerId] == 0 ? 1 : maxAdventureLevel[playerId];
+        uint16 currentAdventure = maxAdventureLevel[playerId] == 0 ? MIN_ADVENTURE_LEVEL : maxAdventureLevel[playerId];
         
         // 计算怪物属性 (基于层级和怪物等级)
-        uint16 baseDefense = uint16(monsterLevel * 5 + 10);
-        uint16 levelBonus = uint16(currentAdventure > 1000 ? ((currentAdventure - 1) / 1000 + 1) * 20 : 0);
-        uint16 monsterDefense = (baseDefense + levelBonus) / 2; // 减弱一倍
+        uint16 baseDefense = uint16(monsterLevel * MONSTER_DEFENSE_PER_LEVEL + MONSTER_BASE_DEFENSE);
+        uint16 levelBonus = uint16(currentAdventure > DEFENSE_LEVEL_BONUS_THRESHOLD ? ((currentAdventure - 1) / DEFENSE_LEVEL_BONUS_THRESHOLD + 1) * DEFENSE_LEVEL_BONUS_MULTIPLIER : 0);
+        uint16 monsterDefense = (baseDefense + levelBonus) / DEFENSE_REDUCTION_DIVISOR; // 减弱一倍
         
         // 战斗判定：随机值(0到玩家攻击力) vs 怪物防御力
         uint256 randomAttack = _generateRandom(playerId, monsterLevel) % (playerAttack + 1);
@@ -203,7 +240,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         // 简化的森林进度逻辑 - 每10次胜利进入下一层
         uint16 newProgress = player.currentForestProgress + 1;
         
-        if (newProgress >= 10) {
+        if (newProgress >= FOREST_PROGRESS_REQUIREMENT) {
             // 进入下一层森林
             // 这里需要Player合约提供更新森林进度的函数
             // 暂时跳过，因为Player合约没有这个功能
@@ -219,20 +256,20 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function _calculateBattleBoxLevel(uint8 monsterLevel, uint16 playerLevel, uint256 playerId) internal view returns (uint8) {
         // 基础宝箱等级基于怪物等级
-        uint8 baseLevel = (monsterLevel + 2) / 3; // 怪物等级1-3给1级宝箱，4-6给2级宝箱...
+        uint8 baseLevel = (monsterLevel + 2) / TREASURE_BOX_LEVEL_DIVISOR; // 怪物等级1-3给1级宝箱，4-6给2级宝箱...
         
         // 如果玩家等级比怪物高很多，降低宝箱等级
-        if (playerLevel > monsterLevel + 5) {
-            baseLevel = baseLevel > 1 ? baseLevel - 1 : 1;
+        if (playerLevel > monsterLevel + PLAYER_LEVEL_ADVANTAGE_THRESHOLD) {
+            baseLevel = baseLevel > MIN_MONSTER_LEVEL ? baseLevel - 1 : MIN_MONSTER_LEVEL;
         }
         
         // 小概率提升宝箱等级
-        uint256 random = uint256(keccak256(abi.encodePacked(block.timestamp, playerId, monsterLevel))) % 100;
-        if (random < 10 && baseLevel < 10) { // 10%概率提升一级
+        uint256 random = uint256(keccak256(abi.encodePacked(block.timestamp, playerId, monsterLevel))) % TREASURE_BOX_RANDOM_RANGE;
+        if (random < TREASURE_BOX_UPGRADE_CHANCE && baseLevel < MAX_TREASURE_BOX_LEVEL) { // 10%概率提升一级
             baseLevel++;
         }
         
-        return baseLevel > 10 ? 10 : baseLevel;
+        return baseLevel > MAX_TREASURE_BOX_LEVEL ? MAX_TREASURE_BOX_LEVEL : baseLevel;
     }
     
     /**
@@ -246,7 +283,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     ) {
         totalBattlesCount = totalBattles[playerId];
         totalVictoriesCount = totalVictories[playerId];
-        winRate = totalBattlesCount > 0 ? uint8((totalVictoriesCount * 100) / totalBattlesCount) : 0;
+        winRate = totalBattlesCount > 0 ? uint8((totalVictoriesCount * WIN_RATE_MULTIPLIER) / totalBattlesCount) : MIN_WIN_RATE;
         lastBattle = lastBattleTime[playerId];
     }
     
@@ -261,7 +298,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      * @dev 获取玩家最大冒险层数
      */
     function getMaxAdventureLevel(uint256 playerId) external view returns (uint16) {
-        return maxAdventureLevel[playerId] == 0 ? 1 : maxAdventureLevel[playerId];
+        return maxAdventureLevel[playerId] == 0 ? MIN_ADVENTURE_LEVEL : maxAdventureLevel[playerId];
     }
     
     /**
@@ -270,9 +307,9 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      * @return defense 怪物防御力
      */
     function getMonsterStats(uint16 adventureLevel, uint8 monsterLevel) external pure returns (uint16 defense) {
-        uint16 baseDefense = uint16(monsterLevel * 5 + 10);
-        uint16 levelBonus = uint16(adventureLevel > 1000 ? ((adventureLevel - 1) / 1000 + 1) * 20 : 0);
-        defense = (baseDefense + levelBonus) / 2; // 减弱一倍
+        uint16 baseDefense = uint16(monsterLevel * MONSTER_DEFENSE_PER_LEVEL + MONSTER_BASE_DEFENSE);
+        uint16 levelBonus = uint16(adventureLevel > DEFENSE_LEVEL_BONUS_THRESHOLD ? ((adventureLevel - 1) / DEFENSE_LEVEL_BONUS_THRESHOLD + 1) * DEFENSE_LEVEL_BONUS_MULTIPLIER : 0);
+        defense = (baseDefense + levelBonus) / DEFENSE_REDUCTION_DIVISOR; // 减弱一倍
     }
     
     /**
@@ -283,17 +320,17 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function estimateWinRate(uint256 playerId, uint16 adventureLevel, uint8 monsterLevel) external view returns (uint8) {
         (uint16 playerAttack, , , , ) = playerNFT.getPlayerTotalStats(playerId);
-        uint16 baseDefense = uint16(monsterLevel * 5 + 10);
-        uint16 levelBonus = uint16(adventureLevel > 1000 ? ((adventureLevel - 1) / 1000 + 1) * 20 : 0);
-        uint16 monsterDefense = (baseDefense + levelBonus) / 2; // 减弱一倍
+        uint16 baseDefense = uint16(monsterLevel * MONSTER_DEFENSE_PER_LEVEL + MONSTER_BASE_DEFENSE);
+        uint16 levelBonus = uint16(adventureLevel > DEFENSE_LEVEL_BONUS_THRESHOLD ? ((adventureLevel - 1) / DEFENSE_LEVEL_BONUS_THRESHOLD + 1) * DEFENSE_LEVEL_BONUS_MULTIPLIER : 0);
+        uint16 monsterDefense = (baseDefense + levelBonus) / DEFENSE_REDUCTION_DIVISOR; // 减弱一倍
         
         if (playerAttack <= monsterDefense) {
-            return 0;
+            return MIN_WIN_RATE;
         } else if (playerAttack >= monsterDefense * 2) {
-            return 100;
+            return DOUBLE_ATTACK_WIN_RATE;
         } else {
             // 简化的胜率计算
-            return uint8(((playerAttack - monsterDefense) * 100) / playerAttack);
+            return uint8(((playerAttack - monsterDefense) * WIN_RATE_MULTIPLIER) / playerAttack);
         }
     }
     
@@ -332,7 +369,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function getKilledMonsterTypes(uint256 playerId, uint16 adventureLevel) external view returns (uint8) {
         uint8 killedTypes = 0;
-        for (uint8 i = 1; i <= 10; i++) {
+        for (uint8 i = MIN_MONSTER_LEVEL; i <= MAX_MONSTER_LEVEL; i++) {
             if (monsterKillCount[playerId][adventureLevel][i] > 0) {
                 killedTypes++;
             }
@@ -352,7 +389,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function getLevelMonsterKills(uint256 playerId, uint16 adventureLevel) external view returns (uint16[10] memory) {
         uint16[10] memory kills;
-        for (uint8 i = 0; i < 10; i++) {
+        for (uint8 i = 0; i < MONSTER_TYPES_COUNT; i++) {
             kills[i] = monsterKillCount[playerId][adventureLevel][i + 1];
         }
         return kills;
@@ -362,7 +399,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      * @dev 获取玩家当前层级和最高怪物等级
      */
     function getPlayerProgress(uint256 playerId) external view returns (uint16 currentLevel, uint8 maxMonster) {
-        currentLevel = maxAdventureLevel[playerId] == 0 ? 1 : maxAdventureLevel[playerId];
+        currentLevel = maxAdventureLevel[playerId] == 0 ? MIN_ADVENTURE_LEVEL : maxAdventureLevel[playerId];
         maxMonster = maxMonsterLevel[playerId][currentLevel];
     }
     

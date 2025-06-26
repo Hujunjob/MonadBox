@@ -81,6 +81,59 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     uint16 public constant DEFENSE_PER_LEVEL = 1;
     uint16 public constant AGILITY_PER_LEVEL = 1;
     
+    // 装备槽位数量
+    uint8 public constant TOTAL_EQUIPMENT_SLOTS = 8;
+    
+    // 玩家名称长度限制
+    uint8 public constant MIN_NAME_LENGTH = 2;
+    uint8 public constant MAX_NAME_LENGTH = 20;
+    
+    // 初始值
+    uint256 public constant INITIAL_TOKEN_ID = 1;
+    uint16 public constant INITIAL_LEVEL = 1;
+    uint32 public constant INITIAL_EXPERIENCE = 0;
+    uint16 public constant INITIAL_FOREST_LEVEL = 1;
+    uint16 public constant INITIAL_FOREST_PROGRESS = 0;
+    uint256 public constant INITIAL_GOLD_BALANCE = 0;
+    
+    // 装备类型常量
+    uint8 public constant EQUIPMENT_TYPE_ARMOR = 1;
+    uint8 public constant EQUIPMENT_TYPE_SHOES = 2;
+    uint8 public constant EQUIPMENT_TYPE_WEAPON = 3;
+    uint8 public constant EQUIPMENT_TYPE_SHIELD = 4;
+    uint8 public constant EQUIPMENT_TYPE_ACCESSORY = 5;
+    uint8 public constant EQUIPMENT_TYPE_RING = 6;
+    uint8 public constant EQUIPMENT_TYPE_PET = 7;
+    
+    // 装备槽位常量
+    uint8 public constant SLOT_ARMOR = 1;
+    uint8 public constant SLOT_SHOES = 2;
+    uint8 public constant SLOT_WEAPON = 3;
+    uint8 public constant SLOT_SHIELD = 4;
+    uint8 public constant SLOT_ACCESSORY = 5;
+    uint8 public constant SLOT_RING = 6;
+    uint8 public constant SLOT_PET = 7;
+    
+    // 体力相关
+    uint8 public constant STAMINA_GAIN_PER_10_LEVELS = 2;
+    uint8 public constant STAMINA_LEVEL_INTERVAL = 10;
+    uint8 public constant MAX_POSSIBLE_STAMINA = 50;
+    
+    // 物品ID范围
+    uint256 public constant HEALTH_POTION_START_ID = 1000;
+    uint256 public constant HEALTH_POTION_END_ID = 2000;
+    uint256 public constant JOB_BOOK_START_ID = 2000;
+    uint256 public constant JOB_BOOK_END_ID = 3000;
+    uint256 public constant PET_EGG_START_ID = 3000;
+    uint256 public constant PET_EGG_END_ID = 4000;
+    uint256 public constant ITEM_SEARCH_END_ID = 4000;
+    
+    // 血瓶治疗相关
+    uint256 public constant BASE_HEAL_AMOUNT = 50;
+    uint256 public constant HEAL_AMOUNT_PER_LEVEL = 25;
+    uint8 public constant MAX_POTION_LEVEL = 10;
+    uint256 public constant POTION_CONSUME_AMOUNT = 1;
+    
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
     
@@ -116,16 +169,16 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         equipmentNFT = Equipment(_equipmentNFT);
         goldToken = AdventureGold(_goldToken);
         itemNFT = Item(_itemNFT);
-        _nextTokenId = 1;
+        _nextTokenId = INITIAL_TOKEN_ID;
         
         // 设置装备类型到槽位的映射
-        equipmentTypeToSlot[1] = 1; // armor  
-        equipmentTypeToSlot[2] = 2; // shoes
-        equipmentTypeToSlot[3] = 3; // weapon
-        equipmentTypeToSlot[4] = 4; // shield
-        equipmentTypeToSlot[5] = 5; // accessory
-        equipmentTypeToSlot[6] = 6; // ring
-        equipmentTypeToSlot[7] = 7; // pet
+        equipmentTypeToSlot[EQUIPMENT_TYPE_ARMOR] = SLOT_ARMOR; // armor  
+        equipmentTypeToSlot[EQUIPMENT_TYPE_SHOES] = SLOT_SHOES; // shoes
+        equipmentTypeToSlot[EQUIPMENT_TYPE_WEAPON] = SLOT_WEAPON; // weapon
+        equipmentTypeToSlot[EQUIPMENT_TYPE_SHIELD] = SLOT_SHIELD; // shield
+        equipmentTypeToSlot[EQUIPMENT_TYPE_ACCESSORY] = SLOT_ACCESSORY; // accessory
+        equipmentTypeToSlot[EQUIPMENT_TYPE_RING] = SLOT_RING; // ring
+        equipmentTypeToSlot[EQUIPMENT_TYPE_PET] = SLOT_PET; // pet
         // equipmentTypeToSlot[0] = 0; // helmet
     }
     
@@ -136,7 +189,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      */
     function registerPlayer(string memory name) external returns (uint256) {
         address to = msg.sender;
-        require(bytes(name).length >= 2 && bytes(name).length <= 20, "Invalid name length");
+        require(bytes(name).length >= MIN_NAME_LENGTH && bytes(name).length <= MAX_NAME_LENGTH, "Invalid name length");
         require(balanceOf(to) == 0, "Player already exists"); // 每个地址只能有一个 Player NFT
         
         uint256 playerId = _nextTokenId++;
@@ -145,8 +198,8 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         // 初始化玩家数据
         players[playerId] = PlayerData({
             name: name,
-            level: 1,
-            experience: 0,
+            level: INITIAL_LEVEL,
+            experience: INITIAL_EXPERIENCE,
             health: INITIAL_HEALTH,
             maxHealth: INITIAL_HEALTH,
             attack: INITIAL_ATTACK,
@@ -157,10 +210,10 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
             stamina: MAX_STAMINA,
             maxStamina: MAX_STAMINA,
             lastStaminaTime: uint32(block.timestamp),
-            currentForestLevel: 1,
-            currentForestProgress: 0,
+            currentForestLevel: INITIAL_FOREST_LEVEL,
+            currentForestProgress: INITIAL_FOREST_PROGRESS,
             lastTreasureBoxTime: (block.timestamp),
-            goldBalance: 0,
+            goldBalance: INITIAL_GOLD_BALANCE,
             inventory: new uint256[](0)
         });
         
@@ -201,7 +254,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      */
     function unequipItem(uint256 playerId, uint8 slot) external {
         require(ownerOf(playerId) == msg.sender, "Not your player");
-        require(slot < 8, "Invalid slot");
+        require(slot < TOTAL_EQUIPMENT_SLOTS, "Invalid slot");
         require(equippedItems[playerId][slot] != 0, "No equipment in this slot");
         
         _unequipItem(playerId, slot);
@@ -265,9 +318,9 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
             player.agility += AGILITY_PER_LEVEL;
             
             // 每10级增加最大体力
-            if (player.level % 10 == 0 && player.maxStamina < 50) {
-                player.maxStamina += 2;
-                player.stamina += 2;
+            if (player.level % STAMINA_LEVEL_INTERVAL == 0 && player.maxStamina < MAX_POSSIBLE_STAMINA) {
+                player.maxStamina += STAMINA_GAIN_PER_10_LEVELS;
+                player.stamina += STAMINA_GAIN_PER_10_LEVELS;
             }
             
             expNeeded = player.level * BASE_EXP_PER_LEVEL;
@@ -346,7 +399,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      */
     function getEquippedItems(uint256 playerId) external view returns (uint256[8] memory) {
         uint256[8] memory equipped;
-        for (uint8 i = 0; i < 8; i++) {
+        for (uint8 i = 0; i < TOTAL_EQUIPMENT_SLOTS; i++) {
             equipped[i] = equippedItems[playerId][i];
         }
         return equipped;
@@ -372,7 +425,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         totalCritDamage = player.criticalDamage;
         
         // 计算装备加成
-        for (uint8 slot = 0; slot < 8; slot++) {
+        for (uint8 slot = 0; slot < TOTAL_EQUIPMENT_SLOTS; slot++) {
             uint256 equipmentId = equippedItems[playerId][slot];
             if (equipmentId != 0) {
                 Equipment.EquipmentData memory equipData = equipmentNFT.getEquipment(equipmentId);
@@ -627,7 +680,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         
         // 检查所有可能的item ID范围
         // 血瓶: 1000-1999, 转职书: 2000-2999, 宠物蛋: 3000-3999
-        for (uint256 i = 1000; i < 4000; i++) {
+        for (uint256 i = HEALTH_POTION_START_ID; i < ITEM_SEARCH_END_ID; i++) {
             if (playerItems[playerId][i] > 0) {
                 count++;
             }
@@ -639,7 +692,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         
         // 填充结果数组
         uint256 index = 0;
-        for (uint256 i = 1000; i < 4000; i++) {
+        for (uint256 i = HEALTH_POTION_START_ID; i < ITEM_SEARCH_END_ID; i++) {
             if (playerItems[playerId][i] > 0) {
                 itemIds[index] = i;
                 quantities[index] = playerItems[playerId][i];
@@ -654,7 +707,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     function useHealthPotion(uint256 playerId, uint256 itemId) external {
         require(ownerOf(playerId) == msg.sender, "Not your player");
         require(playerItems[playerId][itemId] > 0, "No health potion");
-        require(itemId >= 1000 && itemId < 2000, "Not a health potion");
+        require(itemId >= HEALTH_POTION_START_ID && itemId < HEALTH_POTION_END_ID, "Not a health potion");
         
         PlayerData storage player = players[playerId];
         require(player.maxHealth>0, "Player not exists");
@@ -671,8 +724,8 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         player.health = newHealth;
         
         // 消耗血瓶
-        playerItems[playerId][itemId] -= 1;
-        emit ItemUsed(playerId, itemId, 1);
+        playerItems[playerId][itemId] -= POTION_CONSUME_AMOUNT;
+        emit ItemUsed(playerId, itemId, POTION_CONSUME_AMOUNT);
     }
     
     /**
@@ -681,10 +734,10 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     function _calculateHealAmount(uint256 itemId) internal pure returns (uint256) {
         // 根据itemId计算等级，然后计算治疗量
         // 假设itemId为1000+level的格式
-        uint256 level = (itemId - 1000) + 1;
-        if (level > 10) level = 10; // 最大等级10
+        uint256 level = (itemId - HEALTH_POTION_START_ID) + 1;
+        if (level > MAX_POTION_LEVEL) level = MAX_POTION_LEVEL; // 最大等级10
         
-        return 50 + (level - 1) * 25; // 基础50 + (level-1)*25
+        return BASE_HEAL_AMOUNT + (level - 1) * HEAL_AMOUNT_PER_LEVEL; // 基础50 + (level-1)*25
     }
 
     /**

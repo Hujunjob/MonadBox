@@ -92,9 +92,9 @@ contract Equipment is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradea
         uint16 criticalDamage
     ) external onlyAuthorizedOrOwner returns (uint256) {
         console.log("mintEquipment");
-        require(equipmentType < 8, "Invalid equipment type");
-        require(rarity < 5, "Invalid rarity");
-        require(stars <= 5, "Invalid stars");
+        // require(equipmentType < 8, "Invalid equipment type");
+        // require(rarity < 5, "Invalid rarity");
+        // require(stars <= 5, "Invalid stars");
 
         _tokenIds++;
         uint256 newTokenId = _tokenIds;

@@ -23,6 +23,97 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     // 宝箱配置
     uint256 public constant TREASURE_BOX_INTERVAL = 10; // 10 seconds
     uint256 public constant MAX_OFFLINE_BOXES = 100;
+    
+    // 宝箱等级配置
+    uint8 public constant MIN_BOX_LEVEL = 1;
+    uint8 public constant MAX_BOX_LEVEL = 10;
+    
+    // 奖励类型配置
+    uint8 public constant REWARD_TYPE_GOLD = 0;
+    uint8 public constant REWARD_TYPE_EQUIPMENT = 1;
+    uint8 public constant REWARD_TYPE_HEALTH_POTION = 2;
+    uint8 public constant REWARD_TYPE_PET_EGG = 3;
+    uint8 public constant REWARD_TYPE_JOB_BOOK = 4;
+    
+    // 稀有度配置
+    uint8 public constant RARITY_COMMON = 0;
+    uint8 public constant RARITY_UNCOMMON = 1;
+    uint8 public constant RARITY_RARE = 2;
+    uint8 public constant RARITY_EPIC = 3;
+    uint8 public constant RARITY_LEGENDARY = 4;
+    
+    // 装备类型配置
+    uint8 public constant EQUIPMENT_TYPE_HELMET = 0;
+    uint8 public constant EQUIPMENT_TYPE_ARMOR_T = 1;
+    uint8 public constant EQUIPMENT_TYPE_SHOES_T = 2;
+    uint8 public constant EQUIPMENT_TYPE_WEAPON_T = 3;
+    uint8 public constant EQUIPMENT_TYPE_SHIELD_T = 4;
+    uint8 public constant EQUIPMENT_TYPE_ACCESSORY_T = 5;
+    uint8 public constant EQUIPMENT_TYPE_RING_T = 6;
+    uint8 public constant EQUIPMENT_TYPE_PET_T = 7;
+    uint8 public constant MAX_EQUIPMENT_TYPES = 7;
+    
+    // 物品ID范围配置
+    uint256 public constant HEALTH_POTION_BASE_ID = 1000;
+    uint256 public constant JOB_BOOK_BASE_ID = 2000;
+    uint256 public constant PET_EGG_BASE_ID = 3000;
+    
+    // 职业类型配置
+    uint8 public constant JOB_GREAT_SWORDSMAN = 1;
+    uint8 public constant JOB_TEMPLE_KNIGHT = 2;
+    uint8 public constant JOB_DRAGON_KNIGHT = 3;
+    uint8 public constant JOB_SWORD_MASTER = 4;
+    uint8 public constant JOB_SWORD_GOD = 5;
+    uint8 public constant JOB_PLANE_LORD = 6;
+    
+    // 金币奖励配置
+    uint256 public constant BASE_GOLD_AMOUNT = 50;
+    uint256 public constant GOLD_PER_LEVEL = 25;
+    uint256 public constant GOLD_RANDOM_BONUS_RANGE = 50;
+    
+    // 稀有度倍数配置
+    uint16 public constant RARITY_MULTIPLIER_COMMON = 100; // 1x
+    uint16 public constant RARITY_MULTIPLIER_UNCOMMON = 150; // 1.5x
+    uint16 public constant RARITY_MULTIPLIER_RARE = 200; // 2x
+    uint16 public constant RARITY_MULTIPLIER_EPIC = 300; // 3x
+    uint16 public constant RARITY_MULTIPLIER_LEGENDARY = 500; // 5x
+    
+    // 装备属性基础值配置
+    uint16 public constant WEAPON_BASE_ATTACK = 5;
+    uint16 public constant WEAPON_ATTACK_PER_LEVEL = 2;
+    uint8 public constant WEAPON_BASE_CRIT_RATE = 1;
+    uint8 public constant WEAPON_CRIT_RATE_LEVEL_DIVISOR = 2;
+    uint16 public constant WEAPON_BASE_CRIT_DAMAGE = 5;
+    uint16 public constant WEAPON_CRIT_DAMAGE_PER_LEVEL = 2;
+    
+    uint16 public constant DEFENSE_BASE_VALUE = 3;
+    uint16 public constant DEFENSE_PER_LEVEL = 1;
+    uint16 public constant HEALTH_BASE_VALUE = 10;
+    uint16 public constant HEALTH_PER_LEVEL = 3;
+    
+    uint16 public constant AGILITY_BASE_VALUE = 2;
+    uint16 public constant AGILITY_PER_LEVEL = 1;
+    
+    // 概率计算相关
+    uint16 public constant RANDOM_RANGE_1000 = 1000;
+    uint16 public constant RANDOM_RANGE_100 = 100;
+    
+    // 宝箱稀有度概率配置 (低级宝箱)
+    uint16 public constant LOW_BOX_COMMON_RATE = 800; // 80%
+    uint16 public constant MID_BOX_COMMON_RATE = 500; // 50%
+    uint16 public constant MID_BOX_UNCOMMON_THRESHOLD = 850; // 85%
+    uint16 public constant HIGH_BOX_COMMON_RATE = 300; // 30%
+    uint16 public constant HIGH_BOX_UNCOMMON_THRESHOLD = 700; // 70%
+    uint16 public constant HIGH_BOX_RARE_THRESHOLD = 950; // 95%
+    uint16 public constant TOP_BOX_COMMON_RATE = 200; // 20%
+    uint16 public constant TOP_BOX_UNCOMMON_THRESHOLD = 500; // 50%
+    uint16 public constant TOP_BOX_RARE_THRESHOLD = 800; // 80%
+    uint16 public constant TOP_BOX_EPIC_THRESHOLD = 950; // 95%
+    
+    // 宝箱等级阈值
+    uint8 public constant LOW_BOX_MAX_LEVEL = 2;
+    uint8 public constant MID_BOX_MAX_LEVEL = 5;
+    uint8 public constant HIGH_BOX_MAX_LEVEL = 8;
 
     struct TreasureBox {
         uint32 level; // 宝箱等级 (1-10)
