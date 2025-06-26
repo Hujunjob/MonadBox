@@ -37,6 +37,7 @@ function filterABI(abi, contractName) {
       'getPlayerItemQuantity', 'getPlayerItems', 'useHealthPotion', 'useItem', 'transferItemToMarket'
     ],
     BattleSystem: ['completeBattle', 'startAdventure', 'getBattleStats', 'canBattle', 'getMaxAdventureLevel', 'getMonsterStats', 'estimateWinRate'],
+    FightSystem: ['startBattle', 'getBattleResult', 'getBattleLog'],
     AdventureGold: ['balanceOf'],
     TreasureBoxSystem: ['claimOfflineTreasureBoxes', 'openTreasureBox', 'getPlayerTreasureBoxCount', 'getClaimableOfflineBoxes', 'getPlayerTreasureBoxes'],
     EquipmentSystem: ['upgradeStars', 'enhanceEquipment'],
@@ -68,7 +69,7 @@ function filterABI(abi, contractName) {
  * 生成完整的前端contracts文件内容
  */
 function generateContractsFile(addresses) {
-  const contracts = ['Player', 'BattleSystem', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market', 'Rank', 'SuperMarket'];
+  const contracts = ['Player', 'FightSystem', 'BattleSystem', 'AdventureGold', 'TreasureBoxSystem', 'EquipmentSystem', 'Equipment', 'Item', 'Market', 'Rank', 'SuperMarket'];
   
   let content = `// 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
@@ -78,6 +79,7 @@ export const CONTRACT_ADDRESSES = {
   ITEM_NFT: '${addresses.ITEM_NFT}' as \`0x\${string}\`,
   GOLD_TOKEN: '${addresses.GOLD_TOKEN}' as \`0x\${string}\`,
   TREASURE_BOX_SYSTEM: '${addresses.TREASURE_BOX_SYSTEM}' as \`0x\${string}\`,
+  FIGHT_SYSTEM: '${addresses.FIGHT_SYSTEM}' as \`0x\${string}\`,
   BATTLE_SYSTEM: '${addresses.BATTLE_SYSTEM}' as \`0x\${string}\`,
   EQUIPMENT_SYSTEM: '${addresses.EQUIPMENT_SYSTEM}' as \`0x\${string}\`,
   MARKET: '${addresses.MARKET}' as \`0x\${string}\`,
@@ -96,7 +98,8 @@ export const CONTRACT_ADDRESSES = {
     const filteredABI = filterABI(abi, contractName);
     
     if (filteredABI.length > 0) {
-      const abiName = contractName === 'BattleSystem' ? 'BATTLE_SYSTEM_ABI' :
+      const abiName = contractName === 'FightSystem' ? 'FIGHT_SYSTEM_ABI' :
+                     contractName === 'BattleSystem' ? 'BATTLE_SYSTEM_ABI' :
                      contractName === 'AdventureGold' ? 'GOLD_TOKEN_ABI' :
                      contractName === 'TreasureBoxSystem' ? 'TREASURE_BOX_SYSTEM_ABI' :
                      contractName === 'EquipmentSystem' ? 'EQUIPMENT_SYSTEM_ABI' :
@@ -129,6 +132,7 @@ function syncContractsToFrontend(deploymentInfo) {
       ITEM_NFT: deploymentInfo.itemNFT,
       GOLD_TOKEN: deploymentInfo.goldToken,
       TREASURE_BOX_SYSTEM: deploymentInfo.treasureBoxSystem,
+      FIGHT_SYSTEM: deploymentInfo.fightSystem,
       BATTLE_SYSTEM: deploymentInfo.battleSystem,
       EQUIPMENT_SYSTEM: deploymentInfo.equipmentSystem,
       MARKET: deploymentInfo.market,
@@ -228,12 +232,28 @@ async function main() {
   const treasureBoxSystemAddress = await treasureBoxSystem.getAddress();
   console.log("✅ TreasureBoxSystem deployed to:", treasureBoxSystemAddress);
 
-  // 6. 部署 BattleSystem (upgradeable)
-  console.log("\n6️⃣ Deploying BattleSystem...");
+  // 6. 部署 FightSystem (upgradeable)
+  console.log("\n6️⃣ Deploying FightSystem...");
+  const FightSystem = await hre.ethers.getContractFactory("FightSystem");
+  const fightSystem = await upgrades.deployProxy(FightSystem, [
+    playerNFTAddress,
+    itemNFTAddress,
+    deployer.address
+  ], {
+    initializer: 'initialize',
+    kind: 'uups'
+  });
+  await fightSystem.waitForDeployment();
+  const fightSystemAddress = await fightSystem.getAddress();
+  console.log("✅ FightSystem deployed to:", fightSystemAddress);
+
+  // 7. 部署 BattleSystem (upgradeable)
+  console.log("\n7️⃣ Deploying BattleSystem...");
   const BattleSystem = await hre.ethers.getContractFactory("BattleSystem");
   const battleSystem = await upgrades.deployProxy(BattleSystem, [
     playerNFTAddress,
     treasureBoxSystemAddress,
+    fightSystemAddress,
     deployer.address
   ], {
     initializer: 'initialize',
@@ -243,8 +263,8 @@ async function main() {
   const battleSystemAddress = await battleSystem.getAddress();
   console.log("✅ BattleSystem deployed to:", battleSystemAddress);
 
-  // 7. 部署 EquipmentSystem (upgradeable)
-  console.log("\n7️⃣ Deploying EquipmentSystem...");
+  // 8. 部署 EquipmentSystem (upgradeable)
+  console.log("\n8️⃣ Deploying EquipmentSystem...");
   const EquipmentSystem = await hre.ethers.getContractFactory("EquipmentSystem");
   const equipmentSystem = await upgrades.deployProxy(EquipmentSystem, [
     equipmentNFTAddress,
@@ -259,8 +279,8 @@ async function main() {
   const equipmentSystemAddress = await equipmentSystem.getAddress();
   console.log("✅ EquipmentSystem deployed to:", equipmentSystemAddress);
 
-  // 8. 部署 Market (upgradeable)
-  console.log("\n8️⃣ Deploying Market...");
+  // 9. 部署 Market (upgradeable)
+  console.log("\n9️⃣ Deploying Market...");
   const Market = await hre.ethers.getContractFactory("Market");
   const market = await upgrades.deployProxy(Market, [
     playerNFTAddress,
@@ -276,12 +296,13 @@ async function main() {
   const marketAddress = await market.getAddress();
   console.log("✅ Market deployed to:", marketAddress);
 
-  // 9. 部署 Rank (upgradeable)
-  console.log("\n9️⃣ Deploying Rank...");
+  // 10. 部署 Rank (upgradeable)
+  console.log("\n🔟 Deploying Rank...");
   const Rank = await hre.ethers.getContractFactory("Rank");
   const rank = await upgrades.deployProxy(Rank, [
     playerNFTAddress,
     goldTokenAddress,
+    fightSystemAddress,
     deployer.address
   ], {
     initializer: 'initialize',
@@ -291,8 +312,8 @@ async function main() {
   const rankAddress = await rank.getAddress();
   console.log("✅ Rank deployed to:", rankAddress);
 
-  // 10. 部署 SuperMarket (upgradeable)
-  console.log("\n🔟 Deploying SuperMarket...");
+  // 11. 部署 SuperMarket (upgradeable)
+  console.log("\n1️⃣1️⃣ Deploying SuperMarket...");
   const SuperMarket = await hre.ethers.getContractFactory("SuperMarket");
   const superMarket = await upgrades.deployProxy(SuperMarket, [
     playerNFTAddress,
@@ -335,6 +356,10 @@ async function main() {
   await goldToken.authorizeSystem(treasureBoxSystemAddress);
   console.log("✅ TreasureBoxSystem authorized to mint gold");
   
+  // FightSystem需要调用Player合约的函数
+  await playerNFT.authorizeSystem(fightSystemAddress);
+  console.log("✅ FightSystem authorized to call Player functions");
+  
   // BattleSystem需要调用Player合约的函数
   await playerNFT.authorizeSystem(battleSystemAddress);
   console.log("✅ BattleSystem authorized to call Player functions");
@@ -342,6 +367,14 @@ async function main() {
   // BattleSystem需要调用TreasureBoxSystem的函数
   await treasureBoxSystem.authorizeSystem(battleSystemAddress);
   console.log("✅ BattleSystem authorized to call TreasureBoxSystem functions");
+  
+  // BattleSystem需要调用FightSystem
+  await fightSystem.authorizeSystem(battleSystemAddress);
+  console.log("✅ BattleSystem authorized to call FightSystem functions");
+  
+  // Rank需要调用FightSystem
+  await fightSystem.authorizeSystem(rankAddress);
+  console.log("✅ Rank authorized to call FightSystem functions");
   
   // TreasureBoxSystem需要调用Player合约的金币和装备管理函数
   await playerNFT.authorizeSystem(treasureBoxSystemAddress);
@@ -379,6 +412,7 @@ async function main() {
     itemNFT: itemNFTAddress,
     goldToken: goldTokenAddress,
     treasureBoxSystem: treasureBoxSystemAddress,
+    fightSystem: fightSystemAddress,
     battleSystem: battleSystemAddress,
     equipmentSystem: equipmentSystemAddress,
     market: marketAddress,
@@ -402,10 +436,11 @@ async function main() {
   console.log("✅ Item NFT (Upgradeable ERC1155 for potions, job books, pet eggs)");
   console.log("✅ Player NFT (Upgradeable, non-transferable, holds all player data and items)");
   console.log("✅ TreasureBoxSystem (Upgradeable, can mint gold, equipment and item rewards)");
-  console.log("✅ BattleSystem (Upgradeable, no registration, no gold rewards, reads Player NFT)");
+  console.log("✅ FightSystem (Upgradeable, turn-based combat system with potions and escape)");
+  console.log("✅ BattleSystem (Upgradeable, uses FightSystem for PvE battles)");
   console.log("✅ EquipmentSystem (Upgradeable, star upgrade, enhancement, decomposition)");
   console.log("✅ Market (Upgradeable, buy/sell equipment and items with proper transfers)");
-  console.log("✅ Rank (Upgradeable, player ranking system with challenge mechanics)");
+  console.log("✅ Rank (Upgradeable, uses FightSystem for PvP battles)");
   console.log("✅ SuperMarket (Upgradeable, buy gold with ETH)");
   console.log("\n🔮 Upgrade Features:");
   console.log("• All contracts use UUPS proxy pattern");

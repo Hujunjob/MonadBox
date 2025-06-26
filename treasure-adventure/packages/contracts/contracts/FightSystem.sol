@@ -71,7 +71,16 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     uint8 public constant FIGHTER_TYPE_PLAYER = 1;
     uint8 public constant FIGHTER_TYPE_NPC = 2;
     uint8 public constant LOW_HEALTH_THRESHOLD = 30; // 30%
-    uint8 public constant MAX_POTIONS_PER_BATTLE = 3; // 每场战斗最多使用3瓶血
+    uint8 public constant MAX_POTIONS_PER_BATTLE = 4; // 每场战斗最多使用3瓶血
+    
+    // 授权的系统合约
+    mapping(address => bool) public authorizedSystems;
+    
+    // 修饰符：只有授权的系统或owner可以调用
+    modifier onlyAuthorizedOrOwner() {
+        require(authorizedSystems[msg.sender] || msg.sender == owner(), "Not authorized");
+        _;
+    }
     
     // 事件
     // event BattleStarted(bytes32 indexed battleId, uint256 fighter1Id, uint8 fighter1Type, uint256 fighter2Id, uint8 fighter2Type);
@@ -110,18 +119,10 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint8 fighter2Type,
         uint16[7] memory fighter2Stats,
         BattleConfig memory config
-    ) external returns (bytes32 battleId) {
+    ) external onlyAuthorizedOrOwner returns (bytes32 battleId) {
         require(fighter1Type == FIGHTER_TYPE_PLAYER || fighter1Type == FIGHTER_TYPE_NPC, "Invalid fighter1 type");
         require(fighter2Type == FIGHTER_TYPE_PLAYER || fighter2Type == FIGHTER_TYPE_NPC, "Invalid fighter2 type");
         require(fighter1Stats[0] > 0 && fighter2Stats[0] > 0, "Fighters must have health");
-        
-        // 如果是玩家，验证所有权
-        if (fighter1Type == FIGHTER_TYPE_PLAYER) {
-            require(playerNFT.ownerOf(fighter1Id) == msg.sender, "Not owner of fighter1");
-        }
-        if (fighter2Type == FIGHTER_TYPE_PLAYER) {
-            require(playerNFT.ownerOf(fighter2Id) == msg.sender, "Not owner of fighter2");
-        }
         
         // 生成战斗ID
         battleId = keccak256(abi.encodePacked(block.timestamp, msg.sender, fighter1Id, fighter2Id));
@@ -165,15 +166,8 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         // 保存战斗结果
         battleResults[battleId] = result;
         
-        // 如果配置要求改变玩家血量，更新玩家实际血量
-        if (config.changePlayerHealth) {
-            if (fighter1.fighterType == FIGHTER_TYPE_PLAYER) {
-                // _updatePlayerHealth(fighter1.id, fighter1.health);
-            }
-            if (fighter2.fighterType == FIGHTER_TYPE_PLAYER) {
-                // _updatePlayerHealth(fighter2.id, fighter2.health);
-            }
-        }
+        // FightSystem只模拟战斗，不实际改变玩家状态
+        // 血瓶消耗和血量改变由调用方（BattleSystem/Rank）处理
         
         // emit BattleStarted(battleId, fighter1Id, fighter1Type, fighter2Id, fighter2Type);
         // emit BattleEnded(battleId, result.winnerId, result.winnerType, result.escaped, result.totalRounds);
@@ -418,6 +412,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return (0, 0);
     }
     
+    
     /**
      * @dev 获取战斗结果
      */
@@ -444,6 +439,20 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function updateItemNFT(address _itemNFT) external onlyOwner {
         itemNFT = Item(_itemNFT);
+    }
+    
+    /**
+     * @dev 授权系统合约
+     */
+    function authorizeSystem(address systemContract) external onlyOwner {
+        authorizedSystems[systemContract] = true;
+    }
+    
+    /**
+     * @dev 取消授权系统合约
+     */
+    function revokeSystemAuthorization(address systemContract) external onlyOwner {
+        authorizedSystems[systemContract] = false;
     }
     
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}

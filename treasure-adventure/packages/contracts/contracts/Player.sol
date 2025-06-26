@@ -621,6 +621,13 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         emit ItemUsed(playerId, itemId, quantity);
     }
 
+    function setHealth(uint256 playerId, uint16 newHealth) external onlyAuthorizedOrOwner{
+        PlayerData storage player = players[playerId];
+        require(player.maxHealth>0, "Player not exists");
+        require(newHealth <= player.maxHealth, "Health exceed max");
+        player.health = newHealth;
+    }
+
     /**
      * @dev 将物品从玩家转移到市场
      */

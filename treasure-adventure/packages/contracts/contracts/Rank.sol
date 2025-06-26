@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./Player.sol";
 import "./AdventureGold.sol";
+import "./FightSystem.sol";
 
 /**
  * @title Rank
@@ -15,6 +16,7 @@ import "./AdventureGold.sol";
 contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     Player public playerNFT;
     AdventureGold public goldToken;
+    FightSystem public fightSystem;
 
     // 挑战费用和手续费配置
     uint256 public constant CHALLENGE_COST = 20e18; // 200 gold
@@ -59,13 +61,14 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
         _disableInitializers();
     }
 
-    function initialize(address _playerNFT, address _goldToken, address initialOwner) public initializer {
+    function initialize(address _playerNFT, address _goldToken, address _fightSystem, address initialOwner) public initializer {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         
         playerNFT = Player(_playerNFT);
         goldToken = AdventureGold(_goldToken);
+        fightSystem = FightSystem(_fightSystem);
         maxRankIndex = 0;
     }
 
@@ -77,7 +80,7 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
     function fight(
         uint256 playerId,
         uint256 targetRankIndex
-    ) external nonReentrant {
+    ) external nonReentrant returns (bytes32 battleId) {
         require(playerNFT.ownerOf(playerId) == msg.sender, "Not your player");
         require(targetRankIndex > 0, "Invalid rank index");
 
@@ -109,19 +112,21 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
                 "Can only claim the next available rank"
             );
 
-            _claimEmptyRank(playerId, targetRankIndex);
+            battleId = _claimEmptyRank(playerId, targetRankIndex);
         } else {
             // 挑战现有玩家
             require(targetPlayerId != playerId, "Cannot challenge yourself");
 
-            _challengePlayer(playerId, targetPlayerId, targetRankIndex);
+            battleId = _challengePlayer(playerId, targetPlayerId, targetRankIndex);
         }
+        
+        return battleId;
     }
 
     /**
      * @dev 占据空排名位置
      */
-    function _claimEmptyRank(uint256 playerId, uint256 rankIndex) internal {
+    function _claimEmptyRank(uint256 playerId, uint256 rankIndex) internal returns (bytes32 battleId) {
         // 支付挑战费用 - 全部销毁
         playerNFT.spendGold(playerId, CHALLENGE_COST, address(this));
         goldToken.burn(CHALLENGE_COST);
@@ -142,6 +147,10 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
         }
 
         emit RankClaimed(playerId, rankIndex, CHALLENGE_COST);
+        
+        // 生成一个虚拟的battleId，因为占据空位置不需要战斗
+        battleId = keccak256(abi.encodePacked(block.timestamp, playerId, rankIndex, "claim"));
+        return battleId;
     }
 
     /**
@@ -151,7 +160,7 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
         uint256 challengerPlayerId,
         uint256 targetPlayerId,
         uint256 targetRankIndex
-    ) internal {
+    ) internal returns (bytes32 battleId) {
         // 支付挑战费用
         playerNFT.spendGold(challengerPlayerId, CHALLENGE_COST, address(this));
 
@@ -159,32 +168,9 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
         uint256 fee = (CHALLENGE_COST * FEE_RATE) / BASIS_POINTS;
         uint256 reward = CHALLENGE_COST - fee;
 
-        // 获取双方战斗属性
-        (
-            uint16 challengerAttack,
-            uint16 challengerDefense,
-            uint16 challengerAgility,
-            ,
-
-        ) = playerNFT.getPlayerTotalStats(challengerPlayerId);
-        (
-            uint16 targetAttack,
-            uint16 targetDefense,
-            uint16 targetAgility,
-            ,
-
-        ) = playerNFT.getPlayerTotalStats(targetPlayerId);
-
-        // 简单的战斗计算
-        bool challengerWins = _calculateBattleResult(
-            challengerAttack,
-            challengerDefense,
-            challengerAgility,
-            targetAttack,
-            targetDefense,
-            targetAgility,
-            challengerPlayerId
-        );
+        // 使用FightSystem进行战斗
+        (bool challengerWins, bytes32 fightBattleId) = _useFightSystemForRank(challengerPlayerId, targetPlayerId);
+        battleId = fightBattleId;
 
         uint256 challengerOldRank = playerToRank[challengerPlayerId];
         uint256 targetOldRank = targetRankIndex;
@@ -237,53 +223,54 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
             reward,
             fee
         );
+        
+        return battleId;
     }
 
     /**
-     * @dev 计算战斗结果
+     * @dev 使用FightSystem进行排名战斗
+     * @param challengerPlayerId 挑战者ID
+     * @param targetPlayerId 目标玩家ID
+     * @return 挑战者是否胜利
      */
-    function _calculateBattleResult(
-        uint16 challengerAttack,
-        uint16 challengerDefense,
-        uint16 challengerAgility,
-        uint16 targetAttack,
-        uint16 targetDefense,
-        uint16 targetAgility,
-        uint256 challengerPlayerId
-    ) internal view returns (bool) {
-        // 计算综合战力
-        uint256 challengerPower = uint256(challengerAttack) *
-            3 +
-            uint256(challengerDefense) *
-            2 +
-            uint256(challengerAgility);
-        uint256 targetPower = uint256(targetAttack) *
-            3 +
-            uint256(targetDefense) *
-            2 +
-            uint256(targetAgility);
-
-        // 添加随机因素（基于区块哈希和玩家ID）
-        uint256 randomFactor = uint256(
-            keccak256(
-                abi.encodePacked(
-                    block.timestamp,
-                    block.prevrandao,
-                    challengerPlayerId
-                )
-            )
-        ) % 100;
-
-        // 战力差异越大，胜率越高，但保留随机性
-        if (challengerPower > targetPower) {
-            uint256 advantage = ((challengerPower - targetPower) * 100) /
-                targetPower;
-            return randomFactor < (50 + advantage); // 基础50%胜率 + 优势加成
-        } else {
-            uint256 disadvantage = ((targetPower - challengerPower) * 100) /
-                challengerPower;
-            return randomFactor > (50 + disadvantage); // 基础50%胜率 - 劣势减成
-        }
+    function _useFightSystemForRank(uint256 challengerPlayerId, uint256 targetPlayerId) internal returns (bool, bytes32) {
+        // 获取挑战者属性
+        Player.PlayerData memory challengerData = playerNFT.getPlayer(challengerPlayerId);
+        (uint16 challengerAttack, uint16 challengerDefense, uint16 challengerAgility, uint8 challengerCritRate, uint16 challengerCritDamage) = playerNFT.getPlayerTotalStats(challengerPlayerId);
+        
+        // 获取目标玩家属性
+        Player.PlayerData memory targetData = playerNFT.getPlayer(targetPlayerId);
+        (uint16 targetAttack, uint16 targetDefense, uint16 targetAgility, uint8 targetCritRate, uint16 targetCritDamage) = playerNFT.getPlayerTotalStats(targetPlayerId);
+        
+        // 挑战者属性数组（使用最大血量）
+        uint16[7] memory challengerStats = [challengerData.maxHealth, challengerData.maxHealth, challengerAttack, challengerDefense, challengerAgility, challengerCritRate, challengerCritDamage];
+        
+        // 目标玩家属性数组（使用最大血量）
+        uint16[7] memory targetStats = [targetData.maxHealth, targetData.maxHealth, targetAttack, targetDefense, targetAgility, targetCritRate, targetCritDamage];
+        
+        // 战斗配置：不可以使用血瓶，不可以逃跑，战斗后不改变血量
+        FightSystem.BattleConfig memory config = FightSystem.BattleConfig({
+            canUsePotion: false,
+            changePlayerHealth: false,
+            canEscape: false
+        });
+        
+        // 开始战斗
+        bytes32 battleId = fightSystem.startBattle(
+            challengerPlayerId,
+            fightSystem.FIGHTER_TYPE_PLAYER(),
+            challengerStats,
+            targetPlayerId,
+            fightSystem.FIGHTER_TYPE_PLAYER(),
+            targetStats,
+            config
+        );
+        
+        // 获取战斗结果
+        FightSystem.BattleResult memory result = fightSystem.getBattleResult(battleId);
+        
+        // 返回挑战者是否胜利和battleId
+        return (result.winnerId == challengerPlayerId && !result.escaped, battleId);
     }
 
     /**
@@ -347,6 +334,27 @@ contract Rank is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyG
      */
     function canChallenge(uint256 playerId) external pure returns (bool) {
         return true;
+    }
+    
+    /**
+     * @dev 更新玩家NFT合约地址
+     */
+    function updatePlayerNFT(address _playerNFT) external onlyOwner {
+        playerNFT = Player(_playerNFT);
+    }
+
+    /**
+     * @dev 更新金币合约地址
+     */
+    function updateGoldToken(address _goldToken) external onlyOwner {
+        goldToken = AdventureGold(_goldToken);
+    }
+    
+    /**
+     * @dev 更新FightSystem合约地址
+     */
+    function updateFightSystem(address _fightSystem) external onlyOwner {
+        fightSystem = FightSystem(_fightSystem);
     }
 
     /**

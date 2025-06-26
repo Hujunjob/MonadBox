@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./Player.sol";
 import "./TreasureBoxSystem.sol";
+import "./FightSystem.sol";
 
 /**
  * @title BattleSystem
@@ -14,6 +15,7 @@ import "./TreasureBoxSystem.sol";
 contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     Player public playerNFT;
     TreasureBoxSystem public treasureBoxSystem;
+    FightSystem public fightSystem;
     
     // 体力配置
     uint8 public constant STAMINA_COST_PER_BATTLE = 1;
@@ -73,12 +75,13 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         _disableInitializers();
     }
     
-    function initialize(address _playerNFT, address _treasureBoxSystem, address initialOwner) public initializer {
+    function initialize(address _playerNFT, address _treasureBoxSystem, address _fightSystem, address initialOwner) public initializer {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
         
         playerNFT = Player(_playerNFT);
         treasureBoxSystem = TreasureBoxSystem(_treasureBoxSystem);
+        fightSystem = FightSystem(_fightSystem);
     }
     
     /**
@@ -88,7 +91,7 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      * @param monsterLevel 在adventureLevel层数时，选择怪物的等级。每1层，有10个怪物
      * 必须杀死10个怪物，才能通往下一层。杀死过的怪物，用户还可以继续杀
      */
-    function startAdventure(uint256 playerId, uint16 adventureLevel,uint8 monsterLevel) external {
+    function startAdventure(uint256 playerId, uint16 adventureLevel,uint8 monsterLevel) external returns (bytes32 battleId) {
         require(playerNFT.ownerOf(playerId) == msg.sender, "Not your player");
         require(adventureLevel >= MIN_ADVENTURE_LEVEL && adventureLevel <= MAX_ADVENTURE_LEVEL, "Invalid adventure level");
         require(monsterLevel >= MIN_MONSTER_LEVEL && monsterLevel <= MAX_MONSTER_LEVEL, "Invalid monster level");
@@ -110,8 +113,9 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         // 消耗体力
         playerNFT.consumeStamina(playerId, staminaCost);
         
-        // 进行战斗判定
-        bool victory = _battleResolution(playerId, monsterLevel);
+        // 使用FightSystem进行战斗
+        (bool victory, bytes32 fightBattleId, uint16 finalHealth) = _useFightSystem(playerId, adventureLevel, monsterLevel);
+        battleId = fightBattleId;
         
         // 更新战斗统计
         totalBattles[playerId]++;
@@ -152,6 +156,8 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         } else {
             emit BattleCompleted(playerId, 0, victory, adventureLevel, monsterLevel);
         }
+        
+        return battleId;
     }
     
     /**
@@ -172,27 +178,83 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     }
     
     /**
-     * @dev 战斗判定逻辑
+     * @dev 使用FightSystem进行战斗
      * @param playerId 玩家ID
+     * @param adventureLevel 冒险等级
      * @param monsterLevel 怪物等级
-     * @return 是否胜利
+     * @return victory 是否胜利
+     * @return battleId 战斗ID
+     * @return finalHealth 战斗结束后玩家血量
      */
-    function _battleResolution(uint256 playerId, uint8 monsterLevel) internal view returns (bool) {
-        // 获取玩家总属性（包含装备加成）
-        (uint16 playerAttack, uint16 playerDefense, , , ) = playerNFT.getPlayerTotalStats(playerId);
+    function _useFightSystem(uint256 playerId, uint16 adventureLevel, uint8 monsterLevel) internal returns (bool victory, bytes32 battleId, uint16 finalHealth) {
+        // 获取玩家属性
+        Player.PlayerData memory playerData = playerNFT.getPlayer(playerId);
+        (uint16 totalAttack, uint16 totalDefense, uint16 totalAgility, uint8 totalCritRate, uint16 totalCritDamage) = playerNFT.getPlayerTotalStats(playerId);
         
-        // 获取当前冒险层级
-        uint16 currentAdventure = maxAdventureLevel[playerId] == 0 ? MIN_ADVENTURE_LEVEL : maxAdventureLevel[playerId];
-        
-        // 计算怪物属性 (基于层级和怪物等级)
+        // 计算怪物属性
         uint16 baseDefense = uint16(monsterLevel * MONSTER_DEFENSE_PER_LEVEL + MONSTER_BASE_DEFENSE);
-        uint16 levelBonus = uint16(currentAdventure > DEFENSE_LEVEL_BONUS_THRESHOLD ? ((currentAdventure - 1) / DEFENSE_LEVEL_BONUS_THRESHOLD + 1) * DEFENSE_LEVEL_BONUS_MULTIPLIER : 0);
-        uint16 monsterDefense = (baseDefense + levelBonus) / DEFENSE_REDUCTION_DIVISOR; // 减弱一倍
+        uint16 levelBonus = uint16(adventureLevel > DEFENSE_LEVEL_BONUS_THRESHOLD ? ((adventureLevel - 1) / DEFENSE_LEVEL_BONUS_THRESHOLD + 1) * DEFENSE_LEVEL_BONUS_MULTIPLIER : 0);
+        uint16 monsterDefense = (baseDefense + levelBonus) / DEFENSE_REDUCTION_DIVISOR;
         
-        // 战斗判定：随机值(0到玩家攻击力) vs 怪物防御力
-        uint256 randomAttack = _generateRandom(playerId, monsterLevel) % (playerAttack + 1);
+        // 怪物血量和攻击力基于等级计算
+        uint16 monsterHealth = uint16(100 + monsterLevel * 20 + adventureLevel * 10);
+        uint16 monsterAttack = uint16(10 + monsterLevel * 5 + adventureLevel * 2);
+        uint16 monsterAgility = uint16(5 + monsterLevel * 2);
         
-        return randomAttack > monsterDefense;
+        // 玩家属性数组
+        uint16[7] memory playerStats = [playerData.health, playerData.maxHealth, totalAttack, totalDefense, totalAgility, totalCritRate, totalCritDamage];
+        
+        // 怪物属性数组
+        uint16[7] memory monsterStats = [monsterHealth, monsterHealth, monsterAttack, monsterDefense, monsterAgility, 5, 150];
+        
+        // 战斗配置：可以使用血瓶，可以逃跑，战斗后改变血量
+        FightSystem.BattleConfig memory config = FightSystem.BattleConfig({
+            canUsePotion: true,
+            changePlayerHealth: true,
+            canEscape: true
+        });
+        
+        // 开始战斗
+        battleId = fightSystem.startBattle(
+            playerId,
+            fightSystem.FIGHTER_TYPE_PLAYER(),
+            playerStats,
+            0, // 怪物ID为0
+            fightSystem.FIGHTER_TYPE_NPC(),
+            monsterStats,
+            config
+        );
+        
+        // 获取战斗结果
+        FightSystem.BattleResult memory result = fightSystem.getBattleResult(battleId);
+        
+        // 处理战斗后的玩家状态（血瓶消耗和血量更新）
+        _processBattleResult(playerId, result);
+        
+        victory = result.winnerId == playerId && !result.escaped;
+        finalHealth = playerNFT.getPlayer(playerId).health;
+    }
+    
+    /**
+     * @dev 处理战斗结果，更新玩家状态和消耗血瓶
+     */
+    function _processBattleResult(uint256 playerId, FightSystem.BattleResult memory result) internal {
+        // 获取玩家最终血量
+        uint16 finalHealth = 0;
+        for (uint256 i = 0; i < result.battleLog.length; i++) {
+            FightSystem.BattleAction memory action = result.battleLog[i];
+            if (action.actorId == playerId) {
+                finalHealth = action.remainingHealth;
+                // 如果使用了血瓶，消耗玩家的血瓶
+                if (action.action == FightSystem.ActionType.USE_POTION && action.usedPotionId > 0) {
+                    playerNFT.useItem(playerId, action.usedPotionId, 1);
+                }
+            }
+        }
+        
+        // 更新玩家血量为战斗结束后的血量
+        Player.PlayerData memory playerData = playerNFT.getPlayer(playerId);
+        playerNFT.setHealth(playerId, playerData.health);
     }
     
     /**
@@ -316,6 +378,13 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function updateTreasureBoxSystem(address _treasureBoxSystem) external onlyOwner {
         treasureBoxSystem = TreasureBoxSystem(_treasureBoxSystem);
+    }
+    
+    /**
+     * @dev 更新FightSystem合约地址
+     */
+    function updateFightSystem(address _fightSystem) external onlyOwner {
+        fightSystem = FightSystem(_fightSystem);
     }
     
     // ========== 查询函数 ==========
