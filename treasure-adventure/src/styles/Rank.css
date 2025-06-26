@@ -150,7 +150,7 @@
   font-size: 16px;
 }
 
-.player-info {
+.rank-player-info {
   flex: 1;
   margin-left: 12px;
 }
@@ -184,7 +184,7 @@
   font-weight: 500;
 }
 
-.empty-slot {
+.rank-empty-slot {
   color: #999;
   font-style: italic;
 }

@@ -28,7 +28,8 @@
       "Bash(find:*)",
       "Bash(python3:*)",
       "Bash(mv:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(# Extract unique class names from each file and find cross-file duplicates\nfor file in *.css; do\n    grep -o \"^\\.[a-zA-Z][a-zA-Z0-9_-]*\" \"$file\" | sed \"s/^\\.//\" | sort | uniq | while read class; do\n        echo \"$class $file\"\n    done\ndone > all_unique_classes.tmp\n\n# Group by class name and find those that appear in multiple files\nsort all_unique_classes.tmp | uniq | awk '{print $1}' | sort | uniq -c | awk '$1 > 1 {print $2}' | while read class; do\n    files=$(grep \"^$class \" all_unique_classes.tmp | awk '{print $2}' | sort | uniq | tr '\\n' ', ' | sed 's/,$//')\n    file_count=$(echo \"$files\" | tr ',' '\\n' | wc -l)\n    echo \"Class .$class appears in $file_count files: $files\"\ndone\n\nrm all_unique_classes.tmp)"
     ],
     "deny": []
   }

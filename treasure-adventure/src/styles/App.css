@@ -372,7 +372,7 @@ body {
   margin-top: 20px;
 }
 
-.stat-item {
+.app-stat-item {
   display: flex;
   justify-content: space-between;
 }
@@ -429,7 +429,7 @@ body {
   }
 }
 
-.stat-item {
+.equipment-stat-item {
   background: #f8f9fa;
   border-radius: 5px;
   border-left: 4px solid #4CAF50;
@@ -723,7 +723,7 @@ body {
   margin-top: 10px;
 }
 
-.reward-item {
+.treasure-reward-item {
   padding: 8px 12px;
   background: white;
   border-radius: 5px;
@@ -825,7 +825,7 @@ body {
   margin-bottom: 10px;
 }
 
-.reward-item.selected {
+.treasure-reward-item.selected {
   font-size: 18px;
   font-weight: bold;
   padding: 10px;
@@ -1009,7 +1009,7 @@ body {
   }
 }
 
-.battle-header {
+.app-battle-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1756,7 +1756,7 @@ body {
   margin: 20px 0;
 }
 
-.reward-item {
+.offline-reward-item {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1903,7 +1903,7 @@ body {
   margin: 20px 0;
 }
 
-.offline-rewards .reward-item {
+.offline-rewards .offline-reward-item {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2676,7 +2676,7 @@ body {
   margin: 0 auto;
 }
 
-.stat-item {
+.hero-stat-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2945,7 +2945,7 @@ body {
   gap: 4px;
 }
 
-.monster-stats .stat-item {
+.monster-stats .monster-stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2956,7 +2956,7 @@ body {
   transition: all 0.2s ease;
 }
 
-.monster-stats .stat-item:hover {
+.monster-stats .monster-stat-item:hover {
   background: rgba(0,0,0,0.1);
   transform: translateY(-1px);
 }
@@ -2999,7 +2999,7 @@ body {
     gap: 3px;
   }
   
-  .monster-stats .stat-item {
+  .monster-stats .monster-stat-item {
     padding: 3px 1px;
     font-size: 9px;
   }
@@ -3144,11 +3144,11 @@ body {
   margin-bottom: 0;
 }
 
-.form-group {
+.app-form-group {
   margin-bottom: 20px;
 }
 
-.form-group label {
+.app-form-group label {
   display: block;
   margin-bottom: 10px;
   font-weight: 600;

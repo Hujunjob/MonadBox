@@ -116,7 +116,7 @@
   z-index: 1;
 }
 
-.battle-actions {
+.battle-arena-actions {
   margin-bottom: 30px;
 }
 
@@ -220,7 +220,7 @@
   color: #bdc3c7;
 }
 
-.battle-result {
+.battle-arena-result {
   text-align: center;
 }
 
@@ -393,7 +393,7 @@
   margin-bottom: 20px;
 }
 
-.stat-item {
+.battle-arena-stat-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -403,17 +403,17 @@
   font-size: 14px;
 }
 
-.stat-label {
-  color: #bdc3c7;
+.battle-arena-stat-label {
+  color: black;
   font-weight: normal;
 }
 
-.stat-value {
-  color: #ecf0f1;
+.battle-arena-stat-value {
+  color: black;
   font-weight: bold;
 }
 
-.battle-rewards {
+.battle-arena-rewards {
   margin: 20px 0;
   padding: 15px;
   background: rgba(39, 174, 96, 0.1);
@@ -421,20 +421,20 @@
   border: 1px solid #27ae60;
 }
 
-.battle-rewards h4 {
+.battle-arena-rewards h4 {
   color: #27ae60;
   margin: 0 0 15px 0;
   font-size: 18px;
   text-align: center;
 }
 
-.rewards-list {
+.battle-arena-rewards-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.reward-item {
+.battle-arena-reward-item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -444,7 +444,7 @@
   animation: rewardPop 0.5s ease-out;
 }
 
-.reward-item.rare {
+.battle-arena-reward-item.rare {
   background: rgba(243, 156, 18, 0.2);
   border: 1px solid #f39c12;
   box-shadow: 0 0 10px rgba(243, 156, 18, 0.3);
@@ -461,16 +461,16 @@
   }
 }
 
-.reward-icon {
+.battle-arena-reward-icon {
   font-size: 18px;
 }
 
-.reward-text {
+.battle-arena-reward-text {
   color: #ecf0f1;
   font-weight: bold;
 }
 
-.battle-actions-summary {
+.battle-arena-actions-summary {
   margin-top: 20px;
 }
 
