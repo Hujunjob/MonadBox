@@ -84,7 +84,7 @@ export function useSafeContractCall() {
     try {
       console.log('safeCall called with config:', contractConfig);
       setIsSimulating(true);
-      // showToast(loadingMessage, 'info');
+      showToast(loadingMessage, 'info');
       
       // 保存成功回调和成功消息
       setCurrentOnSuccess(() => onSuccess || null);

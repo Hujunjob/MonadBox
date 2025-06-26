@@ -24,7 +24,7 @@ export const localhost = defineChain({
 const projectId = 'YOUR_PROJECT_ID'; // Get from https://cloud.walletconnect.com
 
 export const config = createConfig({
-  chains: [localhost, monad, monadTestnet],
+  chains: [monadTestnet, monad, localhost],
   connectors: [
     // 标准连接器放在前面，让用户有选择
     injected(),
@@ -38,9 +38,9 @@ export const config = createConfig({
     }),
   ],
   transports: {
-    [localhost.id]: http(),
-    [monad.id]: http(),
     [monadTestnet.id]: http(),
+    [monad.id]: http(),
+    [localhost.id]: http(),
   },
   ssr: false,
 });

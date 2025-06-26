@@ -295,7 +295,7 @@ const PlayerStats: React.FC = () => {
           })}
         </div>
       </div>
-      <button onClick={() => { setIsFaucetOpen(true) }}>Faucet</button>
+      {/* <button onClick={() => { setIsFaucetOpen(true) }}>Faucet</button> */}
 
       {/* <Chat rtKey="chat" chatName="冒险世界频道" /> */}
       <EquipmentModal
