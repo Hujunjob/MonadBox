@@ -65,10 +65,10 @@ contract EquipmentSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable, 
      */
     function _initializeConfigs() internal {
         // 升星配置 (星级越高，消耗越大，成功率越低)
-        starConfigs[1] = StarUpgradeConfig(1000e18, 80, 5, 120, 1); // 1星->2星: 1000金币, 80%成功率, 1个同类装备
-        starConfigs[2] = StarUpgradeConfig(2500e18, 70, 10, 150, 2); // 2星->3星: 2500金币, 70%成功率, 2个同类装备
-        starConfigs[3] = StarUpgradeConfig(5000e18, 60, 15, 200, 3); // 3星->4星: 5000金币, 60%成功率, 3个同类装备
-        starConfigs[4] = StarUpgradeConfig(10000e18, 50, 20, 300, 4); // 4星->5星: 10000金币, 50%成功率, 4个同类装备
+        starConfigs[1] = StarUpgradeConfig(100e18, 80, 5, 120, 1); // 1星->2星: 100金币, 80%成功率, 1个同类装备
+        starConfigs[2] = StarUpgradeConfig(250e18, 70, 10, 150, 2); // 2星->3星: 250金币, 70%成功率, 2个同类装备
+        starConfigs[3] = StarUpgradeConfig(500e18, 60, 15, 200, 3); // 3星->4星: 500金币, 60%成功率, 3个同类装备
+        starConfigs[4] = StarUpgradeConfig(1000e18, 50, 20, 300, 4); // 4星->5星: 1000金币, 50%成功率, 4个同类装备
     }
 
     /**

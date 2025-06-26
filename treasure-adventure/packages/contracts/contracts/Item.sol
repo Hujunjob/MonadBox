@@ -13,12 +13,19 @@ import "hardhat/console.sol";
 contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
     // 物品ID范围
     uint256 public constant HEALTH_POTION_START_ID = 100;
-    uint256 public constant HEALTH_POTION_END_ID = 200;
+    uint256 public constant HEALTH_POTION_END_ID = 120;
+
     uint256 public constant JOB_BOOK_START_ID = 200;
-    uint256 public constant JOB_BOOK_END_ID = 300;
+    uint256 public constant JOB_BOOK_END_ID = 210;
+
     uint256 public constant PET_EGG_START_ID = 300;
-    uint256 public constant PET_EGG_END_ID = 400;
-    uint256 public constant ITEM_SEARCH_END_ID = 400;
+    uint256 public constant PET_EGG_END_ID = 310;
+
+    uint256 public constant ITEM_SEARCH_END_ID = 310;
+
+    // 血瓶治疗相关
+    uint256 public constant BASE_HEAL_AMOUNT = 50;
+    uint256 public constant HEAL_AMOUNT_PER_LEVEL = 25;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {

@@ -110,11 +110,6 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
     uint8 public constant STAMINA_LEVEL_INTERVAL = 10;
     uint8 public constant MAX_POSSIBLE_STAMINA = 50;
     
-    // 血瓶治疗相关
-    uint256 public constant BASE_HEAL_AMOUNT = 50;
-    uint256 public constant HEAL_AMOUNT_PER_LEVEL = 25;
-    uint8 public constant MAX_POTION_LEVEL = 10;
-    uint256 public constant POTION_CONSUME_AMOUNT = 1;
     
     // 授权的系统合约
     mapping(address => bool) public authorizedSystems;
@@ -706,8 +701,8 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         player.health = newHealth;
         
         // 消耗血瓶
-        playerItems[playerId][itemId] -= POTION_CONSUME_AMOUNT;
-        emit ItemUsed(playerId, itemId, POTION_CONSUME_AMOUNT);
+        playerItems[playerId][itemId] -= 1;
+        emit ItemUsed(playerId, itemId, 1);
     }
     
     /**
@@ -715,11 +710,9 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
      */
     function _calculateHealAmount(uint256 itemId) internal view returns (uint256) {
         // 根据itemId计算等级，然后计算治疗量
-        // 假设itemId为1000+level的格式
+        // 假设itemId为100+level的格式
         uint256 level = (itemId - itemNFT.HEALTH_POTION_START_ID()) + 1;
-        if (level > MAX_POTION_LEVEL) level = MAX_POTION_LEVEL; // 最大等级10
-        
-        return BASE_HEAL_AMOUNT + (level - 1) * HEAL_AMOUNT_PER_LEVEL; // 基础50 + (level-1)*25
+        return itemNFT.BASE_HEAL_AMOUNT() + (level - 1) * itemNFT.HEAL_AMOUNT_PER_LEVEL(); // 基础50 + (level-1)*25
     }
 
     /**
