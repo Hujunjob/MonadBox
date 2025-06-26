@@ -10,7 +10,12 @@ import "hardhat/console.sol";
  * @title Item
  * @dev 宝物冒险游戏的NFT，用于血瓶，转职书，宠物蛋等，id 100-199是保留给血瓶的，200-299是保留给转职书的，300-399保留给宠物蛋的
  */
-contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
+contract Item is
+    Initializable,
+    ERC1155Upgradeable,
+    OwnableUpgradeable,
+    UUPSUpgradeable
+{
     // 物品ID范围
     uint256 public constant HEALTH_POTION_START_ID = 100;
     uint256 public constant HEALTH_POTION_END_ID = 120;
@@ -21,21 +26,28 @@ contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgr
     uint256 public constant PET_EGG_START_ID = 300;
     uint256 public constant PET_EGG_END_ID = 310;
 
-    uint256 public constant ITEM_SEARCH_END_ID = 310;
+    uint256 public constant ITEM_SEARCH_END_ID = 400;
 
     // 血瓶治疗相关
-    uint256 public constant BASE_HEAL_AMOUNT = 50;
-    uint256 public constant HEAL_AMOUNT_PER_LEVEL = 50;
+    uint256 public BASE_HEAL_AMOUNT;
+    uint256 public HEAL_AMOUNT_PER_LEVEL;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
-    
+
     function initialize(address initialOwner) public initializer {
         __ERC1155_init("Item URL");
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
+        initConfig();
+    }
+
+    function initConfig() internal {
+        // 血瓶治疗相关
+        BASE_HEAL_AMOUNT = 50;
+        HEAL_AMOUNT_PER_LEVEL = 50;
     }
 
     // 授权的系统合约
@@ -43,13 +55,20 @@ contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgr
 
     // 修饰符：只有授权的系统或owner可以调用
     modifier onlyAuthorizedOrOwner() {
-        require(authorizedSystems[msg.sender] || msg.sender == owner(), "Not authorized");
+        require(
+            authorizedSystems[msg.sender] || msg.sender == owner(),
+            "Not authorized"
+        );
         _;
     }
 
-    function mint(address to, uint256 id, uint256 value) external onlyAuthorizedOrOwner(){
-            // function _mint(address to, uint256 id, uint256 value, bytes memory data) internal {
-        _mint(to, id, value, '');
+    function mint(
+        address to,
+        uint256 id,
+        uint256 value
+    ) external onlyAuthorizedOrOwner {
+        // function _mint(address to, uint256 id, uint256 value, bytes memory data) internal {
+        _mint(to, id, value, "");
     }
 
     /**
@@ -67,13 +86,17 @@ contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgr
     function authorizeSystem(address systemContract) external onlyOwner {
         authorizedSystems[systemContract] = true;
     }
-    
+
     /**
      * @dev 取消授权系统合约
      */
-    function revokeSystemAuthorization(address systemContract) external onlyOwner {
+    function revokeSystemAuthorization(
+        address systemContract
+    ) external onlyOwner {
         authorizedSystems[systemContract] = false;
     }
-    
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 }

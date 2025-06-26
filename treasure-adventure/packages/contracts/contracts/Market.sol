@@ -16,12 +16,19 @@ import "./AdventureGold.sol";
  * @title Market
  * @dev 市场合约 - 玩家可以在这里买卖物品和装备
  */
-contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IERC1155Receiver, IERC721Receiver {
+contract Market is
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    UUPSUpgradeable,
+    IERC1155Receiver,
+    IERC721Receiver
+{
     Player public playerNFT;
     Equipment public equipmentNFT;
     Item public itemNFT;
     AdventureGold public goldToken;
-    
+
     // 挂单结构
     struct Listing {
         uint256 listingId;
@@ -34,20 +41,20 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
         bool active;
         uint256 createdAt;
     }
-    
+
     enum ListingType {
         EQUIPMENT,
         ITEM
     }
-    
+
     // 挂单存储
     mapping(uint256 => Listing) public listings;
     uint256 public nextListingId;
-    
+
     // 市场费率（10% = 1000 basis points）
-    uint256 public constant MARKET_FEE_RATE = 1000; // 10%
+    uint256 public MARKET_FEE_RATE; // 10%
     uint256 public constant BASIS_POINTS = 10000; // 100%
-    
+
     // 事件
     event ItemListed(
         uint256 indexed listingId,
@@ -58,7 +65,7 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
         uint256 quantity,
         ListingType listingType
     );
-    
+
     event ItemPurchased(
         uint256 indexed listingId,
         address indexed buyer,
@@ -70,18 +77,19 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
         uint256 quantity,
         uint256 fee
     );
-    
+
     event ListingCancelled(
         uint256 indexed listingId,
         address indexed seller,
         uint256 indexed playerId
     );
-    
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
+        nextListingId = 1;
     }
-    
+
     function initialize(
         address _playerNFT,
         address _equipmentNFT,
@@ -92,14 +100,20 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
         __Ownable_init(initialOwner);
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
-        
+
         playerNFT = Player(_playerNFT);
         equipmentNFT = Equipment(_equipmentNFT);
         itemNFT = Item(_itemNFT);
         goldToken = AdventureGold(_goldToken);
-        nextListingId = 1;
+
+        initConfig();
     }
-    
+
+    function initConfig() internal {
+        // 市场费率（10% = 1000 basis points）
+        MARKET_FEE_RATE = 1000; // 10%
+    }
+
     /**
      * @dev 上架装备
      * @param playerId 玩家ID
@@ -117,8 +131,12 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             playerNFT.hasEquipmentInInventory(playerId, equipmentId),
             "Equipment not in inventory"
         );
-        
-        playerNFT.removeEquipmentFromInventory(playerId, equipmentId, address(this));
+
+        playerNFT.removeEquipmentFromInventory(
+            playerId,
+            equipmentId,
+            address(this)
+        );
 
         // 创建挂单
         uint256 listingId = nextListingId++;
@@ -133,7 +151,7 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             active: true,
             createdAt: block.timestamp
         });
-        
+
         emit ItemListed(
             listingId,
             msg.sender,
@@ -144,7 +162,7 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             ListingType.EQUIPMENT
         );
     }
-    
+
     /**
      * @dev 上架物品
      * @param playerId 玩家ID
@@ -165,10 +183,15 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             playerNFT.getPlayerItemQuantity(playerId, itemId) >= quantity,
             "Insufficient item quantity"
         );
-        
+
         // 将物品从玩家实际转移到市场
-        playerNFT.transferItemToMarket(playerId, itemId, quantity, address(this));
-        
+        playerNFT.transferItemToMarket(
+            playerId,
+            itemId,
+            quantity,
+            address(this)
+        );
+
         // 创建挂单
         uint256 listingId = nextListingId++;
         listings[listingId] = Listing({
@@ -182,7 +205,7 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             active: true,
             createdAt: block.timestamp
         });
-        
+
         emit ItemListed(
             listingId,
             msg.sender,
@@ -193,7 +216,7 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             ListingType.ITEM
         );
     }
-    
+
     /**
      * @dev 购买装备
      * @param listingId 挂单ID
@@ -205,34 +228,44 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
     ) external nonReentrant {
         Listing storage listing = listings[listingId];
         require(listing.active, "Listing not active");
-        require(listing.listingType == ListingType.EQUIPMENT, "Not an equipment listing");
-        require(playerNFT.ownerOf(buyerPlayerId) == msg.sender, "Not your player");
+        require(
+            listing.listingType == ListingType.EQUIPMENT,
+            "Not an equipment listing"
+        );
+        require(
+            playerNFT.ownerOf(buyerPlayerId) == msg.sender,
+            "Not your player"
+        );
         require(listing.seller != msg.sender, "Cannot buy your own item");
-        
+
         uint256 totalPrice = listing.price;
         uint256 fee = (totalPrice * MARKET_FEE_RATE) / BASIS_POINTS;
         uint256 sellerAmount = totalPrice - fee;
-        
+
         // 检查买家金币余额
         require(
             playerNFT.getPlayerGold(buyerPlayerId) >= totalPrice,
             "Insufficient gold"
         );
-        
+
         // 转移金币：买家 -> 卖家
         playerNFT.spendGold(buyerPlayerId, totalPrice, address(this));
         playerNFT.addGold(listing.playerId, sellerAmount);
-        
+
         // 销毁手续费金币
         goldToken.burn(fee);
-        
+
         // 转移装备：市场 -> 买家
-        equipmentNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId);
+        equipmentNFT.safeTransferFrom(
+            address(this),
+            address(playerNFT),
+            listing.tokenId
+        );
         playerNFT.addEquipmentToInventory(buyerPlayerId, listing.tokenId);
-        
+
         // 标记挂单为已完成
         listing.active = false;
-        
+
         emit ItemPurchased(
             listingId,
             msg.sender,
@@ -245,7 +278,7 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             fee
         );
     }
-    
+
     /**
      * @dev 购买物品
      * @param listingId 挂单ID
@@ -260,38 +293,50 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
         Listing storage listing = listings[listingId];
         require(listing.active, "Listing not active");
         require(listing.listingType == ListingType.ITEM, "Not an item listing");
-        require(playerNFT.ownerOf(buyerPlayerId) == msg.sender, "Not your player");
+        require(
+            playerNFT.ownerOf(buyerPlayerId) == msg.sender,
+            "Not your player"
+        );
         require(listing.seller != msg.sender, "Cannot buy your own item");
         require(quantity > 0, "Quantity must be greater than 0");
-        require(quantity <= listing.quantity, "Insufficient quantity available");
-        
+        require(
+            quantity <= listing.quantity,
+            "Insufficient quantity available"
+        );
+
         uint256 totalPrice = listing.price * quantity;
         uint256 fee = (totalPrice * MARKET_FEE_RATE) / BASIS_POINTS;
         uint256 sellerAmount = totalPrice - fee;
-        
+
         // 检查买家金币余额
         require(
             playerNFT.getPlayerGold(buyerPlayerId) >= totalPrice,
             "Insufficient gold"
         );
-        
+
         // 转移金币：买家 -> 卖家
         playerNFT.spendGold(buyerPlayerId, totalPrice, address(this));
         playerNFT.addGold(listing.playerId, sellerAmount);
-        
+
         // 销毁手续费金币
         goldToken.burn(fee);
-        
+
         // 转移物品：市场 -> 买家的Player NFT
-        itemNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId, quantity, "");
+        itemNFT.safeTransferFrom(
+            address(this),
+            address(playerNFT),
+            listing.tokenId,
+            quantity,
+            ""
+        );
         playerNFT.addItem(buyerPlayerId, listing.tokenId, quantity);
-        
+
         // 更新挂单数量
         listing.quantity -= quantity;
         if (listing.quantity == 0) {
             listing.active = false;
         }
-        
+
         emit ItemPurchased(
             listingId,
             msg.sender,
@@ -304,7 +349,7 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             fee
         );
     }
-    
+
     /**
      * @dev 取消挂单
      * @param listingId 挂单ID
@@ -316,31 +361,50 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             listing.seller == msg.sender || msg.sender == owner(),
             "Not authorized to cancel"
         );
-        
+
         // 将物品返还给卖家
         if (listing.listingType == ListingType.EQUIPMENT) {
             // 返还装备
-            equipmentNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId);
-            playerNFT.addEquipmentToInventory(listing.playerId, listing.tokenId);
+            equipmentNFT.safeTransferFrom(
+                address(this),
+                address(playerNFT),
+                listing.tokenId
+            );
+            playerNFT.addEquipmentToInventory(
+                listing.playerId,
+                listing.tokenId
+            );
         } else {
             // 返还物品：市场 -> 玩家的Player NFT
-            itemNFT.safeTransferFrom(address(this), address(playerNFT), listing.tokenId, listing.quantity, "");
-            playerNFT.addItem(listing.playerId, listing.tokenId, listing.quantity);
+            itemNFT.safeTransferFrom(
+                address(this),
+                address(playerNFT),
+                listing.tokenId,
+                listing.quantity,
+                ""
+            );
+            playerNFT.addItem(
+                listing.playerId,
+                listing.tokenId,
+                listing.quantity
+            );
         }
-        
+
         listing.active = false;
-        
+
         emit ListingCancelled(listingId, listing.seller, listing.playerId);
     }
-    
+
     /**
      * @dev 获取挂单信息
      * @param listingId 挂单ID
      */
-    function getListing(uint256 listingId) external view returns (Listing memory) {
+    function getListing(
+        uint256 listingId
+    ) external view returns (Listing memory) {
         return listings[listingId];
     }
-    
+
     /**
      * @dev 获取活跃挂单列表（分页）
      * @param offset 偏移量
@@ -349,7 +413,11 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
     function getActiveListings(
         uint256 offset,
         uint256 limit
-    ) external view returns (Listing[] memory activeListings, uint256 totalCount) {
+    )
+        external
+        view
+        returns (Listing[] memory activeListings, uint256 totalCount)
+    {
         // 先计算总数
         totalCount = 0;
         for (uint256 i = 1; i < nextListingId; i++) {
@@ -357,7 +425,7 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
                 totalCount++;
             }
         }
-        
+
         // 计算实际返回数量
         uint256 actualLimit = limit;
         if (offset >= totalCount) {
@@ -365,14 +433,18 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
         } else if (offset + limit > totalCount) {
             actualLimit = totalCount - offset;
         }
-        
+
         activeListings = new Listing[](actualLimit);
-        
+
         if (actualLimit > 0) {
             uint256 currentIndex = 0;
             uint256 skipped = 0;
-            
-            for (uint256 i = 1; i < nextListingId && currentIndex < actualLimit; i++) {
+
+            for (
+                uint256 i = 1;
+                i < nextListingId && currentIndex < actualLimit;
+                i++
+            ) {
                 if (listings[i].active) {
                     if (skipped >= offset) {
                         activeListings[currentIndex] = listings[i];
@@ -384,33 +456,41 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
             }
         }
     }
-    
+
     /**
      * @dev 获取玩家的挂单列表
      * @param playerId 玩家ID
      */
-    function getPlayerListings(uint256 playerId) external view returns (Listing[] memory) {
+    function getPlayerListings(
+        uint256 playerId
+    ) external view returns (Listing[] memory) {
         address playerOwner = playerNFT.ownerOf(playerId);
-        
+
         // 先计算总数
         uint256 count = 0;
         for (uint256 i = 1; i < nextListingId; i++) {
-            if (listings[i].seller == playerOwner && listings[i].playerId == playerId) {
+            if (
+                listings[i].seller == playerOwner &&
+                listings[i].playerId == playerId
+            ) {
                 count++;
             }
         }
-        
+
         // 创建结果数组
         Listing[] memory playerListings = new Listing[](count);
         uint256 index = 0;
-        
+
         for (uint256 i = 1; i < nextListingId; i++) {
-            if (listings[i].seller == playerOwner && listings[i].playerId == playerId) {
+            if (
+                listings[i].seller == playerOwner &&
+                listings[i].playerId == playerId
+            ) {
                 playerListings[index] = listings[i];
                 index++;
             }
         }
-        
+
         return playerListings;
     }
 
@@ -455,10 +535,15 @@ contract Market is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable
     /**
      * @dev 支持接口检查
      */
-    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
-        return interfaceId == type(IERC1155Receiver).interfaceId ||
-               interfaceId == type(IERC721Receiver).interfaceId;
+    function supportsInterface(
+        bytes4 interfaceId
+    ) external pure returns (bool) {
+        return
+            interfaceId == type(IERC1155Receiver).interfaceId ||
+            interfaceId == type(IERC721Receiver).interfaceId;
     }
-    
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 }

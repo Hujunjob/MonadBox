@@ -1,17 +1,17 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0x12Bcb546bC60fF39F1Adfc7cE4605d5Bd6a6A876' as `0x${string}`,
-  EQUIPMENT_NFT: '0xC66AB83418C20A65C3f8e83B3d11c8C3a6097b6F' as `0x${string}`,
-  ITEM_NFT: '0xeF31027350Be2c7439C1b0BE022d49421488b72C' as `0x${string}`,
-  GOLD_TOKEN: '0x8F4ec854Dd12F1fe79500a1f53D0cbB30f9b6134' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0xaC47e91215fb80462139756f43438402998E4A3a' as `0x${string}`,
-  FIGHT_SYSTEM: '0x63fea6E447F120B8Faf85B53cdaD8348e645D80E' as `0x${string}`,
-  BATTLE_SYSTEM: '0xdFdE6B33f13de2CA1A75A6F7169f50541B14f75b' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0xaC9fCBA56E42d5960f813B9D0387F3D3bC003338' as `0x${string}`,
-  MARKET: '0x38A70c040CA5F5439ad52d0e821063b0EC0B52b6' as `0x${string}`,
-  RANK: '0x54B8d8E2455946f2A5B8982283f2359812e815ce' as `0x${string}`,
-  SUPER_MARKET: '0xf090f16dEc8b6D24082Edd25B1C8D26f2bC86128' as `0x${string}`
+  PLAYER_NFT: '0xB22C255250d74B0ADD1bfB936676D2a299BF48Bd' as `0x${string}`,
+  EQUIPMENT_NFT: '0xCa1D199b6F53Af7387ac543Af8e8a34455BBe5E0' as `0x${string}`,
+  ITEM_NFT: '0xf5c4a909455C00B99A90d93b48736F3196DB5621' as `0x${string}`,
+  GOLD_TOKEN: '0x94fFA1C7330845646CE9128450F8e6c3B5e44F86' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x666D0c3da3dBc946D5128D06115bb4eed4595580' as `0x${string}`,
+  FIGHT_SYSTEM: '0x742489F22807ebB4C36ca6cD95c3e1C044B7B6c8' as `0x${string}`,
+  BATTLE_SYSTEM: '0x1D8D70AD07C8E7E442AD78E4AC0A16f958Eba7F0' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0xA9e6Bfa2BF53dE88FEb19761D9b2eE2e821bF1Bf' as `0x${string}`,
+  MARKET: '0x3fdc08D815cc4ED3B7F69Ee246716f2C8bCD6b07' as `0x${string}`,
+  RANK: '0xb868Cc77A95a65F42611724AF05Aa2d3B6Ec05F2' as `0x${string}`,
+  SUPER_MARKET: '0x70E5370b8981Abc6e14C91F4AcE823954EFC8eA3' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -576,19 +576,6 @@ export const PLAYER_NFT_ABI = [
   },
   {
     "inputs": [],
-    "name": "INITIAL_TOKEN_ID",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "MAX_LEVEL",
     "outputs": [
       {
@@ -642,97 +629,6 @@ export const PLAYER_NFT_ABI = [
   {
     "inputs": [],
     "name": "MIN_NAME_LENGTH",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SLOT_ACCESSORY",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SLOT_ARMOR",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SLOT_HELMET",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SLOT_RING",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SLOT_SHIELD",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SLOT_SHOES",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SLOT_WEAPON",
     "outputs": [
       {
         "internalType": "uint8",
@@ -2988,7 +2884,7 @@ export const BATTLE_SYSTEM_ABI = [
         "type": "uint16"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {

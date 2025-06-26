@@ -335,7 +335,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         // 基础伤害 = 攻击力 - 防御力
         uint16 baseDamage = attacker.attack > defender.defense ? 
             attacker.attack - defender.defense : 1;
-        baseDamage = 3 * baseDamage;
+        baseDamage = 4 * baseDamage;
         // 随机伤害 (80%-120%)
         uint256 randomFactor = 80 + (uint256(keccak256(abi.encodePacked(attacker.id, defender.id, block.timestamp))) % 41);
         baseDamage = uint16((baseDamage * randomFactor) / 100);
