@@ -157,7 +157,6 @@ contract Player is
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
-        _nextTokenId = 1000;
     }
 
     function initialize(
@@ -174,6 +173,10 @@ contract Player is
         equipmentNFT = Equipment(_equipmentNFT);
         goldToken = AdventureGold(_goldToken);
         itemNFT = Item(_itemNFT);
+
+        if (_nextTokenId == 0) {
+            _nextTokenId = 1000;
+        }
 
         // 设置装备类型到槽位的映射
         equipmentTypeToSlot[equipmentNFT.EQUIPMENT_TYPE_ARMOR()] = 1; // armor

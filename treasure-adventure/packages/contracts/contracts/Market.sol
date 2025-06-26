@@ -87,7 +87,6 @@ contract Market is
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
-        nextListingId = 1;
     }
 
     function initialize(
@@ -106,6 +105,9 @@ contract Market is
         itemNFT = Item(_itemNFT);
         goldToken = AdventureGold(_goldToken);
 
+        if (nextListingId == 0) {
+            nextListingId = 1;
+        }
         initConfig();
     }
 

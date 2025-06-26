@@ -64,7 +64,6 @@ contract Rank is
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
-        maxRankIndex = 0;
     }
 
     function initialize(
