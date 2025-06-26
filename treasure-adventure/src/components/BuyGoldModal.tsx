@@ -69,16 +69,16 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className="buy-gold-modal-overlay" onClick={onClose}>
+      <div className="buy-gold-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="buy-gold-modal-header">
           <h2>购买金币</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="buy-gold-close-btn" onClick={onClose}>×</button>
         </div>
 
-        <div className="modal-body">
+        <div className="buy-gold-modal-body">
           <div className="buy-gold-form">
-            <div className="form-group">
+            <div className="buy-gold-form-group">
               <label htmlFor="goldAmount">金币数量:</label>
               <input
                 id="goldAmount"
@@ -93,7 +93,7 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            <div className="form-group">
+            <div className="buy-gold-form-group">
               <label>所需ETH:</label>
               <div className="eth-display">
                 {ethRequired} ETH
@@ -105,7 +105,7 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose }) => {
 
             <div className="form-actions">
               <button
-                className={`purchase-btn ${!isValidAmount() || isLoading ? 'disabled' : ''}`}
+                className={`buy-gold-purchase-btn ${!isValidAmount() || isLoading ? 'disabled' : ''}`}
                 onClick={handlePurchase}
                 disabled={!isValidAmount() || isLoading}
               >
@@ -115,7 +115,7 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose }) => {
                       '处理中...'
                 ) : '购买'}
               </button>
-              <button className="cancel-btn" onClick={onClose}>
+              <button className="buy-gold-cancel-btn" onClick={onClose}>
                 取消
               </button>
             </div>
