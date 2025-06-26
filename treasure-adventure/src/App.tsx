@@ -76,7 +76,7 @@ function App() {
       <div className="app-wrapper">
         <div className="game-container">
           <header className="game-header">
-            <h1>Monad Hunter </h1>
+            <h1>Monad RPG </h1>
             <WalletConnect />
           </header>
           
