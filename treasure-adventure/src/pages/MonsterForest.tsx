@@ -205,11 +205,65 @@ const MonsterForest: React.FC = () => {
     
     console.log('Calling startAdventure...');
     try {
-      const battleId = await hybridStore.startAdventure(adventureLevel, monsterLevel);
-      console.log('startAdventure returned:', battleId);
-      if (battleId) {
-        // 导航到战斗页面
-        const url = `/battle/${battleId}?type=adventure&fighter1Name=${encodeURIComponent(player.name)}&fighter2Name=${encodeURIComponent(`第${adventureLevel}层怪物${monsterLevel}`)}&fighter1Id=${player.id}&fighter2Id=0`;
+      const battleInfo = await hybridStore.startAdventure(adventureLevel, monsterLevel);
+      console.log('startAdventure returned:', battleInfo);
+      
+      if (battleInfo && (typeof battleInfo === 'string' || battleInfo.battleId)) {
+        // 兼容旧版本：如果返回string就是battleId，如果是对象就取battleId
+        const battleId = typeof battleInfo === 'string' ? battleInfo : battleInfo.battleId;
+        
+        // 构建URL参数
+        const params = new URLSearchParams({
+          type: 'adventure',
+          fighter1Name: player.name,
+          fighter2Name: `第${adventureLevel}层怪物${monsterLevel}`,
+          fighter1Id: player.id.toString(),
+          fighter2Id: '0'
+        });
+        
+        // 如果有fighter stats信息，添加到URL参数
+        if (typeof battleInfo === 'object' && battleInfo.fighter1Stats && battleInfo.fighter2Stats) {
+          params.append('fighter1Stats', JSON.stringify(battleInfo.fighter1Stats));
+          params.append('fighter2Stats', JSON.stringify(battleInfo.fighter2Stats));
+        } else {
+          // 如果没有从receipt解析到stats，使用本地的数据
+          
+          // 玩家属性（从hybridStore获取）
+          const playerStats = {
+            id: player.id,
+            type: 1, // Player type
+            health: player.health,
+            maxHealth: player.maxHealth,
+            attack: player.attack,
+            defense: player.defense,
+            agility: player.agility,
+            criticalRate: player.criticalRate || 5,
+            criticalDamage: player.criticalDamage || 150
+          };
+          
+          // 怪物属性
+          const monsterData = monsterStats[monsterLevel] || {
+            health: 100, attack: 10, defense: 10, agility: 10, 
+            criticalRate: 5, criticalDamage: 150
+          };
+          
+          const monsterStats2 = {
+            id: 0,
+            type: 2, // NPC type
+            health: monsterData.health,
+            maxHealth: monsterData.health,
+            attack: monsterData.attack,
+            defense: monsterData.defense,
+            agility: monsterData.agility,
+            criticalRate: monsterData.criticalRate,
+            criticalDamage: monsterData.criticalDamage
+          };
+          
+          params.append('fighter1Stats', JSON.stringify(playerStats));
+          params.append('fighter2Stats', JSON.stringify(monsterStats2));
+        }
+        
+        const url = `/battle/${battleId}?${params.toString()}`;
         console.log('Navigating to:', url);
         navigate(url);
       } else {

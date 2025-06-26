@@ -87,6 +87,27 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     }
     
     // 事件
+    event BattleStarted(
+        bytes32 indexed battleId,
+        uint256 fighter1Id,
+        uint8 fighter1Type,
+        uint16 fighter1Health,
+        uint16 fighter1MaxHealth,
+        uint16 fighter1Attack,
+        uint16 fighter1Defense,
+        uint16 fighter1Agility,
+        uint8 fighter1CriticalRate,
+        uint16 fighter1CriticalDamage,
+        uint256 fighter2Id,
+        uint8 fighter2Type,
+        uint16 fighter2Health,
+        uint16 fighter2MaxHealth,
+        uint16 fighter2Attack,
+        uint16 fighter2Defense,
+        uint16 fighter2Agility,
+        uint8 fighter2CriticalRate,
+        uint16 fighter2CriticalDamage
+    );
     event BattleEnded(bytes32 indexed battleId, uint256 winnerId, uint8 winnerType, bool escaped, uint256 totalRounds);
     
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -128,6 +149,31 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         
         // 生成战斗ID
         battleId = keccak256(abi.encodePacked(block.timestamp, msg.sender, fighter1Id, fighter2Id));
+        
+        // 发出战斗开始事件
+        emit BattleStarted(
+            battleId,
+            fighter1Id,
+            fighter1Type,
+            config.changePlayerHealth && fighter1Type == FIGHTER_TYPE_PLAYER ? 
+                _getCurrentHealth(fighter1Id) : fighter1Stats[0],
+            fighter1Stats[1], // maxHealth
+            fighter1Stats[2], // attack
+            fighter1Stats[3], // defense
+            fighter1Stats[4], // agility
+            uint8(fighter1Stats[5]), // criticalRate
+            fighter1Stats[6], // criticalDamage
+            fighter2Id,
+            fighter2Type,
+            config.changePlayerHealth && fighter2Type == FIGHTER_TYPE_PLAYER ? 
+                _getCurrentHealth(fighter2Id) : fighter2Stats[0],
+            fighter2Stats[1], // maxHealth
+            fighter2Stats[2], // attack
+            fighter2Stats[3], // defense
+            fighter2Stats[4], // agility
+            uint8(fighter2Stats[5]), // criticalRate
+            fighter2Stats[6]  // criticalDamage
+        );
         
         // 创建战斗者
         Fighter memory fighter1 = Fighter({
@@ -333,8 +379,8 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             if (config.canUsePotion && _hasPotions(fighter) && fighter.potionsUsed < MAX_POTIONS_PER_BATTLE) {
                 return ActionType.USE_POTION;
             }
-            // 没有血瓶或已达到使用上限且可以逃跑
-            if (config.canEscape) {
+            // 没有血瓶或已达到使用上限且可以逃跑 - 但只有玩家能逃跑，NPC不能逃跑
+            if (config.canEscape && fighter.fighterType == FIGHTER_TYPE_PLAYER) {
                 return ActionType.ESCAPE;
             }
         }

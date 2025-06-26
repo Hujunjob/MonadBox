@@ -1,8 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import BattleArena from '../components/BattleArena';
-import { useHybridGameStore } from '../store/web3GameStore';
 import '../styles/BattlePage.css';
+
+interface FighterStats {
+  id: bigint;
+  type: number;
+  health: number;
+  maxHealth: number;
+  attack: number;
+  defense: number;
+  agility: number;
+  criticalRate: number;
+  criticalDamage: number;
+}
 
 interface BattleParams {
   battleId: string;
@@ -11,12 +22,13 @@ interface BattleParams {
   fighter2Name?: string;
   fighter1Id?: string;
   fighter2Id?: string;
+  fighter1Stats?: FighterStats;
+  fighter2Stats?: FighterStats;
 }
 
 const BattlePage: React.FC = () => {
   const { battleId } = useParams<{ battleId: string }>();
   const navigate = useNavigate();
-  const hybridStore = useHybridGameStore();
   const [battleParams, setBattleParams] = useState<BattleParams | null>(null);
 
   useEffect(() => {
@@ -27,6 +39,28 @@ const BattlePage: React.FC = () => {
     const fighter2Name = urlParams.get('fighter2Name') || '';
     const fighter1Id = urlParams.get('fighter1Id') || '';
     const fighter2Id = urlParams.get('fighter2Id') || '';
+    
+    // 解析fighter stats
+    let fighter1Stats: FighterStats | undefined;
+    let fighter2Stats: FighterStats | undefined;
+    
+    try {
+      const fighter1StatsStr = urlParams.get('fighter1Stats');
+      if (fighter1StatsStr) {
+        fighter1Stats = JSON.parse(fighter1StatsStr);
+      }
+    } catch (error) {
+      console.error('解析fighter1Stats失败:', error);
+    }
+    
+    try {
+      const fighter2StatsStr = urlParams.get('fighter2Stats');
+      if (fighter2StatsStr) {
+        fighter2Stats = JSON.parse(fighter2StatsStr);
+      }
+    } catch (error) {
+      console.error('解析fighter2Stats失败:', error);
+    }
 
     if (battleId && type) {
       setBattleParams({
@@ -35,7 +69,9 @@ const BattlePage: React.FC = () => {
         fighter1Name,
         fighter2Name,
         fighter1Id,
-        fighter2Id
+        fighter2Id,
+        fighter1Stats,
+        fighter2Stats
       });
     } else {
       // 如果没有必要参数，重定向回首页
@@ -96,6 +132,8 @@ const BattlePage: React.FC = () => {
           fighter2Name={battleParams.fighter2Name || '对手'}
           fighter1Id={BigInt(battleParams.fighter1Id || '0')}
           fighter2Id={BigInt(battleParams.fighter2Id || '0')}
+          fighter1Stats={battleParams.fighter1Stats}
+          fighter2Stats={battleParams.fighter2Stats}
         />
       </div>
 

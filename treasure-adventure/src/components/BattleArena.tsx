@@ -24,6 +24,18 @@ interface BattleResult {
   battleLog: BattleAction[];
 }
 
+interface FighterStats {
+  id: bigint;
+  type: number;
+  health: number;
+  maxHealth: number;
+  attack: number;
+  defense: number;
+  agility: number;
+  criticalRate: number;
+  criticalDamage: number;
+}
+
 interface BattleArenaProps {
   battleId: string;
   onBattleComplete?: () => void;
@@ -31,6 +43,8 @@ interface BattleArenaProps {
   fighter2Name: string;
   fighter1Id: bigint;
   fighter2Id: bigint;
+  fighter1Stats?: FighterStats;
+  fighter2Stats?: FighterStats;
 }
 
 const BattleArena: React.FC<BattleArenaProps> = ({
@@ -39,7 +53,9 @@ const BattleArena: React.FC<BattleArenaProps> = ({
   fighter1Name,
   fighter2Name,
   fighter1Id,
-  fighter2Id
+  fighter2Id,
+  fighter1Stats,
+  fighter2Stats
 }) => {
   const [currentActionIndex, setCurrentActionIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -72,39 +88,66 @@ const BattleArena: React.FC<BattleArenaProps> = ({
     }
   },[battleResult])
 
+  // 调试fighter stats
+  useEffect(() => {
+    console.log('BattleArena props:', {
+      fighter1Stats,
+      fighter2Stats,
+      fighter1Name,
+      fighter2Name
+    });
+  }, [fighter1Stats, fighter2Stats, fighter1Name, fighter2Name]);
+
   // 初始化战斗状态并自动开始
   useEffect(() => {
     if (result?.battleLog && result.battleLog.length > 0 && !isPlaying && !battleComplete) {
-      // 从战斗日志中找到初始血量（第一回合前的血量）
+      // 优先使用传入的fighter stats设置初始血量
       let fighter1InitialHP = 100;
+      let fighter1MaxHP = 100;
       let fighter2InitialHP = 100;
+      let fighter2MaxHP = 100;
       
-      // 查找每个战斗者的第一个动作来获取初始血量
-      const fighter1FirstAction = result.battleLog.find(action => action.actorId === fighter1Id);
-      const fighter2FirstAction = result.battleLog.find(action => action.actorId === fighter2Id);
-      
-      if (fighter1FirstAction) {
-        // 如果第一个动作有治疗，说明这是初始血量；如果有伤害，需要加回去
-        fighter1InitialHP = fighter1FirstAction.remainingHealth + (fighter1FirstAction.damage || 0);
+      // 如果有传入的stats，使用stats中的血量
+      if (fighter1Stats) {
+        fighter1InitialHP = fighter1Stats.health;
+        fighter1MaxHP = fighter1Stats.maxHealth;
+      } else {
+        // 降级方案：从战斗日志推算
+        const fighter1FirstAction = result.battleLog.find(action => action.actorId === fighter1Id);
+        if (fighter1FirstAction) {
+          fighter1InitialHP = fighter1FirstAction.remainingHealth + (fighter1FirstAction.damage || 0);
+          fighter1MaxHP = fighter1InitialHP;
+        }
       }
       
-      if (fighter2FirstAction) {
-        fighter2InitialHP = fighter2FirstAction.remainingHealth + (fighter2FirstAction.damage || 0);
+      if (fighter2Stats) {
+        fighter2InitialHP = fighter2Stats.health;
+        fighter2MaxHP = fighter2Stats.maxHealth;
+      } else {
+        // 降级方案：从战斗日志推算
+        const fighter2FirstAction = result.battleLog.find(action => action.actorId === fighter2Id);
+        if (fighter2FirstAction) {
+          fighter2InitialHP = fighter2FirstAction.remainingHealth + (fighter2FirstAction.damage || 0);
+          fighter2MaxHP = fighter2InitialHP;
+        }
       }
       
-      console.log('Setting initial HP:', { fighter1InitialHP, fighter2InitialHP });
+      console.log('Setting initial HP from stats:', { 
+        fighter1: { hp: fighter1InitialHP, maxHP: fighter1MaxHP, hasStats: !!fighter1Stats },
+        fighter2: { hp: fighter2InitialHP, maxHP: fighter2MaxHP, hasStats: !!fighter2Stats }
+      });
       
       setFighter1HP(fighter1InitialHP);
-      setFighter1MaxHP(fighter1InitialHP);
+      setFighter1MaxHP(fighter1MaxHP);
       setFighter2HP(fighter2InitialHP);
-      setFighter2MaxHP(fighter2InitialHP);
+      setFighter2MaxHP(fighter2MaxHP);
       
       // 自动开始战斗
       setTimeout(() => {
         startBattle();
       }, 1000);
     }
-  }, [result, fighter1Id, fighter2Id]);
+  }, [result, fighter1Id, fighter2Id, fighter1Stats, fighter2Stats]);
 
   // 开始播放战斗
   const startBattle = () => {
@@ -114,17 +157,8 @@ const BattleArena: React.FC<BattleArenaProps> = ({
     setCurrentActionIndex(0);
     setBattleComplete(false);
     
-    // 重置血量到初始状态
-    const firstActions = result.battleLog.filter((_, index) => index < 2);
-    firstActions.forEach((action) => {
-      if (action.actorId === fighter1Id) {
-        setFighter1HP(action.remainingHealth);
-        setFighter1MaxHP(action.remainingHealth);
-      } else if (action.actorId === fighter2Id) {
-        setFighter2HP(action.remainingHealth);
-        setFighter2MaxHP(action.remainingHealth);
-      }
-    });
+    // 保持已设置的初始血量，不需要重新设置
+    // 血量应该在useEffect中根据fighter stats正确设置过了
   };
 
   // 自动滚动到最新动作
@@ -170,29 +204,44 @@ const BattleArena: React.FC<BattleArenaProps> = ({
       
       // 更新血量并显示动画
       if (action.actorId === fighter1Id) {
-        setFighter1HP(action.remainingHealth);
+        // Fighter1执行动作
         if (action.healing > 0) {
+          // 如果有治疗，更新Fighter1的血量
+          setFighter1HP(action.remainingHealth);
           setShowHealing({fighter1: action.healing});
           setTimeout(() => setShowHealing({}), 2000);
         }
+        
+        if (action.damage > 0) {
+          // 如果有伤害，Fighter1攻击Fighter2，更新Fighter2的血量
+          setFighter2HP(prev => {
+            const newHP = Math.max(0, prev - action.damage);
+            console.log(`Fighter1 attacks Fighter2: ${prev} -> ${newHP} (damage: ${action.damage})`);
+            return newHP;
+          });
+          setShowDamage({fighter2: action.damage});
+          setTimeout(() => setShowDamage({}), 2000);
+        }
+        
       } else if (action.actorId === fighter2Id) {
-        setFighter2HP(action.remainingHealth);
+        // Fighter2执行动作
         if (action.healing > 0) {
+          // 如果有治疗，更新Fighter2的血量
+          setFighter2HP(action.remainingHealth);
           setShowHealing({fighter2: action.healing});
           setTimeout(() => setShowHealing({}), 2000);
         }
-      }
-
-      // 显示伤害动画
-      if (action.damage > 0) {
-        if (action.actorId === fighter1Id) {
-          // 玩家攻击怪物
-          setShowDamage({fighter2: action.damage});
-        } else {
-          // 怪物攻击玩家
+        
+        if (action.damage > 0) {
+          // 如果有伤害，Fighter2攻击Fighter1，更新Fighter1的血量
+          setFighter1HP(prev => {
+            const newHP = Math.max(0, prev - action.damage);
+            console.log(`Fighter2 attacks Fighter1: ${prev} -> ${newHP} (damage: ${action.damage})`);
+            return newHP;
+          });
           setShowDamage({fighter1: action.damage});
+          setTimeout(() => setShowDamage({}), 2000);
         }
-        setTimeout(() => setShowDamage({}), 2000);
       }
 
       setCurrentActionIndex(prev => prev + 1);
@@ -275,6 +324,21 @@ const BattleArena: React.FC<BattleArenaProps> = ({
               <div className="healing-animation">+{showHealing.fighter1}</div>
             )}
           </div>
+          {fighter1Stats && (
+            <div className="fighter-stats">
+              <div className="stat-row">
+                <span>攻击: {fighter1Stats.attack}</span>
+                <span>防御: {fighter1Stats.defense}</span>
+              </div>
+              <div className="stat-row">
+                <span>敏捷: {fighter1Stats.agility}</span>
+                <span>暴击: {fighter1Stats.criticalRate}%</span>
+              </div>
+              <div className="stat-row">
+                <span>暴伤: {fighter1Stats.criticalDamage}%</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="battle-center">
@@ -312,6 +376,21 @@ const BattleArena: React.FC<BattleArenaProps> = ({
               <div className="healing-animation">+{showHealing.fighter2}</div>
             )}
           </div>
+          {fighter2Stats && (
+            <div className="fighter-stats">
+              <div className="stat-row">
+                <span>攻击: {fighter2Stats.attack}</span>
+                <span>防御: {fighter2Stats.defense}</span>
+              </div>
+              <div className="stat-row">
+                <span>敏捷: {fighter2Stats.agility}</span>
+                <span>暴击: {fighter2Stats.criticalRate}%</span>
+              </div>
+              <div className="stat-row">
+                <span>暴伤: {fighter2Stats.criticalDamage}%</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

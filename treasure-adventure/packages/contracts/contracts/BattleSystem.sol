@@ -111,24 +111,24 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         EXPERIENCE_PER_ADVENTURE_LEVEL = 5;
 
         // 怪物配置
-        MONSTER_BASE_DEFENSE = 10;
-        MONSTER_DEFENSE_PER_LEVEL = 3;
-        MONSTER_DEFENSE_PER_ADVENTURE_LEVEL = 5;
+        MONSTER_BASE_DEFENSE = 5;
+        MONSTER_DEFENSE_PER_LEVEL = 2;
+        MONSTER_DEFENSE_PER_ADVENTURE_LEVEL = 3;
 
         MONSTER_BASE_HEALTH = 50;
         MONSTER_HEALTH_PER_LEVEL = 10;
         MONSTER_HEALTH_PER_ADVENTURE_LEVEL = 10;
 
-        MONSTER_BASE_ATTACK = 10;
-        MONSTER_ATTACK_PER_LEVEL = 3;
+        MONSTER_BASE_ATTACK = 5;
+        MONSTER_ATTACK_PER_LEVEL = 2;
         MONSTER_ATTACK_PER_ADVENTURE_LEVEL = 3;
 
-        MONSTER_BASE_AGILITY = 10;
+        MONSTER_BASE_AGILITY = 4;
         MONSTER_AGILITY_PER_LEVEL = 1;
         MONSTER_AGILITY_PER_ADVENTURE_LEVEL = 1;
 
         MONSTER_BASE_CRITI_RATE = 5;
-        MONSTER_BASE_CRITI_DAMAGE = 200;
+        MONSTER_BASE_CRITI_DAMAGE = 150;
 
         // 宝箱等级配置
         TREASURE_BOX_LEVEL_DIVISOR = 3;
@@ -173,32 +173,32 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         // 计算怪物属性
         uint16 monsterDefense = uint16(
             MONSTER_BASE_DEFENSE +
-                monsterLevel *
+                (monsterLevel - 1) *
                 MONSTER_DEFENSE_PER_LEVEL +
-                adventureLevel *
+                (adventureLevel - 1) *
                 MONSTER_DEFENSE_PER_ADVENTURE_LEVEL
         );
 
         // 怪物血量和攻击力基于等级计算
         uint16 monsterHealth = uint16(
             MONSTER_BASE_HEALTH +
-                monsterLevel *
+                (monsterLevel - 1) *
                 MONSTER_HEALTH_PER_LEVEL +
-                adventureLevel *
+                (adventureLevel - 1) *
                 MONSTER_HEALTH_PER_ADVENTURE_LEVEL
         );
         uint16 monsterAttack = uint16(
             MONSTER_BASE_ATTACK +
-                monsterLevel *
+                (monsterLevel - 1) *
                 MONSTER_ATTACK_PER_LEVEL +
-                adventureLevel *
+                (adventureLevel - 1) *
                 MONSTER_ATTACK_PER_ADVENTURE_LEVEL
         );
         uint16 monsterAgility = uint16(
             MONSTER_BASE_AGILITY +
-                monsterLevel *
+                (monsterLevel - 1) *
                 MONSTER_AGILITY_PER_LEVEL +
-                adventureLevel *
+                (adventureLevel - 1) *
                 MONSTER_AGILITY_PER_ADVENTURE_LEVEL
         );
 

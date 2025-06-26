@@ -798,7 +798,7 @@ contract Player is
             playerItems[playerId][itemId] >= quantity,
             "Insufficient item quantity"
         );
-
+        console.log("useItem",itemId,quantity);
         playerItems[playerId][itemId] -= quantity;
 
         // 实际销毁 ERC1155 NFT
@@ -815,6 +815,7 @@ contract Player is
         require(player.maxHealth > 0, "Player not exists");
         require(newHealth <= player.maxHealth, "Health exceed max");
         player.health = newHealth;
+        console.log("setHealth",playerId,newHealth);
     }
 
     /**

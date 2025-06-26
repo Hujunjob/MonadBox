@@ -1,17 +1,17 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0x90E75f390332356426B60FB440DF23f860F6A113' as `0x${string}`,
-  EQUIPMENT_NFT: '0x9Bb65b12162a51413272d10399282E730822Df44' as `0x${string}`,
-  ITEM_NFT: '0x7A5EC257391817ef241ef8451642cC6b222d4f8C' as `0x${string}`,
-  GOLD_TOKEN: '0xCA87833e830652C2ab07E1e03eBa4F2c246D3b58' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x59c7D03d2E9893FB7bAa89dA50a9452e1e9B8b90' as `0x${string}`,
-  FIGHT_SYSTEM: '0x8D75F9F7f4F4C4eFAB9402261bC864f21DF0c649' as `0x${string}`,
-  BATTLE_SYSTEM: '0xFcCa971FE9Ee20C1Cf22596E700aA993D8fD19c5' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0xCC5Bc84C3FDbcF262AaDD9F76652D6784293dD9e' as `0x${string}`,
-  MARKET: '0x04F75a27cE2FDC591C71a88f1EcaC7e5Ce44f5Fc' as `0x${string}`,
-  RANK: '0x93B800CD7ACdcA13754624D4B1A2760A86bE0D1f' as `0x${string}`,
-  SUPER_MARKET: '0x8Aed6FE10dF3d6d981B101496C9c7245AE65cAEc' as `0x${string}`
+  PLAYER_NFT: '0xdccF554708B72d0fe9500cBfc1595cDBE3d66e5a' as `0x${string}`,
+  EQUIPMENT_NFT: '0x63ecE4C05B8fB272D16844E96702Ea2f26370982' as `0x${string}`,
+  ITEM_NFT: '0x3576293Ba6Adacba1A81397db889558Dd91A8519' as `0x${string}`,
+  GOLD_TOKEN: '0x582957C7a35CDfeAAD1Ca4b87AE03913eAAd0Be0' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0x645B0f55268eF561176f3247D06d0b7742f79819' as `0x${string}`,
+  FIGHT_SYSTEM: '0x8AFB0C54bAE39A5e56b984DF1C4b5702b2abf205' as `0x${string}`,
+  BATTLE_SYSTEM: '0x81ED8e0325B17A266B2aF225570679cfd635d0bb' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x6B763F54D260aFF608CbbAeD8721c96992eC24Db' as `0x${string}`,
+  MARKET: '0xF48883F2ae4C4bf4654f45997fE47D73daA4da07' as `0x${string}`,
+  RANK: '0x226A19c076a3047a53e5430B14bcDB42dbccA159' as `0x${string}`,
+  SUPER_MARKET: '0xA5c9020ea95324a05B48491FB3e61Ba111E5dd95' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -1807,6 +1807,127 @@ export const FIGHT_SYSTEM_ABI = [
       }
     ],
     "name": "BattleEnded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "battleId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fighter1Id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "fighter1Type",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter1Health",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter1MaxHealth",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter1Attack",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter1Defense",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter1Agility",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "fighter1CriticalRate",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter1CriticalDamage",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fighter2Id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "fighter2Type",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter2Health",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter2MaxHealth",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter2Attack",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter2Defense",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter2Agility",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "fighter2CriticalRate",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "fighter2CriticalDamage",
+        "type": "uint16"
+      }
+    ],
+    "name": "BattleStarted",
     "type": "event"
   },
   {

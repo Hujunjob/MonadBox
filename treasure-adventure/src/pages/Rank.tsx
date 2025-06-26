@@ -113,15 +113,46 @@ const Rank: React.FC = () => {
     
     try {
       setChallengeTarget(targetRank);
-      const battleId = await fight(currentPlayerId, targetRank);
+      const battleInfo = await fight(currentPlayerId, targetRank);
       
-      if (battleId) {
+      if (battleInfo && battleInfo.battleId) {
         // 获取目标玩家信息
         const targetPlayer = topRanks.find(rank => rank.rankIndex === targetRank);
         const targetPlayerName = targetPlayer?.playerName || `排名${targetRank}`;
         
+        // 构建包含fighter stats的URL参数
+        const params = new URLSearchParams({
+          type: 'rank',
+          fighter1Name: player.name,
+          fighter2Name: targetPlayerName,
+          fighter1Id: player.id.toString(),
+          fighter2Id: (targetPlayer?.playerId || 0).toString()
+        });
+        
+        // 如果有fighter stats，添加到URL参数中
+        if (battleInfo.fighter1Stats && battleInfo.fighter2Stats) {
+          params.append('fighter1Stats', JSON.stringify(battleInfo.fighter1Stats));
+          params.append('fighter2Stats', JSON.stringify(battleInfo.fighter2Stats));
+        } else {
+          // 降级方案：使用本地玩家数据（对手数据通常无法获取，只传递玩家数据）
+          const playerStats = {
+            id: player.id,
+            type: 1, // Player type
+            health: player.health,
+            maxHealth: player.maxHealth,
+            attack: player.attack,
+            defense: player.defense,
+            agility: player.agility,
+            criticalRate: player.criticalRate || 5,
+            criticalDamage: player.criticalDamage || 150
+          };
+          
+          params.append('fighter1Stats', JSON.stringify(playerStats));
+          // 注意：这里没有对手的详细数据，只能传递玩家的
+        }
+        
         // 导航到战斗页面
-        navigate(`/battle/${battleId}?type=rank&fighter1Name=${encodeURIComponent(player.name)}&fighter2Name=${encodeURIComponent(targetPlayerName)}&fighter1Id=${player.id}&fighter2Id=${targetPlayer?.playerId || 0}`);
+        navigate(`/battle/${battleInfo.battleId}?${params.toString()}`);
       }
       
       setChallengeTarget(null);

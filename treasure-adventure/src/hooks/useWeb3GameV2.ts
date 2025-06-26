@@ -369,11 +369,15 @@ export function useWeb3GameV2() {
               console.log('safeCall success, receipt:', receipt);
 
               try {
-                // 从 FightSystem 的 BattleEnded 事件中解析 battleId
-                const battleId = parseBattleIdFromReceipt(receipt);
-                console.log('Parsed battleId from BattleEnded event:', battleId);
-                if (battleId) {
-                  resolve(battleId);
+                // 从 FightSystem 的 BattleStarted/BattleEnded 事件中解析 battleId
+                const battleResult = parseBattleIdFromReceipt(receipt);
+                console.log('Parsed battle result:', battleResult);
+                if (battleResult?.battleId) {
+                  // 如果有 fighter stats 信息，也打印出来
+                  if (battleResult.fighterStats) {
+                    console.log('Fighter stats:', battleResult.fighterStats);
+                  }
+                  resolve(battleResult.battleId);
                 } else {
                   console.error('Failed to parse battleId from receipt');
                   resolve(null);
@@ -396,8 +400,8 @@ export function useWeb3GameV2() {
     });
   };
 
-  // 从FightSystem的BattleEnded事件中解析battleId
-  const parseBattleIdFromReceipt = (receipt: any): string | null => {
+  // 从FightSystem的BattleStarted事件中解析fighter stats信息
+  const parseFighterStatsFromReceipt = (receipt: any) => {
     try {
       if (!receipt?.logs) return null;
 
@@ -409,9 +413,138 @@ export function useWeb3GameV2() {
             topics: log.topics,
           });
 
+          if (decodedLog.eventName === 'BattleStarted') {
+            const {
+              battleId,
+              fighter1Id,
+              fighter1Type,
+              fighter1Health,
+              fighter1MaxHealth,
+              fighter1Attack,
+              fighter1Defense,
+              fighter1Agility,
+              fighter1CriticalRate,
+              fighter1CriticalDamage,
+              fighter2Id,
+              fighter2Type,
+              fighter2Health,
+              fighter2MaxHealth,
+              fighter2Attack,
+              fighter2Defense,
+              fighter2Agility,
+              fighter2CriticalRate,
+              fighter2CriticalDamage
+            } = decodedLog.args as any;
+
+            return {
+              battleId: battleId ? battleId.toString() : null,
+              player: {
+                id: Number(fighter1Id),
+                type: Number(fighter1Type),
+                health: Number(fighter1Health),
+                maxHealth: Number(fighter1MaxHealth),
+                attack: Number(fighter1Attack),
+                defense: Number(fighter1Defense),
+                agility: Number(fighter1Agility),
+                criticalRate: Number(fighter1CriticalRate),
+                criticalDamage: Number(fighter1CriticalDamage)
+              },
+              monster: {
+                id: Number(fighter2Id),
+                type: Number(fighter2Type),
+                health: Number(fighter2Health),
+                maxHealth: Number(fighter2MaxHealth),
+                attack: Number(fighter2Attack),
+                defense: Number(fighter2Defense),
+                agility: Number(fighter2Agility),
+                criticalRate: Number(fighter2CriticalRate),
+                criticalDamage: Number(fighter2CriticalDamage)
+              }
+            };
+          }
+        } catch (error) {
+          // 忽略无法解析的日志，继续尝试下一个
+          continue;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('从receipt解析fighter stats失败:', error);
+      return null;
+    }
+  };
+
+  // 从FightSystem的BattleStarted事件中解析battleId和fighter stats信息
+  const parseBattleIdFromReceipt = (receipt: any): { battleId: string; fighterStats?: any } | null => {
+    try {
+      if (!receipt?.logs) return null;
+
+      for (const log of receipt.logs) {
+        try {
+          const decodedLog = decodeEventLog({
+            abi: FIGHT_SYSTEM_ABI,
+            data: log.data,
+            topics: log.topics,
+          });
+
+          if (decodedLog.eventName === 'BattleStarted') {
+            const {
+              battleId,
+              fighter1Id,
+              fighter1Type,
+              fighter1Health,
+              fighter1MaxHealth,
+              fighter1Attack,
+              fighter1Defense,
+              fighter1Agility,
+              fighter1CriticalRate,
+              fighter1CriticalDamage,
+              fighter2Id,
+              fighter2Type,
+              fighter2Health,
+              fighter2MaxHealth,
+              fighter2Attack,
+              fighter2Defense,
+              fighter2Agility,
+              fighter2CriticalRate,
+              fighter2CriticalDamage
+            } = decodedLog.args as any;
+
+            return {
+              battleId: battleId ? battleId.toString() : null,
+              fighterStats: {
+                fighter1: {
+                  id: Number(fighter1Id),
+                  type: Number(fighter1Type),
+                  health: Number(fighter1Health),
+                  maxHealth: Number(fighter1MaxHealth),
+                  attack: Number(fighter1Attack),
+                  defense: Number(fighter1Defense),
+                  agility: Number(fighter1Agility),
+                  criticalRate: Number(fighter1CriticalRate),
+                  criticalDamage: Number(fighter1CriticalDamage)
+                },
+                fighter2: {
+                  id: Number(fighter2Id),
+                  type: Number(fighter2Type),
+                  health: Number(fighter2Health),
+                  maxHealth: Number(fighter2MaxHealth),
+                  attack: Number(fighter2Attack),
+                  defense: Number(fighter2Defense),
+                  agility: Number(fighter2Agility),
+                  criticalRate: Number(fighter2CriticalRate),
+                  criticalDamage: Number(fighter2CriticalDamage)
+                }
+              }
+            };
+          }
+
+          // 保持对BattleEnded事件的兼容性
           if (decodedLog.eventName === 'BattleEnded') {
             const { battleId } = decodedLog.args as any;
-            return battleId ? battleId.toString() : null;
+            return {
+              battleId: battleId ? battleId.toString() : null
+            };
           }
         } catch (error) {
           // 忽略无法解析的日志，继续尝试下一个
@@ -1220,5 +1353,8 @@ export function useWeb3GameV2() {
     refetchPlayerItems,
     refetchMaxAdventureLevel,
     refetchBattleStats,
+
+    // 事件解析函数
+    parseFighterStatsFromReceipt,
   };
 }

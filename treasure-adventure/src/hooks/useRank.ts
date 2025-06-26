@@ -1,5 +1,5 @@
 import { useWriteContract, useReadContract } from 'wagmi';
-import { CONTRACT_ADDRESSES, RANK_ABI, PLAYER_NFT_ABI } from '../contracts';
+import { CONTRACT_ADDRESSES, RANK_ABI, PLAYER_NFT_ABI, FIGHT_SYSTEM_ABI } from '../contracts';
 import { usePublicClient } from 'wagmi';
 import { useSafeContractCall } from './useSafeContractCall';
 import { decodeEventLog } from 'viem';
@@ -9,37 +9,80 @@ export function useRank() {
   const publicClient = usePublicClient();
   const { safeCall, isPending, isConfirming, isConfirmed } = useSafeContractCall();
 
-  // 解析battleId
-  const parseBattleId = (receipt: any): string | null => {
+  // 解析battle信息（包括battleId和双方stats）
+  const parseBattleInfo = (receipt: any): { battleId: string; fighter1Stats: any; fighter2Stats: any } | null => {
     try {
       if (!receipt?.logs) return null;
       
       for (const log of receipt.logs) {
         try {
+          // 先尝试解析FightSystem的BattleStarted事件
           const decodedLog = decodeEventLog({
-            abi: RANK_ABI,
+            abi: FIGHT_SYSTEM_ABI,
             data: log.data,
             topics: log.topics,
           });
           
-          if (decodedLog.eventName === 'RankBattleStarted' || decodedLog.eventName === 'BattleStarted') {
-            const { battleId } = decodedLog.args as any;
-            return battleId ? battleId.toString() : null;
+          if (decodedLog.eventName === 'BattleStarted') {
+            const args = decodedLog.args as any;
+            return {
+              battleId: args.battleId.toString(),
+              fighter1Stats: {
+                id: args.fighter1Id,
+                type: args.fighter1Type,
+                health: Number(args.fighter1Health),
+                maxHealth: Number(args.fighter1MaxHealth),
+                attack: Number(args.fighter1Attack),
+                defense: Number(args.fighter1Defense),
+                agility: Number(args.fighter1Agility),
+                criticalRate: Number(args.fighter1CriticalRate),
+                criticalDamage: Number(args.fighter1CriticalDamage)
+              },
+              fighter2Stats: {
+                id: args.fighter2Id,
+                type: args.fighter2Type,
+                health: Number(args.fighter2Health),
+                maxHealth: Number(args.fighter2MaxHealth),
+                attack: Number(args.fighter2Attack),
+                defense: Number(args.fighter2Defense),
+                agility: Number(args.fighter2Agility),
+                criticalRate: Number(args.fighter2CriticalRate),
+                criticalDamage: Number(args.fighter2CriticalDamage)
+              }
+            };
           }
         } catch (error) {
-          // 忽略无法解析的日志
-          continue;
+          // 如果FightSystem解析失败，尝试用RANK_ABI解析
+          try {
+            const decodedLog = decodeEventLog({
+              abi: RANK_ABI,
+              data: log.data,
+              topics: log.topics,
+            });
+            
+            if (decodedLog.eventName === 'RankBattleStarted') {
+              const { battleId } = decodedLog.args as any;
+              return {
+                battleId: battleId ? battleId.toString() : '',
+                fighter1Stats: null,
+                fighter2Stats: null
+              };
+            }
+          } catch (error2) {
+            // 忽略无法解析的日志
+            continue;
+          }
         }
       }
       return null;
     } catch (error) {
-      console.error('解析battleId失败:', error);
+      console.error('解析battle信息失败:', error);
       return null;
     }
   };
 
   // 挑战指定排名
-  const fight = async (playerId: number, targetRankIndex: number): Promise<string | null> => {
+  const fight = async (playerId: number, targetRankIndex: number): Promise<{ battleId: string; fighter1Stats: any; fighter2Stats: any } | null> => {
     return new Promise((resolve, reject) => {
       try {
         safeCall(
@@ -56,13 +99,9 @@ export function useRank() {
             successMessage: '✅ 挑战开始！',
             errorMessage: '❌ 挑战失败',
             onSuccess: (receipt: any) => {
-              // 解析战斗ID
-              const battleId = parseBattleId(receipt);
-              if (battleId) {
-                resolve(battleId);
-              } else {
-                resolve(null);
-              }
+              // 解析战斗信息
+              const battleInfo = parseBattleInfo(receipt);
+              resolve(battleInfo);
             }
           }
         );
