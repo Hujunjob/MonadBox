@@ -194,9 +194,9 @@ const MonsterForest: React.FC = () => {
       const battleInfo = await hybridStore.startAdventure(adventureLevel, monsterLevel);
       console.log('startAdventure returned:', battleInfo);
       
-      if (battleInfo && (typeof battleInfo === 'string' || battleInfo.battleId)) {
+      if (battleInfo && (typeof battleInfo === 'string' || (battleInfo as any).battleId)) {
         // 兼容旧版本：如果返回string就是battleId，如果是对象就取battleId
-        const battleId = typeof battleInfo === 'string' ? battleInfo : battleInfo.battleId;
+        const battleId = typeof battleInfo === 'string' ? battleInfo : (battleInfo as any).battleId;
         
         // 构建URL参数
         const params = new URLSearchParams({
@@ -208,9 +208,9 @@ const MonsterForest: React.FC = () => {
         });
         
         // 如果有fighter stats信息，添加到URL参数
-        if (typeof battleInfo === 'object' && battleInfo.fighter1Stats && battleInfo.fighter2Stats) {
-          params.append('fighter1Stats', JSON.stringify(battleInfo.fighter1Stats));
-          params.append('fighter2Stats', JSON.stringify(battleInfo.fighter2Stats));
+        if (typeof battleInfo === 'object' && (battleInfo as any).fighter1Stats && (battleInfo as any).fighter2Stats) {
+          params.append('fighter1Stats', JSON.stringify((battleInfo as any).fighter1Stats));
+          params.append('fighter2Stats', JSON.stringify((battleInfo as any).fighter2Stats));
         } else {
           // 如果没有从receipt解析到stats，使用本地的数据
           

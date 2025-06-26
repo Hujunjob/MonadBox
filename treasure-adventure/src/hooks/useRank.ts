@@ -58,7 +58,7 @@ export function useRank() {
               topics: log.topics,
             });
             
-            if (decodedLog.eventName === 'RankBattleStarted') {
+            if (decodedLog.eventName === 'ChallengeIssued') {
               const { battleId } = decodedLog.args as any;
               return {
                 battleId: battleId ? battleId.toString() : '',

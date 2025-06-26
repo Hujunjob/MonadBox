@@ -66,7 +66,7 @@ export const useBurnerWalletContract = () => {
         functionName: options.functionName,
         args: options.args || [],
         value: options.value,
-      });
+      } as any);
 
       // Wait for transaction confirmation
       if (publicClient) {
@@ -105,7 +105,7 @@ export const useBurnerWalletContract = () => {
       abi: options.abi,
       functionName: options.functionName,
       args: options.args || [],
-    });
+    } as any);
   }, [publicClient]);
 
   const getBalance = useCallback(async (address?: `0x${string}`) => {
