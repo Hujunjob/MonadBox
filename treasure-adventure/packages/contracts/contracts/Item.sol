@@ -25,7 +25,7 @@ contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgr
 
     // 血瓶治疗相关
     uint256 public constant BASE_HEAL_AMOUNT = 50;
-    uint256 public constant HEAL_AMOUNT_PER_LEVEL = 25;
+    uint256 public constant HEAL_AMOUNT_PER_LEVEL = 50;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {

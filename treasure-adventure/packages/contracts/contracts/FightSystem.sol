@@ -5,13 +5,14 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./Player.sol";
-
+import "./Item.sol";
 /**
  * @title FightSystem
  * @dev 回合制战斗系统合约 - 处理玩家与NPC/玩家之间的回合制战斗
  */
 contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     Player public playerNFT;
+    Item public itemNFT;
     
     // 战斗配置
     struct BattleConfig {
@@ -31,7 +32,8 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint16 agility;
         uint8 criticalRate;
         uint16 criticalDamage;
-        uint256 potionCount;        // 血瓶数量
+        uint256[] potionCount;        // 10个等级的血瓶数量
+        uint8 potionsUsed;            // 战斗中已使用的血瓶数量
     }
     
     // 战斗行动类型
@@ -50,6 +52,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint16 healing;
         uint16 remainingHealth;
         bool isCritical;
+        uint256 usedPotionId;       // 使用的血瓶ID
     }
     
     // 战斗结果
@@ -68,7 +71,7 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     uint8 public constant FIGHTER_TYPE_PLAYER = 1;
     uint8 public constant FIGHTER_TYPE_NPC = 2;
     uint8 public constant LOW_HEALTH_THRESHOLD = 30; // 30%
-    uint16 public constant POTION_HEAL_AMOUNT = 50;
+    uint8 public constant MAX_POTIONS_PER_BATTLE = 3; // 每场战斗最多使用3瓶血
     
     // 事件
     // event BattleStarted(bytes32 indexed battleId, uint256 fighter1Id, uint8 fighter1Type, uint256 fighter2Id, uint8 fighter2Type);
@@ -80,11 +83,12 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         _disableInitializers();
     }
     
-    function initialize(address _playerNFT, address initialOwner) public initializer {
+    function initialize(address _playerNFT, address _itemNFT, address initialOwner) public initializer {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
         
         playerNFT = Player(_playerNFT);
+        itemNFT = Item(_itemNFT);
     }
     
     /**
@@ -135,7 +139,8 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             criticalRate: uint8(fighter1Stats[5]),
             criticalDamage: fighter1Stats[6],
             potionCount: config.canUsePotion && fighter1Type == FIGHTER_TYPE_PLAYER ? 
-                _getPotionCount(fighter1Id) : 0
+                _getPotionCount(fighter1Id) : new uint256[](0),
+            potionsUsed: 0
         });
         
         Fighter memory fighter2 = Fighter({
@@ -150,7 +155,8 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             criticalRate: uint8(fighter2Stats[5]),
             criticalDamage: fighter2Stats[6],
             potionCount: config.canUsePotion && fighter2Type == FIGHTER_TYPE_PLAYER ? 
-                _getPotionCount(fighter2Id) : 0
+                _getPotionCount(fighter2Id) : new uint256[](0),
+            potionsUsed: 0
         });
         
         // 执行战斗
@@ -279,7 +285,8 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             damage: 0,
             healing: 0,
             remainingHealth: attacker.health,
-            isCritical: false
+            isCritical: false,
+            usedPotionId: 0
         });
         
         if (actionType == ActionType.ATTACK) {
@@ -291,16 +298,17 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             action.isCritical = isCritical;
             
         } else if (actionType == ActionType.USE_POTION) {
-            // 使用血瓶
-            uint16 healing = POTION_HEAL_AMOUNT;
+            // 使用血瓶，从最低级的开始使用
+            (uint256 potionId, uint16 healing) = _useLowestPotion(attacker);
+            
             if (attacker.health + healing > attacker.maxHealth) {
                 healing = attacker.maxHealth - attacker.health;
             }
             attacker.health += healing;
-            attacker.potionCount--;
             
             action.healing = healing;
             action.remainingHealth = attacker.health;
+            action.usedPotionId = potionId;
         }
         
         return action;
@@ -314,11 +322,11 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         
         // 血量低于30%时的逻辑
         if (fighter.health <= lowHealthThreshold) {
-            // 优先使用血瓶
-            if (config.canUsePotion && fighter.potionCount > 0) {
+            // 优先使用血瓶（检查是否还能使用血瓶）
+            if (config.canUsePotion && _hasPotions(fighter) && fighter.potionsUsed < MAX_POTIONS_PER_BATTLE) {
                 return ActionType.USE_POTION;
             }
-            // 没有血瓶且可以逃跑
+            // 没有血瓶或已达到使用上限且可以逃跑
             if (config.canEscape) {
                 return ActionType.ESCAPE;
             }
@@ -367,11 +375,47 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     /**
      * @dev 获取玩家血瓶数量
      */
-    function _getPotionCount(uint256 playerId) internal view returns (uint256) {
-        // playerNFT.getPlayerItems(playerId);
-        uint256 count1 = playerNFT.getPlayerItemQuantity(playerId, 100);
-        return count1;
-        // return playerNFT.getPlayerItemCount(playerId, HEALTH_POTION_ID);
+    function _getPotionCount(uint256 playerId) internal view returns (uint256[] memory) {
+        uint256 potionTypeCount = itemNFT.HEALTH_POTION_END_ID() - itemNFT.HEALTH_POTION_START_ID();
+        uint256[] memory potions = new uint256[](potionTypeCount);
+        
+        for (uint256 i = 0; i < potionTypeCount; i++) {
+            uint256 potionId = itemNFT.HEALTH_POTION_START_ID() + i;
+            potions[i] = playerNFT.getPlayerItemQuantity(playerId, potionId);
+        }
+        
+        return potions;
+    }
+    
+    /**
+     * @dev 检查是否有血瓶
+     */
+    function _hasPotions(Fighter memory fighter) internal pure returns (bool) {
+        for (uint256 i = 0; i < fighter.potionCount.length; i++) {
+            if (fighter.potionCount[i] > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * @dev 使用最低级的血瓶
+     */
+    function _useLowestPotion(Fighter memory fighter) internal view returns (uint256 potionId, uint16 healing) {
+        // 从最低级开始找有数量的血瓶
+        for (uint256 i = 0; i < fighter.potionCount.length; i++) {
+            if (fighter.potionCount[i] > 0) {
+                potionId = itemNFT.HEALTH_POTION_START_ID() + i;
+                // 计算血瓶恢复量：基础恢复量 + 等级 * 每级恢复量
+                uint256 level = i + 1; // 等级从1开始
+                healing = uint16(itemNFT.BASE_HEAL_AMOUNT() + (level - 1) * itemNFT.HEAL_AMOUNT_PER_LEVEL());
+                fighter.potionCount[i]--; // 消耗血瓶
+                fighter.potionsUsed++; // 增加已使用血瓶计数
+                return (potionId, healing);
+            }
+        }
+        return (0, 0);
     }
     
     /**
@@ -393,6 +437,13 @@ contract FightSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function updatePlayerNFT(address _playerNFT) external onlyOwner {
         playerNFT = Player(_playerNFT);
+    }
+    
+    /**
+     * @dev 更新Item NFT合约地址
+     */
+    function updateItemNFT(address _itemNFT) external onlyOwner {
+        itemNFT = Item(_itemNFT);
     }
     
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
