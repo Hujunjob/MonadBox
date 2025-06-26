@@ -14,72 +14,76 @@ import "./Item.sol";
  * @title TreasureBoxSystem
  * @dev 宝箱系统合约 - 处理宝箱生成、存储和开启
  */
-contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
+contract TreasureBoxSystem is
+    Initializable,
+    OwnableUpgradeable,
+    UUPSUpgradeable
+{
     AdventureGold public goldToken;
     Equipment public equipmentNFT;
     Player public playerNFT;
     Item public itemNFT;
-    
+
     // 宝箱配置
-    uint256 public constant TREASURE_BOX_INTERVAL = 10; // 10 seconds
-    uint256 public constant MAX_OFFLINE_BOXES = 100;
-    
+    uint256 public TREASURE_BOX_INTERVAL; // 10 seconds
+    uint256 public MAX_OFFLINE_BOXES;
+
     // 奖励类型配置
-    uint8 public constant REWARD_TYPE_GOLD = 0;
-    uint8 public constant REWARD_TYPE_EQUIPMENT = 1;
-    uint8 public constant REWARD_TYPE_HEALTH_POTION = 2;
-    uint8 public constant REWARD_TYPE_PET_EGG = 3;
-    uint8 public constant REWARD_TYPE_JOB_BOOK = 4;
-    
+    uint8 public REWARD_TYPE_GOLD;
+    uint8 public REWARD_TYPE_EQUIPMENT;
+    uint8 public REWARD_TYPE_HEALTH_POTION;
+    uint8 public REWARD_TYPE_PET_EGG;
+    uint8 public REWARD_TYPE_JOB_BOOK;
+
     // 稀有度配置
-    uint8 public constant RARITY_COMMON = 0;
-    uint8 public constant RARITY_UNCOMMON = 1;
-    uint8 public constant RARITY_RARE = 2;
-    uint8 public constant RARITY_EPIC = 3;
-    uint8 public constant RARITY_LEGENDARY = 4;
-    
+    uint8 public RARITY_COMMON;
+    uint8 public RARITY_UNCOMMON;
+    uint8 public RARITY_RARE;
+    uint8 public RARITY_EPIC;
+    uint8 public RARITY_LEGENDARY;
+
     // 装备类型配置
-    uint8 public constant EQUIPMENT_TYPE_HELMET = 0;
-    uint8 public constant EQUIPMENT_TYPE_ARMOR_T = 1;
-    uint8 public constant EQUIPMENT_TYPE_SHOES_T = 2;
-    uint8 public constant EQUIPMENT_TYPE_WEAPON_T = 3;
-    uint8 public constant EQUIPMENT_TYPE_SHIELD_T = 4;
-    uint8 public constant EQUIPMENT_TYPE_ACCESSORY_T = 5;
-    uint8 public constant EQUIPMENT_TYPE_RING_T = 6;
-    uint8 public constant EQUIPMENT_TYPE_PET_T = 7;
-    uint8 public constant MAX_EQUIPMENT_TYPES = 7;
-    
+    uint8 public EQUIPMENT_TYPE_HELMET;
+    uint8 public EQUIPMENT_TYPE_ARMOR_T;
+    uint8 public EQUIPMENT_TYPE_SHOES_T;
+    uint8 public EQUIPMENT_TYPE_WEAPON_T;
+    uint8 public EQUIPMENT_TYPE_SHIELD_T;
+    uint8 public EQUIPMENT_TYPE_ACCESSORY_T;
+    uint8 public EQUIPMENT_TYPE_RING_T;
+    uint8 public EQUIPMENT_TYPE_PET_T;
+    uint8 public MAX_EQUIPMENT_TYPES;
+
     // 金币奖励配置
-    uint256 public constant BASE_GOLD_AMOUNT = 50;
-    uint256 public constant GOLD_PER_LEVEL = 25;
-    uint256 public constant GOLD_RANDOM_BONUS_RANGE = 50;
-    
+    uint256 public BASE_GOLD_AMOUNT;
+    uint256 public GOLD_PER_LEVEL;
+    uint256 public GOLD_RANDOM_BONUS_RANGE;
+
     // 稀有度倍数配置
-    uint16 public constant RARITY_MULTIPLIER_COMMON = 100; // 1x
-    uint16 public constant RARITY_MULTIPLIER_UNCOMMON = 150; // 1.5x
-    uint16 public constant RARITY_MULTIPLIER_RARE = 200; // 2x
-    uint16 public constant RARITY_MULTIPLIER_EPIC = 300; // 3x
-    uint16 public constant RARITY_MULTIPLIER_LEGENDARY = 500; // 5x
-    
+    uint16 public RARITY_MULTIPLIER_COMMON; // 1x
+    uint16 public RARITY_MULTIPLIER_UNCOMMON; // 1.5x
+    uint16 public RARITY_MULTIPLIER_RARE; // 2x
+    uint16 public RARITY_MULTIPLIER_EPIC; // 3x
+    uint16 public RARITY_MULTIPLIER_LEGENDARY; // 5x
+
     // 装备属性基础值配置
-    uint16 public constant WEAPON_BASE_ATTACK = 5;
-    uint16 public constant WEAPON_ATTACK_PER_LEVEL = 2;
-    uint8 public constant WEAPON_BASE_CRIT_RATE = 1;
-    uint8 public constant WEAPON_CRIT_RATE_LEVEL_DIVISOR = 2;
-    uint16 public constant WEAPON_BASE_CRIT_DAMAGE = 5;
-    uint16 public constant WEAPON_CRIT_DAMAGE_PER_LEVEL = 2;
-    
-    uint16 public constant DEFENSE_BASE_VALUE = 3;
-    uint16 public constant DEFENSE_PER_LEVEL = 1;
-    uint16 public constant HEALTH_BASE_VALUE = 10;
-    uint16 public constant HEALTH_PER_LEVEL = 3;
-    
-    uint16 public constant AGILITY_BASE_VALUE = 2;
-    uint16 public constant AGILITY_PER_LEVEL = 1;
-    
-    // 概率计算相关
-    uint16 public constant RANDOM_RANGE_1000 = 1000;
-    uint16 public constant RANDOM_RANGE_100 = 100;
+    uint16 public WEAPON_BASE_ATTACK;
+    uint16 public WEAPON_ATTACK_PER_LEVEL;
+    uint8 public WEAPON_BASE_CRIT_RATE;
+    uint8 public WEAPON_CRIT_RATE_LEVEL_DIVISOR;
+    uint16 public WEAPON_BASE_CRIT_DAMAGE;
+    uint16 public WEAPON_CRIT_DAMAGE_PER_LEVEL;
+
+    uint16 public DEFENSE_BASE_VALUE;
+    uint16 public DEFENSE_PER_LEVEL;
+    uint16 public HEALTH_BASE_VALUE;
+    uint16 public HEALTH_PER_LEVEL;
+
+    uint16 public AGILITY_BASE_VALUE;
+    uint16 public AGILITY_PER_LEVEL;
+
+    // 概率计算相
+    uint16 public RANDOM_RANGE_1000;
+    uint16 public RANDOM_RANGE_100;
 
     struct TreasureBox {
         uint32 level; // 宝箱等级 (1-10)
@@ -101,6 +105,24 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
 
     mapping(uint256 => uint32) public playerBattleLevels;
 
+    // 宝箱奖励概率配置 (基于100，匹配前端逻辑)
+    uint8 public GOLD_PROBABILITY; // 1%
+    uint8 public HEALTH_POTION_PROBABILITY; // 13%
+    uint8 public PET_EGG_PROBABILITY; // 8%
+    uint8 public JOB_BOOK_PROBABILITY; // 7%
+    // 装备 71% (剩余概率)
+
+    // 稀有度概率配置 (基于100)
+    uint8 public COMMON_RARITY; // 60%
+    uint8 public UNCOMMON_RARITY; // 23%
+    uint8 public RARE_RARITY; // 10%
+    uint8 public EPIC_RARITY; // 5%
+    uint8 public LEGENDARY_RARITY; // 2%
+
+    // 奖励等级概率配置
+    uint8 public CURRENT_LEVEL_PROBABILITY; // 95%
+    uint8 public NEXT_LEVEL_PROBABILITY; // 5%
+
     // 修饰符：只有授权的系统或owner可以调用
     modifier onlyAuthorizedOrOwner() {
         require(
@@ -109,24 +131,6 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         );
         _;
     }
-
-    // 宝箱奖励概率配置 (基于100，匹配前端逻辑)
-    uint8 public constant GOLD_PROBABILITY = 10; // 1%
-    uint8 public constant HEALTH_POTION_PROBABILITY = 4; // 13%
-    uint8 public constant PET_EGG_PROBABILITY = 8; // 8%
-    uint8 public constant JOB_BOOK_PROBABILITY = 8; // 7%
-    // 装备 71% (剩余概率)
-
-    // 稀有度概率配置 (基于100)
-    uint8 public constant COMMON_RARITY = 60; // 60%
-    uint8 public constant UNCOMMON_RARITY = 23; // 23%
-    uint8 public constant RARE_RARITY = 10; // 10%
-    uint8 public constant EPIC_RARITY = 5; // 5%
-    uint8 public constant LEGENDARY_RARITY = 2; // 2%
-
-    // 奖励等级概率配置
-    uint8 public constant CURRENT_LEVEL_PROBABILITY = 95; // 95%
-    uint8 public constant NEXT_LEVEL_PROBABILITY = 5; // 5%
 
     // 事件（改为基于playerId）
     event TreasureBoxAdded(uint256 indexed playerId, uint8 level);
@@ -154,11 +158,93 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     ) public initializer {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
-        
+
         goldToken = AdventureGold(_goldToken);
         equipmentNFT = Equipment(_equipmentNFT);
         playerNFT = Player(_playerNFT);
         itemNFT = Item(_itemNFT);
+        intiConfig();
+    }
+
+    function intiConfig() internal {
+        // 宝箱配置
+        TREASURE_BOX_INTERVAL = 10; // 10 seconds
+        MAX_OFFLINE_BOXES = 100;
+
+        // 奖励类型配置
+        REWARD_TYPE_GOLD = 0;
+        REWARD_TYPE_EQUIPMENT = 1;
+        REWARD_TYPE_HEALTH_POTION = 2;
+        REWARD_TYPE_PET_EGG = 3;
+        REWARD_TYPE_JOB_BOOK = 4;
+
+        // 稀有度配置
+        RARITY_COMMON = 0;
+        RARITY_UNCOMMON = 1;
+        RARITY_RARE = 2;
+        RARITY_EPIC = 3;
+        RARITY_LEGENDARY = 4;
+
+        // 装备类型配置
+        EQUIPMENT_TYPE_HELMET = 0;
+        EQUIPMENT_TYPE_ARMOR_T = 1;
+        EQUIPMENT_TYPE_SHOES_T = 2;
+        EQUIPMENT_TYPE_WEAPON_T = 3;
+        EQUIPMENT_TYPE_SHIELD_T = 4;
+        EQUIPMENT_TYPE_ACCESSORY_T = 5;
+        EQUIPMENT_TYPE_RING_T = 6;
+        EQUIPMENT_TYPE_PET_T = 7;
+        MAX_EQUIPMENT_TYPES = 7;
+
+        // 金币奖励配置
+        BASE_GOLD_AMOUNT = 50;
+        GOLD_PER_LEVEL = 25;
+        GOLD_RANDOM_BONUS_RANGE = 50;
+
+        // 稀有度倍数配置
+        RARITY_MULTIPLIER_COMMON = 100; // 1x
+        RARITY_MULTIPLIER_UNCOMMON = 150; // 1.5x
+        RARITY_MULTIPLIER_RARE = 200; // 2x
+        RARITY_MULTIPLIER_EPIC = 300; // 3x
+        RARITY_MULTIPLIER_LEGENDARY = 500; // 5x
+
+        // 装备属性基础值配置
+        WEAPON_BASE_ATTACK = 5;
+        WEAPON_ATTACK_PER_LEVEL = 2;
+        WEAPON_BASE_CRIT_RATE = 1;
+        WEAPON_CRIT_RATE_LEVEL_DIVISOR = 2;
+        WEAPON_BASE_CRIT_DAMAGE = 5;
+        WEAPON_CRIT_DAMAGE_PER_LEVEL = 2;
+
+        DEFENSE_BASE_VALUE = 3;
+        DEFENSE_PER_LEVEL = 1;
+        HEALTH_BASE_VALUE = 10;
+        HEALTH_PER_LEVEL = 3;
+
+        AGILITY_BASE_VALUE = 2;
+        AGILITY_PER_LEVEL = 1;
+
+        // 概率计算相
+        RANDOM_RANGE_1000 = 1000;
+        RANDOM_RANGE_100 = 100;
+
+        // 宝箱奖励概率配置 (基于100，匹配前端逻辑)
+        GOLD_PROBABILITY = 10; // 1%
+        HEALTH_POTION_PROBABILITY = 4; // 13%
+        PET_EGG_PROBABILITY = 8; // 8%
+        JOB_BOOK_PROBABILITY = 8; // 7%
+        // 装备 71% (剩余概率)
+
+        // 稀有度概率配置 (基于100)
+        COMMON_RARITY = 60; // 60%
+        UNCOMMON_RARITY = 23; // 23%
+        RARE_RARITY = 10; // 10%
+        EPIC_RARITY = 5; // 5%
+        LEGENDARY_RARITY = 2; // 2%
+
+        // 奖励等级概率配置
+        CURRENT_LEVEL_PROBABILITY = 95; // 95%
+        NEXT_LEVEL_PROBABILITY = 5; // 5%
     }
 
     /**
@@ -173,10 +259,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         require(level >= 1 && level <= 100, "Invalid box level");
 
         playerTreasureBoxes[playerId].push(
-            TreasureBox({
-                level: level,
-                createdTime: uint32(block.timestamp)
-            })
+            TreasureBox({level: level, createdTime: uint32(block.timestamp)})
         );
         if (level > playerBattleLevels[playerId]) {
             playerBattleLevels[playerId] = level;
@@ -202,8 +285,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         Player.PlayerData memory player = playerNFT.getPlayer(playerId);
 
         uint256 timeSinceLastBox = block.timestamp - player.lastTreasureBoxTime;
-        uint256 boxesToClaim = timeSinceLastBox /
-            TREASURE_BOX_INTERVAL;
+        uint256 boxesToClaim = timeSinceLastBox / TREASURE_BOX_INTERVAL;
 
         if (boxesToClaim > MAX_OFFLINE_BOXES) {
             boxesToClaim = MAX_OFFLINE_BOXES;
@@ -390,19 +472,22 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
      * @param level 宝箱等级
      * @return 奖励类型 (0=金币, 1=装备, 2=血瓶, 3=宠物蛋, 4=转职书)
      */
-    function _generateRewardType(
-        uint8 level
-    ) internal view returns (uint8) {
+    function _generateRewardType(uint8 level) internal view returns (uint8) {
         uint256 random = uint256(
             keccak256(
-                abi.encodePacked(block.timestamp, msg.sender, level, "rewardType")
+                abi.encodePacked(
+                    block.timestamp,
+                    msg.sender,
+                    level,
+                    "rewardType"
+                )
             )
         ) % 100;
 
         if (random < GOLD_PROBABILITY) {
             return 0; // 金币 10%
         } else if (random < GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY) {
-            return 2; // 血瓶 4%  
+            return 2; // 血瓶 4%
         } else if (
             random <
             GOLD_PROBABILITY + HEALTH_POTION_PROBABILITY + PET_EGG_PROBABILITY
@@ -455,7 +540,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     ) internal view returns (uint256) {
         uint256 baseAmount = 50; // 基础50金币
         uint256 levelBonus = uint256(rewardLevel) * 25; // 每级25金币
-        
+
         // 根据等级随机金币数量 (0-49)
         uint256 randomBonus = uint256(
             keccak256(
@@ -489,9 +574,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
      * @param level 宠物蛋等级
      * @return 宠物蛋ID
      */
-    function _generatePetEgg(
-        uint8 level
-    ) internal view returns (uint256) {
+    function _generatePetEgg(uint8 level) internal view returns (uint256) {
         // 宠物蛋ID范围：300-399，根据等级生成ID
         uint256 itemId = itemNFT.PET_EGG_START_ID() + (level - 1);
         return itemId;
@@ -528,7 +611,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
 
     /**
      * @dev 生成装备稀有度（第三步随机 - 装备子步骤2）
-     * @param playerId 玩家ID  
+     * @param playerId 玩家ID
      * @param level 装备等级
      * @return 装备稀有度 (0-4)
      */
@@ -571,7 +654,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         uint8 level
     ) internal returns (uint256) {
         console.log("_mintEquipmentToPlayerNFT level", level);
-        
+
         // 步骤3.1：随机装备类型 (0-7: helmet, armor, shoes, weapon, shield, accessory, ring, pet)
         uint8 equipmentType = _generateEquipmentType(playerId, level);
 
@@ -588,13 +671,13 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
             uint16 critDamage
         ) = _calculateEquipmentStats(level, equipmentType, equipmentRarity);
         console.log("_mintEquipmentToPlayerNFT 2", equipmentType);
-        
+
         console.log(
             "_mintEquipmentToPlayerNFT 2.5",
             address(playerNFT),
             equipmentType
         );
-        
+
         // 铸造装备NFT到Player NFT合约
         uint256 equipmentId = equipmentNFT.mintEquipment(
             address(playerNFT),
@@ -613,7 +696,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
             equipmentType,
             equipmentId
         );
-        
+
         // 添加到Player的背包
         playerNFT.addEquipmentToInventory(playerId, equipmentId);
         console.log("_mintEquipmentToPlayerNFT 4");
@@ -630,17 +713,12 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         uint256 playerId,
         uint8 level
     ) internal view returns (uint8) {
-        uint256 random = uint256(
+        uint256 random = (uint256(
             keccak256(
-                abi.encodePacked(
-                    block.timestamp,
-                    playerId,
-                    level,
-                    "equipType"
-                )
+                abi.encodePacked(block.timestamp, playerId, level, "equipType")
             )
-        ) % 7+1;
-        
+        ) % 7) + 1;
+
         return uint8(random);
     }
 
@@ -701,8 +779,6 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         // pet (equipmentType == 7) 暂时不设置属性
     }
 
-
-
     // ========== 查询函数 ==========
 
     /**
@@ -724,8 +800,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
         Player.PlayerData memory player = playerNFT.getPlayer(playerId);
 
         uint256 timeSinceLastBox = block.timestamp - player.lastTreasureBoxTime;
-        uint256 boxesToClaim = timeSinceLastBox /
-            TREASURE_BOX_INTERVAL;
+        uint256 boxesToClaim = timeSinceLastBox / TREASURE_BOX_INTERVAL;
 
         if (boxesToClaim > MAX_OFFLINE_BOXES) {
             return MAX_OFFLINE_BOXES;
@@ -776,5 +851,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
     /**
      * @dev 授权升级函数 - 只有owner可以升级合约
      */
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 }

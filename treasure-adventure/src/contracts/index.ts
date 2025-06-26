@@ -1,17 +1,17 @@
 // 合约地址配置（自动生成）
 export const CONTRACT_ADDRESSES = {
   // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0xB22C255250d74B0ADD1bfB936676D2a299BF48Bd' as `0x${string}`,
-  EQUIPMENT_NFT: '0xCa1D199b6F53Af7387ac543Af8e8a34455BBe5E0' as `0x${string}`,
-  ITEM_NFT: '0xf5c4a909455C00B99A90d93b48736F3196DB5621' as `0x${string}`,
-  GOLD_TOKEN: '0x94fFA1C7330845646CE9128450F8e6c3B5e44F86' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x666D0c3da3dBc946D5128D06115bb4eed4595580' as `0x${string}`,
-  FIGHT_SYSTEM: '0x742489F22807ebB4C36ca6cD95c3e1C044B7B6c8' as `0x${string}`,
-  BATTLE_SYSTEM: '0x1D8D70AD07C8E7E442AD78E4AC0A16f958Eba7F0' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0xA9e6Bfa2BF53dE88FEb19761D9b2eE2e821bF1Bf' as `0x${string}`,
-  MARKET: '0x3fdc08D815cc4ED3B7F69Ee246716f2C8bCD6b07' as `0x${string}`,
-  RANK: '0xb868Cc77A95a65F42611724AF05Aa2d3B6Ec05F2' as `0x${string}`,
-  SUPER_MARKET: '0x70E5370b8981Abc6e14C91F4AcE823954EFC8eA3' as `0x${string}`
+  PLAYER_NFT: '0x103A3b128991781EE2c8db0454cA99d67b257923' as `0x${string}`,
+  EQUIPMENT_NFT: '0x90c84237fDdf091b1E63f369AF122EB46000bc70' as `0x${string}`,
+  ITEM_NFT: '0x3D63c50AD04DD5aE394CAB562b7691DD5de7CF6f' as `0x${string}`,
+  GOLD_TOKEN: '0x5322471a7E37Ac2B8902cFcba84d266b37D811A0' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xB9d9e972100a1dD01cd441774b45b5821e136043' as `0x${string}`,
+  FIGHT_SYSTEM: '0x707531c9999AaeF9232C8FEfBA31FBa4cB78d84a' as `0x${string}`,
+  BATTLE_SYSTEM: '0x2538a10b7fFb1B78c890c870FC152b10be121f04' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x24432a08869578aAf4d1eadA12e1e78f171b1a2b' as `0x${string}`,
+  MARKET: '0xdB05A386810c809aD5a77422eb189D36c7f24402' as `0x${string}`,
+  RANK: '0xbf2ad38fd09F37f50f723E35dd84EEa1C282c5C9' as `0x${string}`,
+  SUPER_MARKET: '0xF66CfDf074D2FFD6A4037be3A669Ed04380Aef2B' as `0x${string}`
 } as const;
 
 // =============================================================================
@@ -7531,7 +7531,7 @@ export const SUPER_MARKET_ABI = [
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -7550,7 +7550,7 @@ export const SUPER_MARKET_ABI = [
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -7586,7 +7586,7 @@ export const SUPER_MARKET_ABI = [
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {

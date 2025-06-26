@@ -6,30 +6,31 @@ import Web3Toggle from '../components/Web3Toggle';
 import { useHybridGameStore } from '../store/web3GameStore';
 import BuyGoldModal from '../components/BuyGoldModal';
 import { Faucet } from '../components/Faucet';
+import { ReactTogether, Chat } from 'react-together'
 
 const PlayerStats: React.FC = () => {
   const hybridStore = useHybridGameStore();
   const player = hybridStore.player
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log("Player");
     console.log(player);
-  },[player])
+  }, [player])
 
   const stats = calculatePlayerStats(player);
   const baseStats = getBaseStats(player);
   const equipmentBonus = calculateEquipmentBonus(player);
-  
+
   const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const [isBuyGoldModalOpen, setIsBuyGoldModalOpen] = useState(false);
   const [isFaucetOpen, setIsFaucetOpen] = useState(false);
-  
+
   // 通知数据（示例）
   const notifications = [
-    "🎉 欢迎来到宝物冒险！",
+    "🎉 欢迎来到Monad Hunter！",
     "💰 在线可以赚取MON，段位越高MON越多",
     "📦 快开启宝箱获得资源",
     "🐾 宠物系统即将上线！"
@@ -50,9 +51,9 @@ const PlayerStats: React.FC = () => {
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [activeTooltip]);
-  
+
   const expNeeded = player.level * 100;
-  
+
   const equipmentSlots = [
     { key: 'helmet', name: '头盔', type: EquipmentType.HELMET },
     { key: 'armor', name: '衣服', type: EquipmentType.ARMOR },
@@ -63,7 +64,7 @@ const PlayerStats: React.FC = () => {
     { key: 'ring', name: '戒指', type: EquipmentType.RING },
     { key: 'pet', name: '宠物', type: EquipmentType.PET }
   ];
-  
+
   const handleEquipmentClick = (equipment: any, slot: string) => {
     setSelectedEquipment(equipment);
     setSelectedSlot(slot);
@@ -80,22 +81,22 @@ const PlayerStats: React.FC = () => {
     event.stopPropagation();
     setActiveTooltip(activeTooltip === tooltipId ? null : tooltipId);
   };
-  
+
   return (
     <div className="player-stats">
       {/* Web3 模式切换 */}
-      
+
       <Web3Toggle />
-      
+
       {/* 网络调试器 */}
       {/* <NetworkDebugger /> */}
-      
+
       {/* 合约信息 */}
       {/* <ContractInfo /> */}
-      
+
       {/* 测试 ETH 助手 */}
       {/* <TestEthHelper /> */}
-      
+
       {/* 通知栏 */}
       <div className="notification-bar">
         <div className="notification-content">
@@ -106,13 +107,13 @@ const PlayerStats: React.FC = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="stat-row">
         <span>姓名: {player.name}</span>
         <span>{getJobLevelDisplay(player.level, player.experience)}</span>
         <span>
           金币: {player.gold}
-          <button 
+          <button
             className="gold-add-btn"
             onClick={() => setIsBuyGoldModalOpen(true)}
             style={{
@@ -130,19 +131,19 @@ const PlayerStats: React.FC = () => {
           </button>
         </span>
       </div>
-      
+
       <div className="stat-row">
         <span>经验: {player.experience}/{expNeeded}</span>
         <span>血量: {player.health}/{stats.maxHealth}</span>
         <span>体力: {player.stamina || 0}/{player.maxStamina || 24}</span>
       </div>
-      
+
       {!getCanGainExperience(player.level, player.experience) && (
-        <div style={{ 
-          backgroundColor: '#fff3cd', 
-          border: '1px solid #ffeaa7', 
-          borderRadius: '5px', 
-          padding: '10px', 
+        <div style={{
+          backgroundColor: '#fff3cd',
+          border: '1px solid #ffeaa7',
+          borderRadius: '5px',
+          padding: '10px',
           margin: '10px 0',
           color: '#856404',
           textAlign: 'center'
@@ -150,11 +151,11 @@ const PlayerStats: React.FC = () => {
           <strong>⚠️ 需要转职才能继续获得经验！</strong>
         </div>
       )}
-      
+
       <div className="stat-grid-3col">
         <div className="stat-item">
-          <span 
-            className="stat-icon" 
+          <span
+            className="stat-icon"
             onClick={(e) => handleTooltipClick('attack', e)}
           >
             ⚔️
@@ -170,8 +171,8 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span 
-            className="stat-icon" 
+          <span
+            className="stat-icon"
             onClick={(e) => handleTooltipClick('defense', e)}
           >
             🛡️
@@ -187,8 +188,8 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span 
-            className="stat-icon" 
+          <span
+            className="stat-icon"
             onClick={(e) => handleTooltipClick('agility', e)}
           >
             💨
@@ -204,8 +205,8 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span 
-            className="stat-icon" 
+          <span
+            className="stat-icon"
             onClick={(e) => handleTooltipClick('criticalRate', e)}
           >
             💥
@@ -221,8 +222,8 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span 
-            className="stat-icon" 
+          <span
+            className="stat-icon"
             onClick={(e) => handleTooltipClick('criticalDamage', e)}
           >
             🔥
@@ -238,8 +239,8 @@ const PlayerStats: React.FC = () => {
           </span>
         </div>
         <div className="stat-item">
-          <span 
-            className="stat-icon" 
+          <span
+            className="stat-icon"
             onClick={(e) => handleTooltipClick('treasureBox', e)}
           >
             📦
@@ -248,7 +249,7 @@ const PlayerStats: React.FC = () => {
           <span>{Array.isArray(hybridStore.treasureBoxes) ? hybridStore.treasureBoxes.length : 0}</span>
         </div>
       </div>
-      
+
       {/* 装备区域 */}
       <div className="equipment-section">
         <div className="equipment-slots">
@@ -258,7 +259,7 @@ const PlayerStats: React.FC = () => {
               <div key={slot.key} className="equipment-slot">
                 <div className="slot-content">
                   {equippedItem ? (
-                    <div 
+                    <div
                       className="equipped-item clickable inventory-item equipment"
                       style={{ backgroundColor: getRarityColor(equippedItem.rarity) }}
                       onClick={() => handleEquipmentClick(equippedItem, slot.key)}
@@ -267,15 +268,15 @@ const PlayerStats: React.FC = () => {
                         <span className="equipment-level-badge">Lv.{equippedItem.level}</span>
                       </div>
                       <div className="item-display">
-                        <img 
-                          src={getEquipmentImage(equippedItem.equipmentType !== undefined ? equippedItem.equipmentType : equippedItem.type)} 
+                        <img
+                          src={getEquipmentImage(equippedItem.equipmentType !== undefined ? equippedItem.equipmentType : equippedItem.type)}
                           alt={equippedItem.name}
                           style={{ width: '32px', height: '32px' }}
                         />
                       </div>
                       <div className="item-info">
                         <div className="equipment-stars-clean">
-                          {Array.from({length: 5}, (_, i) => (
+                          {Array.from({ length: 5 }, (_, i) => (
                             <span key={i} className={`star-clean ${i < (equippedItem.stars || 0) ? 'filled' : 'empty'}`}>
                               ★
                             </span>
@@ -294,8 +295,9 @@ const PlayerStats: React.FC = () => {
           })}
         </div>
       </div>
-      <button onClick={()=>{setIsFaucetOpen(true)}}>Faucet</button>
+      <button onClick={() => { setIsFaucetOpen(true) }}>Faucet</button>
 
+      <Chat rtKey="chat" chatName="冒险世界频道" />
       <EquipmentModal
         equipment={selectedEquipment}
         slot={selectedSlot}
@@ -303,7 +305,7 @@ const PlayerStats: React.FC = () => {
         onClose={handleCloseModal}
         isEquipped={true}
       />
-      
+
       <BuyGoldModal
         isOpen={isBuyGoldModalOpen}
         onClose={() => setIsBuyGoldModalOpen(false)}
