@@ -1,0 +1,20 @@
+{
+  "network": "monadTestnet",
+  "chainId": 10143,
+  "playerNFT": "0xA20acb0cB2136B4CA0193D33715964133401b1eb",
+  "equipmentNFT": "0x954d051058C4102BceaeaA4518fe9dce5011C216",
+  "itemNFT": "0xd4bdFd65036210a2fdc037Fb099ABe3bFA6194e8",
+  "goldToken": "0x19a878E28b484Fa6304d75eD86d98Bc78854fCF0",
+  "treasureBoxSystem": "0xf3dF08aD252f32c0272eeb9De034683279c4a334",
+  "fightSystem": "0xA75b025a8dA92D12Ee0750600E59794C58f41367",
+  "battleSystem": "0x3FCf95ccD5700C0d51a29049c1c4c5cD3fc6ce6d",
+  "equipmentSystem": "0x4Aa10b704E89BcED65d77D40C290567427f9AC5D",
+  "market": "0x1cd9a81a2152711B78648ABd8960B808012B60Fe",
+  "rank": "0x2516A32417e9E1DDE7E2E714616A086Cd6C1c9EF",
+  "superMarket": "0x00F319528c223ad4d0538a924EB61dF2E685A1F6",
+  "deployedAt": "2025-06-26T12:25:53.472Z",
+  "upgradeable": true,
+  "rpcUrl": "https://testnet-rpc.monad.xyz",
+  "explorer": "https://testnet.monadexplorer.com",
+  "faucet": "https://faucet.testnet.monad.xyz"
+}

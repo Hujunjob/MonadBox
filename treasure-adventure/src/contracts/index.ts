@@ -1,17 +1,26 @@
-// 合约地址配置（自动生成）
+// 合约地址配置（Monad Testnet网络 - 自动生成）
 export const CONTRACT_ADDRESSES = {
-  // 本地测试网络地址（从 packages/contracts/deploymentsUpgradeable.json 自动更新）
-  PLAYER_NFT: '0xdccF554708B72d0fe9500cBfc1595cDBE3d66e5a' as `0x${string}`,
-  EQUIPMENT_NFT: '0x63ecE4C05B8fB272D16844E96702Ea2f26370982' as `0x${string}`,
-  ITEM_NFT: '0x3576293Ba6Adacba1A81397db889558Dd91A8519' as `0x${string}`,
-  GOLD_TOKEN: '0x582957C7a35CDfeAAD1Ca4b87AE03913eAAd0Be0' as `0x${string}`,
-  TREASURE_BOX_SYSTEM: '0x645B0f55268eF561176f3247D06d0b7742f79819' as `0x${string}`,
-  FIGHT_SYSTEM: '0x8AFB0C54bAE39A5e56b984DF1C4b5702b2abf205' as `0x${string}`,
-  BATTLE_SYSTEM: '0x81ED8e0325B17A266B2aF225570679cfd635d0bb' as `0x${string}`,
-  EQUIPMENT_SYSTEM: '0x6B763F54D260aFF608CbbAeD8721c96992eC24Db' as `0x${string}`,
-  MARKET: '0xF48883F2ae4C4bf4654f45997fE47D73daA4da07' as `0x${string}`,
-  RANK: '0x226A19c076a3047a53e5430B14bcDB42dbccA159' as `0x${string}`,
-  SUPER_MARKET: '0xA5c9020ea95324a05B48491FB3e61Ba111E5dd95' as `0x${string}`
+  // Monad Testnet网络地址
+  PLAYER_NFT: '0xA20acb0cB2136B4CA0193D33715964133401b1eb' as `0x${string}`,
+  EQUIPMENT_NFT: '0x954d051058C4102BceaeaA4518fe9dce5011C216' as `0x${string}`,
+  ITEM_NFT: '0xd4bdFd65036210a2fdc037Fb099ABe3bFA6194e8' as `0x${string}`,
+  GOLD_TOKEN: '0x19a878E28b484Fa6304d75eD86d98Bc78854fCF0' as `0x${string}`,
+  TREASURE_BOX_SYSTEM: '0xf3dF08aD252f32c0272eeb9De034683279c4a334' as `0x${string}`,
+  FIGHT_SYSTEM: '0xA75b025a8dA92D12Ee0750600E59794C58f41367' as `0x${string}`,
+  BATTLE_SYSTEM: '0x3FCf95ccD5700C0d51a29049c1c4c5cD3fc6ce6d' as `0x${string}`,
+  EQUIPMENT_SYSTEM: '0x4Aa10b704E89BcED65d77D40C290567427f9AC5D' as `0x${string}`,
+  MARKET: '0x1cd9a81a2152711B78648ABd8960B808012B60Fe' as `0x${string}`,
+  RANK: '0x2516A32417e9E1DDE7E2E714616A086Cd6C1c9EF' as `0x${string}`,
+  SUPER_MARKET: '0x00F319528c223ad4d0538a924EB61dF2E685A1F6' as `0x${string}`
+} as const;
+
+// 网络信息
+export const NETWORK_INFO = {
+  chainId: 10143,
+  name: 'Monad Testnet',
+  currency: 'MON',
+  rpcUrl: 'https://testnet-rpc.monad.xyz',
+  explorer: 'https://testnet.monadexplorer.com'
 } as const;
 
 // =============================================================================

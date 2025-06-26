@@ -60,6 +60,61 @@
       "address": "0x99bB864d5F7405452ec00767a4fF2b63395E273A",
       "txHash": "0xc9c42c26e4e3572acbffa6c2fc202792a96ee37f597612828b2bbef2ad3ee229",
       "kind": "uups"
+    },
+    {
+      "address": "0x19a878E28b484Fa6304d75eD86d98Bc78854fCF0",
+      "txHash": "0x2e28046cbe71566f906e654200de06b7d505d43ece42816876ea9cee0354a608",
+      "kind": "uups"
+    },
+    {
+      "address": "0x954d051058C4102BceaeaA4518fe9dce5011C216",
+      "txHash": "0x407467314b008f02740c419a9532f07d840f11197293c3c177ec8733b2aef1ee",
+      "kind": "uups"
+    },
+    {
+      "address": "0xd4bdFd65036210a2fdc037Fb099ABe3bFA6194e8",
+      "txHash": "0x107a311e0868520dcddf5bf3f943e3d4ae1fc1547f69a16b8eb1b30362b6c7a6",
+      "kind": "uups"
+    },
+    {
+      "address": "0xA20acb0cB2136B4CA0193D33715964133401b1eb",
+      "txHash": "0xdc687f47645f8222ecf0c6504f988c88f93573b3aefc8a0d3cd6872979aeaf9f",
+      "kind": "uups"
+    },
+    {
+      "address": "0xf3dF08aD252f32c0272eeb9De034683279c4a334",
+      "txHash": "0x3c4ba96d11949f30074908e932ffa6a59af0d90f1c5cbc4d58da279701c42c78",
+      "kind": "uups"
+    },
+    {
+      "address": "0xA75b025a8dA92D12Ee0750600E59794C58f41367",
+      "txHash": "0x81edf27e1da99b3b46cb301fad315e058e198bc2202d87b1a2a09fddf3fc560f",
+      "kind": "uups"
+    },
+    {
+      "address": "0x3FCf95ccD5700C0d51a29049c1c4c5cD3fc6ce6d",
+      "txHash": "0xa948764ff7fe70fadddfbc866acb58c7e5f03063b94ecf472575ce7ba09449c6",
+      "kind": "uups"
+    },
+    {
+      "address": "0x4Aa10b704E89BcED65d77D40C290567427f9AC5D",
+      "txHash": "0xf0e85904015774f0f463543c69a14a48b5a9d92e75eb7d85f7ef23c9c216fddc",
+      "kind": "uups"
+    },
+    {
+      "address": "0x1cd9a81a2152711B78648ABd8960B808012B60Fe",
+      "txHash": "0xb52f702eb89deae85c109797fceb4105886a2252587172ac340ec72b8166c902",
+      "kind": "uups"
+    },
+    {
+      "address": "0x2516A32417e9E1DDE7E2E714616A086Cd6C1c9EF",
+      "txHash": "0x4470c38b3b245826d8b23cfffe586e0f16f0abc16d303fe0d10b476d0bedb079",
+      "kind": "uups"
+    },
+    {
+      "address": "0x00F319528c223ad4d0538a924EB61dF2E685A1F6",
+      "txHash": "0x967e580bd347a5e4cdd9e0756f1b21561b9d11a167a5103b7912ec9eca1c216f",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -1696,6 +1751,3415 @@
           }
         },
         "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "c1f31249dd8ad8f2f5377b122a023e44c1ffa08cb0bfa3ced13c802577c85ee9": {
+      "address": "0xDCf5E2565aBa047b9Bb2c683d80472BE2273e377",
+      "txHash": "0x3714c799530207928403b7e3b9a3bbedb2ad6fd9a8dea01fbf804db3f6aff5a2",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "_tokenIds",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Equipment",
+            "src": "contracts/Equipment.sol:16"
+          },
+          {
+            "label": "authorizedSystems",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "Equipment",
+            "src": "contracts/Equipment.sol:39"
+          },
+          {
+            "label": "equipmentData",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_uint256,t_struct(EquipmentData)13419_storage)",
+            "contract": "Equipment",
+            "src": "contracts/Equipment.sol:49"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+            "label": "mapping(address => mapping(uint256 => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC721EnumerableStorage)1087_storage": {
+            "label": "struct ERC721EnumerableUpgradeable.ERC721EnumerableStorage",
+            "members": [
+              {
+                "label": "_ownedTokens",
+                "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_ownedTokensIndex",
+                "type": "t_mapping(t_uint256,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_allTokens",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_allTokensIndex",
+                "type": "t_mapping(t_uint256,t_uint256)",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(ERC721Storage)749_storage": {
+            "label": "struct ERC721Upgradeable.ERC721Storage",
+            "members": [
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_owners",
+                "type": "t_mapping(t_uint256,t_address)",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_tokenApprovals",
+                "type": "t_mapping(t_uint256,t_address)",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "_operatorApprovals",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+                "offset": 0,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_mapping(t_uint256,t_struct(EquipmentData)13419_storage)": {
+            "label": "mapping(uint256 => struct Equipment.EquipmentData)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(EquipmentData)13419_storage": {
+            "label": "struct Equipment.EquipmentData",
+            "members": [
+              {
+                "label": "equipmentType",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "level",
+                "type": "t_uint8",
+                "offset": 1,
+                "slot": "0"
+              },
+              {
+                "label": "stars",
+                "type": "t_uint8",
+                "offset": 2,
+                "slot": "0"
+              },
+              {
+                "label": "rarity",
+                "type": "t_uint8",
+                "offset": 3,
+                "slot": "0"
+              },
+              {
+                "label": "attack",
+                "type": "t_uint16",
+                "offset": 4,
+                "slot": "0"
+              },
+              {
+                "label": "defense",
+                "type": "t_uint16",
+                "offset": 6,
+                "slot": "0"
+              },
+              {
+                "label": "agility",
+                "type": "t_uint16",
+                "offset": 8,
+                "slot": "0"
+              },
+              {
+                "label": "criticalRate",
+                "type": "t_uint8",
+                "offset": 10,
+                "slot": "0"
+              },
+              {
+                "label": "criticalDamage",
+                "type": "t_uint16",
+                "offset": 11,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC721Enumerable": [
+            {
+              "contract": "ERC721EnumerableUpgradeable",
+              "label": "_ownedTokens",
+              "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC721EnumerableUpgradeable",
+              "label": "_ownedTokensIndex",
+              "type": "t_mapping(t_uint256,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:22",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC721EnumerableUpgradeable",
+              "label": "_allTokens",
+              "type": "t_array(t_uint256)dyn_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC721EnumerableUpgradeable",
+              "label": "_allTokensIndex",
+              "type": "t_mapping(t_uint256,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:25",
+              "offset": 0,
+              "slot": "3"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC721": [
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:27",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:30",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_owners",
+              "type": "t_mapping(t_uint256,t_address)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:32",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:34",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_tokenApprovals",
+              "type": "t_mapping(t_uint256,t_address)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:36",
+              "offset": 0,
+              "slot": "4"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_operatorApprovals",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "5"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "36b01579fb8f0ae72cf511c759826e293f318d1762757f22cadd42141985c061": {
+      "address": "0xB1Aba23739B8a420d5853CEF3BF9079DEe035eF4",
+      "txHash": "0x127b3cc26712479de616d93d62aaaeecd061240adc4c4b686f78dd490ccfb24d",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "BASE_HEAL_AMOUNT",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Item",
+            "src": "contracts/Item.sol:35"
+          },
+          {
+            "label": "HEAL_AMOUNT_PER_LEVEL",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "Item",
+            "src": "contracts/Item.sol:37"
+          },
+          {
+            "label": "authorizedSystems",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "Item",
+            "src": "contracts/Item.sol:59"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint256 => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC1155Storage)234_storage": {
+            "label": "struct ERC1155Upgradeable.ERC1155Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_operatorApprovals",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_uri",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC1155": [
+            {
+              "contract": "ERC1155Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol:27",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC1155Upgradeable",
+              "label": "_operatorApprovals",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol:29",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC1155Upgradeable",
+              "label": "_uri",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol:32",
+              "offset": 0,
+              "slot": "2"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "1c24215f8b4be7294ff7b7439816339bf34e87904f56595e3087974f9f7c67db": {
+      "address": "0xb739635Afe8fb996b7C48703c7460d4f7e198DD7",
+      "txHash": "0x0947dd8441dcf561819b17d58d13124e938b6611a8656562d30e047d750260a7",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "players",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_uint256,t_struct(PlayerData)17573_storage)",
+            "contract": "Player",
+            "src": "contracts/Player.sol:55"
+          },
+          {
+            "label": "equippedItems",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_uint256,t_mapping(t_uint8,t_uint256))",
+            "contract": "Player",
+            "src": "contracts/Player.sol:56"
+          },
+          {
+            "label": "equipmentTypeToSlot",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_uint8,t_uint8)",
+            "contract": "Player",
+            "src": "contracts/Player.sol:61"
+          },
+          {
+            "label": "playerItems",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint256,t_mapping(t_uint256,t_uint256))",
+            "contract": "Player",
+            "src": "contracts/Player.sol:64"
+          },
+          {
+            "label": "_nextTokenId",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "Player",
+            "src": "contracts/Player.sol:66"
+          },
+          {
+            "label": "equipmentNFT",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_contract(Equipment)13830",
+            "contract": "Player",
+            "src": "contracts/Player.sol:69"
+          },
+          {
+            "label": "goldToken",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_contract(AdventureGold)11920",
+            "contract": "Player",
+            "src": "contracts/Player.sol:70"
+          },
+          {
+            "label": "itemNFT",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_contract(Item)16323",
+            "contract": "Player",
+            "src": "contracts/Player.sol:71"
+          },
+          {
+            "label": "MAX_STAMINA",
+            "offset": 20,
+            "slot": "7",
+            "type": "t_uint8",
+            "contract": "Player",
+            "src": "contracts/Player.sol:74"
+          },
+          {
+            "label": "STAMINA_RECOVERY_INTERVAL",
+            "offset": 21,
+            "slot": "7",
+            "type": "t_uint32",
+            "contract": "Player",
+            "src": "contracts/Player.sol:74"
+          },
+          {
+            "label": "BASE_EXP_PER_LEVEL",
+            "offset": 25,
+            "slot": "7",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:79"
+          },
+          {
+            "label": "MAX_LEVEL",
+            "offset": 27,
+            "slot": "7",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:80"
+          },
+          {
+            "label": "INITIAL_HEALTH",
+            "offset": 29,
+            "slot": "7",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:81"
+          },
+          {
+            "label": "INITIAL_ATTACK",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:82"
+          },
+          {
+            "label": "INITIAL_DEFENSE",
+            "offset": 2,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:83"
+          },
+          {
+            "label": "INITIAL_AGILITY",
+            "offset": 4,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:86"
+          },
+          {
+            "label": "INITIAL_CRIT_RATE",
+            "offset": 6,
+            "slot": "8",
+            "type": "t_uint8",
+            "contract": "Player",
+            "src": "contracts/Player.sol:87"
+          },
+          {
+            "label": "INITIAL_CRIT_DAMAGE",
+            "offset": 7,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:88"
+          },
+          {
+            "label": "HEALTH_PER_LEVEL",
+            "offset": 9,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:90"
+          },
+          {
+            "label": "ATTACK_PER_LEVEL",
+            "offset": 11,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:92"
+          },
+          {
+            "label": "DEFENSE_PER_LEVEL",
+            "offset": 13,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:95"
+          },
+          {
+            "label": "AGILITY_PER_LEVEL",
+            "offset": 15,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:96"
+          },
+          {
+            "label": "TOTAL_EQUIPMENT_SLOTS",
+            "offset": 17,
+            "slot": "8",
+            "type": "t_uint8",
+            "contract": "Player",
+            "src": "contracts/Player.sol:99"
+          },
+          {
+            "label": "MIN_NAME_LENGTH",
+            "offset": 18,
+            "slot": "8",
+            "type": "t_uint8",
+            "contract": "Player",
+            "src": "contracts/Player.sol:101"
+          },
+          {
+            "label": "MAX_NAME_LENGTH",
+            "offset": 19,
+            "slot": "8",
+            "type": "t_uint8",
+            "contract": "Player",
+            "src": "contracts/Player.sol:102"
+          },
+          {
+            "label": "INITIAL_LEVEL",
+            "offset": 20,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:104"
+          },
+          {
+            "label": "INITIAL_EXPERIENCE",
+            "offset": 22,
+            "slot": "8",
+            "type": "t_uint32",
+            "contract": "Player",
+            "src": "contracts/Player.sol:107"
+          },
+          {
+            "label": "INITIAL_FOREST_LEVEL",
+            "offset": 26,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:107"
+          },
+          {
+            "label": "INITIAL_FOREST_PROGRESS",
+            "offset": 28,
+            "slot": "8",
+            "type": "t_uint16",
+            "contract": "Player",
+            "src": "contracts/Player.sol:108"
+          },
+          {
+            "label": "INITIAL_GOLD_BALANCE",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "Player",
+            "src": "contracts/Player.sol:111"
+          },
+          {
+            "label": "STAMINA_GAIN_PER_10_LEVELS",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint8",
+            "contract": "Player",
+            "src": "contracts/Player.sol:112"
+          },
+          {
+            "label": "STAMINA_LEVEL_INTERVAL",
+            "offset": 1,
+            "slot": "10",
+            "type": "t_uint8",
+            "contract": "Player",
+            "src": "contracts/Player.sol:115"
+          },
+          {
+            "label": "MAX_POSSIBLE_STAMINA",
+            "offset": 2,
+            "slot": "10",
+            "type": "t_uint8",
+            "contract": "Player",
+            "src": "contracts/Player.sol:116"
+          },
+          {
+            "label": "authorizedSystems",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "Player",
+            "src": "contracts/Player.sol:117"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+            "label": "mapping(address => mapping(uint256 => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC721EnumerableStorage)1087_storage": {
+            "label": "struct ERC721EnumerableUpgradeable.ERC721EnumerableStorage",
+            "members": [
+              {
+                "label": "_ownedTokens",
+                "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_ownedTokensIndex",
+                "type": "t_mapping(t_uint256,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_allTokens",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_allTokensIndex",
+                "type": "t_mapping(t_uint256,t_uint256)",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(ERC721Storage)749_storage": {
+            "label": "struct ERC721Upgradeable.ERC721Storage",
+            "members": [
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_owners",
+                "type": "t_mapping(t_uint256,t_address)",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_tokenApprovals",
+                "type": "t_mapping(t_uint256,t_address)",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "_operatorApprovals",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+                "offset": 0,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(AdventureGold)11920": {
+            "label": "contract AdventureGold",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Equipment)13830": {
+            "label": "contract Equipment",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Item)16323": {
+            "label": "contract Item",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint256,t_mapping(t_uint256,t_uint256))": {
+            "label": "mapping(uint256 => mapping(uint256 => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_uint8,t_uint256))": {
+            "label": "mapping(uint256 => mapping(uint8 => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(PlayerData)17573_storage)": {
+            "label": "mapping(uint256 => struct Player.PlayerData)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint8,t_uint256)": {
+            "label": "mapping(uint8 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint8,t_uint8)": {
+            "label": "mapping(uint8 => uint8)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(PlayerData)17573_storage": {
+            "label": "struct Player.PlayerData",
+            "members": [
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "level",
+                "type": "t_uint16",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "experience",
+                "type": "t_uint32",
+                "offset": 2,
+                "slot": "1"
+              },
+              {
+                "label": "health",
+                "type": "t_uint16",
+                "offset": 6,
+                "slot": "1"
+              },
+              {
+                "label": "maxHealth",
+                "type": "t_uint16",
+                "offset": 8,
+                "slot": "1"
+              },
+              {
+                "label": "attack",
+                "type": "t_uint16",
+                "offset": 10,
+                "slot": "1"
+              },
+              {
+                "label": "defense",
+                "type": "t_uint16",
+                "offset": 12,
+                "slot": "1"
+              },
+              {
+                "label": "agility",
+                "type": "t_uint16",
+                "offset": 14,
+                "slot": "1"
+              },
+              {
+                "label": "criticalRate",
+                "type": "t_uint8",
+                "offset": 16,
+                "slot": "1"
+              },
+              {
+                "label": "criticalDamage",
+                "type": "t_uint16",
+                "offset": 17,
+                "slot": "1"
+              },
+              {
+                "label": "stamina",
+                "type": "t_uint8",
+                "offset": 19,
+                "slot": "1"
+              },
+              {
+                "label": "maxStamina",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "1"
+              },
+              {
+                "label": "lastStaminaTime",
+                "type": "t_uint32",
+                "offset": 21,
+                "slot": "1"
+              },
+              {
+                "label": "currentForestLevel",
+                "type": "t_uint16",
+                "offset": 25,
+                "slot": "1"
+              },
+              {
+                "label": "currentForestProgress",
+                "type": "t_uint16",
+                "offset": 27,
+                "slot": "1"
+              },
+              {
+                "label": "lastTreasureBoxTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "goldBalance",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "inventory",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC721Enumerable": [
+            {
+              "contract": "ERC721EnumerableUpgradeable",
+              "label": "_ownedTokens",
+              "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC721EnumerableUpgradeable",
+              "label": "_ownedTokensIndex",
+              "type": "t_mapping(t_uint256,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:22",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC721EnumerableUpgradeable",
+              "label": "_allTokens",
+              "type": "t_array(t_uint256)dyn_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC721EnumerableUpgradeable",
+              "label": "_allTokensIndex",
+              "type": "t_mapping(t_uint256,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:25",
+              "offset": 0,
+              "slot": "3"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC721": [
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:27",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:30",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_owners",
+              "type": "t_mapping(t_uint256,t_address)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:32",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:34",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_tokenApprovals",
+              "type": "t_mapping(t_uint256,t_address)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:36",
+              "offset": 0,
+              "slot": "4"
+            },
+            {
+              "contract": "ERC721Upgradeable",
+              "label": "_operatorApprovals",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "5"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "9765ecd0bd18570263266d3ea6bce809e89a1d28e6d715cc16b4861a7df95ba6": {
+      "address": "0x12e9cd4B1446204DEa14b7cb72ea0D410135176c",
+      "txHash": "0x369e566cee9ee965568b6759c09bf8f66aca68a79f035e69d9ac35d1e5bdacd5",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "goldToken",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(AdventureGold)11920",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:23"
+          },
+          {
+            "label": "equipmentNFT",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(Equipment)13830",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:24"
+          },
+          {
+            "label": "playerNFT",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(Player)19982",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:25"
+          },
+          {
+            "label": "itemNFT",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(Item)16323",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:28"
+          },
+          {
+            "label": "TREASURE_BOX_INTERVAL",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:28"
+          },
+          {
+            "label": "MAX_OFFLINE_BOXES",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:31"
+          },
+          {
+            "label": "REWARD_TYPE_GOLD",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:33"
+          },
+          {
+            "label": "REWARD_TYPE_EQUIPMENT",
+            "offset": 1,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:34"
+          },
+          {
+            "label": "REWARD_TYPE_HEALTH_POTION",
+            "offset": 2,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:35"
+          },
+          {
+            "label": "REWARD_TYPE_PET_EGG",
+            "offset": 3,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:36"
+          },
+          {
+            "label": "REWARD_TYPE_JOB_BOOK",
+            "offset": 4,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:39"
+          },
+          {
+            "label": "RARITY_COMMON",
+            "offset": 5,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:41"
+          },
+          {
+            "label": "RARITY_UNCOMMON",
+            "offset": 6,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:42"
+          },
+          {
+            "label": "RARITY_RARE",
+            "offset": 7,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:43"
+          },
+          {
+            "label": "RARITY_EPIC",
+            "offset": 8,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:45"
+          },
+          {
+            "label": "RARITY_LEGENDARY",
+            "offset": 9,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:46"
+          },
+          {
+            "label": "EQUIPMENT_TYPE_HELMET",
+            "offset": 10,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:48"
+          },
+          {
+            "label": "EQUIPMENT_TYPE_ARMOR_T",
+            "offset": 11,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:49"
+          },
+          {
+            "label": "EQUIPMENT_TYPE_SHOES_T",
+            "offset": 12,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:49"
+          },
+          {
+            "label": "EQUIPMENT_TYPE_WEAPON_T",
+            "offset": 13,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:50"
+          },
+          {
+            "label": "EQUIPMENT_TYPE_SHIELD_T",
+            "offset": 14,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:51"
+          },
+          {
+            "label": "EQUIPMENT_TYPE_ACCESSORY_T",
+            "offset": 15,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:52"
+          },
+          {
+            "label": "EQUIPMENT_TYPE_RING_T",
+            "offset": 16,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:54"
+          },
+          {
+            "label": "EQUIPMENT_TYPE_PET_T",
+            "offset": 17,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:56"
+          },
+          {
+            "label": "MAX_EQUIPMENT_TYPES",
+            "offset": 18,
+            "slot": "6",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:57"
+          },
+          {
+            "label": "BASE_GOLD_AMOUNT",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:59"
+          },
+          {
+            "label": "GOLD_PER_LEVEL",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:61"
+          },
+          {
+            "label": "GOLD_RANDOM_BONUS_RANGE",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:62"
+          },
+          {
+            "label": "RARITY_MULTIPLIER_COMMON",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:64"
+          },
+          {
+            "label": "RARITY_MULTIPLIER_UNCOMMON",
+            "offset": 2,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:65"
+          },
+          {
+            "label": "RARITY_MULTIPLIER_RARE",
+            "offset": 4,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:66"
+          },
+          {
+            "label": "RARITY_MULTIPLIER_EPIC",
+            "offset": 6,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:68"
+          },
+          {
+            "label": "RARITY_MULTIPLIER_LEGENDARY",
+            "offset": 8,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:69"
+          },
+          {
+            "label": "WEAPON_BASE_ATTACK",
+            "offset": 10,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:72"
+          },
+          {
+            "label": "WEAPON_ATTACK_PER_LEVEL",
+            "offset": 12,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:72"
+          },
+          {
+            "label": "WEAPON_BASE_CRIT_RATE",
+            "offset": 14,
+            "slot": "10",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:73"
+          },
+          {
+            "label": "WEAPON_CRIT_RATE_LEVEL_DIVISOR",
+            "offset": 15,
+            "slot": "10",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:74"
+          },
+          {
+            "label": "WEAPON_BASE_CRIT_DAMAGE",
+            "offset": 16,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:76"
+          },
+          {
+            "label": "WEAPON_CRIT_DAMAGE_PER_LEVEL",
+            "offset": 18,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:78"
+          },
+          {
+            "label": "DEFENSE_BASE_VALUE",
+            "offset": 20,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:79"
+          },
+          {
+            "label": "DEFENSE_PER_LEVEL",
+            "offset": 22,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:81"
+          },
+          {
+            "label": "HEALTH_BASE_VALUE",
+            "offset": 24,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:82"
+          },
+          {
+            "label": "HEALTH_PER_LEVEL",
+            "offset": 26,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:85"
+          },
+          {
+            "label": "AGILITY_BASE_VALUE",
+            "offset": 28,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:86"
+          },
+          {
+            "label": "AGILITY_PER_LEVEL",
+            "offset": 30,
+            "slot": "10",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:88"
+          },
+          {
+            "label": "RANDOM_RANGE_1000",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:90"
+          },
+          {
+            "label": "RANDOM_RANGE_100",
+            "offset": 2,
+            "slot": "11",
+            "type": "t_uint16",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:91"
+          },
+          {
+            "label": "playerTreasureBoxes",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_uint256,t_array(t_struct(TreasureBox)21297_storage)dyn_storage)",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:108"
+          },
+          {
+            "label": "authorizedSystems",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:110"
+          },
+          {
+            "label": "playerBattleLevels",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_uint256,t_uint32)",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:112"
+          },
+          {
+            "label": "GOLD_PROBABILITY",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:117"
+          },
+          {
+            "label": "HEALTH_POTION_PROBABILITY",
+            "offset": 1,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:118"
+          },
+          {
+            "label": "PET_EGG_PROBABILITY",
+            "offset": 2,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:119"
+          },
+          {
+            "label": "JOB_BOOK_PROBABILITY",
+            "offset": 3,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:120"
+          },
+          {
+            "label": "COMMON_RARITY",
+            "offset": 4,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:124"
+          },
+          {
+            "label": "UNCOMMON_RARITY",
+            "offset": 5,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:126"
+          },
+          {
+            "label": "RARE_RARITY",
+            "offset": 6,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:128"
+          },
+          {
+            "label": "EPIC_RARITY",
+            "offset": 7,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:129"
+          },
+          {
+            "label": "LEGENDARY_RARITY",
+            "offset": 8,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:129"
+          },
+          {
+            "label": "CURRENT_LEVEL_PROBABILITY",
+            "offset": 9,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:135"
+          },
+          {
+            "label": "NEXT_LEVEL_PROBABILITY",
+            "offset": 10,
+            "slot": "15",
+            "type": "t_uint8",
+            "contract": "TreasureBoxSystem",
+            "src": "contracts/TreasureBoxSystem.sol:136"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_struct(TreasureBox)21297_storage)dyn_storage": {
+            "label": "struct TreasureBoxSystem.TreasureBox[]",
+            "numberOfBytes": "32"
+          },
+          "t_contract(AdventureGold)11920": {
+            "label": "contract AdventureGold",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Equipment)13830": {
+            "label": "contract Equipment",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Item)16323": {
+            "label": "contract Item",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Player)19982": {
+            "label": "contract Player",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_array(t_struct(TreasureBox)21297_storage)dyn_storage)": {
+            "label": "mapping(uint256 => struct TreasureBoxSystem.TreasureBox[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint32)": {
+            "label": "mapping(uint256 => uint32)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(TreasureBox)21297_storage": {
+            "label": "struct TreasureBoxSystem.TreasureBox",
+            "members": [
+              {
+                "label": "level",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "createdTime",
+                "type": "t_uint32",
+                "offset": 4,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "a31368fcfd5074d4b429835b87a151d508760fbc95fb1854a8a0a7472f67049e": {
+      "address": "0xCA33090cc1D1C0871caAF57f766e1fa1043d15c5",
+      "txHash": "0x2012cc7c0664ea73f6c6f51be5e3432dacc575324e5638ca68856af823beb75a",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "playerNFT",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Player)19982",
+            "contract": "FightSystem",
+            "src": "contracts/FightSystem.sol:16"
+          },
+          {
+            "label": "itemNFT",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(Item)16323",
+            "contract": "FightSystem",
+            "src": "contracts/FightSystem.sol:19"
+          },
+          {
+            "label": "battleResults",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_bytes32,t_struct(BattleResult)14792_storage)",
+            "contract": "FightSystem",
+            "src": "contracts/FightSystem.sol:77"
+          },
+          {
+            "label": "authorizedSystems",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "FightSystem",
+            "src": "contracts/FightSystem.sol:89"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_struct(BattleAction)14775_storage)dyn_storage": {
+            "label": "struct FightSystem.BattleAction[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(Item)16323": {
+            "label": "contract Item",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Player)19982": {
+            "label": "contract Player",
+            "numberOfBytes": "20"
+          },
+          "t_enum(ActionType)14757": {
+            "label": "enum FightSystem.ActionType",
+            "members": [
+              "ATTACK",
+              "USE_POTION",
+              "ESCAPE"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(BattleResult)14792_storage)": {
+            "label": "mapping(bytes32 => struct FightSystem.BattleResult)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(BattleAction)14775_storage": {
+            "label": "struct FightSystem.BattleAction",
+            "members": [
+              {
+                "label": "actorId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "actorType",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "action",
+                "type": "t_enum(ActionType)14757",
+                "offset": 1,
+                "slot": "1"
+              },
+              {
+                "label": "damage",
+                "type": "t_uint16",
+                "offset": 2,
+                "slot": "1"
+              },
+              {
+                "label": "healing",
+                "type": "t_uint16",
+                "offset": 4,
+                "slot": "1"
+              },
+              {
+                "label": "remainingHealth",
+                "type": "t_uint16",
+                "offset": 6,
+                "slot": "1"
+              },
+              {
+                "label": "isCritical",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "1"
+              },
+              {
+                "label": "usedPotionId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(BattleResult)14792_storage": {
+            "label": "struct FightSystem.BattleResult",
+            "members": [
+              {
+                "label": "winnerId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "winnerType",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "loserId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "loserType",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "escaped",
+                "type": "t_bool",
+                "offset": 1,
+                "slot": "3"
+              },
+              {
+                "label": "totalRounds",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "battleLog",
+                "type": "t_array(t_struct(BattleAction)14775_storage)dyn_storage",
+                "offset": 0,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "e548751b0bf0e8e2dc8fb5cc7e9add46aa06f11f92f60fcca3514ad27e401c76": {
+      "address": "0x2Abde49c2bb596467f5b70178F4FB733bC5F3F8A",
+      "txHash": "0x34a67052c55deae2dff91c8425c855558ebdc676d06b464d892743441b43425d",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "playerNFT",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Player)19982",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:17"
+          },
+          {
+            "label": "treasureBoxSystem",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(TreasureBoxSystem)23020",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:18"
+          },
+          {
+            "label": "fightSystem",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(FightSystem)16143",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:21"
+          },
+          {
+            "label": "STAMINA_COST_PER_BATTLE",
+            "offset": 20,
+            "slot": "2",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:24"
+          },
+          {
+            "label": "MIN_ADVENTURE_LEVEL",
+            "offset": 21,
+            "slot": "2",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:25"
+          },
+          {
+            "label": "MAX_ADVENTURE_LEVEL",
+            "offset": 23,
+            "slot": "2",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:26"
+          },
+          {
+            "label": "MIN_MONSTER_LEVEL",
+            "offset": 25,
+            "slot": "2",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:28"
+          },
+          {
+            "label": "MAX_MONSTER_LEVEL",
+            "offset": 26,
+            "slot": "2",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:30"
+          },
+          {
+            "label": "BASE_EXPERIENCE_REWARD",
+            "offset": 27,
+            "slot": "2",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:31"
+          },
+          {
+            "label": "EXPERIENCE_PER_MONSTER_LEVEL",
+            "offset": 29,
+            "slot": "2",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:32"
+          },
+          {
+            "label": "EXPERIENCE_PER_ADVENTURE_LEVEL",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:35"
+          },
+          {
+            "label": "MONSTER_BASE_DEFENSE",
+            "offset": 2,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:37"
+          },
+          {
+            "label": "MONSTER_DEFENSE_PER_LEVEL",
+            "offset": 4,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:37"
+          },
+          {
+            "label": "MONSTER_DEFENSE_PER_ADVENTURE_LEVEL",
+            "offset": 6,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:39"
+          },
+          {
+            "label": "MONSTER_BASE_HEALTH",
+            "offset": 8,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:41"
+          },
+          {
+            "label": "MONSTER_HEALTH_PER_LEVEL",
+            "offset": 10,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:41"
+          },
+          {
+            "label": "MONSTER_HEALTH_PER_ADVENTURE_LEVEL",
+            "offset": 12,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:43"
+          },
+          {
+            "label": "MONSTER_BASE_ATTACK",
+            "offset": 14,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:45"
+          },
+          {
+            "label": "MONSTER_ATTACK_PER_LEVEL",
+            "offset": 16,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:45"
+          },
+          {
+            "label": "MONSTER_ATTACK_PER_ADVENTURE_LEVEL",
+            "offset": 18,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:47"
+          },
+          {
+            "label": "MONSTER_BASE_AGILITY",
+            "offset": 20,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:49"
+          },
+          {
+            "label": "MONSTER_AGILITY_PER_LEVEL",
+            "offset": 22,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:49"
+          },
+          {
+            "label": "MONSTER_AGILITY_PER_ADVENTURE_LEVEL",
+            "offset": 24,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:51"
+          },
+          {
+            "label": "MONSTER_BASE_CRITI_RATE",
+            "offset": 26,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:54"
+          },
+          {
+            "label": "MONSTER_BASE_CRITI_DAMAGE",
+            "offset": 28,
+            "slot": "3",
+            "type": "t_uint16",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:56"
+          },
+          {
+            "label": "TREASURE_BOX_LEVEL_DIVISOR",
+            "offset": 30,
+            "slot": "3",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:58"
+          },
+          {
+            "label": "TREASURE_BOX_UPGRADE_CHANCE",
+            "offset": 31,
+            "slot": "3",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:59"
+          },
+          {
+            "label": "TREASURE_BOX_RANDOM_RANGE",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:60"
+          },
+          {
+            "label": "MAX_TREASURE_BOX_LEVEL",
+            "offset": 1,
+            "slot": "4",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:62"
+          },
+          {
+            "label": "PLAYER_LEVEL_ADVANTAGE_THRESHOLD",
+            "offset": 2,
+            "slot": "4",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:63"
+          },
+          {
+            "label": "WIN_RATE_MULTIPLIER",
+            "offset": 3,
+            "slot": "4",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:67"
+          },
+          {
+            "label": "DOUBLE_ATTACK_WIN_RATE",
+            "offset": 4,
+            "slot": "4",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:68"
+          },
+          {
+            "label": "MIN_WIN_RATE",
+            "offset": 5,
+            "slot": "4",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:70"
+          },
+          {
+            "label": "MONSTER_TYPES_COUNT",
+            "offset": 6,
+            "slot": "4",
+            "type": "t_uint8",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:71"
+          },
+          {
+            "label": "totalBattles",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_uint256,t_uint32)",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:71"
+          },
+          {
+            "label": "totalVictories",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_uint256,t_uint32)",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:72"
+          },
+          {
+            "label": "lastBattleTime",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_uint256,t_uint32)",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:73"
+          },
+          {
+            "label": "maxAdventureLevel",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_uint256,t_uint16)",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:76"
+          },
+          {
+            "label": "monsterKillCount",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_uint256,t_mapping(t_uint16,t_mapping(t_uint8,t_uint16)))",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:79"
+          },
+          {
+            "label": "levelKillCount",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_mapping(t_uint256,t_mapping(t_uint16,t_uint16))",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:85"
+          },
+          {
+            "label": "maxMonsterLevel",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_uint256,t_mapping(t_uint16,t_uint8))",
+            "contract": "BattleSystem",
+            "src": "contracts/BattleSystem.sol:89"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(FightSystem)16143": {
+            "label": "contract FightSystem",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Player)19982": {
+            "label": "contract Player",
+            "numberOfBytes": "20"
+          },
+          "t_contract(TreasureBoxSystem)23020": {
+            "label": "contract TreasureBoxSystem",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint16,t_mapping(t_uint8,t_uint16))": {
+            "label": "mapping(uint16 => mapping(uint8 => uint16))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint16,t_uint16)": {
+            "label": "mapping(uint16 => uint16)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint16,t_uint8)": {
+            "label": "mapping(uint16 => uint8)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_uint16,t_mapping(t_uint8,t_uint16)))": {
+            "label": "mapping(uint256 => mapping(uint16 => mapping(uint8 => uint16)))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_uint16,t_uint16))": {
+            "label": "mapping(uint256 => mapping(uint16 => uint16))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_uint16,t_uint8))": {
+            "label": "mapping(uint256 => mapping(uint16 => uint8))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint16)": {
+            "label": "mapping(uint256 => uint16)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint32)": {
+            "label": "mapping(uint256 => uint32)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint8,t_uint16)": {
+            "label": "mapping(uint8 => uint16)",
+            "numberOfBytes": "32"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "3e79af9caecbc0ea6ac09e3fa342a16dd3c5c0c5e6e43efc97dc74806b25895f": {
+      "address": "0xe4Bd7480C41B7dB5F58d9585ca7Dd6a3e5719730",
+      "txHash": "0xbf461e71704b58ee303c00b36f14b14e6483ebba834a4f53d87adfd3bb289473",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "equipmentNFT",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Equipment)13830",
+            "contract": "EquipmentSystem",
+            "src": "contracts/EquipmentSystem.sol:18"
+          },
+          {
+            "label": "goldToken",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(AdventureGold)11920",
+            "contract": "EquipmentSystem",
+            "src": "contracts/EquipmentSystem.sol:19"
+          },
+          {
+            "label": "playerNFT",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(Player)19982",
+            "contract": "EquipmentSystem",
+            "src": "contracts/EquipmentSystem.sol:22"
+          },
+          {
+            "label": "starConfigs",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint8,t_struct(StarUpgradeConfig)13869_storage)",
+            "contract": "EquipmentSystem",
+            "src": "contracts/EquipmentSystem.sol:35"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(AdventureGold)11920": {
+            "label": "contract AdventureGold",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Equipment)13830": {
+            "label": "contract Equipment",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Player)19982": {
+            "label": "contract Player",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint8,t_struct(StarUpgradeConfig)13869_storage)": {
+            "label": "mapping(uint8 => struct EquipmentSystem.StarUpgradeConfig)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(StarUpgradeConfig)13869_storage": {
+            "label": "struct EquipmentSystem.StarUpgradeConfig",
+            "members": [
+              {
+                "label": "goldCost",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "successRate",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "maxLevel",
+                "type": "t_uint8",
+                "offset": 1,
+                "slot": "1"
+              },
+              {
+                "label": "statMultiplier",
+                "type": "t_uint16",
+                "offset": 2,
+                "slot": "1"
+              },
+              {
+                "label": "materialCount",
+                "type": "t_uint8",
+                "offset": 4,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "5d204d5a04ff782a6f54eb55a9333421802e9da52ba5a0e96c6665ea6bd1dd58": {
+      "address": "0x5B9a0A39C0273c649b31d5AB82F83F4D68D4756e",
+      "txHash": "0xabc1cb1ded62370c181e9dbaa06f63ca004cf6f4ddb928f3508720624199a319",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "playerNFT",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Player)19982",
+            "contract": "Market",
+            "src": "contracts/Market.sol:28"
+          },
+          {
+            "label": "equipmentNFT",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(Equipment)13830",
+            "contract": "Market",
+            "src": "contracts/Market.sol:29"
+          },
+          {
+            "label": "itemNFT",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(Item)16323",
+            "contract": "Market",
+            "src": "contracts/Market.sol:30"
+          },
+          {
+            "label": "goldToken",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(AdventureGold)11920",
+            "contract": "Market",
+            "src": "contracts/Market.sol:32"
+          },
+          {
+            "label": "listings",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_uint256,t_struct(Listing)16380_storage)",
+            "contract": "Market",
+            "src": "contracts/Market.sol:52"
+          },
+          {
+            "label": "nextListingId",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "Market",
+            "src": "contracts/Market.sol:55"
+          },
+          {
+            "label": "MARKET_FEE_RATE",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "Market",
+            "src": "contracts/Market.sol:56"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)1233_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(AdventureGold)11920": {
+            "label": "contract AdventureGold",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Equipment)13830": {
+            "label": "contract Equipment",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Item)16323": {
+            "label": "contract Item",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Player)19982": {
+            "label": "contract Player",
+            "numberOfBytes": "20"
+          },
+          "t_enum(ListingType)16383": {
+            "label": "enum Market.ListingType",
+            "members": [
+              "EQUIPMENT",
+              "ITEM"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_uint256,t_struct(Listing)16380_storage)": {
+            "label": "mapping(uint256 => struct Market.Listing)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Listing)16380_storage": {
+            "label": "struct Market.Listing",
+            "members": [
+              {
+                "label": "listingId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "seller",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "playerId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "tokenId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "price",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "quantity",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "listingType",
+                "type": "t_enum(ListingType)16383",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "active",
+                "type": "t_bool",
+                "offset": 1,
+                "slot": "6"
+              },
+              {
+                "label": "createdAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "4614f2070d6731de55d9e5dd611c1572307efd5dc9f51345f7e219d3ab93c773": {
+      "address": "0x37354Fcc54859387EfB82A72E0E73dC26FE504bB",
+      "txHash": "0xb0043322f10d9096b8904327e8f89acda5b748d108f57acfd113fba9e93efbe5",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "playerNFT",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Player)19982",
+            "contract": "Rank",
+            "src": "contracts/Rank.sol:23"
+          },
+          {
+            "label": "goldToken",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(AdventureGold)11920",
+            "contract": "Rank",
+            "src": "contracts/Rank.sol:24"
+          },
+          {
+            "label": "fightSystem",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(FightSystem)16143",
+            "contract": "Rank",
+            "src": "contracts/Rank.sol:26"
+          },
+          {
+            "label": "CHALLENGE_COST",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "Rank",
+            "src": "contracts/Rank.sol:28"
+          },
+          {
+            "label": "FEE_RATE",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "Rank",
+            "src": "contracts/Rank.sol:29"
+          },
+          {
+            "label": "rankToPlayer",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "Rank",
+            "src": "contracts/Rank.sol:33"
+          },
+          {
+            "label": "playerToRank",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "Rank",
+            "src": "contracts/Rank.sol:34"
+          },
+          {
+            "label": "maxRankIndex",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "Rank",
+            "src": "contracts/Rank.sol:38"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)1233_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(AdventureGold)11920": {
+            "label": "contract AdventureGold",
+            "numberOfBytes": "20"
+          },
+          "t_contract(FightSystem)16143": {
+            "label": "contract FightSystem",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Player)19982": {
+            "label": "contract Player",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "5e4024708877176a2717a93d755681b2d1afa9e25f5fa3c3fc0804f5ea1bc9f6": {
+      "address": "0x4d2c553eEaF6974af13088e4DeF539AC09E25BC9",
+      "txHash": "0x9f7bfb2e3048490fda6f92df5e1413c7109a77efd2d01f70e5bef06184471607",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "playerNFT",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(Player)19982",
+            "contract": "SuperMarket",
+            "src": "contracts/SuperMarket.sol:22"
+          },
+          {
+            "label": "goldToken",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(AdventureGold)11920",
+            "contract": "SuperMarket",
+            "src": "contracts/SuperMarket.sol:22"
+          },
+          {
+            "label": "EXCHANGE_RATE",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "SuperMarket",
+            "src": "contracts/SuperMarket.sol:27"
+          },
+          {
+            "label": "MIN_GOLD_AMOUNT",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "SuperMarket",
+            "src": "contracts/SuperMarket.sol:28"
+          },
+          {
+            "label": "MAX_GOLD_AMOUNT",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "SuperMarket",
+            "src": "contracts/SuperMarket.sol:31"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)1233_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(AdventureGold)11920": {
+            "label": "contract AdventureGold",
+            "numberOfBytes": "20"
+          },
+          "t_contract(Player)19982": {
+            "label": "contract Player",
+            "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
           "erc7201:openzeppelin.storage.Ownable": [
             {
               "contract": "OwnableUpgradeable",

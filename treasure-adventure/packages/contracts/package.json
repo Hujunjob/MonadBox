@@ -7,10 +7,11 @@
     "compile": "hardhat compile",
     "deploy:localhost": "hardhat run scripts/deployUpgradeable.js --network localhost",
     "deploy:hardhat": "hardhat run scripts/deployV2.js --network hardhat",
-    "deploy:monad": "hardhat run scripts/deployMonadTestnetUpgradeable.js --network monadTestnet",
+    "deploy:monad": "hardhat run scripts/deployToMonadTestnet.js --network monadTestnet",
+    "deploy:monad:quick": "./deploy-monad.sh",
     "deploy:upgradeable:localhost": "hardhat run scripts/deployUpgradeable.js --network localhost",
     "deploy:upgradeable:hardhat": "hardhat run scripts/deployUpgradeable.js --network hardhat",
-    "deploy:upgradeable:monad": "hardhat run scripts/deployMonadTestnetUpgradeable.js --network monadTestnet",
+    "deploy:upgradeable:monad": "hardhat run scripts/deployToMonadTestnet.js --network monadTestnet",
     "node": "hardhat node --show-stack-traces",
     "node:lan": "hardhat node --hostname 0.0.0.0 --port 8545 --show-stack-traces",
     "test": "hardhat test"
