@@ -21,7 +21,7 @@ createRoot(document.getElementById('root')!).render(
         <RainbowKitProvider>
           <ToastProvider>
             <BrowserRouter>
-              {/* <ReactTogether
+              <ReactTogether
                 sessionParams={{
                   appId: import.meta.env['VITE_APP_ID'],
                   apiKey: import.meta.env['VITE_API_KEY'],
@@ -30,12 +30,12 @@ createRoot(document.getElementById('root')!).render(
                   name: 'hello-world',
                   password: 'super-secret!!',
                 }}
-              > */}
+              >
                 <Routes>
                   <Route path="/*" element={<App />} />
                   <Route path="/battle/:battleId" element={<BattlePage />} />
                 </Routes>
-              {/* </ReactTogether> */}
+              </ReactTogether>
 
             </BrowserRouter>
           </ToastProvider>
