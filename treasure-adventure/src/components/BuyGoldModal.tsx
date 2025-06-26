@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { formatEther, parseEther } from 'viem';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useAccount, usePublicClient } from 'wagmi';
 import { CONTRACT_ADDRESSES, SUPER_MARKET_ABI } from '../contracts';
 import { useHybridGameStore } from '../store/web3GameStore';
 import './BuyGoldModal.css';
@@ -13,6 +13,8 @@ interface BuyGoldModalProps {
 }
 
 const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }) => {
+  const publicClient = usePublicClient();
+  const { address } = useAccount()
   const [goldAmount, setGoldAmount] = useState<string>('1000');
   const [ethRequired, setEthRequired] = useState<string>('0');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,19 +26,19 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
   const EXCHANGE_RATE = 10000; // 1 ETH = 10000 Gold
 
   // 合约交互hooks
-  const { 
-    writeContract, 
-    data: hash, 
-    error: writeError, 
-    isPending: isWritePending 
+  const {
+    writeContract,
+    data: hash,
+    error: writeError,
+    isPending: isWritePending
   } = useWriteContract();
 
-  const { 
-    isLoading: isConfirming, 
+  const {
+    isLoading: isConfirming,
     isSuccess: isConfirmed,
     error: confirmError
-  } = useWaitForTransactionReceipt({ 
-    hash 
+  } = useWaitForTransactionReceipt({
+    hash
   });
 
   // 计算所需ETH
@@ -81,7 +83,10 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
 
   const handlePurchase = async () => {
     const goldValue = parseFloat(goldAmount);
-    
+    if (!address || !publicClient) {
+      showToast("先连接钱包")
+      return
+    }
     // 验证输入
     if (!goldValue || goldValue < MIN_GOLD || goldValue > MAX_GOLD) {
       showToast(`请输入有效的金币数量 (${MIN_GOLD} - ${MAX_GOLD})`);
@@ -99,6 +104,16 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
       // goldAmount需要转换为wei单位
       const goldInWei = parseEther(goldAmount.toString());
       const ethInWei = goldInWei / BigInt(EXCHANGE_RATE);
+
+      try {
+        const bal = await publicClient?.getBalance({address});
+        if(bal<ethInWei){
+          showToast("钱包余额不足")
+          return
+        }
+      } catch (error) {
+        console.error('获取余额失败:', error);
+      }
 
       writeContract({
         address: CONTRACT_ADDRESSES.SUPER_MARKET,
@@ -127,7 +142,7 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
           <h2>购买金币</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
-        
+
         <div className="modal-body">
           <div className="buy-gold-form">
             <div className="form-group">
@@ -162,9 +177,9 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
                 disabled={!isValidAmount() || isLoading}
               >
                 {isLoading ? (
-                  isWritePending ? '确认交易中...' : 
-                  isConfirming ? '等待确认...' : 
-                  '处理中...'
+                  isWritePending ? '确认交易中...' :
+                    isConfirming ? '等待确认...' :
+                      '处理中...'
                 ) : '购买'}
               </button>
               <button className="cancel-btn" onClick={onClose}>
