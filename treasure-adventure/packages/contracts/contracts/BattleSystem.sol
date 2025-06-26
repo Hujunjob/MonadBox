@@ -16,7 +16,6 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     TreasureBoxSystem public treasureBoxSystem;
     
     // 体力配置
-    uint32 public constant STAMINA_RECOVERY_INTERVAL = 30; // 30 seconds
     uint8 public constant STAMINA_COST_PER_BATTLE = 1;
     
     // 冒险等级配置
@@ -36,9 +35,6 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     uint16 public constant DEFENSE_LEVEL_BONUS_THRESHOLD = 1000;
     uint16 public constant DEFENSE_LEVEL_BONUS_MULTIPLIER = 20;
     uint8 public constant DEFENSE_REDUCTION_DIVISOR = 2; // 减弱一倍
-    
-    // 森林进度配置
-    uint16 public constant FOREST_PROGRESS_REQUIREMENT = 10;
     
     // 宝箱等级配置
     uint8 public constant TREASURE_BOX_LEVEL_DIVISOR = 3;
@@ -147,7 +143,6 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
             
             // 更新森林进度
             Player.PlayerData memory player = playerNFT.getPlayer(playerId);
-            _updateForestProgress(playerId, player);
             
             // 生成战斗宝箱 (胜利才给宝箱)
             uint8 boxLevel = _calculateBattleBoxLevel(monsterLevel, player.level, playerId);
@@ -208,21 +203,10 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function _canBattle(uint256 playerId, uint8 staminaCost) internal view returns (bool) {
         Player.PlayerData memory player = playerNFT.getPlayer(playerId);
+        //玩家不存在
         if (player.maxHealth==0) return false;
-        
-        // 计算当前体力
-        uint32 timeSinceLastUpdate = uint32(block.timestamp) - player.lastStaminaTime;
-        uint8 staminaToRecover = uint8(timeSinceLastUpdate / STAMINA_RECOVERY_INTERVAL);
-        uint8 currentStamina = player.stamina;
-        
-        if (staminaToRecover > 0 && currentStamina < player.maxStamina) {
-            uint8 actualRecovery = staminaToRecover;
-            if (currentStamina + actualRecovery > player.maxStamina) {
-                actualRecovery = player.maxStamina - currentStamina;
-            }
-            currentStamina += actualRecovery;
-        }
-        
+        if(player.health==0)return false;
+        uint8 currentStamina = player.stamina;        
         return currentStamina >= staminaCost;
     }
     
@@ -231,20 +215,6 @@ contract BattleSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable {
      */
     function _generateRandom(uint256 playerId, uint8 monsterLevel) internal view returns (uint256) {
         return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, playerId, monsterLevel)));
-    }
-    
-    /**
-     * @dev 更新森林进度
-     */
-    function _updateForestProgress(uint256 playerId, Player.PlayerData memory player) internal {
-        // 简化的森林进度逻辑 - 每10次胜利进入下一层
-        uint16 newProgress = player.currentForestProgress + 1;
-        
-        if (newProgress >= FOREST_PROGRESS_REQUIREMENT) {
-            // 进入下一层森林
-            // 这里需要Player合约提供更新森林进度的函数
-            // 暂时跳过，因为Player合约没有这个功能
-        }
     }
     
     /**

@@ -74,17 +74,17 @@ const Market: React.FC = () => {
       if (selectedItemType === 'health_potion') {
         if (listing.listingType !== 1) return false;
         const tokenId = Number(listing.tokenId);
-        if (tokenId < 1000 || tokenId >= 2000) return false;
+        if (tokenId < 100 || tokenId >= 200) return false;
       }
       if (selectedItemType === 'job_advancement_book') {
         if (listing.listingType !== 1) return false;
         const tokenId = Number(listing.tokenId);
-        if (tokenId < 2000 || tokenId >= 3000) return false;
+        if (tokenId < 200 || tokenId >= 300) return false;
       }
       if (selectedItemType === 'pet_egg') {
         if (listing.listingType !== 1) return false;
         const tokenId = Number(listing.tokenId);
-        if (tokenId < 3000 || tokenId >= 4000) return false;
+        if (tokenId < 300 || tokenId >= 400) return false;
       }
     }
     
@@ -306,19 +306,19 @@ const Market: React.FC = () => {
     } else { // ITEM
       // 根据物品ID范围判断类型
       const tokenId = Number(listing.tokenId);
-      if (tokenId >= 1000 && tokenId < 2000) {
+      if (tokenId >= 100 && tokenId < 200) {
         return {
-          name: `血瓶 Lv.${tokenId - 1000 + 1}`,
+          name: `血瓶 Lv.${tokenId - 100 + 1}`,
           image: getItemImage('health_potion'),
           type: 'health_potion'
         };
-      } else if (tokenId >= 2000 && tokenId < 3000) {
+      } else if (tokenId >= 200 && tokenId < 300) {
         return {
           name: `转职书`,
           image: getItemImage('job_advancement_book'),
           type: 'job_advancement_book'
         };
-      } else if (tokenId >= 3000 && tokenId < 4000) {
+      } else if (tokenId >= 300 && tokenId < 400) {
         return {
           name: `宠物蛋`,
           image: getItemImage('pet_egg'),

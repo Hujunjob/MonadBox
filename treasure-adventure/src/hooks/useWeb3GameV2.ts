@@ -240,9 +240,9 @@ export function useWeb3GameV2() {
 
   // 判断物品类型的辅助函数
   const getItemType = (itemId: number) => {
-    if (itemId >= 1000 && itemId < 2000) return 'health_potion';
-    if (itemId >= 2000 && itemId < 3000) return 'job_advancement_book';
-    if (itemId >= 3000 && itemId < 4000) return 'pet_egg';
+    if (itemId >= 100 && itemId < 200) return 'health_potion';
+    if (itemId >= 200 && itemId < 300) return 'job_advancement_book';
+    if (itemId >= 300 && itemId < 400) return 'pet_egg';
     return 'unknown';
   };
 
@@ -961,16 +961,16 @@ export function useWeb3GameV2() {
   // 获取物品名称
   const getItemName = (itemId: number, type: string) => {
     if (type === 'health_potion') {
-      const level = itemId - 1000 + 1;
+      const level = itemId - 100 + 1;
       return `Lv${level} Health Potion`;
     }
     if (type === 'job_advancement_book') {
       const jobNames = ['', 'Great Swordsman', 'Temple Knight', 'Dragon Knight', 'Sword Master', 'Sword God', 'Plane Lord'];
-      const jobType = itemId - 2000;
+      const jobType = itemId - 200;
       return `${jobNames[jobType] || 'Unknown'} Job Book`;
     }
     if (type === 'pet_egg') {
-      const level = itemId - 3000 + 1;
+      const level = itemId - 300 + 1;
       return `Lv${level} Pet Egg`;
     }
     return `Item ${itemId}`;
@@ -978,14 +978,14 @@ export function useWeb3GameV2() {
 
   // 获取物品等级
   const getItemLevel = (itemId: number) => {
-    if (itemId >= 1000 && itemId < 2000) return itemId - 1000 + 1; // 血瓶
-    if (itemId >= 3000 && itemId < 4000) return itemId - 3000 + 1; // 宠物蛋
+    if (itemId >= 100 && itemId < 200) return itemId - 100 + 1; // 血瓶
+    if (itemId >= 300 && itemId < 400) return itemId - 300 + 1; // 宠物蛋
     return 1;
   };
 
   // 获取转职书目标职业
   const getJobTarget = (itemId: number) => {
-    if (itemId >= 2000 && itemId < 3000) return itemId - 2000;
+    if (itemId >= 200 && itemId < 300) return itemId - 200;
     return 0;
   };
 

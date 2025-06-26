@@ -478,9 +478,9 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
      */
     function _generateHealthPotion(
         uint8 level
-    ) internal pure returns (uint256) {
-        // 血瓶ID范围：1000-1999，根据等级生成ID
-        uint256 itemId = 1000 + (level - 1);
+    ) internal view returns (uint256) {
+        // 血瓶ID范围：100-199，根据等级生成ID
+        uint256 itemId = itemNFT.HEALTH_POTION_START_ID() + (level - 1);
         return itemId;
     }
 
@@ -491,9 +491,9 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
      */
     function _generatePetEgg(
         uint8 level
-    ) internal pure returns (uint256) {
-        // 宠物蛋ID范围：3000-3999，根据等级生成ID
-        uint256 itemId = 3000 + (level - 1);
+    ) internal view returns (uint256) {
+        // 宠物蛋ID范围：300-399，根据等级生成ID
+        uint256 itemId = itemNFT.PET_EGG_START_ID() + (level - 1);
         return itemId;
     }
 
@@ -504,7 +504,7 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
      */
     function _generateJobAdvancementBook(
         uint8 boxLevel
-    ) internal pure returns (uint256) {
+    ) internal view returns (uint256) {
         uint256 jobType;
 
         if (boxLevel <= 2) {
@@ -521,8 +521,8 @@ contract TreasureBoxSystem is Initializable, OwnableUpgradeable, UUPSUpgradeable
             jobType = 6; // Plane Lord
         }
 
-        // 转职书ID范围：2000-2999，根据职业类型生成ID
-        uint256 itemId = 2000 + jobType;
+        // 转职书ID范围：200-299，根据职业类型生成ID
+        uint256 itemId = itemNFT.JOB_BOOK_START_ID() + jobType;
         return itemId;
     }
 

@@ -20,8 +20,8 @@ contract SuperMarket is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reen
     uint256 public constant EXCHANGE_RATE = 10000;
     
     // 购买限制
-    uint256 public constant MIN_GOLD_AMOUNT = 100e16;      // 最少购买100金币
-    uint256 public constant MAX_GOLD_AMOUNT = 1000000e16;  // 最多购买100万金币
+    uint256 public constant MIN_GOLD_AMOUNT = 100e18;      // 最少购买100金币
+    uint256 public constant MAX_GOLD_AMOUNT = 1000000e18;  // 最多购买100万金币
     
     // 事件
     event GoldPurchased(address indexed buyer, uint256 playerId, uint256 ethAmount, uint256 goldAmount);

@@ -25,7 +25,7 @@ const PlayerStats: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const [isBuyGoldModalOpen, setIsBuyGoldModalOpen] = useState(false);
-  const [isFaucetOpen, setIsFaucetOpen] = useState(true);
+  const [isFaucetOpen, setIsFaucetOpen] = useState(false);
   
   // 通知数据（示例）
   const notifications = [
@@ -294,6 +294,7 @@ const PlayerStats: React.FC = () => {
           })}
         </div>
       </div>
+      <button onClick={()=>{setIsFaucetOpen(true)}}>Faucet</button>
 
       <EquipmentModal
         equipment={selectedEquipment}

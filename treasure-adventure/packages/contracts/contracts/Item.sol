@@ -8,17 +8,17 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "hardhat/console.sol";
 /**
  * @title Item
- * @dev 宝物冒险游戏的NFT，用于血瓶，转职书，宠物蛋等，id 1000-1999是保留给血瓶的，2000-2999是保留给转职书的，3000-3999保留给宠物蛋的
+ * @dev 宝物冒险游戏的NFT，用于血瓶，转职书，宠物蛋等，id 100-199是保留给血瓶的，200-299是保留给转职书的，300-399保留给宠物蛋的
  */
 contract Item is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
     // 物品ID范围
-    uint256 public constant HEALTH_POTION_START_ID = 1000;
-    uint256 public constant HEALTH_POTION_END_ID = 2000;
-    uint256 public constant JOB_BOOK_START_ID = 2000;
-    uint256 public constant JOB_BOOK_END_ID = 3000;
-    uint256 public constant PET_EGG_START_ID = 3000;
-    uint256 public constant PET_EGG_END_ID = 4000;
-    uint256 public constant ITEM_SEARCH_END_ID = 4000;
+    uint256 public constant HEALTH_POTION_START_ID = 100;
+    uint256 public constant HEALTH_POTION_END_ID = 200;
+    uint256 public constant JOB_BOOK_START_ID = 200;
+    uint256 public constant JOB_BOOK_END_ID = 300;
+    uint256 public constant PET_EGG_START_ID = 300;
+    uint256 public constant PET_EGG_END_ID = 400;
+    uint256 public constant ITEM_SEARCH_END_ID = 400;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {

@@ -661,7 +661,7 @@ contract Player is Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable
         uint256 count = 0;
         
         // 检查所有可能的item ID范围
-        // 血瓶: 1000-1999, 转职书: 2000-2999, 宠物蛋: 3000-3999
+        // 血瓶: 100-199, 转职书: 200-299, 宠物蛋: 300-399
         for (uint256 i = itemNFT.HEALTH_POTION_START_ID(); i < itemNFT.ITEM_SEARCH_END_ID(); i++) {
             if (playerItems[playerId][i] > 0) {
                 count++;
