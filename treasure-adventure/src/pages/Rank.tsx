@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { useNavigate } from 'react-router-dom';
 import { useRank } from '../hooks/useRank';
-import './Rank.css';
+import '../styles/Rank.css';
 import { useHybridGameStore } from '../store/web3GameStore';
 import { useToast } from '../components/ToastManager';
 import { getJobLevelDisplay } from '../utils/gameUtils';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { formatEther, parseEther } from 'viem';
 import { useWeb3GameV2 } from '../hooks/useWeb3GameV2';
-import './BuyGoldModal.css';
+import '../styles/BuyGoldModal.css';
 import { useToast } from './ToastManager';
 
 interface BuyGoldModalProps {

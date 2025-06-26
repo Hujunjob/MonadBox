@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import BattleArena from '../components/BattleArena';
 import { useHybridGameStore } from '../store/web3GameStore';
-import './BattlePage.css';
+import '../styles/BattlePage.css';
 
 interface BattleParams {
   battleId: string;

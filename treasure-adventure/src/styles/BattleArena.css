@@ -265,6 +265,233 @@
   background: #2980b9;
 }
 
+/* 新增样式 */
+.fighter-avatar {
+  position: relative;
+  display: inline-block;
+}
+
+.hp-indicator {
+  margin-bottom: 10px;
+}
+
+.battle-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 30px;
+}
+
+.countdown-container {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.countdown-text {
+  font-size: 12px;
+  color: #bdc3c7;
+  margin-bottom: 5px;
+}
+
+.countdown-progress {
+  width: 100px;
+  height: 6px;
+  background: #2c3e50;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 auto 5px;
+}
+
+.countdown-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, #2980b9);
+  transition: width 1s linear;
+  border-radius: 3px;
+}
+
+.countdown-number {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f39c12;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.damage-animation {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  font-weight: bold;
+  color: #e74c3c;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  animation: damageFloat 2s ease-out forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.healing-animation {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  font-weight: bold;
+  color: #27ae60;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  animation: healingFloat 2s ease-out forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes damageFloat {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px);
+  }
+}
+
+@keyframes healingFloat {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px);
+  }
+}
+
+.action-item.latest {
+  border-left-color: #f39c12;
+  background: rgba(243, 156, 18, 0.3);
+  box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+}
+
+.result-header {
+  margin-bottom: 20px;
+}
+
+.result-text.victory {
+  color: #27ae60;
+  text-shadow: 2px 2px 4px rgba(39, 174, 96, 0.5);
+}
+
+.result-text.defeat {
+  color: #e74c3c;
+  text-shadow: 2px 2px 4px rgba(231, 76, 60, 0.5);
+}
+
+.battle-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.stat-label {
+  color: #bdc3c7;
+  font-weight: normal;
+}
+
+.stat-value {
+  color: #ecf0f1;
+  font-weight: bold;
+}
+
+.battle-rewards {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(39, 174, 96, 0.1);
+  border-radius: 10px;
+  border: 1px solid #27ae60;
+}
+
+.battle-rewards h4 {
+  color: #27ae60;
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  text-align: center;
+}
+
+.rewards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reward-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  animation: rewardPop 0.5s ease-out;
+}
+
+.reward-item.rare {
+  background: rgba(243, 156, 18, 0.2);
+  border: 1px solid #f39c12;
+  box-shadow: 0 0 10px rgba(243, 156, 18, 0.3);
+}
+
+@keyframes rewardPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reward-icon {
+  font-size: 18px;
+}
+
+.reward-text {
+  color: #ecf0f1;
+  font-weight: bold;
+}
+
+.battle-actions-summary {
+  margin-top: 20px;
+}
+
+.continue-btn {
+  background: linear-gradient(45deg, #27ae60, #229954);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .battle-arena {
@@ -277,9 +504,12 @@
     gap: 20px;
   }
   
+  .battle-center {
+    margin: 20px 0;
+  }
+  
   .vs-indicator {
     margin: 0;
-    transform: rotate(90deg);
   }
   
   .health-bar {
@@ -287,7 +517,11 @@
   }
   
   .battle-stats {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 10px;
+  }
+  
+  .countdown-progress {
+    width: 80px;
   }
 }
