@@ -9,7 +9,8 @@ import {
   BATTLE_SYSTEM_ABI,
   TREASURE_BOX_SYSTEM_ABI,
   EQUIPMENT_SYSTEM_ABI,
-  EQUIPMENT_NFT_ABI
+  EQUIPMENT_NFT_ABI,
+  SUPER_MARKET_ABI
 } from '../contracts';
 
 // 使用统一的合约地址配置
@@ -21,6 +22,7 @@ const CONTRACTS = {
   TREASURE_BOX_SYSTEM: CONTRACT_ADDRESSES.TREASURE_BOX_SYSTEM,
   BATTLE_SYSTEM: CONTRACT_ADDRESSES.BATTLE_SYSTEM,
   EQUIPMENT_SYSTEM: CONTRACT_ADDRESSES.EQUIPMENT_SYSTEM,
+  SUPER_MARKET: CONTRACT_ADDRESSES.SUPER_MARKET,
 } as const;
 
 export function useWeb3GameV2() {
@@ -523,7 +525,7 @@ export function useWeb3GameV2() {
         abi: TREASURE_BOX_SYSTEM_ABI,
         functionName: 'claimOfflineTreasureBoxes',
         args: [BigInt(currentPlayerId)],
-        gas: BigInt(2000000),
+        gas: BigInt(3000000),
       },
       undefined,
       {
@@ -880,6 +882,62 @@ export function useWeb3GameV2() {
     );
   };
 
+  // 购买金币
+  const buyGold = async (goldAmount: number) => {
+    if (!isConnected || !currentPlayerId) {
+      showToast('请先连接钱包并注册玩家', 'error');
+      return;
+    }
+
+    // 验证金币数量
+    const MIN_GOLD = 100;
+    const MAX_GOLD = 1000000;
+    const EXCHANGE_RATE = 10000; // 1 ETH = 10000 Gold
+
+    if (goldAmount < MIN_GOLD || goldAmount > MAX_GOLD) {
+      showToast(`金币数量必须在${MIN_GOLD}-${MAX_GOLD}之间`, 'error');
+      return;
+    }
+
+    // 计算所需ETH (goldAmount已经是基础单位)
+    const goldInWei = BigInt(goldAmount) * BigInt(10 ** 18);
+    const ethRequired = goldInWei / BigInt(EXCHANGE_RATE);
+
+    // 检查钱包余额
+    if (publicClient) {
+      try {
+        const balance = await publicClient.getBalance({ address: address! });
+        if (balance < ethRequired) {
+          showToast('钱包余额不足', 'error');
+          return;
+        }
+      } catch (error) {
+        console.error('获取余额失败:', error);
+      }
+    }
+
+    await safeCall(
+      {
+        address: CONTRACTS.SUPER_MARKET,
+        abi: SUPER_MARKET_ABI,
+        functionName: 'buyGold',
+        args: [BigInt(currentPlayerId), goldInWei],
+        value: ethRequired,
+      },
+      undefined,
+      {
+        loadingMessage: '💰 正在购买金币...',
+        successMessage: '✅ 金币购买成功！',
+        errorMessage: '❌ 购买失败',
+        onSuccess: () => {
+          setTimeout(() => {
+            refreshAllData();
+          }, 500);
+        }
+      }
+    );
+  };
+
   // 数据刷新辅助函数
   const refreshAllData = () => {
     console.log('刷新所有数据...');
@@ -1108,6 +1166,7 @@ export function useWeb3GameV2() {
     upgradeEquipmentStars,
     getAvailableMaterials,
     enhanceEquipment,
+    buyGold,
     
     // 数据刷新
     refreshAllData,

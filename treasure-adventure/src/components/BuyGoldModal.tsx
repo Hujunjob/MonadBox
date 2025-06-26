@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { formatEther, parseEther } from 'viem';
-import { useWriteContract, useWaitForTransactionReceipt, useAccount, usePublicClient } from 'wagmi';
-import { CONTRACT_ADDRESSES, SUPER_MARKET_ABI } from '../contracts';
-import { useHybridGameStore } from '../store/web3GameStore';
+import { useWeb3GameV2 } from '../hooks/useWeb3GameV2';
 import './BuyGoldModal.css';
 import { useToast } from './ToastManager';
 
@@ -13,33 +11,17 @@ interface BuyGoldModalProps {
 }
 
 const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }) => {
-  const publicClient = usePublicClient();
-  const { address } = useAccount()
   const [goldAmount, setGoldAmount] = useState<string>('1000');
   const [ethRequired, setEthRequired] = useState<string>('0');
-  const [isLoading, setIsLoading] = useState(false);
-  const hybridStore = useHybridGameStore();
+  const { buyGold, isPending, isConfirming } = useWeb3GameV2();
   const { showToast } = useToast();
   // 购买限制常量 (从合约同步)
   const MIN_GOLD = 100;
   const MAX_GOLD = 1000000;
   const EXCHANGE_RATE = 10000; // 1 ETH = 10000 Gold
 
-  // 合约交互hooks
-  const {
-    writeContract,
-    data: hash,
-    error: writeError,
-    isPending: isWritePending
-  } = useWriteContract();
-
-  const {
-    isLoading: isConfirming,
-    isSuccess: isConfirmed,
-    error: confirmError
-  } = useWaitForTransactionReceipt({
-    hash
-  });
+  // 加载状态
+  const isLoading = isPending || isConfirming;
 
   // 计算所需ETH
   useEffect(() => {
@@ -54,24 +36,6 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
     }
   }, [goldAmount]);
 
-  // 监听交易确认
-  useEffect(() => {
-    if (isConfirmed) {
-      setIsLoading(false);
-      // 刷新玩家数据
-      hybridStore.refetchPlayer();
-      // onClose();
-      console.log("onClose");
-    }
-  }, [isConfirmed, hybridStore, onClose]);
-
-  // 监听错误
-  useEffect(() => {
-    if (writeError || confirmError) {
-      setIsLoading(false);
-      console.error('Purchase error:', writeError || confirmError);
-    }
-  }, [writeError, confirmError]);
 
   const handleGoldAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -83,49 +47,18 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
 
   const handlePurchase = async () => {
     const goldValue = parseFloat(goldAmount);
-    if (!address || !publicClient) {
-      showToast("先连接钱包")
-      return
-    }
+    
     // 验证输入
     if (!goldValue || goldValue < MIN_GOLD || goldValue > MAX_GOLD) {
       showToast(`请输入有效的金币数量 (${MIN_GOLD} - ${MAX_GOLD})`);
       return;
     }
 
-    if (!playerId) {
-      showToast('玩家ID无效');
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // goldAmount需要转换为wei单位
-      const goldInWei = parseEther(goldAmount.toString());
-      const ethInWei = goldInWei / BigInt(EXCHANGE_RATE);
-
-      try {
-        const bal = await publicClient?.getBalance({address});
-        if(bal<ethInWei){
-          showToast("钱包余额不足")
-          return
-        }
-      } catch (error) {
-        console.error('获取余额失败:', error);
-      }
-
-      writeContract({
-        address: CONTRACT_ADDRESSES.SUPER_MARKET,
-        abi: SUPER_MARKET_ABI,
-        functionName: 'buyGold',
-        args: [BigInt(playerId), goldInWei],
-        value: ethInWei,
-      });
-    } catch (error) {
-      console.error('Purchase failed:', error);
-      setIsLoading(false);
-    }
+    // 调用hook中的buyGold方法
+    await buyGold(goldValue);
+    
+    // 购买成功后关闭模态框
+    onClose();
   };
 
   const isValidAmount = () => {
@@ -177,7 +110,7 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
                 disabled={!isValidAmount() || isLoading}
               >
                 {isLoading ? (
-                  isWritePending ? '确认交易中...' :
+                  isPending ? '确认交易中...' :
                     isConfirming ? '等待确认...' :
                       '处理中...'
                 ) : '购买'}
@@ -187,11 +120,6 @@ const BuyGoldModal: React.FC<BuyGoldModalProps> = ({ isOpen, onClose, playerId }
               </button>
             </div>
 
-            {/* {(writeError || confirmError) && (
-              <div className="error-message">
-                交易失败: {(writeError || confirmError)?.message}
-              </div>
-            )} */}
           </div>
         </div>
       </div>
